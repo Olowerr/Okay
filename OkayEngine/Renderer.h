@@ -21,7 +21,11 @@ private:
 
 	std::vector<Okay::Mesh*> meshesToRender;
 
-	
+	ID3D11InputLayout* pInputLayout;
+	ID3D11VertexShader* pVertexShader;
+	ID3D11HullShader* pHullShader;     // Disabled
+	ID3D11DomainShader* pDomainShader; // Disabled
+
 
 
 private:
@@ -31,4 +35,11 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
+
+
+private: // Create Shaders()
+	bool CreateIL();
+	bool CreateVS();
+	bool CreateHS();
+	bool CreateDS();
 };
