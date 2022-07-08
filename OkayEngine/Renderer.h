@@ -38,7 +38,6 @@ public:
 
 
 private: // Create Shaders()
-	bool CreateIL();
 	bool CreateVS();
 	bool CreateHS();
 	bool CreateDS();
