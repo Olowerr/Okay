@@ -7,6 +7,17 @@ Okay::ShaderModel::ShaderModel(bool defaultShader)
 		CreateDefaultPS();
 }
 
+Okay::ShaderModel::~ShaderModel()
+{
+	Shutdown();
+}
+
+void Okay::ShaderModel::Shutdown()
+{
+	DX11_RELEASE(pPixelShader);
+	DX11_RELEASE(pComputeShader);
+}
+
 void Okay::ShaderModel::Bind()
 {
 	DX11::Get().GetDeviceContext()->PSSetShader(pPixelShader, nullptr, 0);

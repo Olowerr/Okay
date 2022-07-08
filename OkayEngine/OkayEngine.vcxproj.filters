@@ -25,6 +25,12 @@
     <Filter Include="Okay">
       <UniqueIdentifier>{da011ad7-69ea-4e8f-9c2d-485f198c44a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{a4c01d3e-5412-4bf7-a57a-20c8cdeda5d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Rendering\Mesh">
+      <UniqueIdentifier>{eb3d2c63-d7de-4a8e-8f09-26268ed79e45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -42,6 +48,12 @@
     <ClCompile Include="Okay.cpp">
       <Filter>Okay</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Header Files\Rendering\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -58,6 +70,15 @@
     </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>Okay</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="OkayVertices.h">
+      <Filter>Header Files\Rendering\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Rendering\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

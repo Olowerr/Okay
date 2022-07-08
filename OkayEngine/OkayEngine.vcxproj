@@ -146,14 +146,19 @@
   <ItemGroup>
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Okay.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderModel.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Okay.h" />
+    <ClInclude Include="OkayVertices.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShaderModel.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>

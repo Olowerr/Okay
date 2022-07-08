@@ -13,6 +13,8 @@
 #define WIN_W 1600
 #define WIN_H 900
 
-#define DX11_RELEASE(X) if (X) X->Release(); X = nullptr
+#define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; } 0
+#define OkayDelete(X) if (X) {delete X; X = nullptr; } 0
+#define OkayArrayDelete(X) if (X) {delete[]X; X = nullptr; } 0
 
 #define ShaderPath "Shaders/"

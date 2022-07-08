@@ -8,5 +8,4 @@
 namespace Okay
 {
 	bool ReadShader(const std::string& shaderPath, std::string& output);
-
 }

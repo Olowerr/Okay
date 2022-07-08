@@ -7,6 +7,8 @@ namespace Okay
 	{
 	public:
 		ShaderModel(bool defaultShader = false);
+		virtual ~ShaderModel();
+		virtual void Shutdown();
 
 		virtual void Bind();
 		virtual void Apply();
@@ -23,6 +25,10 @@ namespace Okay
 
 	Renderer ALWAYS sends the same type of data to PS
 	ShaderModel decides how to use the data
+
+
+	MESH CLASS
+	MESH CONTAINER
 
 
 */

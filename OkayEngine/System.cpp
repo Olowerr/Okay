@@ -33,6 +33,14 @@ void System::Run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+
+		DX11::Get().NewFrame();
+
+
+
+
+
+		DX11::Get().EndFrame();
 	}
 
 }

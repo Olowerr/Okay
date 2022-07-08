@@ -100,7 +100,7 @@ void DX11::NewFrame()
 {
 	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 0.f };
 	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
-	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0.f);
+	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 }
 
 void DX11::EndFrame()
@@ -143,3 +143,52 @@ ID3D11DepthStencilView* DX11::GetDepthBufferDSV()
 	return pDepthBufferDSV;
 }
 
+
+
+
+/* ------ HELPER FUNCTIONS ------ */
+
+HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+{
+	D3D11_BUFFER_DESC desc{};
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC; 
+	desc.CPUAccessFlags = immutable ? D3D11_CPU_ACCESS_WRITE : 0;
+	desc.ByteWidth = byteSize;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA inData{};
+	inData.pSysMem = pData;
+	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
+	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+}
+
+HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+{
+	D3D11_BUFFER_DESC desc{};
+	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = immutable ? 0 : D3D11_CPU_ACCESS_WRITE;
+	desc.ByteWidth = byteSize;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA inData{};
+	inData.pSysMem = pData;
+	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
+	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+}
+
+HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+{
+	D3D11_BUFFER_DESC desc{};
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = immutable ? 0 : D3D11_CPU_ACCESS_WRITE;
+	desc.ByteWidth = byteSize;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA inData{};
+	inData.pSysMem = pData;
+	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
+	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+}
