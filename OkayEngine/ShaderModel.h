@@ -8,25 +8,16 @@ namespace Okay
 	public:
 		ShaderModel(bool defaultShader = false);
 
+		virtual void Bind();
+		virtual void Apply();
+
 	protected:
-		ID3D11InputLayout* pInputLayout;
-		ID3D11VertexShader* pVertexShader;
-		ID3D11HullShader* pHullShader;
-		ID3D11DomainShader* pDomainShader;
 		ID3D11PixelShader* pPixelShader;
-
 		ID3D11ComputeShader* pComputeShader;
-
-		bool CreateDefaultIL();
-		bool CreateDefaultVS();
-		bool CreateDefaultHS();
-		bool CreateDefaultDS();
 		bool CreateDefaultPS();
 
 	};
 }
-
-
 
 /*
 

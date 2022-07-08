@@ -5,50 +5,24 @@ Okay::ShaderModel::ShaderModel(bool defaultShader)
 {
 	if (defaultShader)
 		CreateDefaultPS();
-	
 }
 
-bool Okay::ShaderModel::CreateDefaultIL()
+void Okay::ShaderModel::Bind()
 {
-	std::string shaderData;
-	D3D11_INPUT_ELEMENT_DESC desc[3] = {
-		{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"UV",			0, DXGI_FORMAT_R32G32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	};
-	
-	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
-	VERIFY_HR(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
-
-	return true;
+	DX11::Get().GetDeviceContext()->PSSetShader(pPixelShader, nullptr, 0);
 }
 
-bool Okay::ShaderModel::CreateDefaultVS()
+void Okay::ShaderModel::Apply()
 {
-	std::string shaderData;
-
-	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
-	VERIFY_HR(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
-
-	return true;
-}
-
-bool Okay::ShaderModel::CreateDefaultHS()
-{
-	return true; // TODO: Implement Tessellation
-}
-
-bool Okay::ShaderModel::CreateDefaultDS()
-{
-	return true; // TODO: Implement Tessellation
+	// Post process for derived Shader Models
 }
 
 bool Okay::ShaderModel::CreateDefaultPS()
 {
 	std::string shaderData;
 
-	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
-	VERIFY_HR(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
+	VERIFY(Okay::ReadShader("PhongPS.cso", shaderData));
+	VERIFY_HR(DX11::Get().GetDevice()->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pPixelShader));
 
 	return true;
 }
