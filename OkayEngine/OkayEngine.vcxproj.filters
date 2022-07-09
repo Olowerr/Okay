@@ -34,6 +34,12 @@
     <Filter Include="Header Files\Rendering\Camera">
       <UniqueIdentifier>{a505cf1c-07f5-494f-8aca-d64f8e5a150d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Renderer">
+      <UniqueIdentifier>{78350a2a-8a6d-405d-b372-10d818a999e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Rendering\Renderer\Shaders">
+      <UniqueIdentifier>{3e16c749-f56d-440c-9d45-a596bd1e37a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -45,20 +51,20 @@
     <ClCompile Include="DX11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Okay.cpp">
       <Filter>Okay</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Header Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Header Files\Rendering\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Header Files\Rendering\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderModel.cpp">
+      <Filter>Shader Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Header Files\Rendering\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +83,6 @@
     <ClInclude Include="Defines.h">
       <Filter>Okay</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="OkayVertices.h">
       <Filter>Header Files\Rendering\Mesh</Filter>
     </ClInclude>
@@ -89,10 +92,21 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Rendering\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Rendering\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MeshVS.hlsl">
+      <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPS.hlsl">
       <Filter>Shader Models\Default\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ShaderInclude.hlsli">
+      <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

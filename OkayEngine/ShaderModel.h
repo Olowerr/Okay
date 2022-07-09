@@ -14,6 +14,7 @@ namespace Okay
 		virtual void Apply();
 
 	protected:
+		D3D11_VIEWPORT viewport;
 		ID3D11PixelShader* pPixelShader;
 		ID3D11ComputeShader* pComputeShader;
 		bool CreateDefaultPS();

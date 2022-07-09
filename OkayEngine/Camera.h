@@ -1,6 +1,6 @@
 #pragma once
+#include <DirectXMath.h>
 #include "DX11.h"
-#include "OkayVertices.h"
 
 namespace Okay
 {
@@ -13,7 +13,7 @@ namespace Okay
 		Camera(Camera&&) = default;
 		Camera& operator=(const Camera&) = default;
 
-		virtual void SetPosition(Float3 position);
+		//virtual void SetPosition(Float3 position);
 		const DirectX::XMFLOAT4X4& GetViewProjectMatrix() const;
 
 		virtual void Update();

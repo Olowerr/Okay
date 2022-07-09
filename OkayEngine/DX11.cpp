@@ -128,9 +128,9 @@ ID3D11Texture2D* DX11::GetBackBuffer()
 	return pBackBuffer;
 }
 
-ID3D11RenderTargetView* DX11::GetBackBufferRTV()
+ID3D11RenderTargetView* const* DX11::GetBackBufferRTV()
 {
-	return pBackBufferRTV;
+	return &pBackBufferRTV;
 }
 
 ID3D11Texture2D* DX11::GetDepthBuffer()
@@ -138,9 +138,9 @@ ID3D11Texture2D* DX11::GetDepthBuffer()
 	return pDepthBuffer;
 }
 
-ID3D11DepthStencilView* DX11::GetDepthBufferDSV()
+ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 {
-	return pDepthBufferDSV;
+	return &pDepthBufferDSV;
 }
 
 
@@ -148,12 +148,12 @@ ID3D11DepthStencilView* DX11::GetDepthBufferDSV()
 
 /* ------ HELPER FUNCTIONS ------ */
 
-HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC; 
-	desc.CPUAccessFlags = immutable ? D3D11_CPU_ACCESS_WRITE : 0;
+	desc.CPUAccessFlags = immutable ? 0 : D3D11_CPU_ACCESS_WRITE;
 	desc.ByteWidth = byteSize;
 	desc.MiscFlags = 0;
 	desc.StructureByteStride = 0;
@@ -163,7 +163,7 @@ HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byte
 	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
 }
 
-HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -178,7 +178,7 @@ HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteS
 	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
 }
 
-HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable)
+HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -191,4 +191,15 @@ HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT by
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
 	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+}
+
+bool DX11::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize)
+{
+	D3D11_MAPPED_SUBRESOURCE sub;
+	VERIFY_HR(Get().GetDeviceContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub));
+
+	memcpy(sub.pData, pData, byteSize);
+	Get().GetDeviceContext()->Unmap(pBuffer, 0);
+
+	return true;
 }

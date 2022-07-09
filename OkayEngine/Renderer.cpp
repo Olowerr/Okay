@@ -1,35 +1,21 @@
 #include "Renderer.h"
 
 Renderer::Renderer()
-	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader()
+	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
 {
-	shaderModel = new Okay::ShaderModel;
+	shaderModel = std::make_unique<Okay::ShaderModel>(true);
+	mainCamera = std::make_unique<Okay::Camera>();
 
+	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
 	CreateVS();
 	CreateHS();
 	CreateDS();
 
-	//meshesToRender.reserve()
+	Bind();
+	shaderModel->Bind();
 
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
-	// TRY AND FORCE RENDER THE TRIANGLE
+	triangle.Bind();
+
 }
 
 Renderer::~Renderer()
@@ -40,7 +26,30 @@ Renderer::~Renderer()
 void Renderer::Shutdown()
 {
 	shaderModel->Shutdown();
-	OkayDelete(shaderModel);
+
+	DX11_RELEASE(pViewProjectBuffer);
+
+	DX11_RELEASE(pInputLayout);
+	DX11_RELEASE(pVertexShader);
+	DX11_RELEASE(pHullShader);
+	DX11_RELEASE(pDomainShader);
+}
+
+void Renderer::Render()
+{
+	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
+	
+	triangle.Draw();
+}
+
+void Renderer::Bind()
+{
+	pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pDevContext->IASetInputLayout(pInputLayout);
+
+	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
+	pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
+
 }
 
 bool Renderer::CreateVS()

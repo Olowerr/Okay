@@ -7,7 +7,7 @@ System::System()
 
 System::~System()
 {
-	DX11::Get().Shutdown();
+	Shutdown();
 }
 
 void System::Shutdown()
@@ -37,7 +37,7 @@ void System::Run()
 		DX11::Get().NewFrame();
 
 
-
+		Renderer::Get().Render();
 
 
 		DX11::Get().EndFrame();

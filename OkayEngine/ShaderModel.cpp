@@ -4,7 +4,16 @@ Okay::ShaderModel::ShaderModel(bool defaultShader)
 	:pPixelShader(), pComputeShader()
 {
 	if (defaultShader)
+	{
 		CreateDefaultPS();
+
+		viewport.TopLeftX = 0.f;
+		viewport.TopLeftY = 0.f;
+		viewport.MaxDepth = 1.f;
+		viewport.MinDepth = 0.f;
+		viewport.Width = WIN_W;
+		viewport.Height = WIN_H;
+	}
 }
 
 Okay::ShaderModel::~ShaderModel()
@@ -21,6 +30,8 @@ void Okay::ShaderModel::Shutdown()
 void Okay::ShaderModel::Bind()
 {
 	DX11::Get().GetDeviceContext()->PSSetShader(pPixelShader, nullptr, 0);
+	DX11::Get().GetDeviceContext()->RSSetViewports(1, &viewport);
+	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetBackBufferRTV(), nullptr);
 }
 
 void Okay::ShaderModel::Apply()

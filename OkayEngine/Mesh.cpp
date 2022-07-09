@@ -1,22 +1,25 @@
 #include "Mesh.h"
 
+const UINT Okay::Mesh::Stride[] = { sizeof(Float3), sizeof(UVNormal) };
+const UINT Okay::Mesh::Offset[] = { 0,0 };
+
 Okay::Mesh::Mesh()
-	:vertexBuffers{}, indexBuffer()
+	:vertexBuffers{}, indexBuffer(), numIndices(3)
 {
 	// Triangle :]
 
 	Float3 pos[3] = {
-		{ 0.0f,	 0.5f, 0.0f},
-		{-0.5f, -0.5f, 0.0f},
-		{ 0.5f,	-0.5f, 0.0f}
+		{ 0.0f,	  0.5f, 0.0f},
+		{ 0.5f,  -0.5f, 0.0f},
+		{ -0.5f, -0.5f, 0.0f}
 	};
 
 	UVNormal uvNormal[3]{};
 	uvNormal[0].uv = { 0.5f, 0.f };
-	uvNormal[1].uv = { 0.0f, 1.f };
-	uvNormal[2].uv = { 1.0f, 1.f };
+	uvNormal[1].uv = { 1.0f, 1.f };
+	uvNormal[2].uv = { 0.0f, 1.f };
 
-	uvNormal[0].normal = uvNormal[1].normal = uvNormal[2].normal = { 0.0f, 0.0f, 1.0f };
+	uvNormal[0].normal = uvNormal[1].normal = uvNormal[2].normal = { 0.0f, 0.0f, -1.0f };
 
 	UINT indices[3] = { 0,1,2 };
 
@@ -26,7 +29,7 @@ Okay::Mesh::Mesh()
 }
 
 Okay::Mesh::Mesh(const std::string& filePath)
-	:vertexBuffers{}, indexBuffer()
+	:vertexBuffers{}, indexBuffer(), numIndices(0)
 {
 }
 
@@ -53,4 +56,9 @@ void Okay::Mesh::BindPosition() const
 {
 	DX11::Get().GetDeviceContext()->IASetVertexBuffers(0, 1, vertexBuffers, Stride, Offset);
 	DX11::Get().GetDeviceContext()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+}
+
+void Okay::Mesh::Draw() const
+{
+	DX11::Get().GetDeviceContext()->DrawIndexed(numIndices, 0, 0);
 }

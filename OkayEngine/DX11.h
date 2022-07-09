@@ -19,16 +19,17 @@ public:
 	IDXGISwapChain* GetSwapChain();
 
 	ID3D11Texture2D* GetBackBuffer();
-	ID3D11RenderTargetView* GetBackBufferRTV();
+	ID3D11RenderTargetView* const* GetBackBufferRTV();
 
 	ID3D11Texture2D* GetDepthBuffer();
-	ID3D11DepthStencilView* GetDepthBufferDSV();
+	ID3D11DepthStencilView* const* GetDepthBufferDSV();
 
 	// Helper functions
-	static HRESULT CreateVertexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable = true);
-	static HRESULT CreateIndexBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable = true);
-	static HRESULT CreateConstantBuffer(ID3D11Buffer** ppBuffer, void* pData, UINT byteSize, bool immutable = true);
-	
+	static HRESULT CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static HRESULT CreateIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static HRESULT CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static bool UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize);
+
 private:
 	ID3D11Device* pDevice;
 	ID3D11DeviceContext* pDeviceContext;

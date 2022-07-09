@@ -6,10 +6,10 @@ bool Okay::ReadShader(const std::string& shaderPath, std::string& output)
     VERIFY(reader);
 
     reader.seekg(0, std::ios::end);
-    output.reserve(reader.tellg());
+    output.reserve((size_t)reader.tellg());
     reader.seekg(0, std::ios::beg);
 
-    output.assign(std::istream_iterator<char>(reader), std::istream_iterator<char>());
+    output.assign(std::istreambuf_iterator<char>(reader), std::istreambuf_iterator<char>());
 
     return true;
 }
