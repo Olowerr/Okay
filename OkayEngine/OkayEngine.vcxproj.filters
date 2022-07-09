@@ -31,6 +31,9 @@
     <Filter Include="Header Files\Rendering\Mesh">
       <UniqueIdentifier>{eb3d2c63-d7de-4a8e-8f09-26268ed79e45}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Camera">
+      <UniqueIdentifier>{a505cf1c-07f5-494f-8aca-d64f8e5a150d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -53,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Header Files\Rendering\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Header Files\Rendering\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Rendering\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Rendering\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

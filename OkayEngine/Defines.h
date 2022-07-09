@@ -12,6 +12,7 @@
 // temp
 #define WIN_W 1600
 #define WIN_H 900
+#define WinRatio float(WIN_W) / float(WIN_H)
 
 #define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; } 0
 #define OkayDelete(X) if (X) {delete X; X = nullptr; } 0

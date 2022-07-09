@@ -19,6 +19,7 @@ public:
 private:
 	Okay::ShaderModel* shaderModel;
 
+
 	std::vector<Okay::Mesh*> meshesToRender;
 
 	ID3D11InputLayout* pInputLayout;
@@ -42,3 +43,21 @@ private: // Create Shaders()
 	bool CreateHS();
 	bool CreateDS();
 };
+
+
+/*
+	TODO (in order):
+	Create Camera Class
+	Force Render triangle
+
+	Implement Importer (Seperate project) (.fbx & .obj)
+	Implement rendering without instancing
+	
+	Include Entt
+	Create Okay::MeshComponent & Okay::Transform (component ?)
+	Render by Entity
+
+	Create Scene Class
+	
+
+*/
