@@ -1,7 +1,7 @@
 #include "ShaderModel.h"
 
 Okay::ShaderModel::ShaderModel(bool defaultShader)
-	:pPixelShader(), pComputeShader()
+	:pPixelShader(), pComputeShader(), viewport()
 {
 	if (defaultShader)
 	{
