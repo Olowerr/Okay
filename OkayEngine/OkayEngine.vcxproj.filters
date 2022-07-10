@@ -40,6 +40,9 @@
     <Filter Include="Header Files\Rendering\Renderer\Shaders">
       <UniqueIdentifier>{3e16c749-f56d-440c-9d45-a596bd1e37a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Importer">
+      <UniqueIdentifier>{404708d9-9e4e-4faf-b907-9877e7686113}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -94,6 +97,12 @@
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Header Files\Rendering\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="OkayImporter.h">
+      <Filter>Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Importer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

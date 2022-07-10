@@ -167,10 +167,12 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="OkayImporter.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Okay.h" />
     <ClInclude Include="OkayVertices.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderModel.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
