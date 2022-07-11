@@ -14,12 +14,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	if (!system.Initiate())
 		return -1;
 
-	Assets::Get().AddMesh("a/cube.fbx");
+	Assets::Get().AddMesh("a/a/a/cube.fbx");
 	Assets::Get().WriteDeclaration();
 	Assets::Get().ReadDeclaration();
 	
 	
-	system.Run();
+	//system.Run();
 	system.Shutdown();
 
 	return 0;

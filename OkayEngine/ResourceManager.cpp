@@ -14,8 +14,9 @@ bool Assets::AddMesh(const std::string& filePath)
 {
 	ReadDeclaration();
 
-	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1, filePath.find_last_of('.')) + ".okayAsset";
-	/////////////////////
+	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
+	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
+
 	for (auto& file : files)
 	{
 		if (file == fileName)
