@@ -8,13 +8,9 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-
 class Importer
 {
-public:
+private:
 	friend class Assets; // Only accessible to Assets
 
 	struct VertexData
@@ -40,12 +36,6 @@ public:
 
 inline bool Importer::Load(const std::string& meshFile, VertexData& outData)
 {
-	std::string path = "../Assets/Meshes/";
-	fs::directory_iterator bro(path);
-
-	for (const auto& file : bro)
-		path = file.path().string();
-	
 
 	Assimp::Importer importer;
 
