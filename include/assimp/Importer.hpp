@@ -640,6 +640,7 @@ protected:
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
+
 AI_FORCE_INLINE const aiScene* Importer::ReadFile( const std::string& pFile,unsigned int pFlags){
     return ReadFile(pFile.c_str(),pFlags);
 }

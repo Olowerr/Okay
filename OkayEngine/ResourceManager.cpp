@@ -10,15 +10,23 @@ Assets::~Assets()
 
 }
 
-bool Assets::AddMesh(const std::string& file)
+bool Assets::AddMesh(const std::string& filePath)
 {
-	Importer::VertexData data;
-	VERIFY(Importer::Load(file, data));
-
-	std::string fileName = file;
-	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
-
 	ReadDeclaration();
+
+	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1, filePath.find_last_of('.')) + ".okayAsset";
+	/////////////////////
+	for (auto& file : files)
+	{
+		if (file == fileName)
+			return true;
+	}
+
+	Okay::VertexData data;
+	VERIFY(Importer::Load(filePath, data));
+
+	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
+	meshes.insert({ fileName, mesh });
 
 	files.emplace_back(fileName);
 	WriteDeclaration();
@@ -28,29 +36,48 @@ bool Assets::AddMesh(const std::string& file)
 
 std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 {
-	auto& ptr = meshes[fileName];
+	if (meshes.find(fileName) == meshes.end())
+		return std::make_shared<Okay::Mesh>(); // Returns the default mesh
 
-	if (!ptr.get())
-		ptr = std::make_shared<Okay::Mesh>();
-
-	return ptr;
+	return meshes[fileName];
 }
 
 bool Assets::LoadAll()
 {
-		
-	return true;
+	ReadDeclaration();
+
+	bool result = true, result2;
+	for (const auto& file : files)
+	{
+		if (meshes.find(file.c_str) == meshes.end())
+			continue;
+
+		Okay::VertexData data;
+		result2 = Importer::Load(file.c_str, data);
+		if (!result2)
+		{
+			result = false;
+			continue;
+		}
+
+		std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
+		meshes.insert({ file.c_str, mesh });
+	}
+
+	return result;
 }
 
 bool Assets::ReadDeclaration()
 {
-	std::ifstream reader(DeclarationPath.str, std::ios::binary);
+	std::ifstream reader(DeclarationPath.c_str, std::ios::binary);
 	VERIFY(reader);
 
 	UINT NumFiles = 0;
 	reader.read((char*)&NumFiles, sizeof(UINT));
-	VERIFY(NumFiles);
+	if (!NumFiles)
+		return true;
 
+	files.clear();
 	files.resize(NumFiles);
 
 	const UINT ByteWidth = sizeof(Okay::String) * NumFiles;
@@ -62,7 +89,7 @@ bool Assets::ReadDeclaration()
 
 bool Assets::WriteDeclaration()
 {
-	std::ofstream writer(DeclarationPath.str, std::ios::binary);
+	std::ofstream writer(DeclarationPath.c_str, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	const UINT NumFiles = (UINT)files.size();

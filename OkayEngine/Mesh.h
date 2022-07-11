@@ -1,6 +1,5 @@
 #pragma once
 
-#include "OkayVertices.h"
 #include "DX11.h"
 
 namespace Okay
@@ -10,6 +9,7 @@ namespace Okay
 	public:
 		Mesh();
 		Mesh(const std::string& filePath);
+		Mesh(const VertexData& vertices);
 
 		virtual ~Mesh();
 		virtual void Shutdown();

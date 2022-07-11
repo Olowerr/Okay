@@ -13,30 +13,21 @@ class Importer
 private:
 	friend class Assets; // Only accessible to Assets
 
-	struct VertexData
-	{
-		std::vector<Okay::Float3> position;
-		std::vector<Okay::UVNormal> uvNormal;
-		std::vector<UINT> indices;
-	};
-
 	struct MeshData
 	{
 		UINT numVertex;
 		UINT numIndex;
 	};
 
-	static bool Load(const std::string& meshFile, VertexData& outData);
+	static bool Load(const std::string& meshFile, Okay::VertexData& outData);
 
-	static bool WriteBinary(const std::string& meshFile, const VertexData& vertexData);
+	static bool WriteBinary(const std::string& meshFile, const Okay::VertexData& vertexData);
 
-	static bool ReadBinary(const std::string& meshFile, VertexData& vertexData);
-
+	static bool ReadBinary(const std::string& meshFile, Okay::VertexData& vertexData);
 };
 
-inline bool Importer::Load(const std::string& meshFile, VertexData& outData)
+inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outData)
 {
-
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile("../Assets/Meshes/TempObjFbx/" + meshFile,
@@ -81,7 +72,7 @@ inline bool Importer::Load(const std::string& meshFile, VertexData& outData)
 	return WriteBinary(meshFile, outData);
 }
 
-inline bool Importer::WriteBinary(const std::string& meshFile, const VertexData& vertexData)
+inline bool Importer::WriteBinary(const std::string& meshFile, const Okay::VertexData& vertexData)
 {
 	std::string fileName = meshFile;
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
@@ -103,7 +94,7 @@ inline bool Importer::WriteBinary(const std::string& meshFile, const VertexData&
 	return true;
 }
 
-inline bool Importer::ReadBinary(const std::string& meshFile, VertexData& vertexData)
+inline bool Importer::ReadBinary(const std::string& meshFile, Okay::VertexData& vertexData)
 {
 	std::string fileName = meshFile;
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
