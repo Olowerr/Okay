@@ -14,7 +14,7 @@ namespace fs = std::experimental::filesystem;
 
 class Importer
 {
-private:
+public:
 	friend class Assets; // Only accessible to Assets
 
 	struct VertexData
@@ -40,7 +40,12 @@ private:
 
 inline bool Importer::Load(const std::string& meshFile, VertexData& outData)
 {
-	fs::directory_iterator bro;
+	std::string path = "../Assets/Meshes/";
+	fs::directory_iterator bro(path);
+
+	for (const auto& file : bro)
+		path = file.path().string();
+	
 
 	Assimp::Importer importer;
 
@@ -94,7 +99,7 @@ inline bool Importer::WriteBinary(const std::string& meshFile, const VertexData&
 	std::ofstream writer("../Assets/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
-	MeshData info;
+	MeshData info{};
 	info.numVertex = (UINT)vertexData.position.size();
 	info.numIndex = (UINT)vertexData.indices.size();
 
@@ -102,7 +107,7 @@ inline bool Importer::WriteBinary(const std::string& meshFile, const VertexData&
 	writer.write((const char*)vertexData.position.data(), sizeof(Okay::Float3) * info.numVertex);
 	writer.write((const char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * info.numVertex);
 	writer.write((const char*)vertexData.indices.data(), sizeof(UINT) * info.numIndex);
-
+	
 	writer.close();
 
 	return true;
@@ -115,21 +120,18 @@ inline bool Importer::ReadBinary(const std::string& meshFile, VertexData& vertex
 	std::ifstream reader("../Assets/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
 
-	MeshData readData;
+	MeshData readData{};
 	reader.read((char*)&readData, sizeof(MeshData));
 
-	// Vertex Position
 	vertexData.position.resize(readData.numVertex);
-	reader.read((char*)vertexData.position.data(), sizeof(Okay::Float3) * readData.numVertex);
-	
-	// Vertex UV & Normal
 	vertexData.uvNormal.resize(readData.numVertex);
-	reader.read((char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * readData.numVertex);
-	
-	// Indices
 	vertexData.indices.resize(readData.numIndex);
+	
+	reader.read((char*)vertexData.position.data(), sizeof(Okay::Float3) * readData.numVertex);
+	reader.read((char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * readData.numVertex);
 	reader.read((char*)vertexData.indices.data(), sizeof(UINT) * readData.numIndex);
 
 	reader.close();
+
 	return true;
 }
