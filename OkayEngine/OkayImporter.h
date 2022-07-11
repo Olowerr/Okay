@@ -8,6 +8,10 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 class Importer
 {
 private:
@@ -36,6 +40,8 @@ private:
 
 inline bool Importer::Load(const std::string& meshFile, VertexData& outData)
 {
+	fs::directory_iterator bro;
+
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile("../Assets/Meshes/TempObjFbx/" + meshFile,
