@@ -14,6 +14,7 @@ bool Assets::AddMesh(const std::string& filePath)
 {
 	ReadDeclaration();
 
+	// Fixes absolute paths
 	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
@@ -78,7 +79,6 @@ bool Assets::ReadDeclaration()
 	if (!NumFiles)
 		return true;
 
-	files.clear();
 	files.resize(NumFiles);
 
 	const UINT ByteWidth = sizeof(Okay::String) * NumFiles;

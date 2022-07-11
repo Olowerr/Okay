@@ -30,7 +30,13 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("../Assets/Meshes/TempObjFbx/" + meshFile,
+	std::string path;
+	if (meshFile.find('/') == -1)
+		path = "../Assets/Meshes/TempObjFbx/" + meshFile;
+	else
+		path = meshFile;
+
+	const aiScene* pScene = importer.ReadFile(path,
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	VERIFY(pScene);
@@ -72,9 +78,9 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	return WriteBinary(meshFile, outData);
 }
 
-inline bool Importer::WriteBinary(const std::string& meshFile, const Okay::VertexData& vertexData)
+inline bool Importer::WriteBinary(const std::string& filePath, const Okay::VertexData& vertexData)
 {
-	std::string fileName = meshFile;
+	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
 	std::ofstream writer("../Assets/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
@@ -94,9 +100,9 @@ inline bool Importer::WriteBinary(const std::string& meshFile, const Okay::Verte
 	return true;
 }
 
-inline bool Importer::ReadBinary(const std::string& meshFile, Okay::VertexData& vertexData)
+inline bool Importer::ReadBinary(const std::string& filePath, Okay::VertexData& vertexData)
 {
-	std::string fileName = meshFile;
+	std::string fileName = filePath;
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 	std::ifstream reader("../Assets/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
