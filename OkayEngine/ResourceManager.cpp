@@ -23,13 +23,15 @@ bool Assets::AddMesh(const std::string& filePath)
 		if (file == fileName)
 			return true;
 	}
-
+	
+	// Attempt to load .obj / .fbx
 	Okay::VertexData data;
 	VERIFY(Importer::Load(filePath, data));
 
 	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
 	meshes.insert({ fileName, mesh });
 
+	// Add the asset to the declaration
 	files.emplace_back(fileName);
 	WriteDeclaration();
 
@@ -51,9 +53,11 @@ bool Assets::LoadAll()
 	bool result = true, result2;
 	for (const auto& file : files)
 	{
-		if (meshes.find(file.c_str) == meshes.end())
+		// File already loaded?
+		if (meshes.find(file.c_str) != meshes.end())
 			continue;
 
+		// Attempt to load the file
 		Okay::VertexData data;
 		result2 = Importer::LoadOkayAsset(file.c_str, data);
 		if (!result2)
@@ -62,6 +66,7 @@ bool Assets::LoadAll()
 			continue;
 		}
 
+		// Create mesh and insert into the map
 		std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
 		meshes.insert({ file.c_str, mesh });
 	}
