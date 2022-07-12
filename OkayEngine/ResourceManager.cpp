@@ -55,7 +55,7 @@ bool Assets::LoadAll()
 			continue;
 
 		Okay::VertexData data;
-		result2 = Importer::Load(file.c_str, data);
+		result2 = Importer::LoadOkayAsset(file.c_str, data);
 		if (!result2)
 		{
 			result = false;

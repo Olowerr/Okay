@@ -21,9 +21,9 @@ private:
 
 	static bool Load(const std::string& meshFile, Okay::VertexData& outData);
 
-	static bool WriteBinary(const std::string& meshFile, const Okay::VertexData& vertexData);
+	static bool WriteOkayAsset(const std::string& meshFile, const Okay::VertexData& vertexData);
 
-	static bool ReadBinary(const std::string& meshFile, Okay::VertexData& vertexData);
+	static bool LoadOkayAsset(const std::string& meshFile, Okay::VertexData& vertexData);
 };
 
 inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outData)
@@ -31,7 +31,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	Assimp::Importer importer;
 
 	std::string path;
-	if (meshFile.find('/') == -1)
+	if (meshFile.find('/') == -1) // Absolute path?
 		path = "../Assets/Meshes/TempObjFbx/" + meshFile;
 	else
 		path = meshFile;
@@ -75,10 +75,10 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[2];
 	}
 
-	return WriteBinary(meshFile, outData);
+	return WriteOkayAsset(meshFile, outData);
 }
 
-inline bool Importer::WriteBinary(const std::string& filePath, const Okay::VertexData& vertexData)
+inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData)
 {
 	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
@@ -100,10 +100,11 @@ inline bool Importer::WriteBinary(const std::string& filePath, const Okay::Verte
 	return true;
 }
 
-inline bool Importer::ReadBinary(const std::string& filePath, Okay::VertexData& vertexData)
+inline bool Importer::LoadOkayAsset(const std::string& filePath, Okay::VertexData& vertexData)
 {
 	std::string fileName = filePath;
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
+
 	std::ifstream reader("../Assets/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
 
