@@ -41,7 +41,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 	VERIFY(pScene);
 
-	aiNode* pNode = pScene->mRootNode;
+	//aiNode* pNode = pScene->mRootNode;
 	aiMesh* pMesh = pScene->mMeshes[0];	////
 
 
