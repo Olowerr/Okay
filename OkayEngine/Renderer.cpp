@@ -14,9 +14,7 @@ Renderer::Renderer()
 	Bind();
 	shaderModel->Bind();
 	
-	//Assets::AddMesh("gob.obj");
-	mesh = Assets::GetMesh("gob.okayAsset");
-	mesh->Bind();
+	mesh.Bind();
 }
 
 Renderer::~Renderer()
@@ -41,7 +39,7 @@ void Renderer::Render()
 	mainCamera->Update();
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 	
-	mesh->Draw();
+	mesh.Draw();
 }
 
 void Renderer::Bind()

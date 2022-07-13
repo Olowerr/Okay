@@ -25,6 +25,8 @@ bool System::Initiate()
 
 void System::Run()
 {
+	using namespace Okay;
+
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -34,13 +36,11 @@ void System::Run()
 			DispatchMessage(&msg);
 		}
 
-		DX11::Get().NewFrame();
-
-
-		Renderer::Get().Render();
-
-
-		DX11::Get().EndFrame();
+		Engine::NewFrame();
+		
+		Engine::GetRenderer().Render();
+		
+		Engine::EndFrame();
 	}
 
 }
