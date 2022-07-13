@@ -2,7 +2,7 @@
 
 Assets::Assets()
 {
-
+	LoadAll();
 }
 
 Assets::~Assets()
@@ -10,7 +10,7 @@ Assets::~Assets()
 
 }
 
-bool Assets::AddMesh(const std::string& filePath)
+bool Assets::AddMeshInternal(const std::string& filePath)
 {
 	ReadDeclaration();
 
@@ -38,7 +38,7 @@ bool Assets::AddMesh(const std::string& filePath)
 	return true;
 }
 
-std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
+std::shared_ptr<Okay::Mesh> Assets::GetMeshInternal(const std::string& fileName)
 {
 	if (meshes.find(fileName) == meshes.end())
 		return std::make_shared<Okay::Mesh>(); // Returns the default mesh

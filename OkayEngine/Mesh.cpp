@@ -38,7 +38,7 @@ Okay::Mesh::Mesh(const VertexData& vertices)
 {
 	DX11::CreateVertexBuffer(&vertexBuffers[0], vertices.position.data(), sizeof(Float3) * (UINT)vertices.position.size());
 	DX11::CreateVertexBuffer(&vertexBuffers[1], vertices.uvNormal.data(), sizeof(UVNormal) * (UINT)vertices.uvNormal.size());
-	DX11::CreateVertexBuffer(&indexBuffer, vertices.indices.data(), sizeof(UINT) * (UINT)vertices.indices.size());
+	DX11::CreateIndexBuffer(&indexBuffer, vertices.indices.data(), sizeof(UINT) * (UINT)vertices.indices.size());
 }
 
 Okay::Mesh::~Mesh()

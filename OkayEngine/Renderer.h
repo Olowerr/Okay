@@ -4,6 +4,7 @@
 #include "ShaderModel.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "ResourceManager.h"
 
 class Renderer
 {
@@ -22,7 +23,7 @@ private:
 	std::unique_ptr<Okay::Camera> mainCamera;
 
 	//std::vector<Okay::Mesh*> meshesToRender;
-	Okay::Mesh triangle;
+	std::shared_ptr<Okay::Mesh> mesh;
 
 
 

@@ -13,9 +13,10 @@ Renderer::Renderer()
 
 	Bind();
 	shaderModel->Bind();
-
-	triangle.Bind();
-
+	
+	//Assets::AddMesh("gob.obj");
+	mesh = Assets::GetMesh("gob.okayAsset");
+	mesh->Bind();
 }
 
 Renderer::~Renderer()
@@ -37,9 +38,10 @@ void Renderer::Shutdown()
 
 void Renderer::Render()
 {
+	mainCamera->Update();
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 	
-	triangle.Draw();
+	mesh->Draw();
 }
 
 void Renderer::Bind()

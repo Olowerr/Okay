@@ -25,21 +25,25 @@ public:
 		return assets;
 	}
 	
-	bool AddMesh(const std::string& fileName);
-	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
+	static bool AddMesh(const std::string& fileName) { return Get().AddMeshInternal(fileName); }
+	static std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName) { return Get().GetMeshInternal(fileName); }
 
-	// Make Private
+
+private: // Internal Functions
+	bool AddMeshInternal(const std::string& fileName);
+	std::shared_ptr<Okay::Mesh> GetMeshInternal(const std::string& fileName);
+
+
+private: // All loaded meshes
+	std::unordered_map<std::string, std::shared_ptr<Okay::Mesh>> meshes;
+
+
+private: // File loading and writing
+	const Okay::String DeclarationPath = "../Assets/Meshes/AssetDeclaration.okayDec";
 	bool LoadAll();
 	bool ReadDeclaration();
 	bool WriteDeclaration();
 	std::vector<Okay::String> files;
-
-
-
-private:
-	std::unordered_map<std::string, std::shared_ptr<Okay::Mesh>> meshes;
-
-	const Okay::String DeclarationPath = "../Assets/Meshes/AssetDeclaration.okayDec";
 
 
 };
