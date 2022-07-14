@@ -5,7 +5,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 
-class Renderer
+class Renderer	
 {
 public:
 	Renderer();
