@@ -1,57 +1,36 @@
 #define NOMINMAX
 
 #include "System.h"
-#include <DirectXCollision.h>
 
-class PointHolder;
+/*
 
-class Point
-{
-	Point& get();
+	Forward Decleration:
 
-public:
-	Point(void) : m_i(0) {}
-	void PrintPrivate() { }
+	headerFile.h
+		// Don't include "Entity.h"
+		struct Entity; // <- Forward declaration
 
-private:
+		struct Scene
+		{
+			static Entity Create(); // DON'T DEFINE HERE OR INLINE. DEFINE IN .CPP
+		};
 
-	void foo()
-	{ }
+	sourceFile.cpp
+		#include "headerFile.h"
+		#include "Entity.h" // Include Entity.h here
 
-	int m_i;
-};
+		Entity Scene::Create()
+		{
+			return Entity();
+		}
 
-class PointHolder
-{
-public:
-	PointHolder() 
-	{
-		Point p;
-		//p.get();
-	};
-
-private:
-	
-	friend Point& Point::get();
-
-};
-
-Point& Point::get()
-{
-	static Point p;
-	return p;
-}
-
-// Briend bunction between blass bery beird
-// Briend bunction between blass bery beird
-// Briend bunction between blass bery beird
-// Briend bunction between blass bery beird
-// Briend bunction between blass bery beird
-// Briend bunction between blass bery beird
+*/
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	Entity myEnt = Scene::Create();
 
 	System system;
 
