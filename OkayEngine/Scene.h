@@ -13,7 +13,7 @@ public:
 	entt::registry& GetRegistry() { return registry; }
 
 
-private:
 	entt::registry registry;
+private:
 	
 };

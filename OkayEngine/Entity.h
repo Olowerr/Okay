@@ -21,13 +21,13 @@ public:
 	template<typename T>
 	bool HasComponent()
 	{
-		return pScene->GetRegistry().has<T>(entityId);
+		return pScene->GetRegistry().has<T>(entityId); // has no exists
 	}
 
 	template<typename T>
-	void GetComponent()
+	T& GetComponent()
 	{
-		return pScene->GetRegistry().get<T>(entityId);
+		return pScene->registry.get<T>(entityId);
 	}
 
 
