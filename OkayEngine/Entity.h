@@ -13,15 +13,16 @@ public:
 		:entityId(id), pScene(scene) { }
 
 	template<typename T>
-	void AddComponent()
+	T& AddComponent()
 	{
-		pScene->GetRegistry().emplace<T>(entityId);
+		return pScene->GetRegistry().emplace<T>(entityId);
 	}
 
 	template<typename T>
 	bool HasComponent()
 	{
-		return pScene->GetRegistry().has<T>(entityId); // has no exists
+		return false;
+		//return pScene->GetRegistry().has<T>(entityId); // has no exists
 	}
 
 	template<typename T>

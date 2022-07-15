@@ -12,6 +12,7 @@ Okay::Engine::~Engine()
 
 void Okay::Engine::NewFrame()
 {
+	Get().renderer.NewFrame();
 	Get().dx11.NewFrame();
 }
 

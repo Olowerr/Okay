@@ -2,8 +2,9 @@
 #include <vector>
 
 #include "ShaderModel.h"
-#include "Mesh.h"
 #include "Camera.h"
+#include "Components.h"
+#include "Entity.h"
 
 class Renderer	
 {
@@ -21,6 +22,10 @@ public:
 	Renderer(Renderer&&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
+	// TEMP
+	void Submit(Entity entity); 
+
+	void NewFrame();
 
 	void Shutdown();
 	void Render();
@@ -30,7 +35,9 @@ private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
 	std::unique_ptr<Okay::Camera> mainCamera;
 
-	//std::vector<Okay::Mesh*> meshesToRender;
+	size_t numActive;
+	std::vector<Okay::MeshComponent*> meshesToRender;
+	std::vector<Okay::TransformComponent*> transforms;
 	Okay::Mesh mesh;
 
 
@@ -39,6 +46,7 @@ private: // DX11 Specific
 	ID3D11DeviceContext* pDevContext;
 
 	ID3D11Buffer* pViewProjectBuffer;
+	ID3D11Buffer* pWorldBuffer;
 
 	ID3D11InputLayout* pInputLayout;
 	ID3D11VertexShader* pVertexShader;

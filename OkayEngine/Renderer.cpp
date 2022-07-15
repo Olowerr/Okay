@@ -6,7 +6,11 @@ Renderer::Renderer()
 	shaderModel = std::make_unique<Okay::ShaderModel>(true);
 	mainCamera = std::make_unique<Okay::Camera>();
 
+	DirectX::XMFLOAT4X4 Identity4x4;
+	DirectX::XMStoreFloat4x4(&Identity4x4, DirectX::XMMatrixIdentity());
+
 	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
+	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	CreateVS();
 	CreateHS();
 	CreateDS();
@@ -14,7 +18,9 @@ Renderer::Renderer()
 	Bind();
 	shaderModel->Bind();
 	
-	mesh.Bind();
+	meshesToRender.resize(10);
+	transforms.resize(10);
+	numActive = 0;
 }
 
 Renderer::~Renderer()
@@ -22,11 +28,31 @@ Renderer::~Renderer()
 	Shutdown();
 }
 
+void Renderer::Submit(Entity entity)
+{
+	if (numActive >= meshesToRender.size())
+	{
+		// Maybe increase more than 50
+		meshesToRender.resize(meshesToRender.size() + 50);
+		transforms.resize(meshesToRender.size() + 50);
+	}
+
+	meshesToRender.at(numActive) = &entity.GetComponent<Okay::MeshComponent>();
+	transforms.at(numActive) = &entity.GetComponent<Okay::TransformComponent>();
+	++numActive;
+}
+
+void Renderer::NewFrame()
+{
+	numActive = 0;
+}
+
 void Renderer::Shutdown()
 {
 	shaderModel->Shutdown();
 
 	DX11_RELEASE(pViewProjectBuffer);
+	DX11_RELEASE(pWorldBuffer);
 
 	DX11_RELEASE(pInputLayout);
 	DX11_RELEASE(pVertexShader);
@@ -39,7 +65,12 @@ void Renderer::Render()
 	mainCamera->Update();
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 	
-	mesh.Draw();
+	for (size_t i = 0; i < numActive; i++)
+	{
+		DX11::UpdateBuffer(pWorldBuffer, &transforms.at(i)->matrix, sizeof(DirectX::XMFLOAT4X4));
+		meshesToRender.at(i)->mesh->Bind();
+		meshesToRender.at(i)->mesh->Draw();
+	}
 }
 
 void Renderer::Bind()
@@ -49,6 +80,7 @@ void Renderer::Bind()
 
 	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
 	pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
+	pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
 
 }
 

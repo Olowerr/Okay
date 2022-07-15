@@ -18,4 +18,7 @@ private: // Window
 	bool InitiateWindow();
 	HWND hWnd;
 
+	// Temp
+	Entity first;
+	Entity second;
 };

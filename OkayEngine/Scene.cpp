@@ -11,5 +11,17 @@ Scene::~Scene()
 
 Entity Scene::CreateEntity()
 {
-    return { registry.create(), this };
+    Entity entity(registry.create(), this);
+    entity.AddComponent<Okay::TransformComponent>();
+
+    return entity;
+}
+
+void Scene::Start()
+{
+
+}
+
+void Scene::Update()
+{
 }

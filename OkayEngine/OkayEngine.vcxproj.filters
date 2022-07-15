@@ -125,6 +125,9 @@
     <ClInclude Include="Scene.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="Components.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MeshVS.hlsl">

@@ -27,6 +27,18 @@ void System::Run()
 {
 	using namespace Okay;
 
+	// Veri temp.. need to THONK about this.....
+	Scene scene;
+	first = scene.CreateEntity();
+	second = scene.CreateEntity();
+
+	first.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
+	second.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
+
+	first.GetComponent<Okay::TransformComponent>().SetPosition({ 3.f, 0.f, 0.f });
+	second.GetComponent<Okay::TransformComponent>().SetPosition({ -3.f, 0.f, 0.f });
+
+
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -37,7 +49,11 @@ void System::Run()
 		}
 
 		Engine::NewFrame();
+
 		
+		Engine::GetRenderer().Submit(first);
+		Engine::GetRenderer().Submit(second);
+
 		Engine::GetRenderer().Render();
 		
 		Engine::EndFrame();

@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Components.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Engine.h" />
