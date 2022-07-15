@@ -39,7 +39,7 @@ private: // All loaded meshes
 
 
 private: // File loading and writing
-	const Okay::String DeclarationPath = "../Assets/Meshes/AssetDeclaration.okayDec";
+	const Okay::String DeclarationPath = "../Content/Meshes/AssetDeclaration.okayDec";
 	bool LoadAll();
 	bool ReadDeclaration();
 	bool WriteDeclaration();

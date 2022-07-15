@@ -25,11 +25,16 @@ namespace Okay
 		static void NewFrame();
 		static void EndFrame();
 
+		static bool LoadScene(const Okay::String& sceneName);
+		static bool LoadScene(UINT sceneIndex);
 
 	private:
 		Renderer& renderer;
 		Assets& assets;
 		DX11& dx11;
 
+	private: // Scenes
+		const Okay::String SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
+		std::unique_ptr<Scene> activeScene;
 	};
 }

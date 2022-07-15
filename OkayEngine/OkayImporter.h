@@ -32,7 +32,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 	std::string path;
 	if (meshFile.find('/') == -1) // Absolute path?
-		path = "../Assets/Meshes/TempObjFbx/" + meshFile;
+		path = "../Content/Meshes/TempObjFbx/" + meshFile;
 	else
 		path = meshFile;
 
@@ -83,7 +83,7 @@ inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::Ve
 	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	std::ofstream writer("../Assets/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
+	std::ofstream writer("../Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	MeshData info{};
@@ -105,7 +105,7 @@ inline bool Importer::LoadOkayAsset(const std::string& filePath, Okay::VertexDat
 	std::string fileName = filePath;
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	std::ifstream reader("../Assets/Meshes/" + fileName, std::ios::binary);
+	std::ifstream reader("../Content/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
 
 	MeshData readData{};

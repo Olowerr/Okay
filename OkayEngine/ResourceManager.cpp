@@ -28,7 +28,7 @@ bool Assets::AddMeshInternal(const std::string& filePath)
 	Okay::VertexData data;
 	VERIFY(Importer::Load(filePath, data));
 
-	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
+	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, fileName);
 	meshes.insert({ fileName, mesh });
 
 	// Add the asset to the declaration
@@ -67,7 +67,7 @@ bool Assets::LoadAll()
 		}
 
 		// Create mesh and insert into the map
-		std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data);
+		std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, file);
 		meshes.insert({ file.c_str, mesh });
 	}
 

@@ -3,13 +3,25 @@
 
 namespace Okay // Structs for now, change to classes
 {
+	enum struct Components
+	{
+		Mesh,
+		Transform
+	};
+
 	struct MeshComponent
 	{
+		static const Components ID = Components::Mesh;
+
 		std::shared_ptr<Mesh> mesh;
+
+		
 	};
 
 	struct TransformComponent
 	{
+		static const Components ID = Components::Transform;
+
 		DirectX::XMFLOAT4X4 matrix;
 		void SetPosition(Float3 pos)
 		{

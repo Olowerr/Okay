@@ -4,7 +4,7 @@ const UINT Okay::Mesh::Stride[] = { sizeof(Float3), sizeof(UVNormal) };
 const UINT Okay::Mesh::Offset[] = { 0,0 };
 
 Okay::Mesh::Mesh()
-	:vertexBuffers{}, indexBuffer(), numIndices(3)
+	:vertexBuffers{}, indexBuffer(), numIndices(3), name("Default")
 {
 	// Triangle :]
 
@@ -28,17 +28,12 @@ Okay::Mesh::Mesh()
 	DX11::CreateIndexBuffer(&indexBuffer, indices, sizeof(indices));
 }
 
-Okay::Mesh::Mesh(const std::string& filePath)
-	:vertexBuffers{}, indexBuffer(), numIndices(0)
+Okay::Mesh::Mesh(const VertexData& vertices, const String& meshName)
+	:numIndices((UINT)vertices.indices.size()), vertexBuffers{}, indexBuffer(), name(meshName)
 {
-}
-
-Okay::Mesh::Mesh(const VertexData& vertices)
-	:numIndices((UINT)vertices.indices.size()), vertexBuffers{}, indexBuffer()
-{
-	DX11::CreateVertexBuffer(&vertexBuffers[0], vertices.position.data(), sizeof(Float3) * (UINT)vertices.position.size());
-	DX11::CreateVertexBuffer(&vertexBuffers[1], vertices.uvNormal.data(), sizeof(UVNormal) * (UINT)vertices.uvNormal.size());
-	DX11::CreateIndexBuffer(&indexBuffer, vertices.indices.data(), sizeof(UINT) * (UINT)vertices.indices.size());
+	DX11::CreateVertexBuffer(&vertexBuffers[0], vertices.position.data(), sizeof(Float3)* (UINT)vertices.position.size());
+	DX11::CreateVertexBuffer(&vertexBuffers[1], vertices.uvNormal.data(), sizeof(UVNormal)* (UINT)vertices.uvNormal.size());
+	DX11::CreateIndexBuffer(&indexBuffer, vertices.indices.data(), sizeof(UINT)* (UINT)vertices.indices.size());
 }
 
 Okay::Mesh::~Mesh()

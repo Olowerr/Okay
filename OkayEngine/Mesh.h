@@ -8,8 +8,8 @@ namespace Okay
 	{
 	public:
 		Mesh();
-		Mesh(const std::string& filePath);
-		Mesh(const VertexData& vertices);
+		//Mesh(const std::string& filePath);
+		Mesh(const VertexData& vertices, const String& meshName);
 
 		virtual ~Mesh();
 		virtual void Shutdown();
@@ -23,6 +23,7 @@ namespace Okay
 		static const UINT Offset[2];
 
 	private:
+		const String name;
 		ID3D11Buffer* vertexBuffers[NumBuffers];
 		ID3D11Buffer* indexBuffer;
 
