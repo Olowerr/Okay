@@ -27,6 +27,13 @@ void System::Run()
 {
 	using namespace Okay;
 
+
+	// MAYBE MOVE SCENE HANDLING TO ENGINE() ??????
+	// MAYBE MOVE SCENE HANDLING TO ENGINE() ??????
+	// MAYBE MOVE SCENE HANDLING TO ENGINE() ??????
+	// MAYBE MOVE SCENE HANDLING TO ENGINE() ??????
+	// MAYBE MOVE SCENE HANDLING TO ENGINE() ??????
+	
 	// Veri temp.. need to THONK about this.....
 	Scene scene;
 	first = scene.CreateEntity();
