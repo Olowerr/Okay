@@ -8,16 +8,11 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+// Private class with friend class acts like a private namespace
 class Importer
 {
 private:
-	friend class Assets; // Only accessible to Assets
-
-	struct MeshData
-	{
-		UINT numVertex;
-		UINT numIndex;
-	};
+	friend class Assets; 
 
 	static bool Load(const std::string& meshFile, Okay::VertexData& outData);
 
@@ -86,14 +81,14 @@ inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::Ve
 	std::ofstream writer("../Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
-	MeshData info{};
-	info.numVertex = (UINT)vertexData.position.size();
-	info.numIndex = (UINT)vertexData.indices.size();
+	UINT info[2];
+	info[0] = (UINT)vertexData.position.size();
+	info[1] = (UINT)vertexData.indices.size();
 
-	writer.write((const char*)&info, sizeof(MeshData));
-	writer.write((const char*)vertexData.position.data(), sizeof(Okay::Float3) * info.numVertex);
-	writer.write((const char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * info.numVertex);
-	writer.write((const char*)vertexData.indices.data(), sizeof(UINT) * info.numIndex);
+	writer.write((const char*)info, sizeof(info));
+	writer.write((const char*)vertexData.position.data(), sizeof(Okay::Float3) * info[0]);
+	writer.write((const char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * info[0]);
+	writer.write((const char*)vertexData.indices.data(), sizeof(UINT) * info[1]);
 	
 	writer.close();
 
@@ -108,16 +103,17 @@ inline bool Importer::LoadOkayAsset(const std::string& filePath, Okay::VertexDat
 	std::ifstream reader("../Content/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
 
-	MeshData readData{};
-	reader.read((char*)&readData, sizeof(MeshData));
+	// info[0] = NumVertex, info[1] = NumIndex
+	UINT info[2];
+	reader.read((char*)info, sizeof(info));
 
-	vertexData.position.resize(readData.numVertex);
-	vertexData.uvNormal.resize(readData.numVertex);
-	vertexData.indices.resize(readData.numIndex);
+	vertexData.position.resize(info[0]);
+	vertexData.uvNormal.resize(info[0]);
+	vertexData.indices.resize(info[1]);
 	
-	reader.read((char*)vertexData.position.data(), sizeof(Okay::Float3) * readData.numVertex);
-	reader.read((char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * readData.numVertex);
-	reader.read((char*)vertexData.indices.data(), sizeof(UINT) * readData.numIndex);
+	reader.read((char*)vertexData.position.data(), sizeof(Okay::Float3) * info[0]);
+	reader.read((char*)vertexData.uvNormal.data(), sizeof(Okay::UVNormal) * info[0]);
+	reader.read((char*)vertexData.indices.data(), sizeof(UINT) * info[1]);
 
 	reader.close();
 

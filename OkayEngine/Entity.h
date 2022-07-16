@@ -8,14 +8,13 @@ class Entity
 public:
 	Entity() 
 	 :entityId(entt::null), pScene() { }
-
 	Entity(entt::entity id, Scene* scene)
 		:entityId(id), pScene(scene) { }
 
-	template<typename T>
-	T& AddComponent()
+	template<typename T, typename... Args>
+	T& AddComponent(Args... args)
 	{
-		return pScene->GetRegistry().emplace<T>(entityId);
+		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 	}
 
 	template<typename T>

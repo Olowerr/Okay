@@ -42,6 +42,7 @@ namespace Okay
 			return c_str == std::string(string);
 		}
 
+
 		char c_str[Size]{};
 
 	private:

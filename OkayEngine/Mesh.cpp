@@ -65,3 +65,8 @@ void Okay::Mesh::Draw() const
 {
 	DX11::Get().GetDeviceContext()->DrawIndexed(numIndices, 0, 0);
 }
+
+const Okay::String& Okay::Mesh::GetName() const
+{
+	return name;
+}

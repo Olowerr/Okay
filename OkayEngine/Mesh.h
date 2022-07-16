@@ -18,6 +18,8 @@ namespace Okay
 		void BindPosition() const;	// Will change with instancing
 		void Draw() const;			// Will change with instancing
 
+		const String& GetName() const;
+
 		static const UINT NumBuffers = 2;
 		static const UINT Stride[2];
 		static const UINT Offset[2];

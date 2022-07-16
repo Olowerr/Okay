@@ -28,13 +28,19 @@ namespace Okay
 		static bool LoadScene(const Okay::String& sceneName);
 		static bool LoadScene(UINT sceneIndex);
 
+		static Scene* GetActiveScene() { return Get().activeScene.get(); }
+
 	private:
 		Renderer& renderer;
 		Assets& assets;
 		DX11& dx11;
 
 	private: // Scenes
-		const Okay::String SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
+		static const Okay::String SceneDecleration;
 		std::unique_ptr<Scene> activeScene;
+
+		static void ReadEntity(Entity& entity, std::ifstream& reader);
+		static void ReadComponentData(Entity& entity, Components type, std::ifstream& reader);
 	};
+
 }
