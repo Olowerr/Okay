@@ -48,7 +48,7 @@ std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 
 bool Assets::LoadAll()
 {
-	ReadDeclaration();
+	VERIFY(ReadDeclaration());
 
 	bool result = true, result2;
 	for (const auto& file : files)

@@ -21,6 +21,6 @@ void Okay::Camera::Update()
 {
     using namespace DirectX;
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-        XMMatrixLookAtLH(XMVectorSet(10.f, 3.f, -10.f, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
+        XMMatrixLookAtLH(XMVectorSet(10.f, 10.f, -10.f, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
         XMMatrixPerspectiveFovLH(XM_PIDIV2, WinRatio, 0.1f, 500.f)));
 }

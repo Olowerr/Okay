@@ -50,8 +50,8 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	for (unsigned int i = 0; i < pMesh->mNumVertices; i++)
 	{
 		outData.uvNormal[i].normal.x = pMesh->mNormals[i].x;
-		outData.uvNormal[i].normal.y = pMesh->mNormals[i].z;
-		outData.uvNormal[i].normal.z = pMesh->mNormals[i].y;
+		outData.uvNormal[i].normal.y = pMesh->mNormals[i].y;
+		outData.uvNormal[i].normal.z = pMesh->mNormals[i].z;
 
 		outData.uvNormal[i].uv.x = pMesh->mTextureCoords[0][i].x;
 		outData.uvNormal[i].uv.y = pMesh->mTextureCoords[0][i].y;
