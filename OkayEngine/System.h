@@ -17,8 +17,4 @@ private: // Window
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	bool InitiateWindow();
 	HWND hWnd;
-
-	// Temp
-	Entity first;
-	Entity second;
 };

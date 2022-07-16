@@ -10,25 +10,25 @@ namespace Okay // Structs for now, change to classes
 		Transform
 	};
 
-	struct MeshComponent
+	struct CompMesh
 	{
 		static const Components ID = Components::Mesh;
 		
-		MeshComponent() { mesh = Assets::GetMesh(""); foo(); }
-		MeshComponent(const Okay::String& meshName) { Assets::GetMesh(meshName.c_str);foo(); }
+		CompMesh() { mesh = Assets::GetMesh(""); foo(); }
+		CompMesh(const Okay::String& meshName) { Assets::GetMesh(meshName.c_str);foo(); }
 
 		std::shared_ptr<Mesh> mesh;
 
 		void foo() { }
 	};
 
-	struct TransformComponent
+	struct CompTransform
 	{
 		static const Components ID = Components::Transform;
 
-		TransformComponent()
+		CompTransform()
 			:position(), rotation(), scale(1.f, 1.f, 1.f) { CalcMatrix(); }
-		TransformComponent(Float3 pos, Float3 rot, Float3 scale)
+		CompTransform(Float3 pos, Float3 rot, Float3 scale)
 			:position(pos), rotation(rot), scale(scale) { CalcMatrix(); }
 
 		DirectX::XMFLOAT4X4 matrix;
@@ -45,11 +45,5 @@ namespace Okay // Structs for now, change to classes
 				XMMatrixTranslation(position.x, position.y, position.z)
 			));
 		}
-	};
-
-	struct Qwe
-	{
-		Qwe() = default;
-		int value = 0;
 	};
 }

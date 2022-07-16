@@ -36,8 +36,8 @@ private:
 	std::unique_ptr<Okay::Camera> mainCamera;
 
 	size_t numActive;
-	std::vector<Okay::MeshComponent*> meshesToRender;
-	std::vector<Okay::TransformComponent*> transforms;
+	std::vector<Okay::CompMesh*> meshesToRender;
+	std::vector<Okay::CompTransform*> transforms;
 	Okay::Mesh mesh;
 
 

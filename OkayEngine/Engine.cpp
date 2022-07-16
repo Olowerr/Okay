@@ -42,21 +42,21 @@ Okay::Engine::Engine()
 	
 	/*
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 		Currently reading the scene wrong
-		Also can't create TransformComponent with ENTT for whatever reason??
+		Also can't create TransformComponent2 with ENTT for whatever reason??
 	
 	*/
 
@@ -89,8 +89,8 @@ Okay::Engine::Engine()
 	/*first.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
 	second.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
 
-	first.GetComponent<Okay::TransformComponent>().SetPosition({ 3.f, 0.f, 0.f });
-	second.GetComponent<Okay::TransformComponent>().SetPosition({ -3.f, 0.f, 0.f });*/
+	first.GetComponent<Okay::TransformComponent2>().SetPosition({ 3.f, 0.f, 0.f });
+	second.GetComponent<Okay::TransformComponent2>().SetPosition({ -3.f, 0.f, 0.f });*/
 
 
 }
@@ -161,19 +161,16 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		Okay::String meshName;
 		reader.read(meshName.c_str, sizeof(Okay::String));
 
-		entity.AddComponent<MeshComponent>(meshName);
+		entity.AddComponent<CompMesh>(meshName);
 		break;
 	}
 
 	case Components::Transform:
 	{
-		entity.AddComponent<Qwe>();
-		break;
-
 		Okay::Float3 transform[3];
 		reader.read((char*)transform, sizeof(Okay::Float3) * 3);
-
-		entity.AddComponent<TransformComponent>();
+		
+		entity.AddComponent<CompTransform>(transform[0], transform[1], transform[2]);
 		break;
 	}
 	}

@@ -37,8 +37,8 @@ void Renderer::Submit(Entity entity)
 		transforms.resize(meshesToRender.size() + 50);
 	}
 
-	meshesToRender.at(numActive) = &entity.GetComponent<Okay::MeshComponent>();
-	transforms.at(numActive) = &entity.GetComponent<Okay::TransformComponent>();
+	meshesToRender.at(numActive) = &entity.GetComponent<Okay::CompMesh>();
+	transforms.at(numActive) = &entity.GetComponent<Okay::CompTransform>();
 	++numActive;
 }
 
