@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-#include "DX11.h"
+#include "Defines.h"
 
 namespace Okay
 {

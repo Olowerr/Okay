@@ -4,7 +4,7 @@
 #include "ShaderModel.h"
 #include "Camera.h"
 #include "Components.h"
-#include "Entity.h"
+#include "Entity.h" // <- Temp, should be removed
 
 class Renderer	
 {
