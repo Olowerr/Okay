@@ -21,6 +21,7 @@ namespace Okay
 
 		static Renderer& GetRenderer() { return Get().renderer; }
 		static Assets& GetAssets() { return Get().assets; }
+		static DX11& GetDX11() { return Get().dx11; }
 
 		static void NewFrame();
 		static void EndFrame();
