@@ -165,12 +165,16 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		break;
 	}
 
-	case Components::Transform:
+	case Components::Transform: // All entities get a transform component on creation
 	{
 		Okay::Float3 transform[3];
 		reader.read((char*)transform, sizeof(Okay::Float3) * 3);
 		
-		entity.AddComponent<CompTransform>(transform[0], transform[1], transform[2]);
+		auto& cTransform = entity.GetComponent<CompTransform>();
+		cTransform.position = transform[0];
+		cTransform.rotation = transform[1];
+		cTransform.scale = transform[2];
+
 		break;
 	}
 	}
