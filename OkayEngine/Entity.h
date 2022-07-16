@@ -12,7 +12,7 @@ public:
 		:entityId(id), pScene(scene) { }
 
 	template<typename T, typename... Args>
-	T& AddComponent(Args... args)
+	T& AddComponent(Args&&... args)
 	{
 		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 	}

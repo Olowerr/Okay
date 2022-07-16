@@ -2,12 +2,13 @@
 
 #include "Entt/entt.hpp"
 #include "Components.h"
+#include "Renderer.h"
 
 class Entity;
 class Scene
 {
 public:
-	Scene();
+	Scene(Renderer& renderer);
 	~Scene();
 
 	Entity CreateEntity();
@@ -15,10 +16,9 @@ public:
 
 	// Maybe temp
 	void Start();
-	// Temp
 	void Update();
 
 	entt::registry registry;
 private:
-	
+	Renderer& renderer;
 };

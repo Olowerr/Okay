@@ -18,7 +18,6 @@ void System::Shutdown()
 bool System::Initiate()
 {
 	VERIFY(InitiateWindow());
-	DX11::Get(); // Sets up DX11 
 
 	return true;
 }
@@ -40,6 +39,7 @@ void System::Run()
 
 		Engine::NewFrame();
 
+		Engine::Update();
 		Engine::GetRenderer().Render();
 		
 		Engine::EndFrame();

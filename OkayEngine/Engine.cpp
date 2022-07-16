@@ -4,64 +4,7 @@
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
 
 Okay::Engine::Engine()
-	:renderer(Renderer::Get()), assets(Assets::Get()), dx11(DX11::Get())
 {
-
-	std::ofstream writer(SceneDecleration.c_str, std::ios::binary | std::ios::trunc);
-
-	UINT num = 2;
-	writer.write((const char*)&num, 4);
-	
-	Components asd = Components::Mesh;
-	Okay::String mesh = "gob.okayAsset";
-	Components asd2 = Components::Transform;
-	Okay::Float3 t[3]{ {3.f, 0.f, 0.f}, {}, {1.f, 1.f, 1.f} };
-
-	writer.write((const char*)&num, 4);
-	
-	writer.write((const char*)&asd, sizeof(asd));
-	writer.write((const char*)mesh.c_str, sizeof(mesh));
-
-	writer.write((const char*)&asd2, sizeof(asd2));
-	writer.write((const char*)t, sizeof(t));
-	
-
-	t[0].x = -3.f;
-	mesh = "cube.okayAsset";
-	writer.write((const char*)&num, 4);
-	writer.write((const char*)&asd, sizeof(asd));
-	writer.write((const char*)mesh.c_str, sizeof(mesh));
-
-	writer.write((const char*)&asd2, sizeof(asd2));
-	writer.write((const char*)t, sizeof(t));
-
-	writer.close();
-
-
-
-	
-	/*
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-		Currently reading the scene wrong
-		Also can't create TransformComponent2 with ENTT for whatever reason??
-	
-	*/
-
-
-
 	/*
 	
 	//NumScenes
@@ -81,18 +24,8 @@ Okay::Engine::Engine()
 				data
 			Components::Type
 				data
+
 	*/
-
-
-
-
-	/*first.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
-	second.AddComponent<Okay::MeshComponent>().mesh = Assets::GetMesh("gob.okayAsset");
-
-	first.GetComponent<Okay::TransformComponent2>().SetPosition({ 3.f, 0.f, 0.f });
-	second.GetComponent<Okay::TransformComponent2>().SetPosition({ -3.f, 0.f, 0.f });*/
-
-
 }
 
 Okay::Engine::~Engine()
@@ -102,18 +35,23 @@ Okay::Engine::~Engine()
 void Okay::Engine::NewFrame()
 {
 	Get().renderer.NewFrame();
-	Get().dx11.NewFrame();
+	DX11::Get().NewFrame();
 }
 
 void Okay::Engine::EndFrame()
 {
-	Get().dx11.EndFrame();
+	DX11::Get().EndFrame();
+}
+
+void Okay::Engine::Update()
+{
+	Get().activeScene->Update();
 }
 
 bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 {
 	Get().activeScene.release();
-	Get().activeScene = std::make_unique<Scene>();
+	Get().activeScene = std::make_unique<Scene>(Get().renderer);
 
 	std::ifstream reader(SceneDecleration.c_str, std::ios::binary);
 	VERIFY(reader);
@@ -174,6 +112,7 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		cTransform.position = transform[0];
 		cTransform.rotation = transform[1];
 		cTransform.scale = transform[2];
+		cTransform.CalcMatrix();
 
 		break;
 	}

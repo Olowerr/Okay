@@ -4,26 +4,18 @@
 #include "ShaderModel.h"
 #include "Camera.h"
 #include "Components.h"
-#include "Entity.h" // <- Temp, should be removed
 
 class Renderer	
 {
 public:
 	Renderer();
-	static Renderer& Get()
-	{
-		static Renderer renderer;
-		return renderer;
-	}
-
-public:
 	~Renderer();
 	Renderer(const Renderer&) = delete;
 	Renderer(Renderer&&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
 	// TEMP
-	void Submit(Entity entity); 
+	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
 
 	void NewFrame();
 
@@ -35,11 +27,15 @@ private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
 	std::unique_ptr<Okay::Camera> mainCamera;
 
-	size_t numActive;
-	std::vector<Okay::CompMesh*> meshesToRender;
-	std::vector<Okay::CompTransform*> transforms;
-	Okay::Mesh mesh;
 
+
+	struct RenderMesh
+	{
+		Okay::CompMesh* mesh;
+		Okay::CompTransform* transform;
+	};
+	std::vector<RenderMesh> meshesToRender;
+	size_t numActive;
 
 
 private: // DX11 Specific

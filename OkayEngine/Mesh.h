@@ -8,7 +8,6 @@ namespace Okay
 	{
 	public:
 		Mesh();
-		//Mesh(const std::string& filePath);
 		Mesh(const VertexData& vertices, const String& meshName);
 
 		virtual ~Mesh();

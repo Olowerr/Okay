@@ -1,42 +1,7 @@
 #pragma once
 #include "ResourceManager.h"
 #include "Renderer.h"
-
-/*
-
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-	Go down from engine and see what needs what
-	Remove unnecessary includes
-	Make Renderer, Assets & DX11 not single-tons
-	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
-	
-
-
-*/
+#include "Entity.h"
 
 namespace Okay
 {
@@ -57,10 +22,10 @@ namespace Okay
 
 		static Renderer& GetRenderer() { return Get().renderer; }
 		static Assets& GetAssets() { return Get().assets; }
-		static DX11& GetDX11() { return Get().dx11; }
 
 		static void NewFrame();
 		static void EndFrame();
+		static void Update();
 
 		static bool LoadScene(const Okay::String& sceneName);
 		static bool LoadScene(UINT sceneIndex);
@@ -68,9 +33,8 @@ namespace Okay
 		static Scene* GetActiveScene() { return Get().activeScene.get(); }
 
 	private:
-		Renderer& renderer;
-		Assets& assets;
-		DX11& dx11;
+		Renderer renderer;
+		Assets assets;
 
 	private: // Scenes
 		static const Okay::String SceneDecleration;

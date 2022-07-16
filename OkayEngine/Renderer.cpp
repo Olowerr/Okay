@@ -19,7 +19,6 @@ Renderer::Renderer()
 	shaderModel->Bind();
 	
 	meshesToRender.resize(10);
-	transforms.resize(10);
 	numActive = 0;
 }
 
@@ -28,17 +27,17 @@ Renderer::~Renderer()
 	Shutdown();
 }
 
-void Renderer::Submit(Entity entity)
+void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 {
 	if (numActive >= meshesToRender.size())
 	{
 		// Maybe increase more than 50
 		meshesToRender.resize(meshesToRender.size() + 50);
-		transforms.resize(meshesToRender.size() + 50);
 	}
 
-	meshesToRender.at(numActive) = &entity.GetComponent<Okay::CompMesh>();
-	transforms.at(numActive) = &entity.GetComponent<Okay::CompTransform>();
+	meshesToRender.at(numActive).mesh = pMesh;
+	meshesToRender.at(numActive).transform = pTransform;
+
 	++numActive;
 }
 
@@ -67,9 +66,10 @@ void Renderer::Render()
 	
 	for (size_t i = 0; i < numActive; i++)
 	{
-		DX11::UpdateBuffer(pWorldBuffer, &transforms.at(i)->matrix, sizeof(DirectX::XMFLOAT4X4));
-		meshesToRender.at(i)->mesh->Bind();
-		meshesToRender.at(i)->mesh->Draw();
+		DX11::UpdateBuffer(pWorldBuffer, &meshesToRender.at(i).transform->matrix, sizeof(DirectX::XMFLOAT4X4));
+
+		meshesToRender.at(i).mesh->mesh->Bind();
+		meshesToRender.at(i).mesh->mesh->Draw();
 	}
 }
 

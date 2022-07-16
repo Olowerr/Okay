@@ -11,27 +11,15 @@
 // Owns all Assets (Meshes, Textures, etc)
 class Assets
 {
-private:
-	Assets();
 public:
+	Assets();
 	~Assets();
 	Assets(const Assets&) = delete;
 	Assets(Assets&&) = delete;
 	Assets& operator=(const Assets&) = delete;
 
-	static Assets& Get()
-	{
-		static Assets assets;
-		return assets;
-	}
-	
-	static bool AddMesh(const std::string& fileName) { return Get().AddMeshInternal(fileName); }
-	static std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName) { return Get().GetMeshInternal(fileName); }
-
-
-private: // Internal Functions
-	bool AddMeshInternal(const std::string& fileName);
-	std::shared_ptr<Okay::Mesh> GetMeshInternal(const std::string& fileName);
+	bool AddMesh(const std::string& fileName);
+	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
 
 
 private: // All loaded meshes

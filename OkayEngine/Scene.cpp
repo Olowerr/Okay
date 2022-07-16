@@ -1,7 +1,8 @@
 #include "Scene.h"
-#include "Entity.h"
+#include "Engine.h"
 
-Scene::Scene()
+Scene::Scene(Renderer& renderer)
+    :renderer(renderer)
 {
 }
 
@@ -24,4 +25,9 @@ void Scene::Start()
 
 void Scene::Update()
 {
+    const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform>();
+    
+    for (auto& entity : group)
+        renderer.Submit(&group.get<Okay::CompMesh>(entity), &group.get<Okay::CompTransform>(entity));
+    
 }
