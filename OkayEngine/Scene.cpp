@@ -12,7 +12,7 @@ Scene::~Scene()
 Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
-    entity.AddComponent<Okay::TransformComponent>();
+    entity.AddComponent<Okay::CompTransform>();
 
     return entity;
 }
