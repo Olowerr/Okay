@@ -2,6 +2,42 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 
+/*
+
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+	Go down from engine and see what needs what
+	Remove unnecessary includes
+	Make Renderer, Assets & DX11 not single-tons
+	Limit access as much as possible (Like camera doesn't need DX11, only Defins.h)
+	
+
+
+*/
+
 namespace Okay
 {
 	class Engine
