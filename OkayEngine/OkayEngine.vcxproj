@@ -130,6 +130,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ShaderModel.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>

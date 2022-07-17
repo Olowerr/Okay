@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "Mesh.h"
 #include "OkayImporter.h"
+#include "Texture.h"
 
 // Owns all Assets (Meshes, Textures, etc)
 class Assets
@@ -20,7 +21,6 @@ public:
 
 	bool AddMesh(const std::string& fileName);
 	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
-
 
 private: // All loaded meshes
 	std::unordered_map<std::string, std::shared_ptr<Okay::Mesh>> meshes;

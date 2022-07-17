@@ -1,4 +1,5 @@
 #define NOMINMAX
+#define STB_IMAGE_IMPLEMENTATION
 
 #include "System.h"
 
@@ -19,7 +20,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #ifdef CONSOLE_ENABLE
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
-
 
 	System system;
 
