@@ -3,6 +3,8 @@
 Assets::Assets()
 {
 	LoadAll();
+	
+	AddMesh("gob.obj");
 }
 
 Assets::~Assets()
@@ -12,29 +14,34 @@ Assets::~Assets()
 
 bool Assets::AddMesh(const std::string& filePath)
 {
-	ReadDeclaration();
-
 	// Fixes absolute paths
 	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	for (auto& file : files)
-	{
-		if (file == fileName)
-			return true;
-	}
-	
-	// Attempt to load .obj / .fbx
+	// Overrite old file / import new file
 	Okay::VertexData data;
 	VERIFY(Importer::Load(filePath, data));
 
-	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, fileName);
-	meshes.insert({ fileName, mesh });
+	ReadDeclaration();
+	
+	// Check if the file exists
+	bool found = false;
+	for (auto& file : files)
+	{
+		if (file == fileName)
+			found = true;
+	}
 
-	// Add the asset to the declaration
-	files.emplace_back(fileName);
+	// Add to decleration if doesn't exist
+	if (!found)
+		files.emplace_back(fileName);
+
 	WriteDeclaration();
 
+	// Create the mesh
+	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, fileName);
+	meshes.insert({ fileName, mesh });
+	
 	return true;
 }
 

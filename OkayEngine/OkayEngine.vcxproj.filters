@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Rendering">
       <UniqueIdentifier>{a4c01d3e-5412-4bf7-a57a-20c8cdeda5d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Rendering\Mesh">
-      <UniqueIdentifier>{eb3d2c63-d7de-4a8e-8f09-26268ed79e45}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Rendering\Camera">
       <UniqueIdentifier>{a505cf1c-07f5-494f-8aca-d64f8e5a150d}</UniqueIdentifier>
     </Filter>
@@ -46,6 +43,9 @@
     <Filter Include="ECS">
       <UniqueIdentifier>{3796570e-754b-45e1-b880-46daa1608ee9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Assets">
+      <UniqueIdentifier>{4781ae97-b14c-4e7e-ab22-d0fa635641db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -59,9 +59,6 @@
     </ClCompile>
     <ClCompile Include="Okay.cpp">
       <Filter>Okay</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Header Files\Rendering\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Header Files\Rendering\Camera</Filter>
@@ -84,6 +81,12 @@
     <ClCompile Include="Components.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -100,12 +103,6 @@
     </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>Okay</Filter>
-    </ClInclude>
-    <ClInclude Include="OkayVertices.h">
-      <Filter>Header Files\Rendering\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Rendering\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Rendering\Camera</Filter>
@@ -130,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="Components.h">
       <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="OkayVertices.h">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Rendering\Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

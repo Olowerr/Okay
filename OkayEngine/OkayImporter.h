@@ -38,6 +38,11 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 	//aiNode* pNode = pScene->mRootNode;
 	aiMesh* pMesh = pScene->mMeshes[0];	////
+	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
+
+	aiString texPath, texPath2;
+	pMat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath);
+	pMat->GetTexture(aiTextureType_BASE_COLOR, 0, &texPath2);
 
 
 	// Vertex Positions
