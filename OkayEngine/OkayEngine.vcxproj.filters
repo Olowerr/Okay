@@ -46,6 +46,9 @@
     <Filter Include="Header Files\Rendering\Assets">
       <UniqueIdentifier>{4781ae97-b14c-4e7e-ab22-d0fa635641db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="o">
+      <UniqueIdentifier>{72d04d1c-e9bf-4910-abce-bcf7351740b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -145,6 +148,15 @@
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Header.h">
+      <Filter>o</Filter>
+    </ClInclude>
+    <ClInclude Include="A.h">
+      <Filter>o</Filter>
+    </ClInclude>
+    <ClInclude Include="B.h">
+      <Filter>o</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
