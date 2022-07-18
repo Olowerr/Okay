@@ -23,7 +23,7 @@ Okay::Texture::Texture()
 }
 
 Okay::Texture::Texture(UINT width, UINT height, DXGI_FORMAT format, UINT bindFlags, const Okay::String& name)
-	:isValid(false), width(width), height(height), name(name)
+	:isValid(false), width(width), height(height), name(name), texture(), srv(), rtv(), uav()
 {
 	D3D11_TEXTURE2D_DESC desc = CreateDefaultDesc();
 
@@ -38,7 +38,7 @@ Okay::Texture::Texture(UINT width, UINT height, DXGI_FORMAT format, UINT bindFla
 }
 
 Okay::Texture::Texture(const std::string& path, UINT bindFlags)
-	:isValid(false), name(path.substr(path.find_last_of('/') + 1))
+	:isValid(false), name(path.substr(path.find_last_of('/') + 1)), texture(), srv(), rtv(), uav()
 {
 	unsigned char* pData = nullptr;
 	if (!LoadTexture(path, &pData))
@@ -49,6 +49,8 @@ Okay::Texture::Texture(const std::string& path, UINT bindFlags)
 	D3D11_SUBRESOURCE_DATA inData{ pData, width * 4, 0 };
 
 	DX11::Get().GetDevice()->CreateTexture2D(&desc, &inData, &texture);
+
+	stbi_image_free(pData);
 	if (!texture)
 		return;
 

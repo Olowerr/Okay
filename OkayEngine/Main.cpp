@@ -13,8 +13,6 @@
 void RedirectIOToConsole();
 #endif
 
-#include "A.h"
-#include "B.h"
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -23,29 +21,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
-
-
-    A a;
-    a.q = 10;
-    a.b = new B;
-
-    a.b->a = new A;
-
-    a.b->foo();
-
-    B b2;
-    b2.foo();
-
-    b2.a = &a;
-    b2.a->foo();
-
-	/*System system;
+	System system;
 
 	if (!system.Initiate())
 		return -1;
 	
 	system.Run();
-	system.Shutdown();*/
+	system.Shutdown();
 	 
 	return 0;
 }
