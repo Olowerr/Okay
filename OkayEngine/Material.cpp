@@ -3,9 +3,9 @@
 Okay::Material::Material()
 	:isTwoSided(false)
 {
-	textures[0] = Engine::GetAssets().GetTexture("GoblinAlbedo.png");
-	textures[1] = Engine::GetAssets().GetTexture("GoblinAlbedo.png");
-	textures[2] = Engine::GetAssets().GetTexture("GoblinAlbedo.png");
+	textures[0] = Engine::GetAssets().GetTexture("quack.jpg");
+	textures[1] = Engine::GetAssets().GetTexture("quack.jpg");
+	textures[2] = Engine::GetAssets().GetTexture("quack.jpg");
 }
 
 Okay::Material::Material(const MaterialDesc& desc)

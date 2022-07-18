@@ -14,14 +14,14 @@ class Importer
 private:
 	friend class Assets; 
 
-	static bool Load(const std::string& meshFile, Okay::VertexData& outData);
+	static bool Load(const std::string& meshFile, Okay::VertexData& outData, std::string& texPath);
 
 	static bool WriteOkayAsset(const std::string& meshFile, const Okay::VertexData& vertexData);
 
 	static bool LoadOkayAsset(const std::string& meshFile, Okay::VertexData& vertexData);
 };
 
-inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outData)
+inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outData, std::string& texPath)
 {
 	Assimp::Importer importer;
 
@@ -40,10 +40,9 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	aiMesh* pMesh = pScene->mMeshes[0];	////
 	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
 
-	aiString texPath, texPath2;
-	pMat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath);
-	pMat->GetTexture(aiTextureType_BASE_COLOR, 0, &texPath2);
-
+	aiString aiStr;
+	pMat->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr);
+	texPath = aiStr.C_Str();
 
 	// Vertex Positions
 	outData.position.resize(pMesh->mNumVertices);

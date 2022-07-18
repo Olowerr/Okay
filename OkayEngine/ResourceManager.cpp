@@ -5,6 +5,7 @@ Assets::Assets()
 	LoadAll();
 	
 	//AddMesh("gob.obj");
+	AddTexture("../Content/Images/quack.jpg");
 }
 
 Assets::~Assets()
@@ -20,7 +21,8 @@ bool Assets::AddMesh(const std::string& filePath)
 
 	// Overrite old file / import new file
 	Okay::VertexData data;
-	VERIFY(Importer::Load(filePath, data));
+	std::string texPath;
+	VERIFY(Importer::Load(filePath, data, texPath));
 
 	ReadDeclaration();
 	
@@ -58,6 +60,7 @@ bool Assets::AddTexture(const std::string& fileName)
 {
 	// Temp
 	textures.insert({ fileName, std::make_shared<Okay::Texture>(fileName) });
+	return true;
 }
 
 std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)

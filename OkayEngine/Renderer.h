@@ -21,7 +21,7 @@ public:
 
 	void Shutdown();
 	void Render();
-
+	
 
 private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
