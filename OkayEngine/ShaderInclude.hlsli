@@ -31,3 +31,7 @@ cbuffer Transform : register(b1) // will change with Instancing
 {
 	float4x4 worldMatrix;
 };
+
+Texture2D baseColour : register(t0);
+Texture2D specular : register(t1);
+Texture2D ambient : register(t2);

@@ -4,7 +4,7 @@ Assets::Assets()
 {
 	LoadAll();
 	
-	AddMesh("gob.obj");
+	//AddMesh("gob.obj");
 }
 
 Assets::~Assets()
@@ -47,10 +47,26 @@ bool Assets::AddMesh(const std::string& filePath)
 
 std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 {
+	// Need to change
 	if (meshes.find(fileName) == meshes.end())
-		return std::make_shared<Okay::Mesh>(); // Returns the default mesh
+		return std::make_shared<Okay::Mesh>(); 
 
 	return meshes[fileName];
+}
+
+bool Assets::AddTexture(const std::string& fileName)
+{
+	// Temp
+	textures.insert({ fileName, std::make_shared<Okay::Texture>(fileName) });
+}
+
+std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
+{
+	// Need to change
+	if (textures.find(fileName) == textures.end())
+		return std::make_shared<Okay::Texture>(); 
+
+	return textures[fileName];
 }
 
 bool Assets::LoadAll()

@@ -97,6 +97,7 @@
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Okay.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -119,6 +120,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Material.h" />
     <ClInclude Include="OkayImporter.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Okay.h" />
