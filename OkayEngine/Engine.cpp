@@ -98,13 +98,13 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		Okay::String meshName;
 		reader.read(meshName.c_str, sizeof(Okay::String));
 
-		entity.AddComponent<CompMesh>(meshName);
+		entity.AddComponent<CompMesh>(meshName.c_str);
 		break;
 	}
 
 	case Components::Transform: // All entities get a transform component on creation
 	{
-		Okay::Float3 transform[3];
+		Okay::Float3 transform[3]{};
 		reader.read((char*)transform, sizeof(Okay::Float3) * 3);
 		
 		auto& cTransform = entity.GetComponent<CompTransform>();

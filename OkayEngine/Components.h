@@ -16,10 +16,13 @@ namespace Okay // Structs for now, change to classes
 		static const Components ID = Components::Mesh;
 		
 		CompMesh();
-		CompMesh(const Okay::String& meshName);
+		CompMesh(const std::string& meshName);
+
+		void AssignMesh(const std::string& meshName);
+		void AssignMaterial(UINT index, std::shared_ptr<Material>& material);
 
 		std::shared_ptr<Mesh> mesh;
-
+		std::vector<std::shared_ptr<Material>> materials;
 
 	};
 

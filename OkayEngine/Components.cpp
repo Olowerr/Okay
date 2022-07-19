@@ -9,11 +9,26 @@ Okay::CompMesh::CompMesh()
 {
 }
 
-Okay::CompMesh::CompMesh(const Okay::String& meshName)
-	:mesh(Engine::GetAssets().GetMesh(meshName.c_str))
+Okay::CompMesh::CompMesh(const std::string& meshName)
+	:mesh(Engine::GetAssets().GetMesh(meshName))
 {
 }
 
+void Okay::CompMesh::AssignMesh(const std::string& meshName)
+{
+	mesh = Engine::GetAssets().GetMesh(meshName);
+}
+
+void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material>& material)
+{
+	// if (mesh->NumSub >= index)
+	//	return;
+
+	// materials.clear(); // Drop references to old materials // Only resize might be fine idk
+	// materials.resize(mesh->NumSub);
+
+	materials.at(index) = material;
+}
 
 
 /* ------ Transform Component ------ */
