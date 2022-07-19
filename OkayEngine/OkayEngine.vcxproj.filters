@@ -116,9 +116,6 @@
     <ClInclude Include="OkayImporter.h">
       <Filter>Importer</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Importer</Filter>
-    </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Importer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
