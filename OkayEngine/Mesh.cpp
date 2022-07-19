@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "DX11.h"
 
 const UINT Okay::Mesh::Stride[] = { sizeof(Float3), sizeof(UVNormal) };
 const UINT Okay::Mesh::Offset[] = { 0,0 };

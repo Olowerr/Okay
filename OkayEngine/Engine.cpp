@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include <typeinfo>
 
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
 

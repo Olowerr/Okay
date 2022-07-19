@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include "Material.h"
 
 namespace Okay // Structs for now, change to classes
 {
@@ -18,6 +19,7 @@ namespace Okay // Structs for now, change to classes
 		CompMesh(const Okay::String& meshName);
 
 		std::shared_ptr<Mesh> mesh;
+
 
 	};
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Entt/entt.hpp"
-#include "Components.h"
 #include "Renderer.h"
 
 class Entity;

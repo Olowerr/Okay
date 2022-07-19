@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "Mesh.h"
 #include "OkayImporter.h"
-#include "Texture.h"
+#include "Material.h"
 
 // Owns all Assets (Meshes, Textures, etc)
 class Assets

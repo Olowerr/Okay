@@ -26,7 +26,7 @@ public:
 private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
 	std::unique_ptr<Okay::Camera> mainCamera;
-
+	Okay::Material mat;
 
 
 	struct RenderMesh

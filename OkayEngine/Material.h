@@ -1,16 +1,16 @@
 #pragma once
-#include "Engine.h"
+#include "Texture.h"
  
 namespace Okay
 {
 	struct MaterialDesc
 	{
-		String baseColourTexture;
-		String specularTexture;
-		String ambientTexture;
-		Float2 uvTiling;
-		Float2 uvOffset;
-		bool twoSided;
+		String baseColour;
+		String specular;
+		String ambient;
+		Float2 uvTiling = { 1.f, 1.f };
+		Float2 uvOffset = { 0.f, 0.f };
+		bool twoSided = false;
 	};
 	
 	class Material  
@@ -38,7 +38,7 @@ namespace Okay
 
 
 /*
-	
+
 	BaseColour
 	Specular
 	Ambient
