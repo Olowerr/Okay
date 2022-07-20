@@ -1,16 +1,24 @@
 #include "ResourceManager.h"
+#include "Engine.h"
 
 Assets::Assets()
 {
-	LoadAll();
-	
-	//AddMesh("gob.obj");
-	AddTexture("../Content/Images/quack.jpg");
+	// Make sure Okay::Engine::Get() is never called here
 }
 
 Assets::~Assets()
 {
 
+}
+
+void Assets::SetUp()
+{
+	LoadAllMeshes();
+
+	//AddMesh("gob.obj");
+	AddTexture("../Content/Images/quack.jpg");
+
+	materials.insert({ "Default", std::make_shared<Okay::Material>() });
 }
 
 bool Assets::AddMesh(const std::string& filePath)
@@ -56,10 +64,10 @@ std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 	return meshes[fileName];
 }
 
-bool Assets::AddTexture(const std::string& fileName)
+bool Assets::AddTexture(const std::string& filePath)
 {
 	// Temp
-	textures.insert({ fileName, std::make_shared<Okay::Texture>(fileName) });
+	textures.insert({ filePath.substr(filePath.find_last_of('/') + 1), std::make_shared<Okay::Texture>(filePath) });
 	return true;
 }
 
@@ -72,7 +80,7 @@ std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
 	return textures[fileName];
 }
 
-bool Assets::LoadAll()
+bool Assets::LoadAllMeshes()
 {
 	VERIFY(ReadDeclaration());
 

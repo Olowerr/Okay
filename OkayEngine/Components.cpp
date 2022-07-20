@@ -27,7 +27,10 @@ void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material>& mater
 	// materials.clear(); // Drop references to old materials // Only resize might be fine idk
 	// materials.resize(mesh->NumSub);
 
-	materials.at(index) = material;
+	// TEMP
+	materials.resize(1);
+
+	materials.at(index) = material.get();
 }
 
 

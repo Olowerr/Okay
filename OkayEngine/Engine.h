@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 #include "Entity.h"
+#include <iostream>
 
 namespace Okay
 {
@@ -11,17 +12,21 @@ namespace Okay
 		Engine();
 		static Engine& Get()
 		{
+			std::cout << "Get\n";
 			static Engine engine;
 			return engine;
 		}
+
 	public:
 		~Engine();
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;
 		Engine& operator=(const Engine&) = delete;
 
-		static Renderer& GetRenderer() { return Get().renderer; }
-		static Assets& GetAssets() { return Get().assets; }
+		static void Initialize();
+
+		static Renderer& GetRenderer()	{ return Get().renderer; }
+		static Assets& GetAssets()		{ return Get().assets; }
 
 		static void NewFrame();
 		static void EndFrame();

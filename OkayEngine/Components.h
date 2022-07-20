@@ -22,7 +22,7 @@ namespace Okay // Structs for now, change to classes
 		void AssignMaterial(UINT index, std::shared_ptr<Material>& material);
 
 		std::shared_ptr<Mesh> mesh;
-		std::vector<std::shared_ptr<Material>> materials;
+		std::vector<Material*> materials;
 
 	};
 

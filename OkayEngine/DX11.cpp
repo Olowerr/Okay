@@ -160,7 +160,7 @@ HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UIN
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+	return Get().GetDevice()->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -175,7 +175,7 @@ HRESULT DX11::CreateIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+	return Get().GetDevice()->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -190,7 +190,7 @@ HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return Get().GetDevice()->CreateBuffer(&desc, &inData, ppBuffer);
+	return Get().GetDevice()->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 bool DX11::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize)

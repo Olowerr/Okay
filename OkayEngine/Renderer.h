@@ -26,8 +26,6 @@ public:
 private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
 	std::unique_ptr<Okay::Camera> mainCamera;
-	Okay::Material mat;
-
 
 	struct RenderMesh
 	{
@@ -43,6 +41,8 @@ private: // DX11 Specific
 
 	ID3D11Buffer* pViewProjectBuffer;
 	ID3D11Buffer* pWorldBuffer;
+
+	ID3D11Buffer* pMaterialBuffer;
 
 	ID3D11InputLayout* pInputLayout;
 	ID3D11VertexShader* pVertexShader;

@@ -28,9 +28,9 @@ namespace Okay
 			Float2 uvOffset = {0.f, 0.f};
 		};
 
+		GPUData data;
 	private:
 		std::shared_ptr<Texture> textures[3];
-		GPUData data;
 		bool isTwoSided;
 
 	};

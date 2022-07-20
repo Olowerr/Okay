@@ -26,6 +26,7 @@ void System::Run()
 {
 	using namespace Okay;
 
+	Engine::Initialize();
 	Engine::LoadScene("");
 
 	MSG msg{};

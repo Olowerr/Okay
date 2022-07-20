@@ -3,12 +3,15 @@
 Renderer::Renderer()
 	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
 {
+	// Make sure Okay::Engine::Get() is never called here
+
 	shaderModel = std::make_unique<Okay::ShaderModel>(true);
 	mainCamera = std::make_unique<Okay::Camera>();
 
 	DirectX::XMFLOAT4X4 Identity4x4;
 	DirectX::XMStoreFloat4x4(&Identity4x4, DirectX::XMMatrixIdentity());
 
+	DX11::CreateConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::Material::GPUData), false);
 	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	CreateVS();
@@ -52,6 +55,7 @@ void Renderer::Shutdown()
 
 	DX11_RELEASE(pViewProjectBuffer);
 	DX11_RELEASE(pWorldBuffer);
+	DX11_RELEASE(pMaterialBuffer);
 
 	DX11_RELEASE(pInputLayout);
 	DX11_RELEASE(pVertexShader);
@@ -67,8 +71,11 @@ void Renderer::Render()
 	for (size_t i = 0; i < numActive; i++)
 	{
 		DX11::UpdateBuffer(pWorldBuffer, &meshesToRender.at(i).transform->matrix, sizeof(DirectX::XMFLOAT4X4));
+		DX11::UpdateBuffer(pMaterialBuffer, &meshesToRender.at(i).mesh->materials[0]->data, sizeof(Okay::Material::GPUData));
 
 		meshesToRender.at(i).mesh->mesh->Bind();
+		meshesToRender.at(i).mesh->materials[0]->BindTextures();
+
 		meshesToRender.at(i).mesh->mesh->Draw();
 	}
 }
@@ -81,6 +88,24 @@ void Renderer::Bind()
 	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
 	pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
 	pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
+	pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
+
+	ID3D11SamplerState* simp;
+	D3D11_SAMPLER_DESC desc;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.MinLOD = -FLT_MAX;
+	desc.MaxLOD = FLT_MAX;
+	desc.MipLODBias = 0.f;
+	desc.MaxAnisotropy = 1U;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
+
+	pDevContext->PSSetSamplers(0, 1, &simp);
+
+	simp->Release();
 
 }
 

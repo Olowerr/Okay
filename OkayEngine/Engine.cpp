@@ -25,10 +25,16 @@ Okay::Engine::Engine()
 				data
 
 	*/
+	
 }
 
 Okay::Engine::~Engine()
 {
+}
+
+void Okay::Engine::Initialize()
+{
+	Get().assets.SetUp();
 }
 
 void Okay::Engine::NewFrame()
@@ -98,7 +104,8 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		Okay::String meshName;
 		reader.read(meshName.c_str, sizeof(Okay::String));
 
-		entity.AddComponent<CompMesh>(meshName.c_str);
+		auto& mat = entity.AddComponent<CompMesh>(meshName.c_str);
+		mat.AssignMaterial(0, Get().assets.materials["Default"]);
 		break;
 	}
 
