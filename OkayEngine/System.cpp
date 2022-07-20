@@ -46,6 +46,9 @@ void System::Run()
 		Engine::EndFrame();
 	}
 
+	// Will change with scene switching
+	Engine::SaveCurrentScene(); 
+
 }
 
 LRESULT System::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

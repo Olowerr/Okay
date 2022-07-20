@@ -15,7 +15,7 @@ void Assets::SetUp()
 {
 	LoadAllMeshes();
 
-	//AddMesh("gob.obj");
+	AddMesh("Goomba.obj");
 	AddTexture("../Content/Images/quack.jpg");
 
 	materials.insert({ "Default", std::make_shared<Okay::Material>() });
@@ -29,8 +29,23 @@ bool Assets::AddMesh(const std::string& filePath)
 
 	// Overrite old file / import new file
 	Okay::VertexData data;
-	std::string texPath;
-	VERIFY(Importer::Load(filePath, data, texPath));
+	std::string texName[3];
+	VERIFY(Importer::Load(filePath, data, texName));
+
+	if (texName[0].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + texName[0]);
+	if (texName[1].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + texName[1]);
+	if (texName[2].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + texName[2]);
+
+	Okay::MaterialDesc_Ptrs matDesc;
+	matDesc.baseColour = GetTexture(texName[0]);
+	matDesc.specular = GetTexture(texName[1]);
+	matDesc.ambient = GetTexture(texName[2]);
+	
+	// Change material name
+	AddMaterial(matDesc, "goombaMat");
 
 	ReadDeclaration();
 	
@@ -66,8 +81,12 @@ std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 
 bool Assets::AddTexture(const std::string& filePath)
 {
-	// Temp
-	textures.insert({ filePath.substr(filePath.find_last_of('/') + 1), std::make_shared<Okay::Texture>(filePath) });
+	const std::string& fileName = filePath.substr(filePath.find_last_of('/') + 1);
+
+	if (textures.find(fileName) != textures.end())
+		return false;
+
+	textures.insert({ fileName, std::make_shared<Okay::Texture>(filePath) });
 	return true;
 }
 
@@ -78,6 +97,32 @@ std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
 		return std::make_shared<Okay::Texture>(); 
 
 	return textures[fileName];
+}
+
+bool Assets::AddMaterial(const Okay::MaterialDesc_Strs& matDesc, const std::string& materialName)
+{
+	if (materials.find(materialName) != materials.end())
+		return false;
+
+	materials.insert({ materialName, std::make_shared<Okay::Material>(matDesc) });
+	return true;
+}
+
+bool Assets::AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc, const std::string& materialName)
+{
+	if (materials.find(materialName) != materials.end())
+		return false;
+
+	materials.insert({ materialName, std::make_shared<Okay::Material>(matDesc) });
+	return true;
+}
+
+std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialName)
+{
+	if (materials.find(materialName) == materials.end())
+		return std::make_shared<Okay::Material>();
+
+	return materials[materialName];
 }
 
 bool Assets::LoadAllMeshes()

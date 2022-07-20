@@ -1,0 +1,8 @@
+newmtl goombaMat
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Ns 100.00
+map_Kd Goomba_BaseColour.png
+map_Ka Goomba_Ambient.png
+map_Ks Goomba_Specular.png

@@ -34,6 +34,8 @@ namespace Okay
 		static bool LoadScene(const Okay::String& sceneName);
 		static bool LoadScene(UINT sceneIndex);
 
+		static bool SaveCurrentScene(); 
+
 		static Scene* GetActiveScene() { return Get().activeScene.get(); }
 
 	private:

@@ -19,7 +19,7 @@ namespace Okay // Structs for now, change to classes
 		CompMesh(const std::string& meshName);
 
 		void AssignMesh(const std::string& meshName);
-		void AssignMaterial(UINT index, std::shared_ptr<Material>& material);
+		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
 
 		std::shared_ptr<Mesh> mesh;
 		std::vector<Material*> materials;

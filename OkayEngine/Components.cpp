@@ -19,7 +19,7 @@ void Okay::CompMesh::AssignMesh(const std::string& meshName)
 	mesh = Engine::GetAssets().GetMesh(meshName);
 }
 
-void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material>& material)
+void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
 {
 	// if (mesh->NumSub >= index)
 	//	return;
