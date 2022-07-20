@@ -67,7 +67,7 @@ void Renderer::Render()
 {
 	mainCamera->Update();
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
-	
+
 	for (size_t i = 0; i < numActive; i++)
 	{
 		DX11::UpdateBuffer(pWorldBuffer, &meshesToRender.at(i).transform->matrix, sizeof(DirectX::XMFLOAT4X4));

@@ -12,7 +12,6 @@ namespace Okay
 		Engine();
 		static Engine& Get()
 		{
-			std::cout << "Get\n";
 			static Engine engine;
 			return engine;
 		}
