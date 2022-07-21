@@ -7,11 +7,17 @@
 Okay::CompMesh::CompMesh()
 	:mesh(Engine::GetAssets().GetMesh("Default"))
 {
+	materials.emplace_back(Engine::GetAssets().GetMaterial("Default").get());
 }
 
 Okay::CompMesh::CompMesh(const std::string& meshName)
 	:mesh(Engine::GetAssets().GetMesh(meshName))
 {
+	//materials.clear(); 
+	//materials.resize(mesh->NumSub);
+
+	//for (size_t i = 0; i < mesh->NumSub; i++)
+	AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
 }
 
 void Okay::CompMesh::AssignMesh(const std::string& meshName)
@@ -29,8 +35,22 @@ void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> materi
 
 	// TEMP
 	materials.resize(1);
+	materials.at(0) = material.get();
+}
 
-	materials.at(index) = material.get();
+void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
+{
+	writer.write((const char*)&mesh->GetName(), sizeof(Okay::String));
+
+	const UINT NumMaterials = (UINT)materials.size();
+	writer.write((const char*)&NumMaterials, sizeof(UINT));
+
+	for (UINT i = 0; i < NumMaterials; i++)
+		writer.write((const char*)&materials.at(i)->GetName(), sizeof(Okay::String));
+}
+
+void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
+{
 }
 
 
@@ -56,4 +76,12 @@ void Okay::CompTransform::CalcMatrix()
 		XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 		XMMatrixTranslation(position.x, position.y, position.z)
 	));
+}
+
+void Okay::CompTransform::WritePrivateData(std::ofstream& writer)
+{
+}
+
+void Okay::CompTransform::ReadPrivateData(std::ifstream& reader)
+{
 }

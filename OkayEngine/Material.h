@@ -23,6 +23,12 @@ namespace Okay
 		bool twoSided = false;
 	};
 
+	struct MaterialGPUData 
+	{
+		Float2 uvTiling = {1.f, 1.f};
+		Float2 uvOffset = {0.f, 0.f};
+	};
+
 	class Material  
 	{
 	public:
@@ -32,20 +38,15 @@ namespace Okay
 		~Material();
 
 		void BindTextures() const;
-
-
-		struct GPUData 
-		{
-			Float2 uvTiling = {1.f, 1.f};
-			Float2 uvOffset = {0.f, 0.f};
-		};
+		const Okay::String& GetName() const;
 
 		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
-		const GPUData& GetGPUData() const;
+		const MaterialGPUData& GetGPUData() const;
 
 	private:
+		Okay::String name;
 		std::shared_ptr<Texture> textures[3];
-		GPUData data;
+		MaterialGPUData data;
 		bool isTwoSided;
 
 	};

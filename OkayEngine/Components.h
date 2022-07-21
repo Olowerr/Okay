@@ -24,6 +24,8 @@ namespace Okay // Structs for now, change to classes
 		std::shared_ptr<Mesh> mesh;
 		std::vector<Material*> materials;
 
+		void WritePrivateData(std::ofstream& writer);
+		void ReadPrivateData(std::ifstream& reader);
 	};
 
 	struct CompTransform
@@ -39,5 +41,8 @@ namespace Okay // Structs for now, change to classes
 		Float3 scale;
 
 		void CalcMatrix();
+
+		void WritePrivateData(std::ofstream& writer);
+		void ReadPrivateData(std::ifstream& reader);
 	};
 }

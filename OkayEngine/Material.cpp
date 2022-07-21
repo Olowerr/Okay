@@ -45,13 +45,18 @@ void Okay::Material::BindTextures() const
 	DX11::Get().GetDeviceContext()->PSSetShaderResources(0, 3, srvs);
 }
 
+const Okay::String& Okay::Material::GetName() const
+{
+	return name;
+}
+
 void Okay::Material::SetGPUData(Float2 uvTiling, Float2 uvOffset)
 {
 	data.uvTiling = uvTiling;
 	data.uvOffset = uvOffset;
 }
 
-const Okay::Material::GPUData& Okay::Material::GetGPUData() const
+const Okay::MaterialGPUData& Okay::Material::GetGPUData() const
 {
 	return data;
 }

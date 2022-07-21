@@ -11,7 +11,7 @@ Renderer::Renderer()
 	DirectX::XMFLOAT4X4 Identity4x4;
 	DirectX::XMStoreFloat4x4(&Identity4x4, DirectX::XMMatrixIdentity());
 
-	DX11::CreateConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::Material::GPUData), false);
+	DX11::CreateConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::MaterialGPUData), false);
 	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	CreateVS();
@@ -74,7 +74,7 @@ void Renderer::Render()
 		const Okay::CompTransform& transform = *meshesToRender.at(i).transform;
 
 		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
-		DX11::UpdateBuffer(pMaterialBuffer, &mesh.materials[0]->GetGPUData(), sizeof(Okay::Material::GPUData));
+		DX11::UpdateBuffer(pMaterialBuffer, &mesh.materials[0]->GetGPUData(), sizeof(Okay::MaterialGPUData));
 
 		mesh.mesh->Bind();
 		mesh.materials[0]->BindTextures();
