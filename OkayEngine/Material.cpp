@@ -62,3 +62,16 @@ const Okay::MaterialGPUData& Okay::Material::GetGPUData() const
 {
 	return data;
 }
+
+Okay::MaterialDesc_Strs Okay::Material::GetDesc()
+{
+	Okay::MaterialDesc_Strs desc;
+	desc.name = name;
+	desc.baseColour = textures[0]->GetName();
+	desc.specular = textures[1]->GetName();
+	desc.ambient = textures[2]->GetName();
+	desc.uvTiling = data.uvTiling;
+	desc.uvOffset = data.uvOffset;
+
+	return desc;
+}

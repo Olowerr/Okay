@@ -45,6 +45,8 @@ namespace Okay
 		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
 		const MaterialGPUData& GetGPUData() const;
 
+		MaterialDesc_Strs GetDesc();
+
 	private:
 		Okay::String name;
 		std::shared_ptr<Texture> textures[3];

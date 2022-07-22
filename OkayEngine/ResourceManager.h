@@ -22,26 +22,47 @@ public:
 	void SetUp();
 
 	bool AddMesh(const std::string& fileName);
+	bool MeshExists(const std::string& fileName);
 	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
 
+	// Atm relative to TempObjFbx
 	bool AddTexture(const std::string& fileName);
+	bool TextureExists(const std::string& fileName);
 	std::shared_ptr<Okay::Texture> GetTexture(const std::string& fileName);
 
-	bool AddMaterial(const Okay::MaterialDesc_Strs& matDesc, const std::string& materialName);
-	bool AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc, const std::string& materialName);
+	bool AddMaterial(const Okay::MaterialDesc_Strs& matDesc);
+	bool AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc);
+	bool MaterialExists(const std::string& matName);
 	std::shared_ptr<Okay::Material> GetMaterial(const std::string& materialName);
+
 
 private: // All loaded "assets"
 	std::unordered_map<std::string, std::shared_ptr<Okay::Mesh>> meshes;
 	std::unordered_map<std::string, std::shared_ptr<Okay::Texture>> textures;
 	std::unordered_map<std::string, std::shared_ptr<Okay::Material>> materials;
 
-private: // Mesh loading and writing
+private: // Asset loading and writing
 	const Okay::String DeclarationPath = "../Content/Meshes/AssetDeclaration.okayDec";
-	bool LoadAllMeshes();
+	bool LoadDeclared();
+	void ClearDeclared();
 	bool ReadDeclaration();
 	bool WriteDeclaration();
-	std::vector<Okay::String> files;
-
-
+	std::vector<Okay::String> decMeshes;
+	std::vector<Okay::String> decTextures;
+	std::vector<Okay::MaterialDesc_Strs> decMaterials;
 };
+
+/*
+
+	Decleration:
+
+	UINT : NumMeshes
+		Okay::String : MeshName : x NumMeshes
+
+	UINT : NumTextures
+		Okay::String : TexturePath : x NumTextures
+
+	UINT : NumMaterials
+		Okay::MaterialDesc_Strs : MaterialDesc : x NumMaterials
+
+*/

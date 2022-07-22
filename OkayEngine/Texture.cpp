@@ -4,7 +4,7 @@ Okay::Texture::Texture()
 	:name("Quack"), texture(), srv(), rtv(), uav(), width(0), height(0), isValid(false)
 {
 	unsigned char* pData = nullptr;
-	if (!LoadTexture("../Content/Images/Quack.jpg", &pData))
+	if (!LoadTexture("../Content/Textures/Quack.jpg", &pData))
 		return;
 
 	D3D11_TEXTURE2D_DESC desc = CreateDefaultDesc();

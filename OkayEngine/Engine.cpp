@@ -35,7 +35,6 @@ Okay::Engine::~Engine()
 void Okay::Engine::Initialize()
 {
 	Get().assets.SetUp();
-
 }
 
 void Okay::Engine::NewFrame()

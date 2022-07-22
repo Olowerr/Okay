@@ -13,12 +13,18 @@ Assets::~Assets()
 
 void Assets::SetUp()
 {
-	LoadAllMeshes();
+	Okay::MaterialDesc_Strs defaultDesc;
+	defaultDesc.name = "Default";
+	defaultDesc.baseColour = "quack.jpg";
+	defaultDesc.specular = "quack.jpg";
+	defaultDesc.ambient = "quack.jpg";
 
-	AddMesh("Goomba.obj");
-	AddTexture("../Content/Images/quack.jpg");
+	AddTexture("../Content/textures/quack.jpg");
+	AddMaterial(defaultDesc);
 
-	materials.insert({ "Default", std::make_shared<Okay::Material>() });
+	LoadDeclared();
+	WriteDeclaration();
+	ClearDeclared();
 }
 
 bool Assets::AddMesh(const std::string& filePath)
@@ -39,41 +45,34 @@ bool Assets::AddMesh(const std::string& filePath)
 	if (output[3].size())
 		AddTexture("../Content/Meshes/TempObjFbx/" + output[3]);
 
-	Okay::MaterialDesc_Ptrs matDesc;
-	matDesc.name = output[0];
-	matDesc.baseColour = GetTexture(output[1]);
-	matDesc.specular = GetTexture(output[2]);
-	matDesc.ambient = GetTexture(output[3]);
-	
-	// Change material name
-	AddMaterial(matDesc, output[0]);
+	if (!MaterialExists(output[0]))
+	{
+		Okay::MaterialDesc_Ptrs matDesc;
+		matDesc.name = output[0];
+		matDesc.baseColour = GetTexture(output[1]);
+		matDesc.specular = GetTexture(output[2]);
+		matDesc.ambient = GetTexture(output[3]);
+		
+		AddMaterial(matDesc);
+	}
 
 	ReadDeclaration();
 	
-	// Check if the file exists
-	bool found = false;
-	for (auto& file : files)
-	{
-		if (file == fileName)
-			found = true;
-	}
-
-	// Add to decleration if doesn't exist
-	if (!found)
-		files.emplace_back(fileName);
+	// Create the mesh
+	meshes[fileName] = std::make_shared<Okay::Mesh>(data, fileName);
 
 	WriteDeclaration();
 
-	// Create the mesh
-	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, fileName);
-	meshes[fileName] = mesh;
-	
 	return true;
+}
+
+bool Assets::MeshExists(const std::string& fileName)
+{
+	return meshes.find(fileName) != meshes.end();
 }
 
 std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 {
-	// Need to change
 	if (meshes.find(fileName) == meshes.end())
 		return std::make_shared<Okay::Mesh>(); 
 
@@ -88,7 +87,18 @@ bool Assets::AddTexture(const std::string& filePath)
 		return false;
 
 	textures.insert({ fileName, std::make_shared<Okay::Texture>(filePath) });
+
+	// TEMP path
+	const std::string& savePath = "../Content/Textures/" + fileName;
+
+	CopyFile(std::wstring(filePath.begin(), filePath.end()).c_str(), std::wstring(savePath.begin(), savePath.end()).c_str(), FALSE);
+
 	return true;
+}
+
+bool Assets::TextureExists(const std::string& fileName)
+{
+	return textures.find(fileName) != textures.end();
 }
 
 std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
@@ -100,22 +110,27 @@ std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
 	return textures[fileName];
 }
 
-bool Assets::AddMaterial(const Okay::MaterialDesc_Strs& matDesc, const std::string& materialName)
+bool Assets::AddMaterial(const Okay::MaterialDesc_Strs& matDesc)
 {
-	if (materials.find(materialName) != materials.end())
+	if (MaterialExists(matDesc.name.c_str))
 		return false;
 
-	materials.insert({ materialName, std::make_shared<Okay::Material>(matDesc) });
+	materials.insert({ matDesc.name.c_str, std::make_shared<Okay::Material>(matDesc) });
 	return true;
 }
 
-bool Assets::AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc, const std::string& materialName)
+bool Assets::AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc)
 {
-	if (materials.find(materialName) != materials.end())
+	if (MaterialExists(matDesc.name.c_str))
 		return false;
 
-	materials.insert({ materialName, std::make_shared<Okay::Material>(matDesc) });
+	materials.insert({ matDesc.name.c_str, std::make_shared<Okay::Material>(matDesc) });
 	return true;
+}
+
+bool Assets::MaterialExists(const std::string& matName)
+{
+	return materials.find(matName) != materials.end();
 }
 
 std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialName)
@@ -126,48 +141,82 @@ std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialN
 	return materials[materialName];
 }
 
-bool Assets::LoadAllMeshes()
+bool Assets::LoadDeclared()
 {
 	VERIFY(ReadDeclaration());
 
-	bool result = true, result2;
-	for (const auto& file : files)
+	bool result = true;
+	for (const auto& file : decMeshes)
 	{
-		// File already loaded?
-		if (meshes.find(file.c_str) != meshes.end())
+		if (MeshExists(file.c_str))
 			continue;
 
 		// Attempt to load the file
 		Okay::VertexData data;
-		result2 = Importer::LoadOkayAsset(file.c_str, data);
-		if (!result2)
+		if (!Importer::LoadOkayAsset(file.c_str, data))
 		{
 			result = false;
 			continue;
 		}
 
-		// Create mesh and insert into the map
-		std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, file);
-		meshes.insert({ file.c_str, mesh });
+		// Create mesh and insert into map
+		meshes[file.c_str] = std::make_shared<Okay::Mesh>(data, file);
 	}
+
+	for (const auto& texture : decTextures)
+	{
+		if (TextureExists(texture.c_str))
+			continue;
+
+		// Create texture and insert into map
+		const std::string& path = "../Content/Textures/";
+		textures[texture.c_str] = std::make_shared<Okay::Texture>(path + texture.c_str);
+
+		if (!textures[texture.c_str]->GetIsValid())
+			result = false;
+	}
+
+	for (const auto& materialDesc : decMaterials)
+	{
+		if (!AddMaterial(materialDesc))
+			result = false;
+	}
+
+
 
 	return result;
 }
 
+void Assets::ClearDeclared()
+{
+	decMeshes.resize(0);
+	decTextures.resize(0);
+	decMaterials.resize(0);
+}
+
 bool Assets::ReadDeclaration()
 {
-	std::ifstream reader(DeclarationPath.c_str, std::ios::binary);
+	std::ifstream reader("../Content/Meshes/AssetDeclaration.okayDec", std::ios::binary);
 	VERIFY(reader);
 
-	UINT NumFiles = 0;
-	reader.read((char*)&NumFiles, sizeof(UINT));
-	if (!NumFiles)
-		return true;
+	UINT numElements = 0;
+	UINT byteWidth = 0;
 
-	files.resize(NumFiles);
+	// Meshes
+	reader.read((char*)&numElements, sizeof(UINT));
+	decMeshes.resize(numElements);
+	reader.read((char*)decMeshes.data(), sizeof(Okay::String) * numElements);
 
-	const UINT ByteWidth = sizeof(Okay::String) * NumFiles;
-	reader.read((char*)files.data(), ByteWidth);
+	// Textures
+	reader.read((char*)&numElements, sizeof(UINT));
+	decTextures.resize(numElements);
+	reader.read((char*)decTextures.data(), sizeof(Okay::String) * numElements);
+
+	// Materials
+	reader.read((char*)&numElements, sizeof(UINT));
+	decMaterials.resize(numElements);
+	reader.read((char*)decMaterials.data(), sizeof(Okay::MaterialDesc_Strs) * numElements);
+
 
 	reader.close();
 	return true;
@@ -175,14 +224,48 @@ bool Assets::ReadDeclaration()
 
 bool Assets::WriteDeclaration()
 {
-	std::ofstream writer(DeclarationPath.c_str, std::ios::binary | std::ios::trunc);
+	std::ofstream writer("../Content/Meshes/AssetDeclaration.okayDec", std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
-	const UINT NumFiles = (UINT)files.size();
-	const UINT ByteWidth = sizeof(Okay::String) * NumFiles;
+	UINT numElements = 0;
+	UINT byteWidth = 0;
 
-	writer.write((const char*)&NumFiles, sizeof(UINT));
-	writer.write((const char*)files.data(), ByteWidth);
+	// Meshes
+	UINT c = 0;
+	decMeshes.resize(meshes.size());
+	for (auto& mesh : meshes)
+		decMeshes.at(c++) = mesh.second->GetName();
+	
+	// Textures
+	c = 0;
+	decTextures.resize(textures.size());
+	for (auto& tex : textures)
+		decTextures.at(c++) = tex.second->GetName();
+
+	// Materials
+	c = 0; 
+	decMaterials.resize(materials.size());
+	for (auto& mat : materials)
+		decMaterials.at(c++) = mat.second->GetDesc();
+	
+
+	// Meshes
+	numElements = (UINT)decMeshes.size();
+	byteWidth = sizeof(Okay::String) * numElements;
+	writer.write((const char*)&numElements, sizeof(UINT));
+	writer.write((const char*)decMeshes.data(), byteWidth);
+
+	// Textures
+	numElements = (UINT)decTextures.size();
+	byteWidth = sizeof(Okay::String) * numElements;
+	writer.write((const char*)&numElements, sizeof(UINT));
+	writer.write((const char*)decTextures.data(), byteWidth);
+
+	// Materials
+	numElements = (UINT)decMaterials.size();
+	byteWidth = sizeof(Okay::MaterialDesc_Strs) * numElements;
+	writer.write((const char*)&numElements, sizeof(UINT));
+	writer.write((const char*)decMaterials.data(), byteWidth);
 
 	writer.close();
 	return true;
