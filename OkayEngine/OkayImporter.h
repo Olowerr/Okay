@@ -42,14 +42,16 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 	aiString aiStr;
 
+	texPaths[0] = pMat->GetName().C_Str();
+
 	pMat->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr);
-	texPaths[0] = aiStr.C_Str();
+	texPaths[1] = aiStr.C_Str();
 
 	pMat->GetTexture(aiTextureType_SPECULAR, 0, &aiStr);
-	texPaths[1] = aiStr.C_Str();
+	texPaths[2] = aiStr.C_Str();
 	
 	pMat->GetTexture(aiTextureType_AMBIENT, 0, &aiStr);
-	texPaths[2] = aiStr.C_Str();
+	texPaths[3] = aiStr.C_Str();
 
 
 	// Vertex Positions

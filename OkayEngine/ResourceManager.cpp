@@ -29,23 +29,24 @@ bool Assets::AddMesh(const std::string& filePath)
 
 	// Overrite old file / import new file
 	Okay::VertexData data;
-	std::string texName[3];
-	VERIFY(Importer::Load(filePath, data, texName));
+	std::string output[4];
+	VERIFY(Importer::Load(filePath, data, output));
 
-	if (texName[0].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + texName[0]);
-	if (texName[1].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + texName[1]);
-	if (texName[2].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + texName[2]);
+	if (output[1].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + output[1]);
+	if (output[2].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + output[2]);
+	if (output[3].size())
+		AddTexture("../Content/Meshes/TempObjFbx/" + output[3]);
 
 	Okay::MaterialDesc_Ptrs matDesc;
-	matDesc.baseColour = GetTexture(texName[0]);
-	matDesc.specular = GetTexture(texName[1]);
-	matDesc.ambient = GetTexture(texName[2]);
+	matDesc.name = output[0];
+	matDesc.baseColour = GetTexture(output[1]);
+	matDesc.specular = GetTexture(output[2]);
+	matDesc.ambient = GetTexture(output[3]);
 	
 	// Change material name
-	AddMaterial(matDesc, "goombaMat");
+	AddMaterial(matDesc, output[0]);
 
 	ReadDeclaration();
 	
@@ -65,7 +66,7 @@ bool Assets::AddMesh(const std::string& filePath)
 
 	// Create the mesh
 	std::shared_ptr<Okay::Mesh> mesh = std::make_shared<Okay::Mesh>(data, fileName);
-	meshes.insert({ fileName, mesh });
+	meshes[fileName] = mesh;
 	
 	return true;
 }

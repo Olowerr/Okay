@@ -38,7 +38,7 @@ Okay::Texture::Texture(UINT width, UINT height, DXGI_FORMAT format, UINT bindFla
 }
 
 Okay::Texture::Texture(const std::string& path, UINT bindFlags)
-	:isValid(false), name(path.substr(path.find_last_of('/') + 1)), texture(), srv(), rtv(), uav()
+	:isValid(false), name(path.substr(path.find_last_of('/') + 1)), width(0), height(0), texture(), srv(), rtv(), uav()
 {
 	unsigned char* pData = nullptr;
 	if (!LoadTexture(path, &pData))

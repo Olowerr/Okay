@@ -71,22 +71,20 @@ bool Okay::Engine::SaveCurrentScene()
 	Okay::Components type;
 	for (auto& entity : group)
 	{
-		const Okay::String& meshName = group.get<Okay::CompMesh>(entity).mesh->GetName();
-		const Okay::CompTransform& transform = group.get<Okay::CompTransform>(entity);
+		Okay::CompMesh& mesh = group.get<Okay::CompMesh>(entity);
+		Okay::CompTransform& transform = group.get<Okay::CompTransform>(entity);
 
 		writer.write((const char*)&NumComp, sizeof(UINT));
 
 		// Write Mesh
 		type = Okay::Components::Mesh;
 		writer.write((const char*)&type, sizeof(Okay::Components));
-		writer.write((const char*)&meshName, sizeof(Okay::String));
+		mesh.WritePrivateData(writer);
 
 		// Write Transform
 		type = Okay::Components::Transform;
 		writer.write((const char*)&type, sizeof(Okay::Components));
-		writer.write((const char*)&transform.position, sizeof(Okay::Float3));
-		writer.write((const char*)&transform.rotation, sizeof(Okay::Float3));
-		writer.write((const char*)&transform.scale, sizeof(Okay::Float3));
+		transform.WritePrivateData(writer);
 	}
 
 	writer.close();
@@ -141,25 +139,14 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 
 	case Components::Mesh:
 	{
-		Okay::String meshName;
-		reader.read(meshName.c_str, sizeof(Okay::String));
-
-		auto& mat = entity.AddComponent<CompMesh>(meshName.c_str);
-		mat.AssignMaterial(0, Get().assets.GetMaterial("goombaMat"));
+		entity.AddComponent<CompMesh>(reader);
 		break;
 	}
 
-	case Components::Transform: // All entities get a transform component on creation
+	case Components::Transform: 
 	{
-		auto& transform = entity.GetComponent<CompTransform>();
-		
-		// Could read all three at the same time but that assums they're after one another in CompTransform
-		reader.read((char*)&transform.position, sizeof(Okay::Float3));
-		reader.read((char*)&transform.rotation, sizeof(Okay::Float3));
-		reader.read((char*)&transform.scale, sizeof(Okay::Float3));
-		
-		transform.CalcMatrix();
-
+		// All entities get a transform component on creation
+		entity.GetComponent<CompTransform>().ReadPrivateData(reader);
 		break;
 	}
 	}

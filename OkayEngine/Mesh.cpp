@@ -3,12 +3,13 @@
 
 const UINT Okay::Mesh::Stride[] = { sizeof(Float3), sizeof(UVNormal) };
 const UINT Okay::Mesh::Offset[] = { 0,0 };
+int Okay::Mesh::count = 0;
 
 Okay::Mesh::Mesh()
 	:vertexBuffers{}, indexBuffer(), numIndices(3), name("Default")
 {
 	// Triangle :]
-
+	count++;
 	Float3 pos[3] = {
 		{ 0.0f,	  0.5f, 0.0f},
 		{ 0.5f,  -0.5f, 0.0f},
@@ -32,6 +33,7 @@ Okay::Mesh::Mesh()
 Okay::Mesh::Mesh(const VertexData& vertices, const String& meshName)
 	:numIndices((UINT)vertices.indices.size()), vertexBuffers{}, indexBuffer(), name(meshName)
 {
+	count++;
 	DX11::CreateVertexBuffer(&vertexBuffers[0], vertices.position.data(), sizeof(Float3)* (UINT)vertices.position.size());
 	DX11::CreateVertexBuffer(&vertexBuffers[1], vertices.uvNormal.data(), sizeof(UVNormal)* (UINT)vertices.uvNormal.size());
 	DX11::CreateIndexBuffer(&indexBuffer, vertices.indices.data(), sizeof(UINT)* (UINT)vertices.indices.size());

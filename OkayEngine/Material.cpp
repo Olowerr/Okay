@@ -2,7 +2,7 @@
 #include "Engine.h"
 
 Okay::Material::Material()
-	:isTwoSided(false)
+	:isTwoSided(false), name("Default")
 {
 	textures[0] = Okay::Engine::GetAssets().GetTexture("quack.jpg");
 	textures[1] = Okay::Engine::GetAssets().GetTexture("quack.jpg");
@@ -18,6 +18,7 @@ Okay::Material::Material(const MaterialDesc_Strs& desc)
 	data.uvTiling = desc.uvTiling;
 	data.uvOffset = desc.uvOffset;
 	isTwoSided = desc.twoSided;
+	name = desc.name;
 }
 
 Okay::Material::Material(const MaterialDesc_Ptrs& desc)
@@ -29,6 +30,7 @@ Okay::Material::Material(const MaterialDesc_Ptrs& desc)
 	data.uvTiling = desc.uvTiling;
 	data.uvOffset = desc.uvOffset;
 	isTwoSided = desc.twoSided;
+	name = desc.name;
 }
 
 Okay::Material::~Material()

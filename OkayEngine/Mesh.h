@@ -9,7 +9,7 @@ namespace Okay
 	public:
 		Mesh();
 		Mesh(const VertexData& vertices, const String& meshName);
-
+		static int count;
 		virtual ~Mesh();
 		virtual void Shutdown();
 

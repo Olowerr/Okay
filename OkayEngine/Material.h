@@ -5,6 +5,7 @@ namespace Okay
 {
 	struct MaterialDesc_Strs
 	{
+		String name;
 		String baseColour;
 		String specular;
 		String ambient;
@@ -15,6 +16,7 @@ namespace Okay
 	
 	struct MaterialDesc_Ptrs
 	{
+		String name;
 		std::shared_ptr<Texture> baseColour;
 		std::shared_ptr<Texture> specular;
 		std::shared_ptr<Texture> ambient;

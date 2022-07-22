@@ -10,6 +10,11 @@ Okay::CompMesh::CompMesh()
 	materials.emplace_back(Engine::GetAssets().GetMaterial("Default").get());
 }
 
+Okay::CompMesh::CompMesh(std::ifstream& reader)
+{
+	ReadPrivateData(reader);
+}
+
 Okay::CompMesh::CompMesh(const std::string& meshName)
 	:mesh(Engine::GetAssets().GetMesh(meshName))
 {
@@ -55,6 +60,7 @@ void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
 {
 	Okay::String readData;
 	reader.read((char*)&readData, sizeof(Okay::String));
+	mesh = Engine::GetAssets().GetMesh(readData.c_str);
 
 	UINT NumMaterials = 0;
 	reader.read((char*)&NumMaterials, sizeof(UINT));
@@ -99,8 +105,16 @@ void Okay::CompTransform::CalcMatrix()
 
 void Okay::CompTransform::WritePrivateData(std::ofstream& writer)
 {
+	writer.write((const char*)&position, sizeof(Okay::Float3));
+	writer.write((const char*)&rotation, sizeof(Okay::Float3));
+	writer.write((const char*)&scale, sizeof(Okay::Float3));
 }
 
 void Okay::CompTransform::ReadPrivateData(std::ifstream& reader)
 {
+	reader.read((char*)&position, sizeof(Okay::Float3));
+	reader.read((char*)&rotation, sizeof(Okay::Float3));
+	reader.read((char*)&scale, sizeof(Okay::Float3));
+
+	CalcMatrix();
 }
