@@ -23,6 +23,8 @@ Okay::CompMesh::CompMesh(const std::string& meshName)
 void Okay::CompMesh::AssignMesh(const std::string& meshName)
 {
 	mesh = Engine::GetAssets().GetMesh(meshName);
+	//materials.clear();
+	//materials.resize(mesh->NumSub);
 }
 
 void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
@@ -51,6 +53,23 @@ void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
 
 void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
 {
+	Okay::String readData;
+	reader.read((char*)&readData, sizeof(Okay::String));
+
+	UINT NumMaterials = 0;
+	reader.read((char*)&NumMaterials, sizeof(UINT));
+
+	materials.resize(NumMaterials);
+
+	for (UINT i = 0; i < NumMaterials; i++)
+	{
+		reader.read((char*)&readData, sizeof(Okay::String));
+
+		auto asd = Engine::GetAssets().GetMaterial(readData.c_str);
+		materials.at(i) = asd.get();
+	}
+
+	
 }
 
 
