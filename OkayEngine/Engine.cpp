@@ -4,6 +4,13 @@ const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecl
 
 Okay::Engine::Engine()
 {
+#ifdef _IMGUI
+	ImguiStart();
+#endif // _IMGUI
+
+
+
+
 	/*
 	
 	//NumScenes
@@ -30,6 +37,9 @@ Okay::Engine::Engine()
 
 Okay::Engine::~Engine()
 {
+#ifdef _IMGUI
+	ImguiEnd();
+#endif // _IMGUI
 }
 
 void Okay::Engine::Initialize()
@@ -41,10 +51,18 @@ void Okay::Engine::NewFrame()
 {
 	Get().renderer.NewFrame();
 	DX11::Get().NewFrame();
+
+#ifdef _IMGUI
+	Get().ImguiNewFrame();
+#endif // _IMGUI
 }
 
 void Okay::Engine::EndFrame()
 {
+#ifdef _IMGUI
+	Get().ImguiEndFrame();
+#endif // _IMGUI
+
 	DX11::Get().EndFrame();
 }
 
@@ -107,11 +125,13 @@ bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 		ReadEntity(ent, reader);
 	}
 
+	Get().activeScene->Start();
 	return true;
 }
 
 bool Okay::Engine::LoadScene(UINT sceneIndex)
 {
+	Get().activeScene->Start();
 	return false;
 }
 

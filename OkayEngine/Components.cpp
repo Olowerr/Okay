@@ -7,7 +7,7 @@
 Okay::CompMesh::CompMesh()
 	:mesh(Engine::GetAssets().GetMesh("Default"))
 {
-	materials.emplace_back(Engine::GetAssets().GetMaterial("Default").get());
+	AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
 }
 
 Okay::CompMesh::CompMesh(std::ifstream& reader)

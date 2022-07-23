@@ -20,8 +20,8 @@ public:
 	template<typename T>
 	bool HasComponent()
 	{
-		return false;
-		//return pScene->GetRegistry().has<T>(entityId); // has no exists
+		// apparently has() doesn't exist
+		return pScene->GetRegistry().try_get<T>(entityId);
 	}
 
 	template<typename T>
@@ -30,9 +30,14 @@ public:
 		return pScene->registry.get<T>(entityId);
 	}
 
-
+	operator entt::entity() { return entityId; }
+	operator entt::entity() const { return entityId; }
 
 private:
 	entt::entity entityId;
-	Scene* pScene; // mmmmm .-.
+
+	// Could FwdDeclare Entity in engine and call the engine functions from here
+	// But then an entities wouldn't care which scene they're in
+	// pScene makes it possible to open multiple scenes with their own entities
+	Scene* pScene;
 };

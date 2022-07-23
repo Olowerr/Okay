@@ -1,23 +1,28 @@
 #pragma once
 
 #include "Entt/entt.hpp"
-#include "Renderer.h"
 
 class Entity;
 class Scene
 {
 public:
-	Scene(Renderer& renderer);
+	Scene();
 	~Scene();
 
 	Entity CreateEntity();
 	entt::registry& GetRegistry() { return registry; }
+	std::vector<Entity>& GetEntities() { return entities; }
 
 	// Maybe temp
 	void Start();
 	void Update();
 
-	entt::registry registry;
 private:
-	Renderer& renderer;
+	entt::registry registry;
+
+	// Maybe temp
+	std::vector<Entity> entities;
+
+	// Temp
+	int index;
 };
