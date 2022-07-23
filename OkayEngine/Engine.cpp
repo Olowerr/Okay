@@ -78,7 +78,8 @@ bool Okay::Engine::SaveCurrentScene()
 
 	entt::registry& registry = Get().activeScene->GetRegistry();
 
-	const UINT NumEntities = (UINT)registry.size();
+	// Might change
+	const UINT NumEntities = (UINT)registry.alive();
 	writer.write((const char*)&NumEntities, sizeof(UINT));
 
 
@@ -86,8 +87,12 @@ bool Okay::Engine::SaveCurrentScene()
 	const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform>();
 	const UINT NumComp = 2;
 	Okay::Components type;
+
 	for (auto& entity : group)
 	{
+		if (!registry.valid(entity))
+			continue;
+
 		Okay::CompMesh& mesh = group.get<Okay::CompMesh>(entity);
 		Okay::CompTransform& transform = group.get<Okay::CompTransform>(entity);
 
@@ -111,7 +116,7 @@ bool Okay::Engine::SaveCurrentScene()
 bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 {
 	Get().activeScene.release();
-	Get().activeScene = std::make_unique<Scene>(Get().renderer);
+	Get().activeScene = std::make_unique<Scene>();
 
 	std::ifstream reader(SceneDecleration.c_str, std::ios::binary);
 	VERIFY(reader);

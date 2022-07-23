@@ -26,3 +26,11 @@ private:
 	// Temp
 	int index;
 };
+
+
+/*
+
+	Move All ImGui stuff into an Editor
+	could just be a class, maybe different project ?
+
+*/

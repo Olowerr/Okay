@@ -27,7 +27,7 @@ public:
 	template<typename T>
 	T& GetComponent()
 	{
-		return pScene->registry.get<T>(entityId);
+		return pScene->GetRegistry().get<T>(entityId);
 	}
 
 	operator entt::entity() { return entityId; }
