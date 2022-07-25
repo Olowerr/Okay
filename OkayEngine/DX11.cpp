@@ -143,6 +143,14 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 	return &pDepthBufferDSV;
 }
 
+void DX11::ResizeBackBuffer()
+{
+	DX11_RELEASE(pBackBufferRTV);
+	pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+
+	pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
+}
+
 
 
 

@@ -24,6 +24,8 @@ public:
 	ID3D11Texture2D* GetDepthBuffer();
 	ID3D11DepthStencilView* const* GetDepthBufferDSV();
 
+	void ResizeBackBuffer();
+
 	// Helper functions
 	static HRESULT CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static HRESULT CreateIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
