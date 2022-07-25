@@ -47,6 +47,12 @@ void Okay::Engine::Initialize()
 	Get().assets.SetUp();
 }
 
+void Okay::Engine::ResizeScreen()
+{
+	DX11::Get().ResizeBackBuffer();
+	Get().renderer.Resize();
+}
+
 void Okay::Engine::NewFrame()
 {
 	Get().renderer.NewFrame();

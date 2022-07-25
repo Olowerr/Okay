@@ -14,6 +14,8 @@ public:
 	Renderer(Renderer&&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
+	void Resize();
+
 	// TEMP
 	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
 

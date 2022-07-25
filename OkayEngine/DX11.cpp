@@ -4,17 +4,18 @@ DX11::DX11()
 	:pDevice(), pDeviceContext(), pSwapChain()
 	, pBackBuffer(), pBackBufferRTV()
 	, pDepthBuffer(), pDepthBufferDSV()
+	, winWidth(WIN_W), winHeight(WIN_H)
 {
 	HRESULT hr{};
-	
+
 	DXGI_SWAP_CHAIN_DESC desc{};
 	{
 		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		desc.BufferCount = 1;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
-		desc.BufferDesc.Width = WIN_W;
-		desc.BufferDesc.Height = WIN_H;
+		desc.BufferDesc.Width = winWidth;
+		desc.BufferDesc.Height = winHeight;
 		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -28,7 +29,7 @@ DX11::DX11()
 		desc.Windowed = true;
 		desc.Flags = 0;
 	}
-	
+
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	UINT flags = 0;
 #ifdef _DEBUG
@@ -40,7 +41,7 @@ DX11::DX11()
 		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &pSwapChain, &pDevice, nullptr, &pDeviceContext);
 	if (FAILED(hr))
 		return;
-	
+
 
 	// BackBuffer
 	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
@@ -51,7 +52,7 @@ DX11::DX11()
 	if (FAILED(hr))
 		return;
 
-	
+
 	// DepthBuffer
 	D3D11_TEXTURE2D_DESC dDesc{};
 	{
@@ -61,13 +62,13 @@ DX11::DX11()
 		dDesc.CPUAccessFlags = 0;
 		dDesc.ArraySize = 1;
 		dDesc.MipLevels = 1;
-		dDesc.Width = WIN_W;
-		dDesc.Height= WIN_H;
+		dDesc.Width = winWidth;
+		dDesc.Height = winHeight;
 		dDesc.SampleDesc.Count = 1;
 		dDesc.SampleDesc.Quality = 0;
 		dDesc.MiscFlags = 0;
 	}
-	
+
 	hr = pDevice->CreateTexture2D(&dDesc, nullptr, &pDepthBuffer);
 	if (FAILED(hr))
 		return;
@@ -143,12 +144,34 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 	return &pDepthBufferDSV;
 }
 
-void DX11::ResizeBackBuffer()
+bool DX11::ResizeBackBuffer()
 {
 	DX11_RELEASE(pBackBufferRTV);
+	DX11_RELEASE(pBackBuffer);
+	DX11_RELEASE(pDepthBuffer);
+	DX11_RELEASE(pDepthBufferDSV);
+
 	pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
+	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
+	VERIFY(pBackBuffer);
+
 	pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
+	VERIFY(pBackBufferRTV);
+
+	D3D11_TEXTURE2D_DESC desc;
+	pBackBuffer->GetDesc(&desc);
+	desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	pDevice->CreateTexture2D(&desc, nullptr, &pDepthBuffer);
+	VERIFY(pDepthBuffer);
+
+	pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
+	VERIFY(pDepthBufferDSV);
+
+	//printf("Width: %d\nHeight: %d\n\n", desc.Width, desc.Height);
+	return true;
 }
 
 
@@ -160,7 +183,7 @@ HRESULT DX11::CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UIN
 {
 	D3D11_BUFFER_DESC desc{};
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC; 
+	desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC;
 	desc.CPUAccessFlags = immutable ? 0 : D3D11_CPU_ACCESS_WRITE;
 	desc.ByteWidth = byteSize;
 	desc.MiscFlags = 0;

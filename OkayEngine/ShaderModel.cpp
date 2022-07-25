@@ -11,8 +11,8 @@ Okay::ShaderModel::ShaderModel(bool defaultShader)
 		viewport.TopLeftY = 0.f;
 		viewport.MaxDepth = 1.f;
 		viewport.MinDepth = 0.f;
-		viewport.Width = WIN_W;
-		viewport.Height = WIN_H;
+		viewport.Width = (FLOAT)DX11::Get().GetWindowWidth();
+		viewport.Height = (FLOAT)DX11::Get().GetWindowHeight();
 	}
 }
 
@@ -37,6 +37,13 @@ void Okay::ShaderModel::Bind()
 void Okay::ShaderModel::Apply()
 {
 	// Post process for derived Shader Models
+}
+
+void Okay::ShaderModel::Resize()
+{
+	viewport.Width = (FLOAT)DX11::Get().GetWindowWidth();
+	viewport.Height = (FLOAT)DX11::Get().GetWindowHeight();
+	Bind();
 }
 
 bool Okay::ShaderModel::CreateDefaultPS()

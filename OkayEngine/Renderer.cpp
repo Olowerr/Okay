@@ -30,6 +30,11 @@ Renderer::~Renderer()
 	Shutdown();
 }
 
+void Renderer::Resize()
+{
+	shaderModel->Resize();
+}
+
 void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 {
 	if (numActive >= meshesToRender.size())

@@ -33,6 +33,7 @@ namespace Okay
 		Engine& operator=(const Engine&) = delete;
 
 		static void Initialize();
+		static void ResizeScreen();
 
 		static Renderer& GetRenderer()	{ return Get().renderer; }
 		static Assets& GetAssets()		{ return Get().assets; }

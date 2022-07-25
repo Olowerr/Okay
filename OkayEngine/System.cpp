@@ -66,7 +66,7 @@ LRESULT System::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	switch (message)
 	{
 	case WM_SIZE:
-		DX11::Get().ResizeBackBuffer();
+		Okay::Engine::ResizeScreen();
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);

@@ -24,7 +24,11 @@ public:
 	ID3D11Texture2D* GetDepthBuffer();
 	ID3D11DepthStencilView* const* GetDepthBufferDSV();
 
-	void ResizeBackBuffer();
+	bool ResizeBackBuffer();
+
+	UINT GetWindowWidth() const { return winWidth; }
+	UINT GetWindowHeight() const { return winHeight; }
+	FLOAT GetWindowAspectRatio() const { return float(winWidth) / float(winHeight); }
 
 	// Helper functions
 	static HRESULT CreateVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
@@ -33,6 +37,9 @@ public:
 	static bool UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize);
 
 private:
+	UINT winWidth;
+	UINT winHeight;
+
 	ID3D11Device* pDevice;
 	ID3D11DeviceContext* pDeviceContext;
 	IDXGISwapChain* pSwapChain;

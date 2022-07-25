@@ -1,11 +1,12 @@
 #include "Camera.h"
+#include "DX11.h"
 
 Okay::Camera::Camera()
 {
     using namespace DirectX;
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
         XMMatrixLookAtLH(XMVectorSet(0.f, 0.f, -3.f, 0.f), XMVectorSet(0.f, 0.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
-        XMMatrixPerspectiveFovLH(XM_PIDIV2, WinRatio, 0.1f, 500.f)));
+        XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
 }
 
 Okay::Camera::~Camera()
@@ -22,5 +23,5 @@ void Okay::Camera::Update()
     using namespace DirectX;
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
         XMMatrixLookAtLH(XMVectorSet(10.f, 10.f, -10.f, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
-        XMMatrixPerspectiveFovLH(XM_PIDIV2, WinRatio, 0.1f, 500.f)));
+        XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
 }

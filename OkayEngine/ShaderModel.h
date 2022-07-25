@@ -9,9 +9,10 @@ namespace Okay
 		ShaderModel(bool defaultShader = false);
 		virtual ~ShaderModel();
 		virtual void Shutdown();
-
+	
 		virtual void Bind();
 		virtual void Apply();
+		void Resize();
 
 	protected:
 		D3D11_VIEWPORT viewport;
