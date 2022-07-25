@@ -28,7 +28,7 @@ void Scene::Start()
 
 void Scene::Update()
 {
-#ifdef _IMGUI
+#if 0
 
     if (ImGui::Begin("Entity"))
     {

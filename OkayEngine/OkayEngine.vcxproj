@@ -102,6 +102,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Components.cpp" />
     <ClCompile Include="DX11.cpp" />
+    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="Components.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="Editor.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Entity.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

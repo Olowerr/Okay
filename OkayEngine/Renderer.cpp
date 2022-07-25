@@ -70,6 +70,7 @@ void Renderer::Shutdown()
 
 void Renderer::Render()
 {
+	shaderModel->Bind();
 	mainCamera->Update();
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 

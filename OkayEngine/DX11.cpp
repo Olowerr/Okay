@@ -27,7 +27,7 @@ DX11::DX11()
 
 		desc.OutputWindow = GetHWindow();
 		desc.Windowed = true;
-		desc.Flags = 0;
+		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	}
 
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;

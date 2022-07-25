@@ -4,12 +4,6 @@ const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecl
 
 Okay::Engine::Engine()
 {
-#ifdef _IMGUI
-	ImguiStart();
-#endif // _IMGUI
-
-
-
 
 	/*
 	
@@ -37,9 +31,6 @@ Okay::Engine::Engine()
 
 Okay::Engine::~Engine()
 {
-#ifdef _IMGUI
-	ImguiEnd();
-#endif // _IMGUI
 }
 
 void Okay::Engine::Initialize()
@@ -57,18 +48,10 @@ void Okay::Engine::NewFrame()
 {
 	Get().renderer.NewFrame();
 	DX11::Get().NewFrame();
-
-#ifdef _IMGUI
-	Get().ImguiNewFrame();
-#endif // _IMGUI
 }
 
 void Okay::Engine::EndFrame()
 {
-#ifdef _IMGUI
-	Get().ImguiEndFrame();
-#endif // _IMGUI
-
 	DX11::Get().EndFrame();
 }
 

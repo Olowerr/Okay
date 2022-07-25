@@ -5,14 +5,11 @@
 #include <iostream>
 
 // Temp
-#define _IMGUI
+#define EDITOR
 
-#ifdef _IMGUI
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_win32.h"
-#endif // _IMGUI
-
+#ifdef EDITOR
+#include "Editor.h"
+#endif // EDITOR
 
 namespace Okay
 {
@@ -59,40 +56,6 @@ namespace Okay
 
 		static void ReadEntity(Entity& entity, std::ifstream& reader);
 		static void ReadComponentData(Entity& entity, Components type, std::ifstream& reader);
-
-#ifdef _IMGUI
-	private:
-		void ImguiStart() 
-		{
-			IMGUI_CHECKVERSION();
-			ImGui::CreateContext();
-
-			ImGui::StyleColorsDark();
-
-			ImGui_ImplWin32_Init(GetHWindow());
-			ImGui_ImplDX11_Init(DX11::Get().GetDevice(), DX11::Get().GetDeviceContext());
-		}
-		void ImguiEnd()
-		{
-			ImGui_ImplDX11_Shutdown();
-			ImGui_ImplWin32_Shutdown();
-			ImGui::DestroyContext();
-		}
-
-		void ImguiNewFrame()
-		{
-			ImGui_ImplDX11_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
-		}
-		void ImguiEndFrame()
-		{
-			ImGui::Render();
-			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-		}
-
-#endif // _IMGUI
-
 
 	};
 

@@ -7,6 +7,12 @@ System::System()
 
 System::~System()
 {
+
+	// hmmmmmmmmmm
+#ifdef EDITOR
+	Okay::Editor::Destroy();
+#endif // EDITOR
+
 	Shutdown();
 }
 
@@ -18,6 +24,11 @@ void System::Shutdown()
 bool System::Initiate()
 {
 	VERIFY(InitiateWindow());
+	Okay::Engine::Initialize();
+
+#ifdef EDITOR
+	Okay::Editor::Create();
+#endif // EDITOR
 
 	return true;
 }
@@ -26,7 +37,6 @@ void System::Run()
 {
 	using namespace Okay;
 
-	Engine::Initialize();
 	Engine::LoadScene("");
 
 	MSG msg{};
@@ -38,12 +48,20 @@ void System::Run()
 			DispatchMessage(&msg);
 		}
 
+#ifdef EDITOR
+		Editor::NewFrame();
+#endif // EDITOR
 		Engine::NewFrame();
 
 		Engine::Update();
 		Engine::GetRenderer().Render();
-		
+
+#ifdef EDITOR
+		Editor::Update();
+		Editor::EndFrame();
+#endif
 		Engine::EndFrame();
+
 	}
 
 	// Will change with scene switching
@@ -51,13 +69,13 @@ void System::Run()
 
 }
 
-#ifdef _IMGUI
+#ifdef EDITOR
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
 LRESULT System::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-#ifdef _IMGUI
+#ifdef EDITOR
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
 #endif // DEBUG
