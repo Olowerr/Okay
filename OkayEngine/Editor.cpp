@@ -33,21 +33,15 @@ namespace Okay
 		ImGui::DestroyContext();
 	}
 
-	void Editor::Update()
+	bool Editor::Update()
 	{
-		static bool dockSpace = false;
+		static bool dockSpace = true;
 		
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 		if (ImGui::Begin("Dockspace"))
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
-		ImGui::End();
-
-		if (ImGui::Begin("Viewport"))
-		{
-			ImGui::Image((void*)DX11::Get().GetMainSRV(), ImGui::GetWindowSize());
-		}
 		ImGui::End();
 
 		if (ImGui::Begin("Entitis"))
@@ -77,6 +71,21 @@ namespace Okay
 		}
 		ImGui::End();
 
+
+		ImVec2 size(1600.f, 900.f);
+		// Declare Viewport window
+		if (ImGui::Begin("Viewport"))
+			size = ImGui::GetWindowSize();
+		ImGui::End();
+
+		DX11& dx11 = DX11::Get();
+		if ((UINT)size.x != dx11.GetMainWidth() || (UINT)size.y != dx11.GetMainHeight())
+		{
+			dx11.ResizeMainBuffer((UINT)size.x, (UINT)size.y);
+			return true;
+		}
+
+		return false;
 	}
 
 	void Editor::NewFrame()
@@ -88,12 +97,23 @@ namespace Okay
 
 	void Editor::EndFrame()
 	{
+		DX11& dx11 = DX11::Get();
+		
+		if (ImGui::Begin("Viewport"))
+			ImGui::Image((void*)*dx11.GetMainSRV(), ImVec2((float)dx11.GetMainWidth(), (float)dx11.GetMainHeight()));
+			//ImGui::Text("hello");
+		ImGui::End();
+
+		dx11.GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetBackBufferRTV(), nullptr);
+
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
+
+		ID3D11ShaderResourceView* nullSRV = nullptr;
+		dx11.GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
 
 	}
 }

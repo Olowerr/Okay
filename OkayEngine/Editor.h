@@ -18,7 +18,7 @@ namespace Okay
 		static void Create();
 		static void Destroy();
 
-		static void Update();
+		static bool Update();
 
 		static void NewFrame();
 		static void EndFrame();

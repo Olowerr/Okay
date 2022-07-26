@@ -53,15 +53,20 @@ void System::Run()
 #endif // EDITOR
 		Engine::NewFrame();
 
+
 		Engine::Update();
+
+#ifdef EDITOR
+		if (Editor::Update())
+			Engine::GetRenderer().Resize();
+#endif
+
 		Engine::GetRenderer().Render();
 
 #ifdef EDITOR
-		Editor::Update();
 		Editor::EndFrame();
 #endif
 		Engine::EndFrame();
-
 	}
 
 	// Will change with scene switching

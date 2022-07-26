@@ -5,6 +5,7 @@ DX11::DX11()
 	, pBackBuffer(), pBackBufferRTV()
 	, pDepthBuffer(), pDepthBufferDSV()
 	, winWidth(WIN_W), winHeight(WIN_H)
+	, mainWidth(winWidth), mainHeight(winHeight)
 {
 	HRESULT hr{};
 
@@ -89,11 +90,11 @@ DX11::DX11()
 	if (FAILED(hr))
 		return;
 
-	hr = pDevice->CreateRenderTargetView(pMainBuffer, nullptr, &pBackBufferRTV);
+	hr = pDevice->CreateRenderTargetView(pMainBuffer, nullptr, &pMainRTV);
 	if (FAILED(hr))
 		return;
 
-	hr = pDevice->CreateShaderResourceView(pMainBuffer, nullptr, &pBackBufferSRV);
+	hr = pDevice->CreateShaderResourceView(pMainBuffer, nullptr, &pMainSRV);
 	if (FAILED(hr))
 		return;
 }
@@ -111,6 +112,11 @@ void DX11::Shutdown()
 
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);
+	DX11_RELEASE(pBackBufferSRV);
+
+	DX11_RELEASE(pMainBuffer);
+	DX11_RELEASE(pMainRTV);
+	DX11_RELEASE(pMainSRV);
 
 	DX11_RELEASE(pDepthBuffer);
 	DX11_RELEASE(pDepthBufferDSV);
@@ -185,10 +191,8 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 
 bool DX11::ResizeBackBuffer()
 {
-	DX11_RELEASE(pBackBufferRTV);
 	DX11_RELEASE(pBackBuffer);
-	DX11_RELEASE(pDepthBuffer);
-	DX11_RELEASE(pDepthBufferDSV);
+	DX11_RELEASE(pBackBufferRTV);
 	DX11_RELEASE(pBackBufferSRV);
 
 	pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
@@ -202,9 +206,43 @@ bool DX11::ResizeBackBuffer()
 	pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
 	VERIFY(pBackBufferSRV);
 
+	ResizeDepthBuffer(pBackBuffer);
+
+	return true;
+}
+
+bool DX11::ResizeMainBuffer(UINT width, UINT height)
+{
+	DX11_RELEASE(pMainBuffer);
+	DX11_RELEASE(pMainRTV);
+	DX11_RELEASE(pMainSRV);
 
 	D3D11_TEXTURE2D_DESC desc;
 	pBackBuffer->GetDesc(&desc);
+	desc.Width = mainWidth = width;
+	desc.Height = mainHeight = height;
+	
+	pDevice->CreateTexture2D(&desc, nullptr, &pMainBuffer);
+	VERIFY(pMainBuffer);
+
+	pDevice->CreateShaderResourceView(pMainBuffer, nullptr, &pMainSRV);
+	VERIFY(pMainSRV);
+
+	pDevice->CreateRenderTargetView(pMainBuffer, nullptr, &pMainRTV);
+	VERIFY(pMainRTV);
+
+	ResizeDepthBuffer(pMainBuffer);
+
+	return true;
+}
+
+bool DX11::ResizeDepthBuffer(ID3D11Texture2D* ref)
+{
+	DX11_RELEASE(pDepthBuffer);
+	DX11_RELEASE(pDepthBufferDSV);
+
+	D3D11_TEXTURE2D_DESC desc;
+	ref->GetDesc(&desc);
 	desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
@@ -214,7 +252,6 @@ bool DX11::ResizeBackBuffer()
 	pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
 	VERIFY(pDepthBufferDSV);
 
-	//printf("Width: %d\nHeight: %d\n\n", desc.Width, desc.Height);
 	return true;
 }
 

@@ -38,7 +38,6 @@ void Okay::ShaderModel::UnBind()
 {
 	ID3D11RenderTargetView* nullRTV = nullptr;
 	ID3D11DepthStencilView* nullDSV = nullptr;
-	DX11::Get().GetDeviceContext()->PSSetShader(nullptr, nullptr, 0);
 	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, &nullRTV, nullDSV);
 }
 
@@ -49,8 +48,8 @@ void Okay::ShaderModel::Apply()
 
 void Okay::ShaderModel::Resize()
 {
-	viewport.Width = (FLOAT)DX11::Get().GetWindowWidth();
-	viewport.Height = (FLOAT)DX11::Get().GetWindowHeight();
+	viewport.Width = (FLOAT)DX11::Get().GetMainWidth();
+	viewport.Height = (FLOAT)DX11::Get().GetMainHeight();
 	Bind();
 }
 
