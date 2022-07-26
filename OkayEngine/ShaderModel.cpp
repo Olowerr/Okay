@@ -31,7 +31,15 @@ void Okay::ShaderModel::Bind()
 {
 	DX11::Get().GetDeviceContext()->PSSetShader(pPixelShader, nullptr, 0);
 	DX11::Get().GetDeviceContext()->RSSetViewports(1, &viewport);
-	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetBackBufferRTV(), *DX11::Get().GetDepthBufferDSV());
+	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetMainRTV(), *DX11::Get().GetDepthBufferDSV());
+}
+
+void Okay::ShaderModel::UnBind()
+{
+	ID3D11RenderTargetView* nullRTV = nullptr;
+	ID3D11DepthStencilView* nullDSV = nullptr;
+	DX11::Get().GetDeviceContext()->PSSetShader(nullptr, nullptr, 0);
+	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, &nullRTV, nullDSV);
 }
 
 void Okay::ShaderModel::Apply()

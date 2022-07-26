@@ -20,6 +20,11 @@ public:
 
 	ID3D11Texture2D* GetBackBuffer();
 	ID3D11RenderTargetView* const* GetBackBufferRTV();
+	ID3D11ShaderResourceView* GetBackBufferSRV();
+
+	ID3D11Texture2D* GetMainBuffer();
+	ID3D11RenderTargetView* const* GetMainRTV();
+	ID3D11ShaderResourceView* const* GetMainSRV();
 
 	ID3D11Texture2D* GetDepthBuffer();
 	ID3D11DepthStencilView* const* GetDepthBufferDSV();
@@ -46,6 +51,11 @@ private:
 
 	ID3D11Texture2D* pBackBuffer;
 	ID3D11RenderTargetView* pBackBufferRTV;
+	ID3D11ShaderResourceView* pBackBufferSRV;
+
+	ID3D11Texture2D* pMainBuffer;
+	ID3D11RenderTargetView* pMainRTV;
+	ID3D11ShaderResourceView* pMainSRV;
 
 	ID3D11Texture2D* pDepthBuffer;
 	ID3D11DepthStencilView* pDepthBufferDSV;

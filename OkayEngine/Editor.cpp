@@ -40,16 +40,43 @@ namespace Okay
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-		//return;
-		if (ImGui::Begin("My fancy window"))
-		{
-			ImGui::Text("Hellooo");
-			ImGui::Checkbox("Dockspace", &dockSpace);
+		if (ImGui::Begin("Dockspace"))
+			ImGui::Checkbox("Enable Dockspace", &dockSpace);
+		ImGui::End();
 
-			int asd = 0;
-			ImGui::DragInt("inter", &asd);
+		if (ImGui::Begin("Viewport"))
+		{
+			ImGui::Image((void*)DX11::Get().GetMainSRV(), ImGui::GetWindowSize());
 		}
 		ImGui::End();
+
+		if (ImGui::Begin("Entitis"))
+		{
+			ImGui::Text("Entity 0");
+			ImGui::Text("Entity 1");
+			ImGui::Text("Entity 2");
+			ImGui::Text("Entity 3");
+		}
+		ImGui::End();
+
+		if (ImGui::Begin("Content Browser"))
+		{
+			ImGui::Text("Item 0");
+			ImGui::Text("Item 1");
+			ImGui::Text("Item 2");
+			ImGui::Text("Item 3");
+		}
+		ImGui::End();
+
+		if (ImGui::Begin("Inspector"))
+		{
+			ImGui::Text("Component 0");
+			ImGui::Text("Component 1");
+			ImGui::Text("Component 2");
+			ImGui::Text("Component 3");
+		}
+		ImGui::End();
+
 	}
 
 	void Editor::NewFrame()

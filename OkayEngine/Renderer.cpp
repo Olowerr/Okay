@@ -87,6 +87,8 @@ void Renderer::Render()
 			
 		mesh.mesh->Draw();
 	}
+
+	shaderModel->UnBind();
 }
 
 void Renderer::Bind()

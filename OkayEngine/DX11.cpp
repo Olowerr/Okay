@@ -12,7 +12,7 @@ DX11::DX11()
 	{
 		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		desc.BufferCount = 1;
-		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 
 		desc.BufferDesc.Width = winWidth;
 		desc.BufferDesc.Height = winHeight;
@@ -51,25 +51,28 @@ DX11::DX11()
 	hr = pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
 	if (FAILED(hr))
 		return;
-
+	
+	hr = pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
+	if (FAILED(hr))
+		return;
 
 	// DepthBuffer
-	D3D11_TEXTURE2D_DESC dDesc{};
+	D3D11_TEXTURE2D_DESC texDesc{};
 	{
-		dDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		dDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		dDesc.Usage = D3D11_USAGE_DEFAULT;
-		dDesc.CPUAccessFlags = 0;
-		dDesc.ArraySize = 1;
-		dDesc.MipLevels = 1;
-		dDesc.Width = winWidth;
-		dDesc.Height = winHeight;
-		dDesc.SampleDesc.Count = 1;
-		dDesc.SampleDesc.Quality = 0;
-		dDesc.MiscFlags = 0;
+		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.ArraySize = 1;
+		texDesc.MipLevels = 1;
+		texDesc.Width = winWidth;
+		texDesc.Height = winHeight;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.MiscFlags = 0;
 	}
 
-	hr = pDevice->CreateTexture2D(&dDesc, nullptr, &pDepthBuffer);
+	hr = pDevice->CreateTexture2D(&texDesc, nullptr, &pDepthBuffer);
 	if (FAILED(hr))
 		return;
 
@@ -77,6 +80,22 @@ DX11::DX11()
 	if (FAILED(hr))
 		return;
 
+
+	// MainBuffer
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	hr = pDevice->CreateTexture2D(&texDesc, nullptr, &pMainBuffer);
+	if (FAILED(hr))
+		return;
+
+	hr = pDevice->CreateRenderTargetView(pMainBuffer, nullptr, &pBackBufferRTV);
+	if (FAILED(hr))
+		return;
+
+	hr = pDevice->CreateShaderResourceView(pMainBuffer, nullptr, &pBackBufferSRV);
+	if (FAILED(hr))
+		return;
 }
 
 DX11::~DX11()
@@ -134,6 +153,26 @@ ID3D11RenderTargetView* const* DX11::GetBackBufferRTV()
 	return &pBackBufferRTV;
 }
 
+ID3D11ShaderResourceView* DX11::GetBackBufferSRV()
+{
+	return pBackBufferSRV;
+}
+
+ID3D11Texture2D* DX11::GetMainBuffer()
+{
+	return pMainBuffer;
+}
+
+ID3D11RenderTargetView* const* DX11::GetMainRTV()
+{
+	return &pMainRTV;
+}
+
+ID3D11ShaderResourceView* const* DX11::GetMainSRV()
+{
+	return &pMainSRV;
+}
+
 ID3D11Texture2D* DX11::GetDepthBuffer()
 {
 	return pDepthBuffer;
@@ -150,6 +189,7 @@ bool DX11::ResizeBackBuffer()
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pDepthBuffer);
 	DX11_RELEASE(pDepthBufferDSV);
+	DX11_RELEASE(pBackBufferSRV);
 
 	pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
@@ -158,6 +198,10 @@ bool DX11::ResizeBackBuffer()
 
 	pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
 	VERIFY(pBackBufferRTV);
+
+	pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
+	VERIFY(pBackBufferSRV);
+
 
 	D3D11_TEXTURE2D_DESC desc;
 	pBackBuffer->GetDesc(&desc);

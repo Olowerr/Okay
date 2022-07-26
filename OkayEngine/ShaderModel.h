@@ -11,6 +11,7 @@ namespace Okay
 		virtual void Shutdown();
 	
 		virtual void Bind();
+		virtual void UnBind();
 		virtual void Apply();
 		void Resize();
 
