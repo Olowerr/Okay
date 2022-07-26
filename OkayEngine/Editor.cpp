@@ -39,7 +39,6 @@ namespace Okay
 		
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-
 		if (ImGui::Begin("Dockspace"))
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
 		ImGui::End();
@@ -72,9 +71,14 @@ namespace Okay
 		ImGui::End();
 
 
+
+		//ImGuiWindowFlags_NoMove
+		//ImGuiWindowFlags_NoBackground
+		//ImGuiWindowFlags_NoTitleBar
+
 		ImVec2 size(1600.f, 900.f);
 		// Declare Viewport window
-		if (ImGui::Begin("Viewport"))
+		if (ImGui::Begin("Viewport", nullptr))
 			size = ImGui::GetWindowSize();
 		ImGui::End();
 
@@ -100,8 +104,7 @@ namespace Okay
 		DX11& dx11 = DX11::Get();
 		
 		if (ImGui::Begin("Viewport"))
-			ImGui::Image((void*)*dx11.GetMainSRV(), ImVec2((float)dx11.GetMainWidth(), (float)dx11.GetMainHeight()));
-			//ImGui::Text("hello");
+			ImGui::Image((void*)*dx11.GetMainSRV(), ImVec2((float)dx11.GetMainWidth(), (float)dx11.GetMainHeight() - 16.f));
 		ImGui::End();
 
 		dx11.GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetBackBufferRTV(), nullptr);
@@ -111,9 +114,6 @@ namespace Okay
 
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
-
-		ID3D11ShaderResourceView* nullSRV = nullptr;
-		dx11.GetDeviceContext()->PSSetShaderResources(0, 1, &nullSRV);
 
 	}
 }

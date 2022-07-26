@@ -191,6 +191,8 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 
 bool DX11::ResizeBackBuffer()
 {
+	printf("Resized BackBuffer\n");
+
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);
 	DX11_RELEASE(pBackBufferSRV);
@@ -206,13 +208,16 @@ bool DX11::ResizeBackBuffer()
 	pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
 	VERIFY(pBackBufferSRV);
 
-	ResizeDepthBuffer(pBackBuffer);
+
+	//ResizeDepthBuffer(pBackBuffer);
 
 	return true;
 }
 
 bool DX11::ResizeMainBuffer(UINT width, UINT height)
 {
+	printf("Resized MainBuffer\n");
+
 	DX11_RELEASE(pMainBuffer);
 	DX11_RELEASE(pMainRTV);
 	DX11_RELEASE(pMainSRV);
