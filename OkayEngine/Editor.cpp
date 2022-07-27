@@ -139,14 +139,9 @@ namespace Okay
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
 
-		// Since argument order isn't specified (I think), Begin() might not trigger but End() will.
+		const bool Begun = ImGui::Begin("Inspector");
 
-		if (!ImGui::Begin("Inspector"))
-		{
-			ImGui::End();
-			return;
-		}
-		if (index == -1)
+		if (!Begun || index == -1)
 		{
 			ImGui::End();
 			return;
@@ -156,15 +151,13 @@ namespace Okay
 		ImGuiID ID = ImGui::GetID("Inspector");
 		
 		ImVec2 size = ImGui::GetWindowSize();
-		size.y = 100.f;
-
 
 		// Transform
-		if (ImGui::BeginChildFrame(ID++, size))
+		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
 		{
+			ImGui::Text("Transform Component");
 			auto& tra = entity.GetComponent<Okay::CompTransform>();
 
-			ImGui::Text("Transform");
 			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
 			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
 			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
@@ -173,24 +166,51 @@ namespace Okay
 		}
 		ImGui::EndChildFrame();
 	
+
 		// Mesh
-		if (ImGui::BeginChildFrame(ID++, size))
+		if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
 		{
-			/*if (ImGui::BeginMenuBar())
+			Assets& assets = Engine::GetAssets();
+			CompMesh& mesh = entity.GetComponent<CompMesh>();
+
+			ImGui::Text("Mesh Component");
+
+			// Mesh
+			ImGui::Text("Mesh:");
+			if (ImGui::BeginCombo("##", mesh.mesh->GetName()))
 			{
-				if (ImGui::BeginMenu("Meshes"))
+				for (UINT i = 0; i < assets.GetNumMeshes(); i++)
 				{
-					ImGui::MenuItem("Item 0");
-					ImGui::MenuItem("Item 1");
-					ImGui::MenuItem("Item 2");
+					auto& name = assets.GetMeshName(i);
+
+					if (ImGui::Selectable(name))
+						mesh.AssignMesh(name.c_str);
+	
 				}
-				ImGui::EndMenu();
+				ImGui::EndCombo();
 			}
-			ImGui::EndMenuBar();*/
+
+			// Materials
+			ImGui::Text("\nMaterial:");
+			if (ImGui::BeginCombo("###", mesh.materials.at(0)->GetName()))
+			{
+				for (UINT i = 0; i < assets.GetNumMaterials(); i++)
+				{
+					auto& name = assets.GetMaterialName(i);
+
+					if (ImGui::Selectable(name))
+						mesh.AssignMaterial(0, name);
+				}
+
+				ImGui::EndCombo();
+			}
+
+
+
 		}
 		ImGui::EndChildFrame();
 		
-		if (ImGui::BeginChildFrame(ID++,size))
+		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
 		{
 			ImGui::Text("Component 0");
 			ImGui::Text("Component 1");
@@ -199,25 +219,8 @@ namespace Okay
 		}
 		ImGui::EndChildFrame();
 
-		ImGui::End();
 
-		if (ImGui::Begin("Test"))
-		{
-			// Check flags for MenuBar
-			if (ImGui::BeginMenuBar())
-			{
-				if (ImGui::BeginMenu("Meshes"))
-				{
-					ImGui::MenuItem("Item 0");
-					ImGui::MenuItem("Item 1");
-					ImGui::MenuItem("Item 2");
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
 		ImGui::End();
-
 	}
 
 }

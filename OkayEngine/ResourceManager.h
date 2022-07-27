@@ -21,19 +21,41 @@ public:
 
 	void SetUp();
 
+#pragma region 
+
 	bool AddMesh(const std::string& fileName);
 	bool MeshExists(const std::string& fileName);
+	
+	// Getters
 	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
+	UINT GetNumMeshes() const { return (UINT)meshes.size(); }
+	const Okay::String& GetMeshName(UINT index);
 
+#pragma endregion Meshes
+
+
+#pragma region
 	// Atm relative to TempObjFbx
 	bool AddTexture(const std::string& fileName);
 	bool TextureExists(const std::string& fileName);
-	std::shared_ptr<Okay::Texture> GetTexture(const std::string& fileName);
 
+	// Getters
+	std::shared_ptr<Okay::Texture> GetTexture(const std::string& fileName);
+	UINT GetNumTextures() const { return (UINT)textures.size(); }
+#pragma endregion Textures
+
+
+#pragma region Materials
 	bool AddMaterial(const Okay::MaterialDesc_Strs& matDesc);
 	bool AddMaterial(const Okay::MaterialDesc_Ptrs& matDesc);
 	bool MaterialExists(const std::string& matName);
+
+	// Getters
 	std::shared_ptr<Okay::Material> GetMaterial(const std::string& materialName);
+	UINT GetNumMaterials() const { return (UINT)materials.size(); }
+	const Okay::String& GetMaterialName(UINT index);
+#pragma endregion Materials
+
 
 
 private: // All loaded "assets"

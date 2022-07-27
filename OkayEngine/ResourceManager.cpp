@@ -79,6 +79,13 @@ std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 	return meshes[fileName];
 }
 
+const Okay::String& Assets::GetMeshName(UINT index)
+{
+	auto it = meshes.begin();
+	std::advance(it, index);
+	return it->second.get()->GetName();
+}
+
 bool Assets::AddTexture(const std::string& filePath)
 {
 	const std::string& fileName = filePath.substr(filePath.find_last_of('/') + 1);
@@ -139,6 +146,13 @@ std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialN
 		return std::make_shared<Okay::Material>();
 
 	return materials[materialName];
+}
+
+const Okay::String& Assets::GetMaterialName(UINT index)
+{
+	auto it = materials.begin();
+	std::advance(it, index);
+	return it->second.get()->GetName();
 }
 
 bool Assets::LoadDeclared()

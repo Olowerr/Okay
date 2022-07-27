@@ -45,6 +45,12 @@ void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> materi
 	materials.at(0) = material.get();
 }
 
+void Okay::CompMesh::AssignMaterial(UINT index, const Okay::String& materialName)
+{
+	auto mat = Engine::GetAssets().GetMaterial(materialName.c_str);
+	materials.at(index) = mat.get();
+}
+
 void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
 {
 	writer.write((const char*)&mesh->GetName(), sizeof(Okay::String));

@@ -42,6 +42,7 @@ namespace Okay
 			return c_str == std::string(string);
 		}
 
+		operator const char* () const { return c_str; }
 
 		char c_str[Size]{};
 

@@ -11,16 +11,6 @@ Scene::~Scene()
 {
 }
 
-#ifdef EDITOR
-Entity& Scene::CreateEntity()
-{
-    entities.emplace_back(registry.create(), this);
-    entities.back().AddComponent<Okay::CompTransform>();
-    entities.back().AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entities.back().GetID()));
-
-    return entities.back();
-}
-#else
 Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
@@ -32,7 +22,6 @@ Entity Scene::CreateEntity()
 
     return entity;
 }
-#endif // EDITOR
 
 void Scene::Start()
 {

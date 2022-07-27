@@ -192,7 +192,7 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 
 bool DX11::ResizeBackBuffer()
 {
-	//printf("Resized BackBuffer\n");
+	printf("Resized BackBuffer\n");
 
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);
@@ -217,7 +217,7 @@ bool DX11::ResizeBackBuffer()
 
 bool DX11::ResizeMainBuffer(UINT width, UINT height)
 {
-	//printf("Resized MainBuffer\n");
+	printf("Resized MainBuffer\n");
 
 	DX11_RELEASE(pMainBuffer);
 	DX11_RELEASE(pMainRTV);

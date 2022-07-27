@@ -14,13 +14,7 @@ public:
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)
 	{
-#ifdef EDITOR
-		comps.emplace_back(&pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...));
-		return *(T*)comps.back();
-#else
 		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
-#endif // EDTIOR
-
 	}
 
 	template<typename T>
@@ -48,9 +42,4 @@ private:
 	// But then an entities wouldn't care which scene they're in
 	// pScene makes it possible to open multiple scenes with their own entities
 	Scene* pScene;
-
-#ifdef EDITOR
-	std::vector<Okay::BaseComp*> comps;
-#endif // EDITOR
-
 };

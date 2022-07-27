@@ -50,7 +50,7 @@ void System::Run()
 
 #ifdef EDITOR
 		Editor::NewFrame();
-#endif // EDITOR
+#endif
 		Engine::NewFrame();
 
 
@@ -60,7 +60,6 @@ void System::Run()
 		if (Editor::Update())
 			Engine::GetRenderer().Resize();
 #endif
-
 		Engine::GetRenderer().Render();
 
 #ifdef EDITOR
