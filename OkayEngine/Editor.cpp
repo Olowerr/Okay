@@ -144,15 +144,12 @@ namespace Okay
 			return;
 		}
 
-		if (ImGui::Begin("Inspector"))
-		{
-			ImGui::Text("Component 0");
-			ImGui::Text("Component 1");
-			ImGui::Text("Component 2");
-			ImGui::Text("Component 3");
+		ImGui::Text("Component 0");
+		ImGui::Text("Component 1");
+		ImGui::Text("Component 2");
+		ImGui::Text("Component 3");
 
-
-		}
+		
 		ImGui::End();
 	}
 
