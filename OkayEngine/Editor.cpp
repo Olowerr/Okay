@@ -153,28 +153,43 @@ namespace Okay
 		}
 
 		Entity& entity = pScene->GetEntities().at(index);
+		ImGuiID ID = ImGui::GetID("Inspector");
 		
 		ImVec2 size = ImGui::GetWindowSize();
 		size.y = 100.f;
 
-		if (ImGui::BeginChild("Transform", size))
+
+		// Transform
+		if (ImGui::BeginChildFrame(ID++, size))
 		{
 			auto& tra = entity.GetComponent<Okay::CompTransform>();
 
+			ImGui::Text("Transform");
 			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
 			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
 			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
 
 			tra.CalcMatrix();
 		}
-		ImGui::EndChild();
+		ImGui::EndChildFrame();
+	
+		// Mesh
+		if (ImGui::BeginChildFrame(ID++, size))
+		{
+			
+		}
+		ImGui::EndChildFrame();
+		
+		if (ImGui::BeginChildFrame(ID++,size))
+		{
+			ImGui::Text("Component 0");
+			ImGui::Text("Component 1");
+			ImGui::Text("Component 2");
+			ImGui::Text("Component 3");
+		}
+		ImGui::EndChildFrame();
 
 
-
-		ImGui::Text("Component 0");
-		ImGui::Text("Component 1");
-		ImGui::Text("Component 2");
-		ImGui::Text("Component 3");
 
 		
 		ImGui::End();

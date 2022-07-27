@@ -14,10 +14,8 @@ namespace Okay // Structs for now, change to classes
 
 #ifdef EDITOR
 	struct BaseComp { };
-#endif //EDITOR
 
 
-#ifdef EDITOR
 	struct CompMesh : BaseComp
 #else
 	struct CompMesh 

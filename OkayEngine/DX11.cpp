@@ -124,7 +124,7 @@ void DX11::Shutdown()
 
 void DX11::NewFrame()
 {
-	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 0.f };
+	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 1.f };
 	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
 	pDeviceContext->ClearRenderTargetView(pMainRTV, clearColour);
 	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
@@ -192,7 +192,7 @@ ID3D11DepthStencilView* const* DX11::GetDepthBufferDSV()
 
 bool DX11::ResizeBackBuffer()
 {
-	printf("Resized BackBuffer\n");
+	//printf("Resized BackBuffer\n");
 
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);
@@ -217,7 +217,7 @@ bool DX11::ResizeBackBuffer()
 
 bool DX11::ResizeMainBuffer(UINT width, UINT height)
 {
-	printf("Resized MainBuffer\n");
+	//printf("Resized MainBuffer\n");
 
 	DX11_RELEASE(pMainBuffer);
 	DX11_RELEASE(pMainRTV);
