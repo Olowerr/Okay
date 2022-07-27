@@ -4,9 +4,6 @@
 #include "Entity.h"
 #include <iostream>
 
-// Temp
-#define EDITOR
-
 #ifdef EDITOR
 #include "Editor.h"
 #endif // EDITOR

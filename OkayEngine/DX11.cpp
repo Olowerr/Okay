@@ -126,6 +126,7 @@ void DX11::NewFrame()
 {
 	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 0.f };
 	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
+	pDeviceContext->ClearRenderTargetView(pMainRTV, clearColour);
 	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 }
 

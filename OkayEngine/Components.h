@@ -12,7 +12,16 @@ namespace Okay // Structs for now, change to classes
 		Tag
 	};
 
-	struct CompMesh
+#ifdef EDITOR
+	struct BaseComp { };
+#endif //EDITOR
+
+
+#ifdef EDITOR
+	struct CompMesh : BaseComp
+#else
+	struct CompMesh 
+#endif // EDITOR
 	{
 		static const Components ID = Components::Mesh;
 		
@@ -30,7 +39,13 @@ namespace Okay // Structs for now, change to classes
 		void ReadPrivateData(std::ifstream& reader);
 	};
 
+
+
+#ifdef EDITOR
+	struct CompTransform : BaseComp
+#else
 	struct CompTransform
+#endif // EDITOR
 	{
 		static const Components ID = Components::Transform;
 
@@ -48,7 +63,12 @@ namespace Okay // Structs for now, change to classes
 		void ReadPrivateData(std::ifstream& reader);
 	};
 
+
+#ifdef EDITOR
+	struct CompTag : BaseComp
+#else
 	struct CompTag
+#endif // EDITOR
 	{
 		static const Components ID = Components::Tag;
 

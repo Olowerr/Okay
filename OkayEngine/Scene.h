@@ -9,7 +9,12 @@ public:
 	Scene();
 	~Scene();
 
+#ifdef EDITOR
+	Entity& CreateEntity();
+#else
 	Entity CreateEntity();
+#endif // EDITOR
+
 	entt::registry& GetRegistry() { return registry; }
 	std::vector<Entity>& GetEntities() { return entities; }
 

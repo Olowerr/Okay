@@ -11,16 +11,28 @@ Scene::~Scene()
 {
 }
 
+#ifdef EDITOR
+Entity& Scene::CreateEntity()
+{
+    entities.emplace_back(registry.create(), this);
+    entities.back().AddComponent<Okay::CompTransform>();
+    entities.back().AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entities.back().GetID()));
+
+    return entities.back();
+}
+#else
 Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
     entity.AddComponent<Okay::CompTransform>();
     entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
+    // Maybe temp
     entities.emplace_back(entity);
 
     return entity;
 }
+#endif // EDITOR
 
 void Scene::Start()
 {

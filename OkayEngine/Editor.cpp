@@ -136,13 +136,40 @@ namespace Okay
 
 	void Editor::DisplayInspector()
 	{
-		auto& reg = Engine::GetActiveScene()->GetRegistry();
+		Scene* pScene = Engine::GetActiveScene();
+		auto& reg = pScene->GetRegistry();
+
+		// Since argument order isn't specified (I think), Begin() might not trigger but End() will.
 
 		if (!ImGui::Begin("Inspector"))
 		{
 			ImGui::End();
 			return;
 		}
+		if (index == -1)
+		{
+			ImGui::End();
+			return;
+		}
+
+		Entity& entity = pScene->GetEntities().at(index);
+		
+		ImVec2 size = ImGui::GetWindowSize();
+		size.y = 100.f;
+
+		if (ImGui::BeginChild("Transform", size))
+		{
+			auto& tra = entity.GetComponent<Okay::CompTransform>();
+
+			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
+			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
+			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
+
+			tra.CalcMatrix();
+		}
+		ImGui::EndChild();
+
+
 
 		ImGui::Text("Component 0");
 		ImGui::Text("Component 1");
