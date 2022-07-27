@@ -15,6 +15,7 @@ Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
     entity.AddComponent<Okay::CompTransform>();
+    entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
     entities.emplace_back(entity);
 

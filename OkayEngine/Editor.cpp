@@ -3,6 +3,8 @@
 
 namespace Okay
 {
+	int Editor::index = -1;
+
 	void Editor::Create()
 	{
 		IMGUI_CHECKVERSION();
@@ -36,21 +38,29 @@ namespace Okay
 	bool Editor::Update()
 	{
 		static bool dockSpace = true;
-		
+
+		if (ImGui::Begin("Temp selector"))
+		{
+			auto& reg = Engine::GetActiveScene()->GetRegistry();
+			const int numAlive = (int)reg.alive();
+
+			ImGui::InputInt("Index: ", &index);
+			index = index >= numAlive ? numAlive - 1 : index < 0 ? 0 : index;
+			
+			index = numAlive ? index : -1;
+		}
+		ImGui::End();
+
+
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 		if (ImGui::Begin("Dockspace"))
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
 		ImGui::End();
 
-		if (ImGui::Begin("Entitis"))
-		{
-			ImGui::Text("Entity 0");
-			ImGui::Text("Entity 1");
-			ImGui::Text("Entity 2");
-			ImGui::Text("Entity 3");
-		}
-		ImGui::End();
+		DisplayEntityList();
+
+		DisplayInspector();
 
 		if (ImGui::Begin("Content Browser"))
 		{
@@ -60,17 +70,6 @@ namespace Okay
 			ImGui::Text("Item 3");
 		}
 		ImGui::End();
-
-		if (ImGui::Begin("Inspector"))
-		{
-			ImGui::Text("Component 0");
-			ImGui::Text("Component 1");
-			ImGui::Text("Component 2");
-			ImGui::Text("Component 3");
-		}
-		ImGui::End();
-
-
 
 		//ImGuiWindowFlags_NoMove
 		//ImGuiWindowFlags_NoBackground
@@ -102,7 +101,7 @@ namespace Okay
 	void Editor::EndFrame()
 	{
 		DX11& dx11 = DX11::Get();
-		
+
 		if (ImGui::Begin("Viewport"))
 			ImGui::Image((void*)*dx11.GetMainSRV(), ImVec2((float)dx11.GetMainWidth(), (float)dx11.GetMainHeight() - 16.f));
 		ImGui::End();
@@ -116,4 +115,45 @@ namespace Okay
 		ImGui::RenderPlatformWindowsDefault();
 
 	}
+
+	void Editor::DisplayEntityList()
+	{
+		auto& reg = Engine::GetActiveScene()->GetRegistry();
+
+		if (!ImGui::Begin("Entities"))
+		{
+			ImGui::End();
+			return;
+		}
+
+		reg.each([&reg](auto entity) 
+		{
+			ImGui::Text(reg.get<Okay::CompTag>(entity).tag.c_str);
+		});
+
+		ImGui::End();
+	}
+
+	void Editor::DisplayInspector()
+	{
+		auto& reg = Engine::GetActiveScene()->GetRegistry();
+
+		if (!ImGui::Begin("Inspector"))
+		{
+			ImGui::End();
+			return;
+		}
+
+		if (ImGui::Begin("Inspector"))
+		{
+			ImGui::Text("Component 0");
+			ImGui::Text("Component 1");
+			ImGui::Text("Component 2");
+			ImGui::Text("Component 3");
+
+
+		}
+		ImGui::End();
+	}
+
 }

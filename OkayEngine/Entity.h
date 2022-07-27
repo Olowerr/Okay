@@ -33,6 +33,8 @@ public:
 	operator entt::entity() { return entityId; }
 	operator entt::entity() const { return entityId; }
 
+	entt::entity GetID() const { return entityId; }
+
 private:
 	entt::entity entityId;
 

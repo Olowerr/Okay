@@ -8,7 +8,8 @@ namespace Okay // Structs for now, change to classes
 	{
 		None = 0,
 		Mesh,
-		Transform
+		Transform,
+		Tag
 	};
 
 	struct CompMesh
@@ -45,5 +46,15 @@ namespace Okay // Structs for now, change to classes
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
+	};
+
+	struct CompTag
+	{
+		static const Components ID = Components::Tag;
+
+		CompTag() :tag("Entity") { }
+		CompTag(const String& tag) :tag(tag) { }
+
+		String tag;
 	};
 }

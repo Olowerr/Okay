@@ -24,5 +24,12 @@ namespace Okay
 		static void EndFrame();
 
 	private:
+
+		static int index;
+
+		static void DisplayEntityList();
+		static void DisplayInspector();
+
+
 	};
 }
