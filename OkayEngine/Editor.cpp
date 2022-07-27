@@ -176,7 +176,17 @@ namespace Okay
 		// Mesh
 		if (ImGui::BeginChildFrame(ID++, size))
 		{
-			
+			/*if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("Meshes"))
+				{
+					ImGui::MenuItem("Item 0");
+					ImGui::MenuItem("Item 1");
+					ImGui::MenuItem("Item 2");
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();*/
 		}
 		ImGui::EndChildFrame();
 		
@@ -189,10 +199,25 @@ namespace Okay
 		}
 		ImGui::EndChildFrame();
 
-
-
-		
 		ImGui::End();
+
+		if (ImGui::Begin("Test"))
+		{
+			// Check flags for MenuBar
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("Meshes"))
+				{
+					ImGui::MenuItem("Item 0");
+					ImGui::MenuItem("Item 1");
+					ImGui::MenuItem("Item 2");
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		ImGui::End();
+
 	}
 
 }
