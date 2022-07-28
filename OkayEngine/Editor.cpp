@@ -62,14 +62,7 @@ namespace Okay
 
 		DisplayInspector();
 
-		if (ImGui::Begin("Content Browser"))
-		{
-			ImGui::Text("Item 0");
-			ImGui::Text("Item 1");
-			ImGui::Text("Item 2");
-			ImGui::Text("Item 3");
-		}
-		ImGui::End();
+		DisplayContent();
 
 		//ImGuiWindowFlags_NoMove
 		//ImGuiWindowFlags_NoBackground
@@ -156,6 +149,7 @@ namespace Okay
 		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
 		{
 			ImGui::Text("Transform Component");
+			ImGui::Separator();
 			auto& tra = entity.GetComponent<Okay::CompTransform>();
 
 			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
@@ -174,7 +168,7 @@ namespace Okay
 			CompMesh& mesh = entity.GetComponent<CompMesh>();
 
 			ImGui::Text("Mesh Component");
-
+			ImGui::Separator();
 			// Mesh
 			ImGui::Text("Mesh:");
 			if (ImGui::BeginCombo("##", mesh.mesh->GetName()))
@@ -220,6 +214,34 @@ namespace Okay
 		ImGui::EndChildFrame();
 
 
+		ImGui::End();
+	}
+
+
+	void Editor::DisplayContent()
+	{
+		if (!ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_MenuBar))
+		{
+			ImGui::End();
+			return;
+		}
+
+		ImGui::BeginMenuBar();
+		
+		if (ImGui::BeginMenu("Options"))
+		{
+			ImGui::MenuItem("Hello");
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+
+		ImGui::Text("Item 0");
+		ImGui::Text("Item 1");
+		ImGui::Text("Item 2");
+		ImGui::Text("Item 3");
+		
 		ImGui::End();
 	}
 
