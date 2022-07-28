@@ -29,8 +29,9 @@ namespace Okay
 
 		static void DisplayEntityList();
 		static void DisplayInspector();
-		static void DisplayContent();
 
+		static void DisplayContent();
+		static void OpenFileExplorer();
 
 	};
 }

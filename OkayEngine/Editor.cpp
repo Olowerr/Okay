@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "Editor.h"
 #include "Engine.h"
 
@@ -228,9 +230,11 @@ namespace Okay
 
 		ImGui::BeginMenuBar();
 		
+
 		if (ImGui::BeginMenu("Options"))
 		{
-			ImGui::MenuItem("Hello");
+			if (ImGui::MenuItem("Import"))
+				OpenFileExplorer();
 
 			ImGui::EndMenu();
 		}
@@ -243,6 +247,28 @@ namespace Okay
 		ImGui::Text("Item 3");
 		
 		ImGui::End();
+	}
+
+	void Editor::OpenFileExplorer()
+	{
+		const size_t MaxFileLength = 500;
+		OPENFILENAME ofn{};
+
+		wchar_t fileName[MaxFileLength]{};
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = GetHWindow();
+		ofn.lpstrFile = fileName;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = MaxFileLength;
+		ofn.lpstrFilter = L"All Files\0*.*\0";
+		ofn.nFilterIndex = 1;
+
+		GetOpenFileName(&ofn);
+
+		char text[MaxFileLength]{};
+		wcstombs(text, ofn.lpstrFile, MaxFileLength);
+		printf(text);
 	}
 
 }
