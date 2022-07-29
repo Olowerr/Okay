@@ -10,6 +10,7 @@ public:
 	~Scene();
 
 	Entity CreateEntity();
+	void DestroyEntity(Entity entity);
 
 	entt::registry& GetRegistry() { return registry; }
 	std::vector<Entity>& GetEntities() { return entities; }
@@ -27,7 +28,6 @@ private:
 	// Temp
 	int index;
 };
-
 
 /*
 

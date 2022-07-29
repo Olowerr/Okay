@@ -27,6 +27,19 @@ void Assets::SetUp()
 	ClearDeclared();
 }
 
+bool Assets::TryImport(const std::string_view& path)
+{
+	const std::string_view fileEnding = path.substr(path.find_last_of('.'));
+
+	if (fileEnding == ".jpg" || fileEnding == ".jpeg" || fileEnding == ".png" || fileEnding == ".bmp" || fileEnding == ".tga")
+		return AddTexture(path.data());
+
+	else if (fileEnding == ".fbx" || fileEnding == ".obj")
+		return AddMesh(path.data());
+
+	return false;
+}
+
 bool Assets::AddMesh(const std::string& filePath)
 {
 	// Fixes absolute paths
@@ -115,6 +128,13 @@ std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
 		return std::make_shared<Okay::Texture>(); 
 
 	return textures[fileName];
+}
+
+const Okay::String& Assets::GetTextureName(UINT index)
+{
+	auto it = textures.begin();
+	std::advance(it, index);
+	return it->second.get()->GetName();
 }
 
 bool Assets::AddMaterial(const Okay::MaterialDesc_Strs& matDesc)
@@ -244,6 +264,8 @@ bool Assets::WriteDeclaration()
 	UINT numElements = 0;
 	UINT byteWidth = 0;
 
+	// Can rewrite
+
 	// Meshes
 	UINT c = 0;
 	decMeshes.resize(meshes.size());
@@ -262,7 +284,6 @@ bool Assets::WriteDeclaration()
 	for (auto& mat : materials)
 		decMaterials.at(c++) = mat.second->GetDesc();
 	
-
 	// Meshes
 	numElements = (UINT)decMeshes.size();
 	byteWidth = sizeof(Okay::String) * numElements;

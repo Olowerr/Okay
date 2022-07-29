@@ -47,6 +47,14 @@ namespace Okay
 		Renderer renderer;
 		Assets assets;
 
+		template<typename T>
+		static void foo(T* tPtr, std::ofstream& writer)
+		{
+			Okay::Components type = T::ID;
+			writer.write((const char*)&type, sizeof(Okay::Components));
+			tPtr->WritePrivateData(writer);
+		}
+
 	private: // Scenes
 		static const Okay::String SceneDecleration;
 		std::unique_ptr<Scene> activeScene;

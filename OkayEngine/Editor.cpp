@@ -7,10 +7,10 @@ namespace Okay
 {
 	int Editor::index = -1;
 
-	void Editor::Create()
+	bool Editor::Create()
 	{
 		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+		VERIFY(ImGui::CreateContext());
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -26,8 +26,12 @@ namespace Okay
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		ImGui_ImplWin32_Init(GetHWindow());
-		ImGui_ImplDX11_Init(DX11::Get().GetDevice(), DX11::Get().GetDeviceContext());
+		VERIFY(ImGui_ImplWin32_Init(GetHWindow()));
+		VERIFY(ImGui_ImplDX11_Init(DX11::Get().GetDevice(), DX11::Get().GetDeviceContext()));
+
+		ClampIndex();
+
+		return true;
 	}
 
 	void Editor::Destroy()
@@ -40,19 +44,6 @@ namespace Okay
 	bool Editor::Update()
 	{
 		static bool dockSpace = true;
-
-		if (ImGui::Begin("Temp selector"))
-		{
-			auto& reg = Engine::GetActiveScene()->GetRegistry();
-			const int numAlive = (int)reg.alive();
-
-			ImGui::InputInt("Index: ", &index);
-			index = index >= numAlive ? numAlive - 1 : index < 0 ? 0 : index;
-			
-			index = numAlive ? index : -1;
-		}
-		ImGui::End();
-
 
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
@@ -113,27 +104,76 @@ namespace Okay
 
 	void Editor::DisplayEntityList()
 	{
-		auto& reg = Engine::GetActiveScene()->GetRegistry();
-
-		if (!ImGui::Begin("Entities"))
+		if (!ImGui::Begin("Entity List"))
 		{
 			ImGui::End();
 			return;
 		}
 
-		reg.each([&reg](auto entity) 
+		Scene* pScene = Engine::GetActiveScene();
+		auto& reg = pScene->GetRegistry();
+		Entity entity = pScene->GetEntities().at(index);
+		const ImVec2 Size(ImGui::GetWindowSize());
+
+		ImGui::Text("Entities: ");
+
+		if (ImGui::Button("Add"))
 		{
-			ImGui::Text(reg.get<Okay::CompTag>(entity).tag.c_str);
-		});
+			Entity ent = pScene->CreateEntity();
+			index = (int)pScene->GetEntities().size() - 1;
+
+			// TEMP
+			ent.AddComponent<Okay::CompMesh>("cube.OkayAsset");
+		}
+
+		ImGui::SameLine();
+		
+		if (ImGui::Button("Remove"))
+		{
+			pScene->DestroyEntity(entity);
+			ClampIndex();
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::BeginListBox("##"))
+		{
+			static bool clicked = false;
+			bool frame = false;
+
+			int c = 0;
+			auto& entities = pScene->GetEntities();
+			for (auto& entity : entities)
+			{
+				if (ImGui::Selectable(reg.get<Okay::CompTag>(entity).tag.c_str, index == c))
+					index = c;
+
+				c++;
+			}
+
+
+			ImGui::EndListBox();
+		}
+
+			
 
 		ImGui::End();
 	}
 
+	void Editor::ClampIndex()
+	{
+		const int numAlive = (int)Engine::GetActiveScene()->GetRegistry().alive();
+		if (!numAlive)
+		{
+			index = -1;
+			return;
+		}
+
+		index = index >= numAlive ? numAlive - 1 : index < 0 ? 0 : index;
+	}
+
 	void Editor::DisplayInspector()
 	{
-		Scene* pScene = Engine::GetActiveScene();
-		auto& reg = pScene->GetRegistry();
-
 		const bool Begun = ImGui::Begin("Inspector");
 
 		if (!Begun || index == -1)
@@ -142,6 +182,8 @@ namespace Okay
 			return;
 		}
 
+		Scene* pScene = Engine::GetActiveScene();
+		auto& reg = pScene->GetRegistry();
 		Entity& entity = pScene->GetEntities().at(index);
 		ImGuiID ID = ImGui::GetID("Inspector");
 		
@@ -164,47 +206,47 @@ namespace Okay
 	
 
 		// Mesh
-		if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
+		if (entity.HasComponent<Okay::CompMesh>())
 		{
-			Assets& assets = Engine::GetAssets();
-			CompMesh& mesh = entity.GetComponent<CompMesh>();
-
-			ImGui::Text("Mesh Component");
-			ImGui::Separator();
-			// Mesh
-			ImGui::Text("Mesh:");
-			if (ImGui::BeginCombo("##", mesh.mesh->GetName()))
+			if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
 			{
-				for (UINT i = 0; i < assets.GetNumMeshes(); i++)
+				Assets& assets = Engine::GetAssets();
+				CompMesh& mesh = entity.GetComponent<CompMesh>();
+
+				ImGui::Text("Mesh Component");
+				ImGui::Separator();
+				// Mesh
+				ImGui::Text("Mesh:");
+				if (ImGui::BeginCombo("##", mesh.mesh->GetName()))
 				{
-					auto& name = assets.GetMeshName(i);
+					for (UINT i = 0; i < assets.GetNumMeshes(); i++)
+					{
+						auto& name = assets.GetMeshName(i);
 
-					if (ImGui::Selectable(name))
-						mesh.AssignMesh(name.c_str);
-	
-				}
-				ImGui::EndCombo();
-			}
+						if (ImGui::Selectable(name))
+							mesh.AssignMesh(name.c_str);
 
-			// Materials
-			ImGui::Text("\nMaterial:");
-			if (ImGui::BeginCombo("###", mesh.materials.at(0)->GetName()))
-			{
-				for (UINT i = 0; i < assets.GetNumMaterials(); i++)
-				{
-					auto& name = assets.GetMaterialName(i);
-
-					if (ImGui::Selectable(name))
-						mesh.AssignMaterial(0, name);
+					}
+					ImGui::EndCombo();
 				}
 
-				ImGui::EndCombo();
+				// Materials
+				ImGui::Text("\nMaterial:");
+				if (ImGui::BeginCombo("###", mesh.materials.at(0)->GetName()))
+				{
+					for (UINT i = 0; i < assets.GetNumMaterials(); i++)
+					{
+						auto& name = assets.GetMaterialName(i);
+
+						if (ImGui::Selectable(name))
+							mesh.AssignMaterial(0, name);
+					}
+
+					ImGui::EndCombo();
+				}
 			}
-
-
-
+			ImGui::EndChildFrame();
 		}
-		ImGui::EndChildFrame();
 		
 		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
 		{
@@ -228,6 +270,10 @@ namespace Okay
 			return;
 		}
 
+		ImGuiID ID = ImGui::GetID("Content Browser");
+		Assets& assets = Engine::GetAssets();
+		const ImVec2 Size(120.f, 120.f);
+
 		ImGui::BeginMenuBar();
 		
 
@@ -241,11 +287,55 @@ namespace Okay
 
 		ImGui::EndMenuBar();
 
-		ImGui::Text("Item 0");
-		ImGui::Text("Item 1");
-		ImGui::Text("Item 2");
-		ImGui::Text("Item 3");
 		
+		// Meshes
+		if (ImGui::BeginChildFrame(ID++, Size))
+		{
+			ImGui::Text("Meshes:");
+			ImGui::Separator();
+
+			for (UINT i = 0; i < assets.GetNumMeshes(); i++)
+			{
+				ImGui::Text(assets.GetMeshName(i));
+			}
+
+		}
+		ImGui::EndChildFrame();
+
+
+
+		// Materials
+		ImGui::SameLine();
+		if (ImGui::BeginChildFrame(ID++, Size))
+		{
+			ImGui::Text("Materials:");
+			ImGui::Separator();
+
+			for (UINT i = 0; i < assets.GetNumMaterials(); i++)
+			{
+				ImGui::Text(assets.GetMaterialName(i));
+			}
+
+		}
+		ImGui::EndChildFrame();
+
+
+		// Textures
+		ImGui::SameLine();
+		if (ImGui::BeginChildFrame(ID++, { Size.x + 40.f, Size.y }))
+		{
+			ImGui::Text("Textures:");
+			ImGui::Separator();
+			for (UINT i = 0; i < assets.GetNumTextures(); i++)
+			{
+				ImGui::Text(assets.GetTextureName(i));
+			}
+
+		}
+		ImGui::EndChildFrame();
+		
+
+
 		ImGui::End();
 	}
 
@@ -257,11 +347,11 @@ namespace Okay
 		wchar_t fileName[MaxFileLength]{};
 
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = GetHWindow();
+		ofn.hwndOwner = GetHWindow(); 
 		ofn.lpstrFile = fileName;
 		ofn.lpstrFile[0] = '\0';
 		ofn.nMaxFile = MaxFileLength;
-		ofn.lpstrFilter = L"All Files\0*.*\0";
+		ofn.lpstrFilter = L"All Files\0*.*\0Other Files\0*.png\0";
 		ofn.nFilterIndex = 1;
 
 		GetOpenFileName(&ofn);

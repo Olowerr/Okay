@@ -124,3 +124,16 @@ void Okay::CompTransform::ReadPrivateData(std::ifstream& reader)
 
 	CalcMatrix();
 }
+
+
+/* ------ Tag Component ------ */
+
+void Okay::CompTag::WritePrivateData(std::ofstream& writer)
+{
+	writer.write(tag.c_str, sizeof(Okay::String));
+}
+
+void Okay::CompTag::ReadPrivateData(std::ifstream& reader)
+{
+	reader.read(tag.c_str, sizeof(Okay::String));
+}

@@ -15,7 +15,7 @@ namespace Okay
 		Editor(Editor&&) = delete;
 		Editor& operator=(const Editor&) = delete;
 	public:
-		static void Create();
+		static bool Create();
 		static void Destroy();
 
 		static bool Update();
@@ -26,10 +26,11 @@ namespace Okay
 	private:
 
 		static int index;
+		static void ClampIndex();
 
 		static void DisplayEntityList();
 		static void DisplayInspector();
-
+		
 		static void DisplayContent();
 		static void OpenFileExplorer();
 

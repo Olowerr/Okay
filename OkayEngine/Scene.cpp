@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Engine.h"
+#include <algorithm>
 
 Scene::Scene()
     :index(-1)
@@ -15,12 +16,20 @@ Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
     entity.AddComponent<Okay::CompTransform>();
-    entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
+    entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)registry.alive()));
 
     // Maybe temp
     entities.emplace_back(entity);
 
     return entity;
+}
+
+void Scene::DestroyEntity(Entity entity)
+{
+    registry.destroy(entity);
+
+
+    entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
 }
 
 void Scene::Start()
@@ -75,7 +84,6 @@ void Scene::Update()
     }
     ImGui::End();
 #endif // _IMGUI
-
 
     const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform>();
 

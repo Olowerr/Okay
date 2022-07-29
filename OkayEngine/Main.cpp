@@ -21,8 +21,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
-    
-
     System system;
 
 	if (!system.Initiate())

@@ -71,20 +71,38 @@ bool Okay::Engine::SaveCurrentScene()
 	const UINT NumEntities = (UINT)registry.alive();
 	writer.write((const char*)&NumEntities, sizeof(UINT));
 
+											
+#if 0
+	Okay::Components type;
+	registry.each([&registry, &writer](auto entity)
+	{
+		
+		if (auto* ptr = registry.try_get<Okay::CompTransform>(entity))
+			foo(ptr, writer);
+
+		if (auto* ptr = registry.try_get<Okay::CompMesh>(entity))
+			foo(ptr, writer);
+
+		if (auto* ptr = registry.try_get<Okay::CompTag>(entity))
+			foo(ptr, writer);
+
+		
+	});
+
+#else
 
 	//  --- Temp ---
-	const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform>();
-	const UINT NumComp = 2;
+	const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform, Okay::CompTag>();
+	const UINT NumComp = 3;
 	Okay::Components type;
 
 	for (auto& entity : group)
 	{
 		if (!registry.valid(entity))
 			continue;
-
-		Okay::CompMesh& mesh = group.get<Okay::CompMesh>(entity);
-		Okay::CompTransform& transform = group.get<Okay::CompTransform>(entity);
-
+		
+		const auto& [mesh, transform, tag] = group.get(entity);
+		
 		writer.write((const char*)&NumComp, sizeof(UINT));
 
 		// Write Mesh
@@ -96,10 +114,19 @@ bool Okay::Engine::SaveCurrentScene()
 		type = Okay::Components::Transform;
 		writer.write((const char*)&type, sizeof(Okay::Components));
 		transform.WritePrivateData(writer);
+
+		// Write Tag
+		type = Okay::Components::Tag;
+		writer.write((const char*)&type, sizeof(Okay::Components));
+		tag.WritePrivateData(writer);
+
 	}
+
+#endif
 
 	writer.close();
 	return true;
+	
 }
 
 bool Okay::Engine::LoadScene(const Okay::String& sceneName)
@@ -125,7 +152,6 @@ bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 
 bool Okay::Engine::LoadScene(UINT sceneIndex)
 {
-	Get().activeScene->Start();
 	return false;
 }
 
@@ -162,5 +188,10 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		entity.GetComponent<CompTransform>().ReadPrivateData(reader);
 		break;
 	}
+
+	case Components::Tag:
+		// All entities get a transform component on creation
+		entity.GetComponent<CompTag>().ReadPrivateData(reader);
+		break;
 	}
 }

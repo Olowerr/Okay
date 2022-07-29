@@ -21,6 +21,8 @@ public:
 
 	void SetUp();
 
+	bool TryImport(const std::string_view& path);
+
 #pragma region 
 
 	bool AddMesh(const std::string& fileName);
@@ -42,6 +44,7 @@ public:
 	// Getters
 	std::shared_ptr<Okay::Texture> GetTexture(const std::string& fileName);
 	UINT GetNumTextures() const { return (UINT)textures.size(); }
+	const Okay::String& GetTextureName(UINT index);
 #pragma endregion Textures
 
 

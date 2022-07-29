@@ -75,5 +75,8 @@ namespace Okay // Structs for now, change to classes
 		CompTag(const String& tag) :tag(tag) { }
 
 		String tag;
+
+		void WritePrivateData(std::ofstream& writer);
+		void ReadPrivateData(std::ifstream& reader);
 	};
 }

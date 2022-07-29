@@ -24,10 +24,12 @@ void System::Shutdown()
 bool System::Initiate()
 {
 	VERIFY(InitiateWindow());
-	Okay::Engine::Initialize();
+	Okay::Engine::Initialize(); // Should verify..
+
+	VERIFY(Okay::Engine::LoadScene(""));
 
 #ifdef EDITOR
-	Okay::Editor::Create();
+	VERIFY(Okay::Editor::Create());
 #endif // EDITOR
 
 	return true;
@@ -37,7 +39,6 @@ void System::Run()
 {
 	using namespace Okay;
 
-	Engine::LoadScene("");
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
@@ -54,12 +55,12 @@ void System::Run()
 		Engine::NewFrame();
 
 
-		Engine::Update();
-
 #ifdef EDITOR
 		if (Editor::Update())
 			Engine::GetRenderer().Resize();
 #endif
+		Engine::Update();
+
 		Engine::GetRenderer().Render();
 
 #ifdef EDITOR
