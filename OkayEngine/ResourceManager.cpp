@@ -43,7 +43,11 @@ bool Assets::TryImport(const std::string_view& path)
 bool Assets::AddMesh(const std::string& filePath)
 {
 	// Fixes absolute paths
-	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
+
+	size_t pos = filePath.find_last_of('/');
+	pos = pos == -1 ? filePath.find_last_of('\\') : pos;
+
+	std::string fileName = filePath.substr(pos + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
 	// Overrite old file / import new file
