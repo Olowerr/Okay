@@ -234,7 +234,7 @@ void Assets::ClearDeclared()
 
 bool Assets::ReadDeclaration()
 {
-	std::ifstream reader("../Content/Meshes/AssetDeclaration.okayDec", std::ios::binary);
+	std::ifstream reader(DeclarationPath, std::ios::binary);
 	VERIFY(reader);
 
 	UINT numElements = 0;
@@ -262,7 +262,7 @@ bool Assets::ReadDeclaration()
 
 bool Assets::WriteDeclaration()
 {
-	std::ofstream writer("../Content/Meshes/AssetDeclaration.okayDec", std::ios::binary | std::ios::trunc);
+	std::ofstream writer(DeclarationPath, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	UINT numElements = 0;
