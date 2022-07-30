@@ -353,8 +353,10 @@ namespace Okay
 		ofn.nMaxFile = MaxFileLength;
 		ofn.lpstrFilter = L"All Files\0*.*\0Other Files\0*.png\0";
 		ofn.nFilterIndex = 1;
+		ofn.Flags = OFN_NOCHANGEDIR;
 
-		GetOpenFileName(&ofn);
+		if (!GetOpenFileName(&ofn))
+			return;
 		
 		char text[MaxFileLength]{};
 		wcstombs(text, ofn.lpstrFile, MaxFileLength);

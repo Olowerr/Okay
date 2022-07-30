@@ -89,7 +89,7 @@ inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::Ve
 	std::string fileName = filePath.substr(pos + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	std::ofstream writer(fileName, std::ios::binary | std::ios::trunc);
+	std::ofstream writer("../Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	UINT info[2];

@@ -25,7 +25,7 @@ void Assets::SetUp()
 
 	// Manually add assets here -----
 
-	
+
 
 	// -----
 
