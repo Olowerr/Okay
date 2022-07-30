@@ -186,7 +186,12 @@ namespace Okay
 				ImGui::Text("Entity Options:");
 				ImGui::Separator();
 
-				ImGui::MenuItem("Entity Option 0");
+				char hello[100]{};
+				if (ImGui::MenuItem("Change name"))
+				{
+					if (ImGui::InputText("test", hello, 100))
+						printf(hello);
+				}
 				ImGui::MenuItem("Entity Option 1");
 				ImGui::MenuItem("Entity Option 2");
 			}
