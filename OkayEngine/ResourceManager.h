@@ -4,6 +4,8 @@
 #define NOMINMAX
 #endif // !NOMINMAX
 
+
+
 #include <unordered_map>
 #include "Mesh.h"
 #include "OkayImporter.h"
@@ -67,6 +69,8 @@ private: // All loaded "assets"
 
 private: // Asset loading and writing
 	const Okay::String DeclarationPath = "../Content/Meshes/AssetDeclaration.okayDec";
+	const std::string TexturePath = "../Content/Textures/";
+
 	bool LoadDeclared();
 	void ClearDeclared();
 	bool ReadDeclaration();

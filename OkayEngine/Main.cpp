@@ -22,7 +22,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #endif // CONSOLE_ENABLE
 
     std::string filePath = "C:\\Users\\Oliver\\Desktop\\BUnny.jpg";
-
+ 
     size_t pos = filePath.find_last_of('/');
     pos = pos == -1 ? filePath.find_last_of('\\') : pos;
 

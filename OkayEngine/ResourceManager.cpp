@@ -13,18 +13,20 @@ Assets::~Assets()
 
 void Assets::SetUp()
 {
-	Okay::MaterialDesc_Strs defaultDesc;
-	defaultDesc.name = "Default";
-	defaultDesc.baseColour = "quack.jpg";
-	defaultDesc.specular = "quack.jpg";
-	defaultDesc.ambient = "quack.jpg";
+	AddTexture(TexturePath + "quack.jpg");
+	auto defaultTexture = GetTexture("quack.jpg");
 
-	AddTexture("../Content/textures/quack.jpg");
+	Okay::MaterialDesc_Ptrs defaultDesc;
+	defaultDesc.name = "Default";
+	defaultDesc.baseColour = defaultTexture;
+	defaultDesc.specular = defaultTexture;
+	defaultDesc.ambient = defaultTexture;
+
 	AddMaterial(defaultDesc);
 	LoadDeclared();
-
+	
 	// Manually add assets here -----
-
+	
 
 
 	// -----
@@ -115,7 +117,10 @@ const Okay::String& Assets::GetMeshName(UINT index)
 
 bool Assets::AddTexture(const std::string& filePath)
 {
-	const std::string& fileName = filePath.substr(filePath.find_last_of('/') + 1);
+	size_t pos = filePath.find_last_of('/');
+	pos = pos == -1 ? filePath.find_last_of('\\') : pos;
+
+	const std::string& fileName = filePath.substr(pos + 1);
 
 	if (textures.find(fileName) != textures.end())
 		return false;
@@ -123,7 +128,7 @@ bool Assets::AddTexture(const std::string& filePath)
 	textures.insert({ fileName, std::make_shared<Okay::Texture>(filePath) });
 
 	// TEMP path
-	const std::string& savePath = "../Content/Textures/" + fileName;
+	const std::string& savePath = TexturePath + fileName;
 
 	CopyFile(std::wstring(filePath.begin(), filePath.end()).c_str(), std::wstring(savePath.begin(), savePath.end()).c_str(), FALSE);
 
@@ -139,7 +144,7 @@ std::shared_ptr<Okay::Texture> Assets::GetTexture(const std::string& fileName)
 {
 	// Need to change
 	if (textures.find(fileName) == textures.end())
-		return std::make_shared<Okay::Texture>(); 
+		return textures["quack.jpg"];
 
 	return textures[fileName];
 }
@@ -213,15 +218,10 @@ bool Assets::LoadDeclared()
 
 	for (const auto& texture : decTextures)
 	{
-		if (TextureExists(texture.c_str))
+		if (TextureExists(texture.c_str) || !Okay::Texture::IsValid(TexturePath + texture.c_str))
 			continue;
 
-		// Create texture and insert into map
-		const std::string& path = "../Content/Textures/";
-		textures[texture.c_str] = std::make_shared<Okay::Texture>(path + texture.c_str);
-
-		if (!textures[texture.c_str]->GetIsValid())
-			result = false;
+		textures[texture.c_str] = std::make_shared<Okay::Texture>(TexturePath + texture.c_str);
 	}
 
 	for (const auto& materialDesc : decMaterials)

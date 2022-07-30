@@ -45,6 +45,11 @@ namespace Okay
 	{
 		static bool dockSpace = true;
 
+
+		//ImGuiWindowFlags_NoMove
+		//ImGuiWindowFlags_NoBackground
+		//ImGuiWindowFlags_NoTitleBar
+
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 		if (ImGui::Begin("Dockspace"))
@@ -57,9 +62,8 @@ namespace Okay
 
 		DisplayContent();
 
-		//ImGuiWindowFlags_NoMove
-		//ImGuiWindowFlags_NoBackground
-		//ImGuiWindowFlags_NoTitleBar
+		
+
 
 		ImVec2 size(1600.f, 900.f);
 		// Declare Viewport window
@@ -136,11 +140,12 @@ namespace Okay
 
 		ImGui::Separator();
 
-		if (ImGui::BeginListBox("##"))
-		{
-			static bool clicked = false;
-			bool frame = false;
 
+		static bool openMenu = false;
+		static ImVec2 menuPos = ImVec2();
+		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, 0.f }))
+		{
+			
 			int c = 0;
 			auto& entities = pScene->GetEntities();
 			for (auto& entity : entities)
@@ -148,16 +153,44 @@ namespace Okay
 				if (ImGui::Selectable(reg.get<Okay::CompTag>(entity).tag.c_str, index == c))
 					index = c;
 
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					openMenu = true;
+					menuPos = ImGui::GetMousePos();
+				}
+
 				c++;
 			}
-
 
 			ImGui::EndListBox();
 		}
 
-			
+		if (ImGui::IsKeyReleased(ImGuiKey_E))
+			openMenu = false;
 
 		ImGui::End();
+
+		if (!openMenu)
+			return;
+
+		static const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+		if (ImGui::Begin("Entity Menu", nullptr, flags))
+		{
+			ImGui::SetWindowPos(menuPos);
+
+			ImGui::MenuItem("Option 0");
+			ImGui::MenuItem("Option 1");
+			ImGui::MenuItem("Option 2");
+
+			if (!ImGui::IsWindowFocused())
+			{
+				openMenu = false;
+				ImGui::End();
+				return;
+			}
+		}
+		ImGui::End();
+
 	}
 
 	void Editor::ClampIndex()
@@ -322,7 +355,7 @@ namespace Okay
 
 		// Textures
 		ImGui::SameLine();
-		if (ImGui::BeginChildFrame(ID++, { Size.x + 40.f, Size.y }))
+		if (ImGui::BeginChildFrame(ID++, Size))
 		{
 			ImGui::Text("Textures:");
 			ImGui::Separator();

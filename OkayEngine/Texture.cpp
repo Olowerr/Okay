@@ -1,7 +1,7 @@
 #include "Texture.h"
 
 Okay::Texture::Texture()
-	:name("Quack"), texture(), srv(), rtv(), uav(), width(0), height(0), isValid(false)
+	:name("Quack.jpg"), texture(), srv(), rtv(), uav(), width(0), height(0), isValid(false)
 {
 	unsigned char* pData = nullptr;
 	if (!LoadTexture("../Content/Textures/Quack.jpg", &pData))
@@ -38,8 +38,12 @@ Okay::Texture::Texture(UINT width, UINT height, DXGI_FORMAT format, UINT bindFla
 }
 
 Okay::Texture::Texture(const std::string& path, UINT bindFlags)
-	:isValid(false), name(path.substr(path.find_last_of('/') + 1)), width(0), height(0), texture(), srv(), rtv(), uav()
+	:isValid(false), width(0), height(0), texture(), srv(), rtv(), uav()
 {
+	size_t pos = path.find_last_of('/');
+	pos = pos == -1 ? path.find_last_of('\\') : pos;
+	name = path.substr(pos + 1);
+
 	unsigned char* pData = nullptr;
 	if (!LoadTexture(path, &pData))
 		return;

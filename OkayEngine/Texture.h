@@ -26,6 +26,12 @@ namespace Okay
 		ID3D11RenderTargetView* const* GetRTV()		{ return &rtv; }
 		ID3D11UnorderedAccessView* const* GetUAV()	{ return &uav; }
 
+		// Helper
+		static bool IsValid(const std::string& texturePath)
+		{
+			return stbi_info(texturePath.c_str(), nullptr, nullptr, nullptr);
+		}
+
 	private:
 		String name;
 		UINT width, height;

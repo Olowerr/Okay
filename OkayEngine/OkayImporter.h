@@ -34,19 +34,35 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	aiMesh* pMesh = pScene->mMeshes[0];	////
 	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
 
-	aiString aiStr;
+	// Texture paths
+	{
+		aiString aiStr;
 
-	texPaths[0] = pMat->GetName().C_Str();
+		texPaths[0] = pMat->GetName().C_Str();
 
-	pMat->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr);
-	texPaths[1] = aiStr.C_Str();
+		pMat->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr);
+		texPaths[1] = aiStr.C_Str();
 
-	pMat->GetTexture(aiTextureType_SPECULAR, 0, &aiStr);
-	texPaths[2] = aiStr.C_Str();
+		pMat->GetTexture(aiTextureType_SPECULAR, 0, &aiStr);
+		texPaths[2] = aiStr.C_Str();
 	
-	pMat->GetTexture(aiTextureType_AMBIENT, 0, &aiStr);
-	texPaths[3] = aiStr.C_Str();
+		pMat->GetTexture(aiTextureType_AMBIENT, 0, &aiStr);
+		texPaths[3] = aiStr.C_Str();
 
+		size_t pos = -1;
+	
+		pos = texPaths[1].find_last_of('/');
+		pos = pos == -1 ? texPaths[1].find_last_of('\\') : pos;
+		texPaths[1] = texPaths[1].substr(pos + 1);
+	
+		pos = texPaths[2].find_last_of('/');
+		pos = pos == -1 ? texPaths[2].find_last_of('\\') : pos;
+		texPaths[2] = texPaths[2].substr(pos + 1);
+	
+		pos = texPaths[3].find_last_of('/');
+		pos = pos == -1 ? texPaths[3].find_last_of('\\') : pos;
+		texPaths[3] = texPaths[3].substr(pos + 1);
+	}
 
 	// Vertex Positions
 	outData.position.resize(pMesh->mNumVertices);
