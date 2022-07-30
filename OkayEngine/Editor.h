@@ -34,5 +34,21 @@ namespace Okay
 		static void DisplayContent();
 		static void OpenFileExplorer();
 
+		static bool OpenMenu(const ImVec2& pos, const char* name, bool* openFlag = nullptr)
+		{
+			static const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+			
+			if (ImGui::Begin(name, nullptr, flags))
+			{
+				ImGui::SetWindowPos(pos);
+
+				if (!ImGui::IsWindowFocused() && openFlag)
+					*openFlag = false;
+
+				return true;
+			}
+
+			return false;
+		}
 	};
 }

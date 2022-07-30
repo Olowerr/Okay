@@ -141,9 +141,10 @@ namespace Okay
 		ImGui::Separator();
 
 
-		static bool openMenu = false;
+		static bool entityMenu = false, listMenu = false;
 		static ImVec2 menuPos = ImVec2();
-		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, 0.f }))
+
+		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, -1.f }))
 		{
 			
 			int c = 0;
@@ -155,42 +156,58 @@ namespace Okay
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					openMenu = true;
+					entityMenu = true;
+					listMenu = false;
 					menuPos = ImGui::GetMousePos();
 				}
 
 				c++;
 			}
 
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
+			{
+				listMenu = true;
+				menuPos = ImGui::GetMousePos();
+			}
+
 			ImGui::EndListBox();
 		}
 
 		if (ImGui::IsKeyReleased(ImGuiKey_E))
-			openMenu = false;
+			entityMenu = false;
 
 		ImGui::End();
 
-		if (!openMenu)
-			return;
 
-		static const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
-		if (ImGui::Begin("Entity Menu", nullptr, flags))
+		if (entityMenu)
 		{
-			ImGui::SetWindowPos(menuPos);
-
-			ImGui::MenuItem("Option 0");
-			ImGui::MenuItem("Option 1");
-			ImGui::MenuItem("Option 2");
-
-			if (!ImGui::IsWindowFocused())
+			if (OpenMenu(menuPos, "EntityOptions", &entityMenu))
 			{
-				openMenu = false;
-				ImGui::End();
-				return;
-			}
-		}
-		ImGui::End();
+				ImGui::Text("Entity Options:");
+				ImGui::Separator();
 
+				ImGui::MenuItem("Entity Option 0");
+				ImGui::MenuItem("Entity Option 1");
+				ImGui::MenuItem("Entity Option 2");
+			}
+			ImGui::End();
+
+
+		}
+
+		else if (listMenu)
+		{
+			if (OpenMenu(menuPos, "ListOptions", &listMenu))
+			{
+				ImGui::Text("List Options:");
+				ImGui::Separator();
+
+				ImGui::MenuItem("List Option 0");
+				ImGui::MenuItem("List Option 1");
+				ImGui::MenuItem("List Option 2");
+			}
+			ImGui::End();
+		}
 	}
 
 	void Editor::ClampIndex()
