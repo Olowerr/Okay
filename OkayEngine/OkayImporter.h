@@ -25,13 +25,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 {
 	Assimp::Importer importer;
 
-	std::string path;
-	if (meshFile.find('/') == -1) // Absolute path?
-		path = "../Content/Meshes/TempObjFbx/" + meshFile;
-	else
-		path = meshFile;
-
-	const aiScene* pScene = importer.ReadFile(path,
+	const aiScene* pScene = importer.ReadFile(meshFile,
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	VERIFY(pScene);
@@ -89,10 +83,13 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData)
 {
-	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
+	size_t pos = filePath.find_last_of('/');
+	pos = pos == -1 ? filePath.find_last_of('\\') : pos;
+
+	std::string fileName = filePath.substr(pos + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	std::ofstream writer("../Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
+	std::ofstream writer(fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	UINT info[2];

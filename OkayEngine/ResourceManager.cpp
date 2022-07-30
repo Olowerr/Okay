@@ -21,8 +21,14 @@ void Assets::SetUp()
 
 	AddTexture("../Content/textures/quack.jpg");
 	AddMaterial(defaultDesc);
-
 	LoadDeclared();
+
+	// Manually add assets here -----
+
+	
+
+	// -----
+
 	WriteDeclaration();
 	ClearDeclared();
 }
@@ -30,14 +36,20 @@ void Assets::SetUp()
 bool Assets::TryImport(const std::string_view& path)
 {
 	const std::string_view fileEnding = path.substr(path.find_last_of('.'));
+	bool result = false;
 
 	if (fileEnding == ".jpg" || fileEnding == ".jpeg" || fileEnding == ".png" || fileEnding == ".bmp" || fileEnding == ".tga")
-		return AddTexture(path.data());
+		result = AddTexture(path.data());
 
 	else if (fileEnding == ".fbx" || fileEnding == ".obj")
-		return AddMesh(path.data());
+		result = AddMesh(path.data());
 
-	return false;
+	VERIFY(result);
+
+	WriteDeclaration();
+	ClearDeclared();
+
+	return true;
 }
 
 bool Assets::AddMesh(const std::string& filePath)
@@ -50,17 +62,19 @@ bool Assets::AddMesh(const std::string& filePath)
 	std::string fileName = filePath.substr(pos + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
+	std::string fileLocation = filePath.substr(0, pos + 1);
+
 	// Overrite old file / import new file
 	Okay::VertexData data;
 	std::string output[4];
 	VERIFY(Importer::Load(filePath, data, output));
 
 	if (output[1].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + output[1]);
+		AddTexture(fileLocation + output[1]);
 	if (output[2].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + output[2]);
+		AddTexture(fileLocation + output[2]);
 	if (output[3].size())
-		AddTexture("../Content/Meshes/TempObjFbx/" + output[3]);
+		AddTexture(fileLocation + output[3]);
 
 	if (!MaterialExists(output[0]))
 	{
@@ -73,12 +87,8 @@ bool Assets::AddMesh(const std::string& filePath)
 		AddMaterial(matDesc);
 	}
 
-	ReadDeclaration();
-	
 	// Create the mesh
 	meshes[fileName] = std::make_shared<Okay::Mesh>(data, fileName);
-
-	WriteDeclaration();
 
 	return true;
 }
@@ -268,14 +278,12 @@ bool Assets::WriteDeclaration()
 	UINT numElements = 0;
 	UINT byteWidth = 0;
 
-	// Can rewrite
-
 	// Meshes
 	UINT c = 0;
 	decMeshes.resize(meshes.size());
 	for (auto& mesh : meshes)
 		decMeshes.at(c++) = mesh.second->GetName();
-	
+
 	// Textures
 	c = 0;
 	decTextures.resize(textures.size());
@@ -283,11 +291,13 @@ bool Assets::WriteDeclaration()
 		decTextures.at(c++) = tex.second->GetName();
 
 	// Materials
-	c = 0; 
+	c = 0;
 	decMaterials.resize(materials.size());
 	for (auto& mat : materials)
 		decMaterials.at(c++) = mat.second->GetDesc();
-	
+
+
+
 	// Meshes
 	numElements = (UINT)decMeshes.size();
 	byteWidth = sizeof(Okay::String) * numElements;

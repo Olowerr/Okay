@@ -355,10 +355,10 @@ namespace Okay
 		ofn.nFilterIndex = 1;
 
 		GetOpenFileName(&ofn);
-
+		
 		char text[MaxFileLength]{};
 		wcstombs(text, ofn.lpstrFile, MaxFileLength);
-		printf(text);
+		Engine::GetAssets().TryImport(text);
 	}
 
 }
