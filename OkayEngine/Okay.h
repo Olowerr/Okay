@@ -43,6 +43,7 @@ namespace Okay
 		}
 
 		operator const char* () const { return c_str; }
+		operator char* () { return c_str; }
 
 		char c_str[Size]{};
 

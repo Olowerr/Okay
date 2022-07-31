@@ -70,7 +70,7 @@ void System::Run()
 	}
 
 	// Will change with scene switching
-	Engine::SaveCurrentScene(); 
+	Engine::SaveCurrent(); 
 
 }
 

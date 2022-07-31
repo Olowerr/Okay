@@ -41,6 +41,7 @@ namespace Okay
 
 		void BindTextures() const;
 		const Okay::String& GetName() const;
+		void SetName(const Okay::String& name) { this->name = name; }
 
 		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
 		const MaterialGPUData& GetGPUData() const;

@@ -65,7 +65,7 @@ bool Okay::Engine::SaveCurrentScene()
 	std::ofstream writer(SceneDecleration.c_str, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
-	entt::registry& registry = Get().activeScene->GetRegistry();
+	entt::registry& registry = activeScene->GetRegistry();
 
 	// Might change
 	const UINT NumEntities = (UINT)registry.alive();

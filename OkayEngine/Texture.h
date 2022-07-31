@@ -27,9 +27,9 @@ namespace Okay
 		ID3D11UnorderedAccessView* const* GetUAV()	{ return &uav; }
 
 		// Helper
-		static bool IsValid(const std::string& texturePath)
+		static bool IsValid(const std::string_view& texturePath)
 		{
-			return stbi_info(texturePath.c_str(), nullptr, nullptr, nullptr);
+			return stbi_info(texturePath.data(), nullptr, nullptr, nullptr);
 		}
 
 	private:

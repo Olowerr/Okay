@@ -21,16 +21,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
-    std::string filePath = "C:\\Users\\Oliver\\Desktop\\BUnny.jpg";
- 
-    size_t pos = filePath.find_last_of('/');
-    pos = pos == -1 ? filePath.find_last_of('\\') : pos;
-
-    std::string fileName = filePath.substr(pos + 1);
-    fileName = fileName.substr(0, fileName.find_last_of('.'));
-
-    std::string fileLocation = filePath.substr(0, pos + 1);
-
     System system;
 
 	if (!system.Initiate())

@@ -181,16 +181,22 @@ namespace Okay
 
 		if (entityMenu)
 		{
-			if (OpenMenu(menuPos, "EntityOptions", &entityMenu))
+			if (OpenMenuWindow(menuPos, "EntityOptions", &entityMenu))
 			{
 				ImGui::Text("Entity Options:");
 				ImGui::Separator();
 
-				char hello[100]{};
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					ImGui::InputText("test", hello, 100);
+					static Okay::String name;
+
+					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					{
+						entity.GetComponent<Okay::CompTag>().tag = name;
+						name = "";
+					}
+
 					ImGui::EndMenu();
 				}
 
@@ -204,7 +210,7 @@ namespace Okay
 
 		else if (listMenu)
 		{
-			if (OpenMenu(menuPos, "ListOptions", &listMenu))
+			if (OpenMenuWindow(menuPos, "ListOptions", &listMenu))
 			{
 				ImGui::Text("List Options:");
 				ImGui::Separator();
@@ -328,8 +334,9 @@ namespace Okay
 		}
 
 		ImGuiID ID = ImGui::GetID("Content Browser");
-		Assets& assets = Engine::GetAssets();
-		const ImVec2 Size(120.f, 120.f);
+		static Assets& assets = Engine::GetAssets();
+		static const ImVec2 Size(120.f, 120.f);
+		static ImVec2 menuPos;
 
 		ImGui::BeginMenuBar();
 
@@ -351,10 +358,12 @@ namespace Okay
 			ImGui::Text("Meshes:");
 			ImGui::Separator();
 
-			for (UINT i = 0; i < assets.GetNumMeshes(); i++)
+			static auto displayMesh = [](Mesh& mesh)
 			{
-				ImGui::Text(assets.GetMeshName(i));
-			}
+				ImGui::Text(mesh.GetName());
+			};
+
+			assets.ForEachMesh(displayMesh);
 
 		}
 		ImGui::EndChildFrame();
@@ -362,19 +371,34 @@ namespace Okay
 
 
 		// Materials
+		static bool matMenu = false;
+		static int matIndex = -1;
 		ImGui::SameLine();
-		if (ImGui::BeginChildFrame(ID++, Size))
+		if (ImGui::BeginListBox("##", ImVec2( 120.f, 0.f)))
 		{
 			ImGui::Text("Materials:");
 			ImGui::Separator();
 
-			for (UINT i = 0; i < assets.GetNumMaterials(); i++)
+			int i = 0;
+			static auto selectMaterial = [&i](Material& material)
 			{
-				ImGui::Text(assets.GetMaterialName(i));
-			}
+				if (ImGui::Selectable(material.GetName(), matIndex == i))
+					matIndex = i;
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					matIndex = i;
+					matMenu = true;
+					menuPos = ImGui::GetMousePos();
+				}
+
+				i++;
+			};
+
+			assets.ForEachMaterial(selectMaterial);
 
 		}
-		ImGui::EndChildFrame();
+		ImGui::EndListBox();
 
 
 		// Textures
@@ -383,17 +407,46 @@ namespace Okay
 		{
 			ImGui::Text("Textures:");
 			ImGui::Separator();
-			for (UINT i = 0; i < assets.GetNumTextures(); i++)
+
+			static auto displayName = [](Texture& texture)
 			{
-				ImGui::Text(assets.GetTextureName(i));
-			}
+				ImGui::Text(texture.GetName());
+			};
+
+			assets.ForEachTexture(displayName);
 
 		}
 		ImGui::EndChildFrame();
 
-
-
 		ImGui::End();
+
+
+		// Menu Handling
+		if (matMenu)
+		{
+			if (OpenMenuWindow(menuPos, "MatMenu", &matMenu))
+			{
+				ImGui::Text("Material Options");
+				ImGui::Separator();
+
+				if (ImGui::BeginMenu("Change name"))
+				{
+					static Okay::String name;
+
+					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					{
+						assets.GetMaterial((UINT)matIndex)->SetName(name);
+						name = "";
+					}
+
+					ImGui::EndMenu();
+				}
+				ImGui::MenuItem("Remove");
+			}
+			ImGui::End();
+		}
+
+
 	}
 
 	void Editor::OpenFileExplorer()

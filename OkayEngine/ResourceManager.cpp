@@ -25,7 +25,7 @@ void Assets::SetUp()
 	AddMaterial(defaultDesc);
 	LoadDeclared();
 	
-	// Manually add assets here -----
+	// Manually modify assets here -----
 	
 
 
@@ -35,15 +35,20 @@ void Assets::SetUp()
 	ClearDeclared();
 }
 
+void Assets::Save()
+{
+	WriteDeclaration();
+}
+
 bool Assets::TryImport(const std::string_view& path)
 {
 	const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 	bool result = false;
 
-	if (fileEnding == ".jpg" || fileEnding == ".jpeg" || fileEnding == ".png" || fileEnding == ".bmp" || fileEnding == ".tga")
+	if (Okay::Texture::IsValid(path))
 		result = AddTexture(path.data());
 
-	else if (fileEnding == ".fbx" || fileEnding == ".obj")
+	else if (fileEnding == ".fbx" || fileEnding == ".FBX" || fileEnding == ".obj" || fileEnding == ".OBJ")
 		result = AddMesh(path.data());
 
 	VERIFY(result);
@@ -122,15 +127,15 @@ bool Assets::AddTexture(const std::string& filePath)
 
 	const std::string& fileName = filePath.substr(pos + 1);
 
-	if (textures.find(fileName) != textures.end())
+	if (textures.find(fileName) != textures.end() || !Okay::Texture::IsValid(filePath))
 		return false;
 
 	textures.insert({ fileName, std::make_shared<Okay::Texture>(filePath) });
 
 	// TEMP path
-	const std::string& savePath = TexturePath + fileName;
+	std::string savePath = TexturePath + fileName;
 
-	CopyFile(std::wstring(filePath.begin(), filePath.end()).c_str(), std::wstring(savePath.begin(), savePath.end()).c_str(), FALSE);
+	CopyFile(std::wstring(filePath.begin(), filePath.end()).c_str(), std::wstring(savePath.begin(), savePath.end()).c_str(), TRUE);
 
 	return true;
 }
@@ -185,6 +190,13 @@ std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialN
 		return std::make_shared<Okay::Material>();
 
 	return materials[materialName];
+}
+
+std::shared_ptr<Okay::Material> Assets::GetMaterial(UINT index)
+{
+	auto it = materials.begin();
+	std::advance(it, index);
+	return it->second;
 }
 
 const Okay::String& Assets::GetMaterialName(UINT index)

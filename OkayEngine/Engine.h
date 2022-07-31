@@ -39,7 +39,11 @@ namespace Okay
 		static bool LoadScene(const Okay::String& sceneName);
 		static bool LoadScene(UINT sceneIndex);
 
-		static bool SaveCurrentScene(); 
+		static void SaveCurrent()
+		{
+			Get().SaveCurrentScene();
+			Get().assets.Save();
+		}
 
 		static Scene* GetActiveScene() { return Get().activeScene.get(); }
 
@@ -61,6 +65,7 @@ namespace Okay
 
 		static void ReadEntity(Entity& entity, std::ifstream& reader);
 		static void ReadComponentData(Entity& entity, Components type, std::ifstream& reader);
+		bool SaveCurrentScene(); 
 
 	};
 

@@ -22,6 +22,7 @@ public:
 	Assets& operator=(const Assets&) = delete;
 
 	void SetUp();
+	void Save();
 
 	bool TryImport(const std::string_view& path);
 
@@ -31,11 +32,19 @@ public: // Getters
 	UINT GetNumMeshes() const { return (UINT)meshes.size(); }
 	const Okay::String& GetMeshName(UINT index);
 
+	template<typename T>
+	void ForEachMesh(T& function)
+	{
+		for (auto it = meshes.begin(); it != meshes.end(); ++it)
+			function(*it->second.get());
+	}
+
 private:
 	bool AddMesh(const std::string& fileName);
 	bool MeshExists(const std::string& fileName);
 
 #pragma endregion Meshes
+
 
 #pragma region
 public: // Getters
@@ -43,16 +52,32 @@ public: // Getters
 	UINT GetNumTextures() const { return (UINT)textures.size(); }
 	const Okay::String& GetTextureName(UINT index);
 	
+	template<typename T>
+	void ForEachTexture(T& function)
+	{
+		for (auto it = textures.begin(); it != textures.end(); ++it)
+			function(*it->second.get());
+	}
+
 private:
 	bool AddTexture(const std::string& fileName);
 	bool TextureExists(const std::string& fileName);
 #pragma endregion Textures
 
+
 #pragma region Materials
 public: // Getters
 	std::shared_ptr<Okay::Material> GetMaterial(const std::string& materialName);
-	UINT GetNumMaterials() const { return (UINT)materials.size(); }
+	std::shared_ptr<Okay::Material> GetMaterial(UINT index);
 	const Okay::String& GetMaterialName(UINT index);
+	UINT GetNumMaterials() const { return (UINT)materials.size(); }
+
+	template<typename T>
+	void ForEachMaterial(T& lambda)
+	{
+		for (auto it = materials.begin(); it != materials.end(); ++it)
+			lambda(*it->second.get());
+	}
 
 private:
 	bool AddMaterial(const Okay::MaterialDesc_Strs& matDesc);
