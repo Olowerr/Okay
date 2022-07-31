@@ -42,8 +42,8 @@ namespace Okay
 			{
 				ImGui::SetWindowPos(pos);
 
-				if (!ImGui::IsWindowFocused() && openFlag)
-					*openFlag = false;
+				//if (!ImGui::IsWindowFocused() && openFlag)
+				//	*openFlag = false;
 
 				return true;
 			}

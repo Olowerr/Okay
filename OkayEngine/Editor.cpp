@@ -62,7 +62,7 @@ namespace Okay
 
 		DisplayContent();
 
-		
+
 
 
 		ImVec2 size(1600.f, 900.f);
@@ -131,7 +131,7 @@ namespace Okay
 		}
 
 		ImGui::SameLine();
-		
+
 		if (ImGui::Button("Remove"))
 		{
 			pScene->DestroyEntity(entity);
@@ -146,7 +146,7 @@ namespace Okay
 
 		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, -1.f }))
 		{
-			
+
 			int c = 0;
 			auto& entities = pScene->GetEntities();
 			for (auto& entity : entities)
@@ -173,7 +173,7 @@ namespace Okay
 			ImGui::EndListBox();
 		}
 
-		if (ImGui::IsKeyReleased(ImGuiKey_E))
+		if (ImGui::IsKeyReleased(ImGuiKey_P))
 			entityMenu = false;
 
 		ImGui::End();
@@ -187,11 +187,13 @@ namespace Okay
 				ImGui::Separator();
 
 				char hello[100]{};
-				if (ImGui::MenuItem("Change name"))
+
+				if (ImGui::BeginMenu("Change name"))
 				{
-					if (ImGui::InputText("test", hello, 100))
-						printf(hello);
+					ImGui::InputText("test", hello, 100);
+					ImGui::EndMenu();
 				}
+
 				ImGui::MenuItem("Entity Option 1");
 				ImGui::MenuItem("Entity Option 2");
 			}
@@ -241,7 +243,7 @@ namespace Okay
 		auto& reg = pScene->GetRegistry();
 		Entity& entity = pScene->GetEntities().at(index);
 		ImGuiID ID = ImGui::GetID("Inspector");
-		
+
 		ImVec2 size = ImGui::GetWindowSize();
 
 		// Transform
@@ -258,7 +260,7 @@ namespace Okay
 			tra.CalcMatrix();
 		}
 		ImGui::EndChildFrame();
-	
+
 
 		// Mesh
 		if (entity.HasComponent<Okay::CompMesh>())
@@ -302,7 +304,7 @@ namespace Okay
 			}
 			ImGui::EndChildFrame();
 		}
-		
+
 		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
 		{
 			ImGui::Text("Component 0");
@@ -330,7 +332,7 @@ namespace Okay
 		const ImVec2 Size(120.f, 120.f);
 
 		ImGui::BeginMenuBar();
-		
+
 
 		if (ImGui::BeginMenu("Options"))
 		{
@@ -342,7 +344,7 @@ namespace Okay
 
 		ImGui::EndMenuBar();
 
-		
+
 		// Meshes
 		if (ImGui::BeginChildFrame(ID++, Size))
 		{
@@ -388,7 +390,7 @@ namespace Okay
 
 		}
 		ImGui::EndChildFrame();
-		
+
 
 
 		ImGui::End();
@@ -402,7 +404,7 @@ namespace Okay
 		wchar_t fileName[MaxFileLength]{};
 
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = GetHWindow(); 
+		ofn.hwndOwner = GetHWindow();
 		ofn.lpstrFile = fileName;
 		ofn.lpstrFile[0] = '\0';
 		ofn.nMaxFile = MaxFileLength;
@@ -412,7 +414,7 @@ namespace Okay
 
 		if (!GetOpenFileName(&ofn))
 			return;
-		
+
 		char text[MaxFileLength]{};
 		wcstombs(text, ofn.lpstrFile, MaxFileLength);
 		Engine::GetAssets().TryImport(text);
