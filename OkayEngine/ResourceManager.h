@@ -35,8 +35,8 @@ public: // Getters
 	template<typename T>
 	void ForEachMesh(T& function)
 	{
-		for (auto it = meshes.begin(); it != meshes.end(); ++it)
-			function(*it->second.get());
+		for (auto& mesh : meshes)
+			function(*mesh.second.get());
 	}
 
 private:
@@ -55,8 +55,8 @@ public: // Getters
 	template<typename T>
 	void ForEachTexture(T& function)
 	{
-		for (auto it = textures.begin(); it != textures.end(); ++it)
-			function(*it->second.get());
+		for (auto& texture : textures)
+			function(*texture.second.get());
 	}
 
 private:
@@ -75,8 +75,8 @@ public: // Getters
 	template<typename T>
 	void ForEachMaterial(T& lambda)
 	{
-		for (auto it = materials.begin(); it != materials.end(); ++it)
-			lambda(*it->second.get());
+		for (auto& material : materials)
+			lambda(*material.second.get());
 	}
 
 private:
