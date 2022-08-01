@@ -34,32 +34,34 @@ void Okay::CompMesh::AssignMesh(const std::string& meshName)
 
 void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
 {
-	// if (mesh->NumSub >= index)
-	//	return;
-
-	// materials.clear(); // Drop references to old materials // Only resize might be fine idk
-	// materials.resize(mesh->NumSub);
-
 	// TEMP
-	materials.resize(1);
-	materials.at(0) = material.get();
+	this->material = material;
 }
 
 void Okay::CompMesh::AssignMaterial(UINT index, const Okay::String& materialName)
 {
-	auto mat = Engine::GetAssets().GetMaterial(materialName.c_str);
-	materials.at(index) = mat.get();
+	material = Engine::GetAssets().GetMaterial(materialName.c_str);
 }
 
 void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
 {
 	writer.write((const char*)&mesh->GetName(), sizeof(Okay::String));
 
+
+	const UINT NumMaterials = 1;
+	writer.write((const char*)&NumMaterials, sizeof(UINT));
+	writer.write((const char*)&std::shared_ptr<Okay::Material>(material)->GetName(), sizeof(Okay::String));
+
+#if 0
 	const UINT NumMaterials = (UINT)materials.size();
 	writer.write((const char*)&NumMaterials, sizeof(UINT));
 
 	for (UINT i = 0; i < NumMaterials; i++)
-		writer.write((const char*)&materials.at(i)->GetName(), sizeof(Okay::String));
+	{
+		std::shared_ptr<Material> currentMat(materials.at(i));
+		writer.write((const char*)&currentMat->GetName(), sizeof(Okay::String));
+	}
+#endif
 }
 
 void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
@@ -68,8 +70,15 @@ void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
 	reader.read((char*)&readData, sizeof(Okay::String));
 	mesh = Engine::GetAssets().GetMesh(readData.c_str);
 
+
 	UINT NumMaterials = 0;
 	reader.read((char*)&NumMaterials, sizeof(UINT));
+
+	reader.read((char*)&readData, sizeof(Okay::String));
+	material = Engine::GetAssets().GetMaterial(readData.c_str);
+
+#if 0 
+	UINT NumMaterials = 0;
 
 	materials.resize(NumMaterials);
 
@@ -77,11 +86,17 @@ void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
 	{
 		reader.read((char*)&readData, sizeof(Okay::String));
 
-		auto asd = Engine::GetAssets().GetMaterial(readData.c_str);
-		materials.at(i) = asd.get();
+		materials.at(i) = Engine::GetAssets().GetMaterial(readData.c_str);
 	}
+#endif
+}
 
-	
+void Okay::CompMesh::CheckMaterial()
+{
+	if (!material.expired())
+		return;
+
+	material = Engine::GetAssets().GetMaterial("Default");
 }
 
 

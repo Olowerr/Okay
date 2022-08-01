@@ -184,6 +184,23 @@ bool Assets::MaterialExists(const std::string& matName)
 	return materials.find(matName) != materials.end();
 }
 
+void Assets::ChangeMaterialName(const Okay::String& material, const Okay::String& name)
+{
+	if (!MaterialExists(material.c_str))
+		return;
+
+	auto node = materials.extract(material.c_str);
+	node.key() = name;
+	node.mapped()->SetName(name);
+
+	materials.insert(std::move(node));
+}
+
+void Assets::RemoveMaterial(const std::string& material)
+{
+	materials.erase(material);
+}
+
 std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialName)
 {
 	if (materials.find(materialName) == materials.end())

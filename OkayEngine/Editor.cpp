@@ -295,7 +295,7 @@ namespace Okay
 
 				// Materials
 				ImGui::Text("\nMaterial:");
-				if (ImGui::BeginCombo("###", mesh.materials.at(0)->GetName()))
+				if (ImGui::BeginCombo("###", mesh.GetMaterial()->GetName()))
 				{
 					for (UINT i = 0; i < assets.GetNumMaterials(); i++)
 					{
@@ -435,13 +435,16 @@ namespace Okay
 
 					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						assets.GetMaterial((UINT)matIndex)->SetName(name);
+						assets.ChangeMaterialName(assets.GetMaterialName(matIndex), name);
 						name = "";
 					}
 
 					ImGui::EndMenu();
 				}
-				ImGui::MenuItem("Remove");
+				if (ImGui::MenuItem("Remove"))
+				{
+					assets.RemoveMaterial(assets.GetMaterialName(matIndex).c_str);
+				}
 			}
 			ImGui::End();
 		}

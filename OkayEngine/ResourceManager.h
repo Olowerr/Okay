@@ -72,6 +72,9 @@ public: // Getters
 	const Okay::String& GetMaterialName(UINT index);
 	UINT GetNumMaterials() const { return (UINT)materials.size(); }
 
+	void ChangeMaterialName(const Okay::String& material, const Okay::String& name);
+	void RemoveMaterial(const std::string& material);
+
 	template<typename T>
 	void ForEachMaterial(T& lambda)
 	{

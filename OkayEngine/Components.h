@@ -22,7 +22,7 @@ namespace Okay // Structs for now, change to classes
 #endif // EDITOR
 	{
 		static const Components ID = Components::Mesh;
-		
+
 		CompMesh();
 		CompMesh(std::ifstream& reader);
 		CompMesh(const std::string& meshName);
@@ -30,12 +30,19 @@ namespace Okay // Structs for now, change to classes
 		void AssignMesh(const std::string& meshName);
 		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
 		void AssignMaterial(UINT index, const Okay::String& materialName);
+		std::shared_ptr<Material> GetMaterial() 
+		{
+			CheckMaterial();
+			return std::shared_ptr<Material>(material);
+		}
 
 		std::shared_ptr<Mesh> mesh;
-		std::vector<Material*> materials;
+		std::weak_ptr<Material> material;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
+
+		void CheckMaterial();
 	};
 
 

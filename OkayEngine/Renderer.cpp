@@ -70,6 +70,7 @@ void Renderer::Shutdown()
 
 void Renderer::Render()
 {
+	using namespace Okay;
 	shaderModel->Bind();
 
 	mainCamera->Update();
@@ -77,14 +78,16 @@ void Renderer::Render()
 
 	for (size_t i = 0; i < numActive; i++)
 	{
-		const Okay::CompMesh& mesh = *meshesToRender.at(i).mesh;
-		const Okay::CompTransform& transform = *meshesToRender.at(i).transform;
+		CompMesh& mesh = *meshesToRender.at(i).mesh;
+		const CompTransform& transform = *meshesToRender.at(i).transform;
+		auto material = mesh.GetMaterial();
+
 
 		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
-		DX11::UpdateBuffer(pMaterialBuffer, &mesh.materials[0]->GetGPUData(), sizeof(Okay::MaterialGPUData));
+		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
 		mesh.mesh->Bind();
-		mesh.materials[0]->BindTextures();
+		material->BindTextures();
 			
 		mesh.mesh->Draw();
 	}
