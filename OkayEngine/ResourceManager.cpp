@@ -266,6 +266,8 @@ bool Assets::LoadDeclared()
 		if (MeshExists(file.c_str))
 			continue;
 
+		// Add the fileExtension here instead of it being in the name
+
 		// Attempt to load the file
 		Okay::VertexData data;
 		if (!Importer::LoadOkayAsset(file.c_str, data))

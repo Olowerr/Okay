@@ -285,36 +285,41 @@ namespace Okay
 			if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
 			{
 				Assets& assets = Engine::GetAssets();
-				CompMesh& mesh = currentEntity.GetComponent<CompMesh>();
+				CompMesh& compMesh = currentEntity.GetComponent<CompMesh>();
 
 				ImGui::Text("Mesh Component");
 				ImGui::Separator();
+
 				// Mesh
 				ImGui::Text("Mesh:");
-				if (ImGui::BeginCombo("##", mesh.mesh->GetName()))
+				if (ImGui::BeginCombo("##", compMesh.mesh->GetName()))
 				{
-					for (UINT i = 0; i < assets.GetNumMeshes(); i++)
+					static auto ListMeshes = [&compMesh](std::shared_ptr<Mesh> mesh)
 					{
-						auto& name = assets.GetMeshName(i);
+						const String& name = mesh->GetName();
 
 						if (ImGui::Selectable(name))
-							mesh.AssignMesh(name.c_str);
+							compMesh.AssignMesh(mesh);
+					};
 
-					}
+					assets.ForEachMesh(ListMeshes);
+
 					ImGui::EndCombo();
 				}
 
 				// Materials
 				ImGui::Text("\nMaterial:");
-				if (ImGui::BeginCombo("###", mesh.GetMaterial()->GetName()))
+				if (ImGui::BeginCombo("###", compMesh.GetMaterial()->GetName()))
 				{
-					for (UINT i = 0; i < assets.GetNumMaterials(); i++)
+					static auto ListMaterials = [&compMesh](std::shared_ptr<Material> material)
 					{
-						auto& name = assets.GetMaterialName(i);
+						const String& name = material->GetName();
 
 						if (ImGui::Selectable(name))
-							mesh.AssignMaterial(0, name);
-					}
+							compMesh.AssignMaterial(0, name);
+					};
+
+					assets.ForEachMaterial(ListMaterials);
 
 					ImGui::EndCombo();
 				}

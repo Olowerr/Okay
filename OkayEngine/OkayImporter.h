@@ -71,7 +71,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 
 	// Vertex UV & Normals
 	outData.uvNormal.resize(pMesh->mNumVertices);
-	for (unsigned int i = 0; i < pMesh->mNumVertices; i++)
+	for (UINT i = 0; i < pMesh->mNumVertices; i++)
 	{
 		outData.uvNormal[i].normal.x = pMesh->mNormals[i].x;
 		outData.uvNormal[i].normal.y = pMesh->mNormals[i].y;
@@ -87,7 +87,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 	const UINT NumIndices = pMesh->mNumFaces * 3;
 
 	outData.indices.resize(NumIndices);
-	for (unsigned int i = 0; i < pMesh->mNumFaces; i++)
+	for (UINT i = 0; i < pMesh->mNumFaces; i++)
 	{
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[0];
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[1];

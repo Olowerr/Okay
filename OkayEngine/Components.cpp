@@ -32,6 +32,11 @@ void Okay::CompMesh::AssignMesh(const std::string& meshName)
 	//materials.resize(mesh->NumSub);
 }
 
+void Okay::CompMesh::AssignMesh(std::shared_ptr<Mesh> mesh)
+{
+	this->mesh = mesh;
+}
+
 void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
 {
 	// TEMP

@@ -12,14 +12,7 @@ namespace Okay // Structs for now, change to classes
 		Tag
 	};
 
-#ifdef EDITOR
-	struct BaseComp { };
-
-
-	struct CompMesh : BaseComp
-#else
 	struct CompMesh 
-#endif // EDITOR
 	{
 		static const Components ID = Components::Mesh;
 
@@ -28,8 +21,11 @@ namespace Okay // Structs for now, change to classes
 		CompMesh(const std::string& meshName);
 
 		void AssignMesh(const std::string& meshName);
+		void AssignMesh(std::shared_ptr<Mesh> mesh);
+
 		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
 		void AssignMaterial(UINT index, const Okay::String& materialName);
+
 		std::shared_ptr<Material> GetMaterial() 
 		{
 			CheckMaterial();
@@ -45,13 +41,7 @@ namespace Okay // Structs for now, change to classes
 		void CheckMaterial();
 	};
 
-
-
-#ifdef EDITOR
-	struct CompTransform : BaseComp
-#else
 	struct CompTransform
-#endif // EDITOR
 	{
 		static const Components ID = Components::Transform;
 
@@ -69,12 +59,7 @@ namespace Okay // Structs for now, change to classes
 		void ReadPrivateData(std::ifstream& reader);
 	};
 
-
-#ifdef EDITOR
-	struct CompTag : BaseComp
-#else
 	struct CompTag
-#endif // EDITOR
 	{
 		static const Components ID = Components::Tag;
 
