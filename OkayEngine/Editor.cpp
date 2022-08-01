@@ -61,13 +61,12 @@ namespace Okay
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
 		ImGui::End();
 
+
 		DisplayEntityList();
 
 		DisplayInspector();
 
 		DisplayContent();
-
-
 
 
 		ImVec2 size(1600.f, 900.f);
@@ -123,7 +122,7 @@ namespace Okay
 		auto& reg = pScene->GetRegistry();
 		const ImVec2 Size(ImGui::GetWindowSize());
 
-		ImGui::Text("Entities: ");
+		ImGui::Text("Entities:");
 
 		if (ImGui::Button("Add"))
 		{
@@ -370,9 +369,11 @@ namespace Okay
 		ImGui::EndChildFrame();
 
 
+		// Flags
+		static bool matMenu = false;
+		static bool texMenu = false;
 
 		// Materials
-		static bool matMenu = false;
 		ImGui::SameLine();
 		if (ImGui::BeginListBox("##", { Size.x, 0.f }))
 		{
@@ -393,6 +394,7 @@ namespace Okay
 					UpdateSelection(AssetType::MATERIAL);
 
 					matMenu = true;
+					texMenu = false;
 					menuPos = ImGui::GetMousePos();
 				}
 			};
@@ -404,7 +406,6 @@ namespace Okay
 
 
 		// Textures
-		static bool texMenu = false;
 		ImGui::SameLine();
 		if (ImGui::BeginListBox("###", { Size.x, 0.f }))
 		{
@@ -425,6 +426,7 @@ namespace Okay
 					UpdateSelection(AssetType::TEXTURE);
 
 					texMenu = true;
+					matMenu = false;
 					menuPos = ImGui::GetMousePos();
 				}
 			};
@@ -479,6 +481,7 @@ namespace Okay
 
 					ImGui::EndMenu();
 				}
+
 				if (ImGui::MenuItem("Remove"))
 				{
 					assets.RemoveTexture(pTexture);
