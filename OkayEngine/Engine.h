@@ -4,10 +4,6 @@
 #include "Entity.h"
 #include <iostream>
 
-#ifdef EDITOR
-#include "Editor.h"
-#endif // EDITOR
-
 namespace Okay
 {
 	class Engine

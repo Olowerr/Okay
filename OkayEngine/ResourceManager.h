@@ -36,7 +36,7 @@ public: // Getters
 	void ForEachMesh(T& function)
 	{
 		for (auto& mesh : meshes)
-			function(*mesh.second.get());
+			function(mesh.second);
 	}
 
 private:
@@ -52,11 +52,14 @@ public: // Getters
 	UINT GetNumTextures() const { return (UINT)textures.size(); }
 	const Okay::String& GetTextureName(UINT index);
 	
+	void ChangeTextureName(std::weak_ptr<Okay::Texture> texture, const Okay::String& name);
+	void RemoveTexture(std::weak_ptr<Okay::Texture> texture);
+
 	template<typename T>
 	void ForEachTexture(T& function)
 	{
 		for (auto& texture : textures)
-			function(*texture.second.get());
+			function(texture.second);
 	}
 
 private:
@@ -72,14 +75,14 @@ public: // Getters
 	const Okay::String& GetMaterialName(UINT index);
 	UINT GetNumMaterials() const { return (UINT)materials.size(); }
 
-	void ChangeMaterialName(const Okay::String& material, const Okay::String& name);
-	void RemoveMaterial(const std::string& material);
+	void ChangeMaterialName(std::weak_ptr<Okay::Material> mat, const Okay::String& name);
+	void RemoveMaterial(std::weak_ptr<Okay::Material> mat);
 
 	template<typename T>
 	void ForEachMaterial(T& lambda)
 	{
 		for (auto& material : materials)
-			lambda(*material.second.get());
+			lambda(material.second);
 	}
 
 private:

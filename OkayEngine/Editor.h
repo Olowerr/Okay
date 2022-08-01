@@ -4,6 +4,11 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
+#include "Entity.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Material.h"
+
 namespace Okay
 {
 	// Acts like a private namespace
@@ -25,8 +30,43 @@ namespace Okay
 
 	private:
 
-		static int index;
-		static void ClampIndex();
+		static std::weak_ptr<Mesh> pMesh;
+		static std::weak_ptr<Material> pMaterial;
+		static std::weak_ptr<Texture> pTexture;
+		static Entity currentEntity;
+		
+		enum struct AssetType { INVALID, MESH, MATERIAL, TEXTURE, ENTITY };
+		static void UpdateSelection(AssetType excludeType)
+		{
+			switch (excludeType)
+			{
+			default:
+				return;
+			case AssetType::MESH:
+				pMaterial.reset();
+				pTexture.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::MATERIAL:
+				pMesh.reset();
+				pTexture.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::TEXTURE:
+				pMesh.reset();
+				pMaterial.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::ENTITY:
+				pMesh.reset();
+				pMaterial.reset();
+				pTexture.reset();
+				return;
+			}
+		}
 
 		static void DisplayEntityList();
 		static void DisplayInspector();
@@ -51,5 +91,10 @@ namespace Okay
 
 			return false;
 		}
+
+
+	private: // helpful variables
+		static Okay::String newName;
+
 	};
 }

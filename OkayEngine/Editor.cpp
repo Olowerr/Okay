@@ -5,7 +5,12 @@
 
 namespace Okay
 {
-	int Editor::index = -1;
+	std::weak_ptr<Mesh>	Editor::pMesh;
+	std::weak_ptr<Material> Editor::pMaterial;
+	std::weak_ptr<Texture> Editor::pTexture;
+	Entity Editor::currentEntity;
+
+	Okay::String Editor::newName;
 
 	bool Editor::Create()
 	{
@@ -29,7 +34,7 @@ namespace Okay
 		VERIFY(ImGui_ImplWin32_Init(GetHWindow()));
 		VERIFY(ImGui_ImplDX11_Init(DX11::Get().GetDevice(), DX11::Get().GetDeviceContext()));
 
-		ClampIndex();
+		currentEntity.SetInvalid();
 
 		return true;
 	}
@@ -116,26 +121,25 @@ namespace Okay
 
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
-		Entity entity = pScene->GetEntities().at(index);
 		const ImVec2 Size(ImGui::GetWindowSize());
 
 		ImGui::Text("Entities: ");
 
 		if (ImGui::Button("Add"))
 		{
-			Entity ent = pScene->CreateEntity();
-			index = (int)pScene->GetEntities().size() - 1;
+			currentEntity = pScene->CreateEntity();
+			UpdateSelection(AssetType::ENTITY);
 
 			// TEMP
-			ent.AddComponent<Okay::CompMesh>("cube.OkayAsset");
+			currentEntity.AddComponent<Okay::CompMesh>("cube.OkayAsset");
 		}
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Remove"))
+		if (ImGui::Button("Remove") && currentEntity.IsValid())
 		{
-			pScene->DestroyEntity(entity);
-			ClampIndex();
+			pScene->DestroyEntity(currentEntity);
+			currentEntity.SetInvalid();
 		}
 
 		ImGui::Separator();
@@ -148,7 +152,28 @@ namespace Okay
 		{
 
 			int c = 0;
-			auto& entities = pScene->GetEntities();
+			
+			auto entities = reg.view<CompTag>();
+			
+			for (auto entity : entities)
+			{
+				if (ImGui::Selectable(entities.get<Okay::CompTag>(entity).tag, entity == currentEntity))
+				{
+					currentEntity.Set(entity, Engine::GetActiveScene());
+					pMaterial.reset();
+					pMesh.reset();
+					pTexture.reset();
+				}
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					entityMenu = true;
+					listMenu = false;
+					menuPos = ImGui::GetMousePos();
+				}
+			}
+
+#if 0
 			for (auto& entity : entities)
 			{
 				if (ImGui::Selectable(reg.get<Okay::CompTag>(entity).tag.c_str, index == c))
@@ -163,7 +188,7 @@ namespace Okay
 
 				c++;
 			}
-
+#endif
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
 			{
 				listMenu = true;
@@ -193,7 +218,7 @@ namespace Okay
 
 					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						entity.GetComponent<Okay::CompTag>().tag = name;
+						currentEntity.GetComponent<Okay::CompTag>().tag = name;
 						name = "";
 					}
 
@@ -223,23 +248,11 @@ namespace Okay
 		}
 	}
 
-	void Editor::ClampIndex()
-	{
-		const int numAlive = (int)Engine::GetActiveScene()->GetRegistry().alive();
-		if (!numAlive)
-		{
-			index = -1;
-			return;
-		}
-
-		index = index >= numAlive ? numAlive - 1 : index < 0 ? 0 : index;
-	}
-
 	void Editor::DisplayInspector()
 	{
 		const bool Begun = ImGui::Begin("Inspector");
 
-		if (!Begun || index == -1)
+		if (!Begun || !currentEntity.IsValid())
 		{
 			ImGui::End();
 			return;
@@ -247,7 +260,6 @@ namespace Okay
 
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
-		Entity& entity = pScene->GetEntities().at(index);
 		ImGuiID ID = ImGui::GetID("Inspector");
 
 		ImVec2 size = ImGui::GetWindowSize();
@@ -257,7 +269,7 @@ namespace Okay
 		{
 			ImGui::Text("Transform Component");
 			ImGui::Separator();
-			auto& tra = entity.GetComponent<Okay::CompTransform>();
+			auto& tra = currentEntity.GetComponent<Okay::CompTransform>();
 
 			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
 			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
@@ -269,12 +281,12 @@ namespace Okay
 
 
 		// Mesh
-		if (entity.HasComponent<Okay::CompMesh>())
+		if (currentEntity.HasComponent<Okay::CompMesh>())
 		{
 			if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
 			{
 				Assets& assets = Engine::GetAssets();
-				CompMesh& mesh = entity.GetComponent<CompMesh>();
+				CompMesh& mesh = currentEntity.GetComponent<CompMesh>();
 
 				ImGui::Text("Mesh Component");
 				ImGui::Separator();
@@ -311,16 +323,6 @@ namespace Okay
 			ImGui::EndChildFrame();
 		}
 
-		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
-		{
-			ImGui::Text("Component 0");
-			ImGui::Text("Component 1");
-			ImGui::Text("Component 2");
-			ImGui::Text("Component 3");
-		}
-		ImGui::EndChildFrame();
-
-
 		ImGui::End();
 	}
 
@@ -340,7 +342,6 @@ namespace Okay
 
 		ImGui::BeginMenuBar();
 
-
 		if (ImGui::BeginMenu("Options"))
 		{
 			if (ImGui::MenuItem("Import"))
@@ -358,9 +359,9 @@ namespace Okay
 			ImGui::Text("Meshes:");
 			ImGui::Separator();
 
-			static auto displayMesh = [](Mesh& mesh)
+			static auto displayMesh = [](std::shared_ptr<Mesh> mesh)
 			{
-				ImGui::Text(mesh.GetName());
+				ImGui::Text(mesh->GetName());
 			};
 
 			assets.ForEachMesh(displayMesh);
@@ -372,27 +373,28 @@ namespace Okay
 
 		// Materials
 		static bool matMenu = false;
-		static int matIndex = -1;
 		ImGui::SameLine();
-		if (ImGui::BeginListBox("##", ImVec2( 120.f, 0.f)))
+		if (ImGui::BeginListBox("##", { Size.x, 0.f }))
 		{
 			ImGui::Text("Materials:");
 			ImGui::Separator();
 
-			int i = 0;
-			static auto selectMaterial = [&i](Material& material)
+			static auto selectMaterial = [](std::shared_ptr<Material> material)
 			{
-				if (ImGui::Selectable(material.GetName(), matIndex == i))
-					matIndex = i;
+				if (ImGui::Selectable(material->GetName(), material == pMaterial.lock()))
+				{
+					pMaterial = material;
+					UpdateSelection(AssetType::MATERIAL);
+				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					matIndex = i;
+					pMaterial = material;
+					UpdateSelection(AssetType::MATERIAL);
+
 					matMenu = true;
 					menuPos = ImGui::GetMousePos();
 				}
-
-				i++;
 			};
 
 			assets.ForEachMaterial(selectMaterial);
@@ -402,21 +404,35 @@ namespace Okay
 
 
 		// Textures
+		static bool texMenu = false;
 		ImGui::SameLine();
-		if (ImGui::BeginChildFrame(ID++, Size))
+		if (ImGui::BeginListBox("###", { Size.x, 0.f }))
 		{
 			ImGui::Text("Textures:");
 			ImGui::Separator();
 
-			static auto displayName = [](Texture& texture)
+			static auto selectTexture = [](std::shared_ptr<Texture> texture)
 			{
-				ImGui::Text(texture.GetName());
+				if (ImGui::Selectable(texture->GetName(), texture == pTexture.lock()))
+				{
+					pTexture = texture;
+					UpdateSelection(AssetType::TEXTURE);
+				}
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					pTexture = texture;
+					UpdateSelection(AssetType::TEXTURE);
+
+					texMenu = true;
+					menuPos = ImGui::GetMousePos();
+				}
 			};
 
-			assets.ForEachTexture(displayName);
+			assets.ForEachTexture(selectTexture);
 
 		}
-		ImGui::EndChildFrame();
+		ImGui::EndListBox();
 
 		ImGui::End();
 
@@ -431,19 +447,41 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					static Okay::String name;
-
-					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						assets.ChangeMaterialName(assets.GetMaterialName(matIndex), name);
-						name = "";
+						assets.ChangeMaterialName(pMaterial, newName);
+						newName = "";
 					}
 
 					ImGui::EndMenu();
 				}
 				if (ImGui::MenuItem("Remove"))
 				{
-					assets.RemoveMaterial(assets.GetMaterialName(matIndex).c_str);
+					assets.RemoveMaterial(pMaterial);
+				}
+			}
+			ImGui::End();
+		}
+		else if (texMenu)
+		{
+			if (OpenMenuWindow(menuPos, "TexMenu", &texMenu))
+			{
+				ImGui::Text("Texture Options");
+				ImGui::Separator();
+
+				if (ImGui::BeginMenu("Change name"))
+				{
+					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					{
+						assets.ChangeTextureName(pTexture, newName);
+						newName = "";
+					}
+
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("Remove"))
+				{
+					assets.RemoveTexture(pTexture);
 				}
 			}
 			ImGui::End();

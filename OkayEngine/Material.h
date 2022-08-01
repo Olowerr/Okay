@@ -46,13 +46,15 @@ namespace Okay
 		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
 		const MaterialGPUData& GetGPUData() const;
 
-		MaterialDesc_Strs GetDesc();
+		MaterialDesc_Strs GetDesc() const;
 
 	private:
 		Okay::String name;
-		std::shared_ptr<Texture> textures[3];
+		mutable std::weak_ptr<Texture> textures[3];
 		MaterialGPUData data;
 		bool isTwoSided;
+
+		void CheckValid() const;
 
 	};
 }

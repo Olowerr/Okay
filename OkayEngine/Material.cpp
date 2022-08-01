@@ -39,10 +39,12 @@ Okay::Material::~Material()
 
 void Okay::Material::BindTextures() const
 {
+	CheckValid();
+
 	static ID3D11ShaderResourceView* srvs[3]{};
-	srvs[0] = *textures[0].get()->GetSRV();
-	srvs[1] = *textures[1].get()->GetSRV();
-	srvs[2] = *textures[2].get()->GetSRV();
+	srvs[0] = *textures[0].lock()->GetSRV();
+	srvs[1] = *textures[1].lock()->GetSRV();
+	srvs[2] = *textures[2].lock()->GetSRV();
 
 	DX11::Get().GetDeviceContext()->PSSetShaderResources(0, 3, srvs);
 }
@@ -63,15 +65,29 @@ const Okay::MaterialGPUData& Okay::Material::GetGPUData() const
 	return data;
 }
 
-Okay::MaterialDesc_Strs Okay::Material::GetDesc()
+Okay::MaterialDesc_Strs Okay::Material::GetDesc() const
 {
+	CheckValid();
+
 	Okay::MaterialDesc_Strs desc;
 	desc.name = name;
-	desc.baseColour = textures[0]->GetName();
-	desc.specular = textures[1]->GetName();
-	desc.ambient = textures[2]->GetName();
+	desc.baseColour = textures[0].lock()->GetName();
+	desc.specular =	textures[1].lock()->GetName();
+	desc.ambient = textures[2].lock()->GetName();
 	desc.uvTiling = data.uvTiling;
 	desc.uvOffset = data.uvOffset;
 
 	return desc;
+}
+
+void Okay::Material::CheckValid() const
+{
+	if (textures[0].expired())
+		textures[0] = Engine::GetAssets().GetTexture("Default");
+	
+	if (textures[1].expired())
+		textures[1] = Engine::GetAssets().GetTexture("Default");
+	
+	if (textures[2].expired())
+		textures[2] = Engine::GetAssets().GetTexture("Default");
 }

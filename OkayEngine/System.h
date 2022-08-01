@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "Editor.h"
 
 class System
 {

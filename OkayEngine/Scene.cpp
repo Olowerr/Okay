@@ -28,7 +28,6 @@ void Scene::DestroyEntity(Entity entity)
 {
     registry.destroy(entity);
 
-
     entities.erase(std::remove(entities.begin(), entities.end(), entity), entities.end());
 }
 

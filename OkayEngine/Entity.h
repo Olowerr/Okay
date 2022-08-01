@@ -34,6 +34,12 @@ public:
 	operator entt::entity() const { return entityId; }
 
 	entt::entity GetID() const { return entityId; }
+	bool IsValid() const { return entityId != entt::null; }
+
+
+	void SetInvalid() { entityId = entt::null; pScene = nullptr; }
+	// Maybe temp
+	void Set(entt::entity id, Scene* scene) { entityId = id; pScene = scene; }
 
 private:
 	entt::entity entityId;

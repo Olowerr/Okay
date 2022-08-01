@@ -161,6 +161,31 @@ const Okay::String& Assets::GetTextureName(UINT index)
 	return it->second.get()->GetName();
 }
 
+void Assets::ChangeTextureName(std::weak_ptr<Okay::Texture> texture, const Okay::String& name)
+{
+	if (texture.expired())
+		return;
+
+	const Okay::String& oldName = texture.lock()->GetName();
+
+	if (!TextureExists(oldName.c_str))
+		return;
+
+	auto node = textures.extract(oldName.c_str);
+	node.key() = name;
+	node.mapped()->SetName(name);
+
+	textures.insert(std::move(node));
+}
+
+void Assets::RemoveTexture(std::weak_ptr<Okay::Texture> texture)
+{
+	if (texture.expired())
+		return;
+
+	textures.erase(texture.lock()->GetName().c_str);
+}
+
 bool Assets::AddMaterial(const Okay::MaterialDesc_Strs& matDesc)
 {
 	if (MaterialExists(matDesc.name.c_str))
@@ -184,21 +209,29 @@ bool Assets::MaterialExists(const std::string& matName)
 	return materials.find(matName) != materials.end();
 }
 
-void Assets::ChangeMaterialName(const Okay::String& material, const Okay::String& name)
+void Assets::ChangeMaterialName(std::weak_ptr<Okay::Material> material, const Okay::String& name)
 {
-	if (!MaterialExists(material.c_str))
+	if (material.expired())
 		return;
 
-	auto node = materials.extract(material.c_str);
+	const Okay::String& oldName = material.lock()->GetName();
+
+	if (!MaterialExists(oldName.c_str))
+		return;
+
+	auto node = materials.extract(oldName.c_str);
 	node.key() = name;
 	node.mapped()->SetName(name);
 
 	materials.insert(std::move(node));
 }
 
-void Assets::RemoveMaterial(const std::string& material)
+void Assets::RemoveMaterial(std::weak_ptr<Okay::Material> material)
 {
-	materials.erase(material);
+	if (material.expired())
+		return;
+
+	materials.erase(material.lock()->GetName().c_str);
 }
 
 std::shared_ptr<Okay::Material> Assets::GetMaterial(const std::string& materialName)
