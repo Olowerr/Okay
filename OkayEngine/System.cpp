@@ -7,8 +7,6 @@ System::System()
 
 System::~System()
 {
-
-	// hmmmmmmmmmm
 #ifdef EDITOR
 	Okay::Editor::Destroy();
 #endif // EDITOR

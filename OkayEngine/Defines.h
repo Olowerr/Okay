@@ -1,8 +1,6 @@
 #pragma once
 
-#ifndef NOMINMAX
 #define NOMINMAX
-#endif // !NOMINMAX
 
 #include <d3d11.h>
 #include <Windows.h>

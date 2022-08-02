@@ -1,16 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "Editor.h"
-#include "Engine.h"
 
 namespace Okay
 {
-	std::weak_ptr<Mesh>	Editor::pMesh;
-	std::weak_ptr<Material> Editor::pMaterial;
-	std::weak_ptr<Texture> Editor::pTexture;
-	Entity Editor::currentEntity;
-
-	Okay::String Editor::newName;
+	Editor* Editor::editor;
 
 	bool Editor::Create()
 	{
@@ -34,7 +28,8 @@ namespace Okay
 		VERIFY(ImGui_ImplWin32_Init(GetHWindow()));
 		VERIFY(ImGui_ImplDX11_Init(DX11::Get().GetDevice(), DX11::Get().GetDeviceContext()));
 
-		currentEntity.SetInvalid();
+		editor = new Editor;
+		editor->currentEntity.SetInvalid();
 
 		return true;
 	}
@@ -44,6 +39,7 @@ namespace Okay
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
+		delete editor;
 	}
 
 	bool Editor::Update()
@@ -62,11 +58,11 @@ namespace Okay
 		ImGui::End();
 
 
-		DisplayEntityList();
+		editor->DisplayEntityList();
 
-		DisplayInspector();
+		editor->DisplayInspector();
 
-		DisplayContent();
+		editor->DisplayContent();
 
 
 		ImVec2 size(1600.f, 900.f);
@@ -110,6 +106,31 @@ namespace Okay
 
 	}
 
+	void Editor::OpenFileExplorer()
+	{
+		const size_t MaxFileLength = 500;
+		OPENFILENAME ofn{};
+
+		wchar_t fileName[MaxFileLength]{};
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = GetHWindow();
+		ofn.lpstrFile = fileName;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = MaxFileLength;
+		ofn.lpstrFilter = L"All Files\0*.*\0Other Files\0*.png\0";
+		ofn.nFilterIndex = 1;
+		ofn.Flags = OFN_NOCHANGEDIR;
+
+		if (!GetOpenFileName(&ofn))
+			return;
+
+		char text[MaxFileLength]{};
+		wcstombs(text, ofn.lpstrFile, MaxFileLength);
+		assets.TryImport(text);
+	}
+
+
 	void Editor::DisplayEntityList()
 	{
 		if (!ImGui::Begin("Entity List"))
@@ -127,7 +148,7 @@ namespace Okay
 		if (ImGui::Button("Add"))
 		{
 			currentEntity = pScene->CreateEntity();
-			UpdateSelection(AssetType::ENTITY);
+			type = AssetType::ENTITY;
 
 			// TEMP
 			currentEntity.AddComponent<Okay::CompMesh>("cube.OkayAsset");
@@ -147,11 +168,10 @@ namespace Okay
 		static bool entityMenu = false, listMenu = false;
 		static ImVec2 menuPos = ImVec2();
 
+
+		// Entities
 		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, -1.f }))
 		{
-
-			int c = 0;
-			
 			auto entities = reg.view<CompTag>();
 			
 			for (auto entity : entities)
@@ -159,9 +179,7 @@ namespace Okay
 				if (ImGui::Selectable(entities.get<Okay::CompTag>(entity).tag, entity == currentEntity))
 				{
 					currentEntity.Set(entity, Engine::GetActiveScene());
-					pMaterial.reset();
-					pMesh.reset();
-					pTexture.reset();
+					type = AssetType::ENTITY;
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -169,25 +187,10 @@ namespace Okay
 					entityMenu = true;
 					listMenu = false;
 					menuPos = ImGui::GetMousePos();
+					type = AssetType::ENTITY;
 				}
 			}
 
-#if 0
-			for (auto& entity : entities)
-			{
-				if (ImGui::Selectable(reg.get<Okay::CompTag>(entity).tag.c_str, index == c))
-					index = c;
-
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-				{
-					entityMenu = true;
-					listMenu = false;
-					menuPos = ImGui::GetMousePos();
-				}
-
-				c++;
-			}
-#endif
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
 			{
 				listMenu = true;
@@ -213,12 +216,10 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					static Okay::String name;
-
-					if (ImGui::InputText("###", name, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						currentEntity.GetComponent<Okay::CompTag>().tag = name;
-						name = "";
+						currentEntity.GetComponent<Okay::CompTag>().tag = newName;
+						newName = "";
 					}
 
 					ImGui::EndMenu();
@@ -247,90 +248,6 @@ namespace Okay
 		}
 	}
 
-	void Editor::DisplayInspector()
-	{
-		const bool Begun = ImGui::Begin("Inspector");
-
-		if (!Begun || !currentEntity.IsValid())
-		{
-			ImGui::End();
-			return;
-		}
-
-		Scene* pScene = Engine::GetActiveScene();
-		auto& reg = pScene->GetRegistry();
-		ImGuiID ID = ImGui::GetID("Inspector");
-
-		ImVec2 size = ImGui::GetWindowSize();
-
-		// Transform
-		if (ImGui::BeginChildFrame(ID++, { size.x, 100.f }))
-		{
-			ImGui::Text("Transform Component");
-			ImGui::Separator();
-			auto& tra = currentEntity.GetComponent<Okay::CompTransform>();
-
-			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
-			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
-			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
-
-			tra.CalcMatrix();
-		}
-		ImGui::EndChildFrame();
-
-
-		// Mesh
-		if (currentEntity.HasComponent<Okay::CompMesh>())
-		{
-			if (ImGui::BeginChildFrame(ID++, { size.x, 120.f }))
-			{
-				Assets& assets = Engine::GetAssets();
-				CompMesh& compMesh = currentEntity.GetComponent<CompMesh>();
-
-				ImGui::Text("Mesh Component");
-				ImGui::Separator();
-
-				// Mesh
-				ImGui::Text("Mesh:");
-				if (ImGui::BeginCombo("##", compMesh.mesh->GetName()))
-				{
-					static auto ListMeshes = [&compMesh](std::shared_ptr<Mesh> mesh)
-					{
-						const String& name = mesh->GetName();
-
-						if (ImGui::Selectable(name))
-							compMesh.AssignMesh(mesh);
-					};
-
-					assets.ForEachMesh(ListMeshes);
-
-					ImGui::EndCombo();
-				}
-
-				// Materials
-				ImGui::Text("\nMaterial:");
-				if (ImGui::BeginCombo("###", compMesh.GetMaterial()->GetName()))
-				{
-					static auto ListMaterials = [&compMesh](std::shared_ptr<Material> material)
-					{
-						const String& name = material->GetName();
-
-						if (ImGui::Selectable(name))
-							compMesh.AssignMaterial(0, name);
-					};
-
-					assets.ForEachMaterial(ListMaterials);
-
-					ImGui::EndCombo();
-				}
-			}
-			ImGui::EndChildFrame();
-		}
-
-		ImGui::End();
-	}
-
-
 	void Editor::DisplayContent()
 	{
 		if (!ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_MenuBar))
@@ -340,7 +257,6 @@ namespace Okay
 		}
 
 		ImGuiID ID = ImGui::GetID("Content Browser");
-		static Assets& assets = Engine::GetAssets();
 		static const ImVec2 Size(120.f, 120.f);
 		static ImVec2 menuPos;
 
@@ -384,19 +300,21 @@ namespace Okay
 		{
 			ImGui::Text("Materials:");
 			ImGui::Separator();
-
-			static auto selectMaterial = [](std::shared_ptr<Material> material)
+			
+			auto selectMaterial = [](std::shared_ptr<Material> material)
 			{
-				if (ImGui::Selectable(material->GetName(), material == pMaterial.lock()))
+				if (ImGui::Selectable(material->GetName(), material == editor->pMaterial.lock()))
 				{
-					pMaterial = material;
-					UpdateSelection(AssetType::MATERIAL);
+					editor->pMaterial = material;
+					editor->type = AssetType::MATERIAL;
+					editor->matDesc = editor->pMaterial.lock()->GetDesc();
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					pMaterial = material;
-					UpdateSelection(AssetType::MATERIAL);
+					editor->pMaterial = material;
+					editor->type = AssetType::MATERIAL;
+					editor->matDesc = editor->pMaterial.lock()->GetDesc();
 
 					matMenu = true;
 					texMenu = false;
@@ -419,16 +337,16 @@ namespace Okay
 
 			static auto selectTexture = [](std::shared_ptr<Texture> texture)
 			{
-				if (ImGui::Selectable(texture->GetName(), texture == pTexture.lock()))
+				if (ImGui::Selectable(texture->GetName(), texture == editor->pTexture.lock()))
 				{
-					pTexture = texture;
-					UpdateSelection(AssetType::TEXTURE);
+					editor->pTexture = texture;
+					editor->type = AssetType::TEXTURE;
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					pTexture = texture;
-					UpdateSelection(AssetType::TEXTURE);
+					editor->pTexture = texture;
+					editor->type = AssetType::TEXTURE;
 
 					texMenu = true;
 					matMenu = false;
@@ -478,75 +396,147 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					/*if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
 						assets.ChangeTextureName(pTexture, newName);
 						newName = "";
-					}
+					}*/
 
 					ImGui::EndMenu();
 				}
 
 				if (ImGui::MenuItem("Remove"))
-				{
 					assets.RemoveTexture(pTexture);
-				}
+				
 			}
 			ImGui::End();
 		}
 	}
 
-
-	/*
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-		LOOK THROUGH THE EDITOR, MAYBE HOLD MATERIAL* INSTEAD OF: THE REDUNTANT GETMATERIALNAME(INT) SHIT
-		JUST REMOVE THE USE OF INDEX AND USE PTRS, INSPECTOR SHOULD KNOW IF INSPECTING ASSET OR ENTITY
-
-	
-	*/
-
-
-	void Editor::OpenFileExplorer()
+	void Editor::DisplayInspector()
 	{
-		const size_t MaxFileLength = 500;
-		OPENFILENAME ofn{};
+		if (ImGui::Begin("Inspector"))
+		{
+			ImGuiID ID = ImGui::GetID("Inspector");
+			const ImVec2 Size = ImGui::GetWindowSize();
 
-		wchar_t fileName[MaxFileLength]{};
+			switch (type)
+			{
+			default:
+				break;
+			case AssetType::ENTITY:
+				InspectComponents(ID, Size);
+				break;
+			case AssetType::MATERIAL:
+				InspectMaterial(ID, Size);
+				break;
+			case AssetType::TEXTURE:
+				InspectTexture(ID, Size);
+				break;
+			}
+		}
 
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = GetHWindow();
-		ofn.lpstrFile = fileName;
-		ofn.lpstrFile[0] = '\0';
-		ofn.nMaxFile = MaxFileLength;
-		ofn.lpstrFilter = L"All Files\0*.*\0Other Files\0*.png\0";
-		ofn.nFilterIndex = 1;
-		ofn.Flags = OFN_NOCHANGEDIR;
+		ImGui::End();
+	}
 
-		if (!GetOpenFileName(&ofn))
+	void Editor::InspectComponents(ImGuiID& id, const ImVec2& Size)
+	{
+		if (!currentEntity.IsValid())
 			return;
 
-		char text[MaxFileLength]{};
-		wcstombs(text, ofn.lpstrFile, MaxFileLength);
-		Engine::GetAssets().TryImport(text);
+		Scene* pScene = Engine::GetActiveScene();
+		auto& reg = pScene->GetRegistry();
+		
+
+		// Transform
+		if (ImGui::BeginChildFrame(id++, { Size.x, 100.f }))
+		{
+			ImGui::Text("Transform Component");
+			ImGui::Separator();
+			auto& tra = currentEntity.GetComponent<Okay::CompTransform>();
+
+			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
+			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
+			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
+
+			tra.CalcMatrix();
+		}
+		ImGui::EndChildFrame();
+
+
+		// Mesh
+		if (currentEntity.HasComponent<Okay::CompMesh>())
+		{
+			if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
+			{
+				CompMesh& compMesh = currentEntity.GetComponent<CompMesh>();
+
+				ImGui::Text("Mesh Component");
+				ImGui::Separator();
+
+				// Mesh
+				ImGui::Text("Mesh:");
+				if (ImGui::BeginCombo("##", compMesh.mesh->GetName()))
+				{
+					static auto ListMeshes = [&compMesh](std::shared_ptr<Mesh> mesh)
+					{
+						const String& name = mesh->GetName();
+
+						if (ImGui::Selectable(name))
+							compMesh.AssignMesh(mesh);
+					};
+
+					assets.ForEachMesh(ListMeshes);
+
+					ImGui::EndCombo();
+				}
+
+				// Materials
+				ImGui::Text("\nMaterial:");
+				if (ImGui::BeginCombo("###", compMesh.GetMaterial()->GetName()))
+				{
+					static auto ListMaterials = [&compMesh](std::shared_ptr<Material> material)
+					{
+						const String& name = material->GetName();
+
+						if (ImGui::Selectable(name))
+							compMesh.AssignMaterial(0, name);
+					};
+
+					assets.ForEachMaterial(ListMaterials);
+
+					ImGui::EndCombo();
+				}
+			}
+			ImGui::EndChildFrame();
+		}
+	}
+
+	void Editor::InspectMaterial(ImGuiID& id, const ImVec2& Size)
+	{
+		if (pMaterial.expired())
+			return;
+
+		ImGui::Text("Name: %s", matDesc.name);
+		ImGui::Separator();
+		
+		static std::shared_ptr<Material> pMat;
+		pMat = pMaterial.lock();
+
+		if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
+		{
+			ImGui::Text("Base Colour: %s", matDesc.baseColour);
+			ImGui::Text("Specular Colour: %s", matDesc.specular);
+			ImGui::Text("Ambient Colour: %s", matDesc.ambient);
+
+			ImGui::DragFloat2("UV Offset", &pMat->GetGPUData().uvOffset.x, 0.001f);
+			ImGui::DragFloat2("UV Tiling", &pMat->GetGPUData().uvTiling.x, 0.001f);
+		}
+		ImGui::EndChildFrame();
+	}
+
+	void Editor::InspectTexture(ImGuiID& id, const ImVec2& Size)
+	{
 	}
 
 }

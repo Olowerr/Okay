@@ -4,10 +4,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
-#include "Entity.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "Material.h"
+#include "Engine.h"
 
 namespace Okay
 {
@@ -15,10 +12,12 @@ namespace Okay
 	class Editor
 	{
 	private:
-		Editor() = delete;
+		Editor() = default;
+		~Editor() = default;
 		Editor(const Editor&) = delete;
 		Editor(Editor&&) = delete;
 		Editor& operator=(const Editor&) = delete;
+
 	public:
 		static bool Create();
 		static void Destroy();
@@ -29,52 +28,25 @@ namespace Okay
 		static void EndFrame();
 
 	private:
+		// std::unique_ptr requires the constructor and destructor to be public
+		// which is to be avoided.
+		static Editor* editor;
 
-		static std::weak_ptr<Mesh> pMesh;
-		static std::weak_ptr<Material> pMaterial;
-		static std::weak_ptr<Texture> pTexture;
-		static Entity currentEntity;
-		
-		enum struct AssetType { INVALID, MESH, MATERIAL, TEXTURE, ENTITY };
-		static void UpdateSelection(AssetType excludeType)
-		{
-			switch (excludeType)
-			{
-			default:
-				return;
-			case AssetType::MESH:
-				pMaterial.reset();
-				pTexture.reset();
-				currentEntity.SetInvalid();
-				return;
+		enum struct AssetType { NONE, MESH, MATERIAL, TEXTURE, ENTITY };
 
-			case AssetType::MATERIAL:
-				pMesh.reset();
-				pTexture.reset();
-				currentEntity.SetInvalid();
-				return;
+		AssetType type = AssetType::NONE;
 
-			case AssetType::TEXTURE:
-				pMesh.reset();
-				pMaterial.reset();
-				currentEntity.SetInvalid();
-				return;
+		std::weak_ptr<Mesh> pMesh;
+		std::weak_ptr<Material> pMaterial;
+		std::weak_ptr<Texture> pTexture;
+		Entity currentEntity;
 
-			case AssetType::ENTITY:
-				pMesh.reset();
-				pMaterial.reset();
-				pTexture.reset();
-				return;
-			}
-		}
+		void DisplayEntityList();
+		void DisplayContent();
+		void DisplayInspector();
 
-		static void DisplayEntityList();
-		static void DisplayInspector();
-		
-		static void DisplayContent();
-		static void OpenFileExplorer();
 
-		static bool OpenMenuWindow(const ImVec2& pos, const char* name, bool* openFlag = nullptr)
+		bool OpenMenuWindow(const ImVec2& pos, const char* name, bool* openFlag = nullptr)
 		{
 			static const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
 			
@@ -91,10 +63,18 @@ namespace Okay
 
 			return false;
 		}
+		void OpenFileExplorer();
 
 
 	private: // helpful variables
-		static Okay::String newName;
+		Okay::String newName;
+		Assets& assets = Engine::GetAssets();
+		Okay::MaterialDesc_Strs matDesc;
 
+
+	private: // Inspect Helper Functions
+		void InspectComponents(ImGuiID& id, const ImVec2& Size);
+		void InspectMaterial(ImGuiID& id, const ImVec2& Size);
+		void InspectTexture(ImGuiID& id, const ImVec2& Size);
 	};
 }

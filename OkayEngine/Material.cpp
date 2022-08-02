@@ -60,7 +60,7 @@ void Okay::Material::SetGPUData(Float2 uvTiling, Float2 uvOffset)
 	data.uvOffset = uvOffset;
 }
 
-const Okay::MaterialGPUData& Okay::Material::GetGPUData() const
+Okay::MaterialGPUData& Okay::Material::GetGPUData()
 {
 	return data;
 }
