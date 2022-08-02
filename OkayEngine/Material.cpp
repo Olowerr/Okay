@@ -65,6 +65,11 @@ Okay::MaterialGPUData& Okay::Material::GetGPUData()
 	return data;
 }
 
+const Okay::MaterialGPUData& Okay::Material::GetGPUData() const
+{
+	return data;
+}
+
 Okay::MaterialDesc_Strs Okay::Material::GetDesc() const
 {
 	CheckValid();

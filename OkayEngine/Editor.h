@@ -28,18 +28,55 @@ namespace Okay
 		static void EndFrame();
 
 	private:
+		template <typename T>
+		using SPtr = std::shared_ptr<T>;
+
 		// std::unique_ptr requires the constructor and destructor to be public
 		// which is to be avoided.
 		static Editor* editor;
 
-		enum struct AssetType { NONE, MESH, MATERIAL, TEXTURE, ENTITY };
-
-		AssetType type = AssetType::NONE;
 
 		std::weak_ptr<Mesh> pMesh;
 		std::weak_ptr<Material> pMaterial;
 		std::weak_ptr<Texture> pTexture;
 		Entity currentEntity;
+
+		enum struct AssetType { NONE, MESH, MATERIAL, TEXTURE, ENTITY };
+		AssetType type = AssetType::NONE;
+
+		void UpdateSelection(AssetType excludeType)
+		{
+			type = excludeType;
+			newName = "";
+			switch (excludeType)
+			{
+			default:
+				return;
+			case AssetType::MESH:
+				pMaterial.reset();
+				pTexture.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::MATERIAL:
+				pMesh.reset();
+				pTexture.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::TEXTURE:
+				pMesh.reset();
+				pMaterial.reset();
+				currentEntity.SetInvalid();
+				return;
+
+			case AssetType::ENTITY:
+				pMesh.reset();
+				pMaterial.reset();
+				pTexture.reset();
+				return;
+			}
+		}
 
 		void DisplayEntityList();
 		void DisplayContent();

@@ -21,24 +21,24 @@ namespace Okay // Structs for now, change to classes
 		CompMesh(const std::string& meshName);
 
 		void AssignMesh(const std::string& meshName);
-		void AssignMesh(std::shared_ptr<Mesh> mesh);
+		void AssignMesh(const std::shared_ptr<const Mesh>& mesh);
 
-		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
+		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);
 		void AssignMaterial(UINT index, const Okay::String& materialName);
 
-		std::shared_ptr<Material> GetMaterial() 
+		std::shared_ptr<const Material> GetMaterial() const
 		{
 			CheckMaterial();
-			return std::shared_ptr<Material>(material);
+			return std::shared_ptr<const Material>(material);
 		}
 
-		std::shared_ptr<Mesh> mesh;
-		std::weak_ptr<Material> material;
+		std::shared_ptr<const Mesh> mesh;
+		mutable std::weak_ptr<const Material> material;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
 
-		void CheckMaterial();
+		void CheckMaterial() const;
 	};
 
 	struct CompTransform

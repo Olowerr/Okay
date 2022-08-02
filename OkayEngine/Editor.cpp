@@ -53,10 +53,14 @@ namespace Okay
 
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-		if (ImGui::Begin("Dockspace"))
-			ImGui::Checkbox("Enable Dockspace", &dockSpace);
-		ImGui::End();
 
+		if (ImGui::Begin("Dockspace"))
+		{
+			ImGui::BeginDisabled();
+			ImGui::Checkbox("Enable Dockspace", &dockSpace);
+			ImGui::EndDisabled();
+		}
+		ImGui::End();
 
 		editor->DisplayEntityList();
 
@@ -148,7 +152,7 @@ namespace Okay
 		if (ImGui::Button("Add"))
 		{
 			currentEntity = pScene->CreateEntity();
-			type = AssetType::ENTITY;
+			UpdateSelection(AssetType::ENTITY);
 
 			// TEMP
 			currentEntity.AddComponent<Okay::CompMesh>("cube.OkayAsset");
@@ -179,7 +183,7 @@ namespace Okay
 				if (ImGui::Selectable(entities.get<Okay::CompTag>(entity).tag, entity == currentEntity))
 				{
 					currentEntity.Set(entity, Engine::GetActiveScene());
-					type = AssetType::ENTITY;
+					UpdateSelection(AssetType::ENTITY);
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -187,7 +191,7 @@ namespace Okay
 					entityMenu = true;
 					listMenu = false;
 					menuPos = ImGui::GetMousePos();
-					type = AssetType::ENTITY;
+					UpdateSelection(AssetType::ENTITY);
 				}
 			}
 
@@ -279,7 +283,7 @@ namespace Okay
 			ImGui::Text("Meshes:");
 			ImGui::Separator();
 
-			static auto displayMesh = [](std::shared_ptr<Mesh> mesh)
+			static auto displayMesh = [](const SPtr<const Mesh>& mesh)
 			{
 				ImGui::Text(mesh->GetName());
 			};
@@ -301,19 +305,19 @@ namespace Okay
 			ImGui::Text("Materials:");
 			ImGui::Separator();
 			
-			auto selectMaterial = [](std::shared_ptr<Material> material)
+			auto selectMaterial = [](SPtr<Material> material)
 			{
 				if (ImGui::Selectable(material->GetName(), material == editor->pMaterial.lock()))
 				{
 					editor->pMaterial = material;
-					editor->type = AssetType::MATERIAL;
+					editor->UpdateSelection(AssetType::MATERIAL);
 					editor->matDesc = editor->pMaterial.lock()->GetDesc();
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
 					editor->pMaterial = material;
-					editor->type = AssetType::MATERIAL;
+					editor->UpdateSelection(AssetType::MATERIAL);
 					editor->matDesc = editor->pMaterial.lock()->GetDesc();
 
 					matMenu = true;
@@ -335,18 +339,18 @@ namespace Okay
 			ImGui::Text("Textures:");
 			ImGui::Separator();
 
-			static auto selectTexture = [](std::shared_ptr<Texture> texture)
+			static auto selectTexture = [](const SPtr<Texture>& texture)
 			{
 				if (ImGui::Selectable(texture->GetName(), texture == editor->pTexture.lock()))
 				{
 					editor->pTexture = texture;
-					editor->type = AssetType::TEXTURE;
+					editor->UpdateSelection(AssetType::TEXTURE);
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
 					editor->pTexture = texture;
-					editor->type = AssetType::TEXTURE;
+					editor->UpdateSelection(AssetType::TEXTURE);
 
 					texMenu = true;
 					matMenu = false;
@@ -376,6 +380,7 @@ namespace Okay
 					{
 						assets.ChangeMaterialName(pMaterial, newName);
 						newName = "";
+						matMenu = false;
 					}
 
 					ImGui::EndMenu();
@@ -383,6 +388,7 @@ namespace Okay
 				if (ImGui::MenuItem("Remove"))
 				{
 					assets.RemoveMaterial(pMaterial);
+					matMenu = false;
 				}
 			}
 			ImGui::End();
@@ -400,13 +406,18 @@ namespace Okay
 					{
 						assets.ChangeTextureName(pTexture, newName);
 						newName = "";
+						texMenu = false;
 					}*/
 
 					ImGui::EndMenu();
 				}
 
 				if (ImGui::MenuItem("Remove"))
+				{
 					assets.RemoveTexture(pTexture);
+					UpdateSelection(AssetType::NONE);
+					texMenu = false;
+				}
 				
 			}
 			ImGui::End();
@@ -447,6 +458,8 @@ namespace Okay
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
 		
+		ImGui::Text("Entity: %s", currentEntity.GetComponent<CompTag>().tag);
+		ImGui::Separator();
 
 		// Transform
 		if (ImGui::BeginChildFrame(id++, { Size.x, 100.f }))
@@ -455,9 +468,19 @@ namespace Okay
 			ImGui::Separator();
 			auto& tra = currentEntity.GetComponent<Okay::CompTransform>();
 
-			ImGui::DragFloat3("Position", &tra.position.x, 0.01f);
-			ImGui::DragFloat3("Rotation", &tra.rotation.x, 0.01f);
-			ImGui::DragFloat3("Scale", &tra.scale.x, 0.01f);
+			ImGui::PushItemWidth(-15.f);
+
+			ImGui::Text("Position:"); ImGui::SameLine();
+			ImGui::DragFloat3("##PosNoLabel", &tra.position.x, 0.01f);
+
+			ImGui::Text("Rotation:"); ImGui::SameLine();
+			ImGui::DragFloat3("##RotNoLabel", &tra.rotation.x, 0.01f);
+
+			ImGui::Text("Scale:   "); ImGui::SameLine();
+			ImGui::DragFloat3("##ScaNoLabel", &tra.scale.x, 0.01f);
+
+			ImGui::PopItemWidth();
+
 
 			tra.CalcMatrix();
 		}
@@ -476,9 +499,10 @@ namespace Okay
 
 				// Mesh
 				ImGui::Text("Mesh:");
-				if (ImGui::BeginCombo("##", compMesh.mesh->GetName()))
+				ImGui::PushItemWidth(-15.f);
+				if (ImGui::BeginCombo("##MeshNoLabel", compMesh.mesh->GetName()))
 				{
-					static auto ListMeshes = [&compMesh](std::shared_ptr<Mesh> mesh)
+					static auto ListMeshes = [&compMesh](const SPtr<const Mesh>& mesh)
 					{
 						const String& name = mesh->GetName();
 
@@ -495,7 +519,7 @@ namespace Okay
 				ImGui::Text("\nMaterial:");
 				if (ImGui::BeginCombo("###", compMesh.GetMaterial()->GetName()))
 				{
-					static auto ListMaterials = [&compMesh](std::shared_ptr<Material> material)
+					static auto ListMaterials = [&compMesh](const SPtr<const Material>& material)
 					{
 						const String& name = material->GetName();
 
@@ -508,6 +532,7 @@ namespace Okay
 					ImGui::EndCombo();
 				}
 			}
+			ImGui::PopItemWidth();
 			ImGui::EndChildFrame();
 		}
 	}
@@ -517,31 +542,113 @@ namespace Okay
 		if (pMaterial.expired())
 			return;
 
-		ImGui::Text("Name: %s", matDesc.name);
+		ImGui::Text("Material: %s", matDesc.name);
 		ImGui::Separator();
 		
-		static std::shared_ptr<Material> pMat;
+		static const ImVec2 ImageSize(15.f, 15.f);
+
+		static SPtr<Material> pMat;
+		static SPtr<const Texture> pBase, pSpecular, pAmbient;
+
 		pMat = pMaterial.lock();
+		pBase = pMat->GetBaseColour();
+		pSpecular = pMat->GetSpecular();
+		pAmbient = pMat->GetAmbient();
 
-		if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
+		static SPtr<Texture> chosenTexture;
+		chosenTexture = nullptr;
+
+		static auto selectTextures = [](const SPtr<Texture>& texture, const SPtr<const Texture>& matTexture, String& descTexName)
 		{
-			ImGui::Text("Base Colour:"); ImGui::SameLine();
-			ImGui::ImageButton((void*)*pMat->GetBaseColour()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
-			
-			ImGui::Text("Specular Colour:"); ImGui::SameLine();
-			ImGui::ImageButton((void*)*pMat->GetSpecular()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
-			
-			ImGui::Text("Ambient Colour:"); ImGui::SameLine();
-			ImGui::ImageButton((void*)*pMat->GetAmbient()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
+			if (ImGui::Selectable(texture->GetName(), texture == matTexture))
+			{
+				chosenTexture = texture;
+				descTexName = texture->GetName();
+			}
 
-			ImGui::DragFloat2("UV Offset", &pMat->GetGPUData().uvOffset.x, 0.001f);
-			ImGui::DragFloat2("UV Tiling", &pMat->GetGPUData().uvTiling.x, 0.001f);
+			ImGui::SameLine();
+			ImGui::Image(*texture->GetSRV(), ImageSize);
+		};
+
+		if (ImGui::BeginChildFrame(id++, { -1.f, 220.f }))
+		{
+			ImGui::PushItemWidth(-1.f);
+			ImGui::Text("Base Colour:"); ImGui::SameLine();
+			ImGui::Image(*pBase->GetSRV(), ImageSize);
+
+			if (ImGui::BeginCombo("##NoBaseLabel", matDesc.baseColour))
+			{
+				assets.ForEachTexture(selectTextures, pBase, matDesc.baseColour);
+
+				if (chosenTexture)
+					pMat->SetBaseColour(chosenTexture);
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::Text("Specular:"); ImGui::SameLine();
+			ImGui::Image(*pSpecular->GetSRV(), ImageSize);
+
+			
+			if (ImGui::BeginCombo("##NoSpecLabel",matDesc.specular))
+			{
+				assets.ForEachTexture(selectTextures, pSpecular, matDesc.specular);
+
+				if (chosenTexture)
+					pMat->SetSpecular(chosenTexture);
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::Text("Ambient:"); ImGui::SameLine();
+			ImGui::Image(*pAmbient->GetSRV(), ImageSize);
+
+			if (ImGui::BeginCombo("##NoAmbiLabel", matDesc.ambient))
+			{
+				assets.ForEachTexture(selectTextures, pAmbient, matDesc.ambient);
+
+				if (chosenTexture)
+					pMat->SetAmbient(chosenTexture);
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::Separator();
+
+			ImGui::Text("UV Offset:");
+			ImGui::DragFloat2("##NoOffsetLabel", &pMat->GetGPUData().uvOffset.x, 0.002f);
+
+			ImGui::Text("UV Tiling:");
+			ImGui::DragFloat2("##NoTileLabel", &pMat->GetGPUData().uvTiling.x, 0.002f);
+
+			ImGui::PopItemWidth();
 		}
 		ImGui::EndChildFrame();
+
 	}
 
 	void Editor::InspectTexture(ImGuiID& id, const ImVec2& Size)
 	{
+		if (pTexture.expired())
+			return;
+
+		static SPtr<const Texture> pTex;
+		pTex = pTexture.lock();
+
+		static ImVec2 imgSize;
+		imgSize.x = Size.x - 25.f;
+		imgSize.y = imgSize.x / pTex->GetAspectRatio();
+
+		ImGui::Text("Texture: %s", pTex->GetName());
+		ImGui::Separator();
+
+		if (ImGui::BeginChildFrame(id++, {0.f, imgSize.y + 40.f}))
+		{
+			ImGui::Text("Width: %d\nHeight: %d", pTex->GetWidth(), pTex->GetHeight());
+
+			ImGui::Image(*pTexture.lock()->GetSRV(), imgSize);
+		}
+		ImGui::EndChildFrame();
 	}
 
 }

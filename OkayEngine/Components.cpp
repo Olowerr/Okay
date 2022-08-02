@@ -32,12 +32,12 @@ void Okay::CompMesh::AssignMesh(const std::string& meshName)
 	//materials.resize(mesh->NumSub);
 }
 
-void Okay::CompMesh::AssignMesh(std::shared_ptr<Mesh> mesh)
+void Okay::CompMesh::AssignMesh(const std::shared_ptr<const Mesh>& mesh)
 {
 	this->mesh = mesh;
 }
 
-void Okay::CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
+void Okay::CompMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
 {
 	// TEMP
 	this->material = material;
@@ -55,7 +55,7 @@ void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
 
 	const UINT NumMaterials = 1;
 	writer.write((const char*)&NumMaterials, sizeof(UINT));
-	writer.write((const char*)&std::shared_ptr<Okay::Material>(material)->GetName(), sizeof(Okay::String));
+	writer.write((const char*)&material.lock()->GetName(), sizeof(Okay::String));
 
 #if 0
 	const UINT NumMaterials = (UINT)materials.size();
@@ -96,7 +96,7 @@ void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
 #endif
 }
 
-void Okay::CompMesh::CheckMaterial()
+void Okay::CompMesh::CheckMaterial() const
 {
 	if (!material.expired())
 		return;

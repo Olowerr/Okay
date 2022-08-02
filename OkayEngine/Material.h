@@ -45,16 +45,21 @@ namespace Okay
 
 		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
 		MaterialGPUData& GetGPUData();
+		const MaterialGPUData& GetGPUData() const;
 
 		MaterialDesc_Strs GetDesc() const;
 
-		std::shared_ptr<Texture> GetBaseColour() { return textures[0].lock(); }
-		std::shared_ptr<Texture> GetSpecular() { return textures[1].lock(); }
-		std::shared_ptr<Texture> GetAmbient() { return textures[2].lock(); }
+		std::shared_ptr<const Texture> GetBaseColour() const { return textures[0].lock(); } 
+		std::shared_ptr<const Texture> GetSpecular() const { return textures[1].lock(); } 
+		std::shared_ptr<const Texture> GetAmbient() const { return textures[2].lock(); } 
+
+		void SetBaseColour(std::shared_ptr<const Texture> texture) { textures[0] = texture; }
+		void SetSpecular(std::shared_ptr<const Texture> texture) { textures[1] = texture; }
+		void SetAmbient(std::shared_ptr<const Texture> texture) { textures[2] = texture; }
 
 	private:
 		Okay::String name;
-		mutable std::weak_ptr<Texture> textures[3];
+		mutable std::weak_ptr<const Texture> textures[3];
 		MaterialGPUData data;
 		bool isTwoSided;
 

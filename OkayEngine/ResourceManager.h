@@ -26,17 +26,18 @@ public:
 
 	bool TryImport(const std::string_view& path);
 
-#pragma region 
-public: // Getters
+	// Meshes
+#pragma region
+public: 
 	std::shared_ptr<Okay::Mesh> GetMesh(const std::string& fileName);
 	UINT GetNumMeshes() const { return (UINT)meshes.size(); }
 	const Okay::String& GetMeshName(UINT index);
 
-	template<typename T>
-	void ForEachMesh(T& function)
+	template<typename T, typename... Args>
+	void ForEachMesh(T& function, Args&&... args)
 	{
 		for (auto& mesh : meshes)
-			function(mesh.second);
+			function(mesh.second, std::forward<Args>(args)...);
 	}
 
 private:
@@ -46,6 +47,7 @@ private:
 #pragma endregion Meshes
 
 
+	// Textures
 #pragma region
 public: // Getters
 	std::shared_ptr<Okay::Texture> GetTexture(const std::string& fileName);
@@ -55,11 +57,11 @@ public: // Getters
 	void ChangeTextureName(std::weak_ptr<Okay::Texture> texture, const Okay::String& name);
 	void RemoveTexture(std::weak_ptr<Okay::Texture> texture);
 
-	template<typename T>
-	void ForEachTexture(T& function)
+	template<typename T, typename... Args>
+	void ForEachTexture(T& function, Args&&... args)
 	{
 		for (auto& texture : textures)
-			function(texture.second);
+			function(texture.second, std::forward<Args>(args)...);
 	}
 
 private:
@@ -68,6 +70,7 @@ private:
 #pragma endregion Textures
 
 
+	// Materials
 #pragma region Materials
 public: // Getters
 	std::shared_ptr<Okay::Material> GetMaterial(const std::string& materialName);
@@ -78,11 +81,11 @@ public: // Getters
 	void ChangeMaterialName(std::weak_ptr<Okay::Material> mat, const Okay::String& name);
 	void RemoveMaterial(std::weak_ptr<Okay::Material> mat);
 
-	template<typename T>
-	void ForEachMaterial(T& lambda)
+	template<typename T, typename... Args>
+	void ForEachMaterial(T& lambda, Args&&... args)
 	{
 		for (auto& material : materials)
-			lambda(material.second);
+			lambda(material.second, std::forward<Args>()...);
 	}
 
 private:

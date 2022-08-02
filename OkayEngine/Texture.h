@@ -15,16 +15,17 @@ namespace Okay
 		~Texture();
 		void Shutdown();
 
-		void SetName(const String& name)			{ this->name = name; }
-		const String& GetName()						{ return name; }
-		bool GetIsValid() const						{ return isValid; }
-		UINT GetWidth() const						{ return width; }
-		UINT GetHeight() const						{ return height; }
+		void SetName(const String& name)	{ this->name = name; }
+		const String& GetName() const		{ return name; }
+		bool GetIsValid() const				{ return isValid; }
+		UINT GetWidth() const				{ return width; }
+		UINT GetHeight() const				{ return height; }
+		FLOAT GetAspectRatio() const		{ return float(width) / float(height); }
 
-		ID3D11Texture2D* const* GetTexture()		{ return &texture; }
-		ID3D11ShaderResourceView* const* GetSRV()	{ return &srv; }
-		ID3D11RenderTargetView* const* GetRTV()		{ return &rtv; }
-		ID3D11UnorderedAccessView* const* GetUAV()	{ return &uav; }
+		ID3D11Texture2D* const* GetTexture() const			{ return &texture; }
+		ID3D11ShaderResourceView* const* GetSRV() const		{ return &srv; }
+		ID3D11RenderTargetView* const* GetRTV()	const		{ return &rtv; }
+		ID3D11UnorderedAccessView* const* GetUAV() const	{ return &uav; }
 
 		// Helper
 		static bool IsValid(const std::string_view& texturePath)
