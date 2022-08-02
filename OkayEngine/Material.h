@@ -48,6 +48,10 @@ namespace Okay
 
 		MaterialDesc_Strs GetDesc() const;
 
+		std::shared_ptr<Texture> GetBaseColour() { return textures[0].lock(); }
+		std::shared_ptr<Texture> GetSpecular() { return textures[1].lock(); }
+		std::shared_ptr<Texture> GetAmbient() { return textures[2].lock(); }
+
 	private:
 		Okay::String name;
 		mutable std::weak_ptr<Texture> textures[3];

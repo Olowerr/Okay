@@ -525,9 +525,14 @@ namespace Okay
 
 		if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
 		{
-			ImGui::Text("Base Colour: %s", matDesc.baseColour);
-			ImGui::Text("Specular Colour: %s", matDesc.specular);
-			ImGui::Text("Ambient Colour: %s", matDesc.ambient);
+			ImGui::Text("Base Colour:"); ImGui::SameLine();
+			ImGui::ImageButton((void*)*pMat->GetBaseColour()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
+			
+			ImGui::Text("Specular Colour:"); ImGui::SameLine();
+			ImGui::ImageButton((void*)*pMat->GetSpecular()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
+			
+			ImGui::Text("Ambient Colour:"); ImGui::SameLine();
+			ImGui::ImageButton((void*)*pMat->GetAmbient()->GetSRV(), {15.f, 15.f}, {}, {1.f, 1.f}, 1);
 
 			ImGui::DragFloat2("UV Offset", &pMat->GetGPUData().uvOffset.x, 0.001f);
 			ImGui::DragFloat2("UV Tiling", &pMat->GetGPUData().uvTiling.x, 0.001f);
