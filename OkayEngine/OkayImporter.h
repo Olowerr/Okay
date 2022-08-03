@@ -122,11 +122,8 @@ inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::Ve
 	return true;
 }
 
-inline bool Importer::LoadOkayAsset(const std::string& filePath, Okay::VertexData& vertexData)
+inline bool Importer::LoadOkayAsset(const std::string& fileName, Okay::VertexData& vertexData)
 {
-	std::string fileName = filePath;
-	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
-
 	std::ifstream reader("../Content/Meshes/" + fileName, std::ios::binary);
 	VERIFY(reader);
 

@@ -260,21 +260,14 @@ bool Assets::LoadDeclared()
 {
 	VERIFY(ReadDeclaration());
 
-	bool result = true;
 	for (const auto& file : decMeshes)
 	{
-		if (MeshExists(file.c_str))
-			continue;
-
-		// Add the fileExtension here instead of it being in the name
+		// Add the fileExtension here instead of it being in the name // or ?
 
 		// Attempt to load the file
 		Okay::VertexData data;
 		if (!Importer::LoadOkayAsset(file.c_str, data))
-		{
-			result = false;
 			continue;
-		}
 
 		// Create mesh and insert into map
 		meshes[file.c_str] = std::make_shared<Okay::Mesh>(data, file);
@@ -282,7 +275,7 @@ bool Assets::LoadDeclared()
 
 	for (const auto& texture : decTextures)
 	{
-		if (TextureExists(texture.c_str) || !Okay::Texture::IsValid(TexturePath + texture.c_str))
+		if (!Okay::Texture::IsValid(TexturePath + texture.c_str))
 			continue;
 
 		textures[texture.c_str] = std::make_shared<Okay::Texture>(TexturePath + texture.c_str);
@@ -290,13 +283,10 @@ bool Assets::LoadDeclared()
 
 	for (const auto& materialDesc : decMaterials)
 	{
-		if (!AddMaterial(materialDesc))
-			result = false;
+		materials[materialDesc.name.c_str] = std::make_shared<Okay::Material>(materialDesc);
 	}
 
-
-
-	return result;
+	return true;
 }
 
 void Assets::ClearDeclared()
