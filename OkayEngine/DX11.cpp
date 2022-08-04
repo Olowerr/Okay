@@ -203,6 +203,11 @@ bool DX11::ResizeBackBuffer()
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
 	VERIFY(pBackBuffer);
 
+	D3D11_TEXTURE2D_DESC bbDesc;
+	pBackBuffer->GetDesc(&bbDesc);
+	winWidth = bbDesc.Width;
+	winHeight = bbDesc.Height;
+
 	pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
 	VERIFY(pBackBufferRTV);
 
@@ -210,7 +215,7 @@ bool DX11::ResizeBackBuffer()
 	VERIFY(pBackBufferSRV);
 
 
-	//ResizeDepthBuffer(pBackBuffer);
+	ResizeDepthBuffer(pBackBuffer);
 
 	return true;
 }
