@@ -517,7 +517,7 @@ namespace Okay
 
 				// Materials
 				ImGui::Text("\nMaterial:");
-				if (ImGui::BeginCombo("###", compMesh.GetMaterial()->GetName()))
+				if (ImGui::BeginCombo("##MatNoLabel", compMesh.GetMaterial()->GetName()))
 				{
 					static auto ListMaterials = [&compMesh](const SPtr<const Material>& material)
 					{
