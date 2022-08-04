@@ -107,8 +107,11 @@ bool Assets::MeshExists(const std::string& fileName)
 
 std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)
 {
-	if (meshes.find(fileName) == meshes.end())
-		return std::make_shared<Okay::Mesh>(); 
+	if (!MeshExists(fileName))
+	{
+		meshes.insert({ "Default", std::make_shared<Okay::Mesh>() });
+		return meshes["Default"];
+	}
 
 	return meshes[fileName];
 }
