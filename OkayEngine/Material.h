@@ -49,9 +49,21 @@ namespace Okay
 
 		MaterialDesc_Strs GetDesc() const;
 
-		std::shared_ptr<const Texture> GetBaseColour() const { return textures[0].lock(); } 
-		std::shared_ptr<const Texture> GetSpecular() const { return textures[1].lock(); } 
-		std::shared_ptr<const Texture> GetAmbient() const { return textures[2].lock(); } 
+		std::shared_ptr<const Texture> GetBaseColour() const 
+		{
+			CheckValid(0);
+			return textures[0].lock();
+		} 
+		std::shared_ptr<const Texture> GetSpecular() const 
+		{ 
+			CheckValid(1);
+			return textures[1].lock();
+		} 
+		std::shared_ptr<const Texture> GetAmbient() const 
+		{ 
+			CheckValid(2);
+			return textures[2].lock(); 
+		} 
 
 		void SetBaseColour(std::shared_ptr<const Texture> texture) { textures[0] = texture; }
 		void SetSpecular(std::shared_ptr<const Texture> texture) { textures[1] = texture; }
@@ -63,7 +75,7 @@ namespace Okay
 		MaterialGPUData data;
 		bool isTwoSided;
 
-		void CheckValid() const;
+		void CheckValid(int index = -1) const;
 
 	};
 }

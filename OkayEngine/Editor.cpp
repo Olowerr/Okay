@@ -463,6 +463,7 @@ namespace Okay
 
 				if (ImGui::MenuItem("Remove"))
 				{
+					old = pTexture;
 					assets.RemoveTexture(pTexture);
 					UpdateSelection(AssetType::NONE);
 					texMenu = false;
@@ -569,10 +570,8 @@ namespace Okay
 				{
 					static auto ListMaterials = [](const SPtr<const Material>& material, CompMesh& cMesh)
 					{
-						const String& name = material->GetName();
-
-						if (ImGui::Selectable(name))
-							cMesh.AssignMaterial(0, name);
+						if (ImGui::Selectable(material->GetName()))
+							cMesh.AssignMaterial(0, material);
 					};
 
 					assets.ForEachMaterial(ListMaterials, compMesh);
@@ -673,6 +672,11 @@ namespace Okay
 		}
 		ImGui::EndChildFrame();
 
+		pMat.reset(); 
+		pBase.reset(); 
+		pSpecular.reset(); 
+		pAmbient.reset(); 
+
 	}
 
 	void Editor::InspectTexture(ImGuiID& id, const ImVec2& Size)
@@ -697,6 +701,8 @@ namespace Okay
 			ImGui::Image(*pTexture.lock()->GetSRV(), imgSize);
 		}
 		ImGui::EndChildFrame();
+
+		pTex.reset();
 	}
 
 }

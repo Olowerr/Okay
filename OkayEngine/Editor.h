@@ -41,6 +41,8 @@ namespace Okay
 		std::weak_ptr<Texture> pTexture;
 		Entity currentEntity;
 
+		std::weak_ptr<Texture> old;
+
 		enum struct AssetType { NONE, MESH, MATERIAL, TEXTURE, ENTITY };
 		AssetType type = AssetType::NONE;
 
@@ -51,7 +53,12 @@ namespace Okay
 			switch (excludeType)
 			{
 			default:
+				pMesh.reset();
+				pMaterial.reset();
+				pTexture.reset();
+				currentEntity.SetInvalid();
 				return;
+
 			case AssetType::MESH:
 				pMaterial.reset();
 				pTexture.reset();

@@ -103,8 +103,8 @@ void Okay::CompMesh::CheckMaterial() const
 	if (!material.expired())
 		return;
 
-	material = Engine::GetAssets().GetMaterial("Default");
-	//const_cast<std::weak_ptr<const Material>&>(material) = Engine::GetAssets().GetMaterial("Default");
+	//material = Engine::GetAssets().GetMaterial("Default");
+	const_cast<std::weak_ptr<const Material>&>(material) = Engine::GetAssets().GetMaterial("Default");
 }
 
 void Okay::CompMesh::CheckMesh() const

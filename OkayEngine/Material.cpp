@@ -85,8 +85,16 @@ Okay::MaterialDesc_Strs Okay::Material::GetDesc() const
 	return desc;
 }
 
-void Okay::Material::CheckValid() const
+void Okay::Material::CheckValid(int index) const
 {
+	if (index != -1 && index < 3)
+	{
+		if (textures[index].expired())
+			textures[index] = Engine::GetAssets().GetTexture("Default");
+
+		return;
+	}
+
 	if (textures[0].expired())
 		textures[0] = Engine::GetAssets().GetTexture("Default");
 	
