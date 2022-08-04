@@ -38,7 +38,7 @@ namespace Okay // Structs for now, change to classes
 		}
 
 		mutable std::weak_ptr<const Mesh> mesh;
-		std::weak_ptr<const Material> material;
+		mutable std::weak_ptr<const Material> material;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
