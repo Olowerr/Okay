@@ -60,7 +60,7 @@ void Okay::ShaderModel::Resize()
 	viewport.Width = (FLOAT)DX11::Get().GetWindowWidth();
 	viewport.Height = (FLOAT)DX11::Get().GetWindowHeight();
 #endif
-	printf("Width: %d\nHeight: %d\n\n", (int)viewport.Width, (int)viewport.Height);
+
 	Bind();
 }
 

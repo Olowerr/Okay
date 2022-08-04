@@ -1,7 +1,7 @@
 #define NOMINMAX
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "System.h"
+#include "Application.h"
 
 #include <io.h>
 #include <fcntl.h>
@@ -21,13 +21,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
-    System system;
+    Application application;
 
-	if (!system.Initiate())
+	if (!application.Initiate())
 		return -1;
 	
-	system.Run();
-	system.Shutdown();
+    application.Run();
+    application.Shutdown();
 	 
 	return 0;
 }

@@ -3,11 +3,11 @@
 #include "Engine.h"
 #include "Editor.h"
 
-class System
+class Application
 {
 public:
-	System();
-	~System();
+	Application();
+	~Application();
 	void Shutdown();
 
 	bool Initiate();

@@ -1,11 +1,11 @@
-#include "System.h"
+#include "Application.h"
 
-System::System()
+Application::Application()
 	:hWnd(nullptr)
 {
 }
 
-System::~System()
+Application::~Application()
 {
 #ifdef EDITOR
 	Okay::Editor::Destroy();
@@ -14,12 +14,12 @@ System::~System()
 	Shutdown();
 }
 
-void System::Shutdown()
+void Application::Shutdown()
 {
 	DX11::Get().Shutdown();
 }
 
-bool System::Initiate()
+bool Application::Initiate()
 {
 	VERIFY(InitiateWindow());
 	Okay::Engine::Initialize(); // Should verify..
@@ -33,7 +33,7 @@ bool System::Initiate()
 	return true;
 }
 
-void System::Run()
+void Application::Run()
 {
 	using namespace Okay;
 
@@ -76,7 +76,7 @@ void System::Run()
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
-LRESULT System::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 #ifdef EDITOR
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
@@ -100,7 +100,7 @@ LRESULT System::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-bool System::InitiateWindow()
+bool Application::InitiateWindow()
 {
 	const wchar_t win_Class[] = L"WinClass";
 
