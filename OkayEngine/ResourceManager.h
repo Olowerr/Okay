@@ -33,6 +33,8 @@ public:
 	UINT GetNumMeshes() const { return (UINT)meshes.size(); }
 	const Okay::String& GetMeshName(UINT index);
 
+	void RemoveMesh(std::weak_ptr<Okay::Mesh> mesh);
+
 	template<typename T, typename... Args>
 	void ForEachMesh(T& function, Args&&... args)
 	{

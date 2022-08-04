@@ -261,8 +261,13 @@ namespace Okay
 		}
 
 		ImGuiID ID = ImGui::GetID("Content Browser");
-		static const ImVec2 Size(120.f, 120.f);
+		static const ImVec2 Size(120.f, 0.f);
 		static ImVec2 menuPos;
+		
+		// Flags
+		static bool meshMenu = false;
+		static bool matMenu = false;
+		static bool texMenu = false;
 
 		ImGui::BeginMenuBar();
 
@@ -278,14 +283,29 @@ namespace Okay
 
 
 		// Meshes
-		if (ImGui::BeginChildFrame(ID++, Size))
+		if (ImGui::BeginListBox("##LMeshLabel", Size))
 		{
 			ImGui::Text("Meshes:");
 			ImGui::Separator();
 
-			static auto displayMesh = [](const SPtr<const Mesh>& mesh)
+			static auto displayMesh = [](const SPtr<Mesh>& mesh)
 			{
-				ImGui::Text(mesh->GetName());
+				if (ImGui::Selectable(mesh->GetName(), mesh == editor->pMesh.lock()))
+				{
+					editor->pMesh = mesh;
+					editor->UpdateSelection(AssetType::MESH);
+				}
+
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					editor->pMesh = mesh;
+					editor->UpdateSelection(AssetType::MESH);
+
+					meshMenu = true;
+					matMenu = false;
+					texMenu = false;
+					menuPos = ImGui::GetMousePos();
+				}
 			};
 
 			assets.ForEachMesh(displayMesh);
@@ -294,18 +314,15 @@ namespace Okay
 		ImGui::EndChildFrame();
 
 
-		// Flags
-		static bool matMenu = false;
-		static bool texMenu = false;
 
 		// Materials
 		ImGui::SameLine();
-		if (ImGui::BeginListBox("##", { Size.x, 0.f }))
+		if (ImGui::BeginListBox("##LMatLabel", Size))
 		{
 			ImGui::Text("Materials:");
 			ImGui::Separator();
 			
-			auto selectMaterial = [](SPtr<Material> material)
+			static auto selectMaterial = [](const SPtr<Material>& material)
 			{
 				if (ImGui::Selectable(material->GetName(), material == editor->pMaterial.lock()))
 				{
@@ -321,6 +338,7 @@ namespace Okay
 					editor->matDesc = editor->pMaterial.lock()->GetDesc();
 
 					matMenu = true;
+					meshMenu = false;
 					texMenu = false;
 					menuPos = ImGui::GetMousePos();
 				}
@@ -334,7 +352,7 @@ namespace Okay
 
 		// Textures
 		ImGui::SameLine();
-		if (ImGui::BeginListBox("###", { Size.x, 0.f }))
+		if (ImGui::BeginListBox("##LTexLabel", Size))
 		{
 			ImGui::Text("Textures:");
 			ImGui::Separator();
@@ -353,6 +371,7 @@ namespace Okay
 					editor->UpdateSelection(AssetType::TEXTURE);
 
 					texMenu = true;
+					meshMenu = false;
 					matMenu = false;
 					menuPos = ImGui::GetMousePos();
 				}
@@ -367,7 +386,34 @@ namespace Okay
 
 
 		// Menu Handling
-		if (matMenu)
+		if (meshMenu)
+		{
+			if (OpenMenuWindow(menuPos, "MeshMenu", &meshMenu))
+			{
+				ImGui::Text("Mesh Options");
+				ImGui::Separator();
+
+				if (ImGui::BeginMenu("Change name"))
+				{
+					/*if (ImGui::InputText("##inputName", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					{
+						//assets.ChangeMeshName(pMesh, newName);
+						newName = "";
+						meshMenu = false;
+					}*/
+
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("Remove"))
+				{
+					assets.RemoveMesh(pMesh);
+					UpdateSelection(AssetType::NONE);
+					meshMenu = false;
+				}		
+			}
+			ImGui::End();
+		}
+		else if (matMenu)
 		{
 			if (OpenMenuWindow(menuPos, "MatMenu", &matMenu))
 			{
@@ -376,7 +422,7 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("##inputName", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
 						assets.ChangeMaterialName(pMaterial, newName);
 						newName = "";
@@ -388,6 +434,7 @@ namespace Okay
 				if (ImGui::MenuItem("Remove"))
 				{
 					assets.RemoveMaterial(pMaterial);
+					UpdateSelection(AssetType::NONE);
 					matMenu = false;
 				}
 			}
@@ -422,6 +469,7 @@ namespace Okay
 			}
 			ImGui::End();
 		}
+		
 	}
 
 	void Editor::DisplayInspector()

@@ -120,6 +120,14 @@ const Okay::String& Assets::GetMeshName(UINT index)
 	return it->second.get()->GetName();
 }
 
+void Assets::RemoveMesh(std::weak_ptr<Okay::Mesh> mesh)
+{
+	if (mesh.expired())
+		return;
+
+	meshes.erase(mesh.lock()->GetName().c_str);
+}
+
 bool Assets::AddTexture(const std::string& filePath)
 {
 	size_t pos = filePath.find_last_of('/');
