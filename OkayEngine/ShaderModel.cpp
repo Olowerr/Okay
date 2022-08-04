@@ -31,7 +31,12 @@ void Okay::ShaderModel::Bind()
 {
 	DX11::Get().GetDeviceContext()->PSSetShader(pPixelShader, nullptr, 0);
 	DX11::Get().GetDeviceContext()->RSSetViewports(1, &viewport);
+#ifdef EDITOR
 	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetMainRTV(), *DX11::Get().GetDepthBufferDSV());
+#else
+	DX11::Get().GetDeviceContext()->OMSetRenderTargets(1, DX11::Get().GetBackBufferRTV(), *DX11::Get().GetDepthBufferDSV());
+#endif
+
 }
 
 void Okay::ShaderModel::UnBind()
@@ -48,8 +53,13 @@ void Okay::ShaderModel::Apply()
 
 void Okay::ShaderModel::Resize()
 {
+#ifdef EDITOR
 	viewport.Width = (FLOAT)DX11::Get().GetMainWidth();
 	viewport.Height = (FLOAT)DX11::Get().GetMainHeight();
+#else
+	viewport.Width = (FLOAT)DX11::Get().GetWindowWidth();
+	viewport.Height = (FLOAT)DX11::Get().GetWindowHeight();
+#endif
 	Bind();
 }
 
