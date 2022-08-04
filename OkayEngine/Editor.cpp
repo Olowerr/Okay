@@ -174,7 +174,7 @@ namespace Okay
 
 
 		// Entities
-		if (ImGui::BeginListBox("##", { ImGui::GetWindowSize().x, -1.f }))
+		if (ImGui::BeginListBox("##EntNoLabel", { ImGui::GetWindowSize().x, -1.f }))
 		{
 			auto entities = reg.view<CompTag>();
 			
@@ -188,10 +188,12 @@ namespace Okay
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
+					currentEntity.Set(entity, Engine::GetActiveScene());
+					UpdateSelection(AssetType::ENTITY);
+
 					entityMenu = true;
 					listMenu = false;
 					menuPos = ImGui::GetMousePos();
-					UpdateSelection(AssetType::ENTITY);
 				}
 			}
 
@@ -311,7 +313,7 @@ namespace Okay
 			assets.ForEachMesh(displayMesh);
 
 		}
-		ImGui::EndChildFrame();
+		ImGui::EndListBox();
 
 
 
@@ -548,32 +550,32 @@ namespace Okay
 				// Mesh
 				ImGui::Text("Mesh:");
 				ImGui::PushItemWidth(-15.f);
-				if (ImGui::BeginCombo("##MeshNoLabel", compMesh.mesh->GetName()))
+				if (ImGui::BeginCombo("##MeshNoLabel", compMesh.GetMesh()->GetName()))
 				{
-					static auto ListMeshes = [&compMesh](const SPtr<const Mesh>& mesh)
+					static auto ListMeshes = [](const SPtr<const Mesh>& mesh, CompMesh& cMesh)
 					{
 						if (ImGui::Selectable(mesh->GetName()))
-							compMesh.AssignMesh(mesh);
+							cMesh.AssignMesh(mesh);
 					};
 
-					assets.ForEachMesh(ListMeshes);
+					assets.ForEachMesh(ListMeshes, compMesh);
 
 					ImGui::EndCombo();
 				}
 
 				// Materials
-				ImGui::Text("\nMaterial:");
+				ImGui::Text("Material:");
 				if (ImGui::BeginCombo("##MatNoLabel", compMesh.GetMaterial()->GetName()))
 				{
-					static auto ListMaterials = [&compMesh](const SPtr<const Material>& material)
+					static auto ListMaterials = [](const SPtr<const Material>& material, CompMesh& cMesh)
 					{
 						const String& name = material->GetName();
 
 						if (ImGui::Selectable(name))
-							compMesh.AssignMaterial(0, name);
+							cMesh.AssignMaterial(0, name);
 					};
 
-					assets.ForEachMaterial(ListMaterials);
+					assets.ForEachMaterial(ListMaterials, compMesh);
 
 					ImGui::EndCombo();
 				}

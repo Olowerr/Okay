@@ -50,8 +50,10 @@ void Okay::CompMesh::AssignMaterial(UINT index, const Okay::String& materialName
 
 void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
 {
-	writer.write((const char*)&mesh->GetName(), sizeof(Okay::String));
+	CheckMaterial();
+	CheckMesh();
 
+	writer.write((const char*)&mesh.lock()->GetName(), sizeof(Okay::String));
 
 	const UINT NumMaterials = 1;
 	writer.write((const char*)&NumMaterials, sizeof(UINT));
@@ -102,6 +104,16 @@ void Okay::CompMesh::CheckMaterial() const
 		return;
 
 	material = Engine::GetAssets().GetMaterial("Default");
+	//const_cast<std::weak_ptr<const Material>&>(material) = Engine::GetAssets().GetMaterial("Default");
+}
+
+void Okay::CompMesh::CheckMesh() const
+{
+	if (!mesh.expired())
+		return;
+
+	mesh = Engine::GetAssets().GetMesh("Default");
+	//const_cast<std::weak_ptr<const Mesh>&>(mesh) = Engine::GetAssets().GetMesh("Default");
 }
 
 

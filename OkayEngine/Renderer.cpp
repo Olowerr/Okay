@@ -78,18 +78,18 @@ void Renderer::Render()
 
 	for (size_t i = 0; i < numActive; i++)
 	{
-		CompMesh& mesh = *meshesToRender.at(i).mesh;
+		CompMesh& cMesh= *meshesToRender.at(i).mesh;
 		const CompTransform& transform = *meshesToRender.at(i).transform;
-		auto material = mesh.GetMaterial();
-
+		auto material = cMesh.GetMaterial();
+		auto mesh = cMesh.GetMesh();
 
 		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
 		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
-		mesh.mesh->Bind();
+		mesh->Bind();
 		material->BindTextures();
 			
-		mesh.mesh->Draw();
+		mesh->Draw();
 	}
 
 	shaderModel->UnBind();

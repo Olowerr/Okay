@@ -87,7 +87,7 @@ public: // Getters
 	void ForEachMaterial(T& lambda, Args&&... args)
 	{
 		for (auto& material : materials)
-			lambda(material.second, std::forward<Args>()...);
+			lambda(material.second, std::forward<Args>(args)...);
 	}
 
 private:
