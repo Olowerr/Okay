@@ -504,9 +504,7 @@ namespace Okay
 				{
 					static auto ListMeshes = [&compMesh](const SPtr<const Mesh>& mesh)
 					{
-						const String& name = mesh->GetName();
-
-						if (ImGui::Selectable(name))
+						if (ImGui::Selectable(mesh->GetName()))
 							compMesh.AssignMesh(mesh);
 					};
 
