@@ -69,7 +69,6 @@ void Application::Run()
 
 	// Will change with scene switching
 	Engine::SaveCurrent(); 
-
 }
 
 #ifdef EDITOR
@@ -81,20 +80,23 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 #ifdef EDITOR
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
-#endif // DEBUG
+#endif // EDITOR
 
-
+	Okay::Engine::ReadInput(message, wParam, lParam);
 	switch (message)
 	{
 	case WM_SIZE:
 		Okay::Engine::ResizeScreen();
 		return 0;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
+
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

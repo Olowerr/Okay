@@ -52,14 +52,11 @@
     <Filter Include="Editor">
       <UniqueIdentifier>{7b7d3ef1-c852-41bb-b8da-d670fc56af13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{7dfbe1f9-a261-4c2d-a5b9-f8b7fc60187d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DX11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,11 +117,17 @@
     <ClCompile Include="Editor.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Inputs.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DX11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -202,6 +205,12 @@
     </ClInclude>
     <ClInclude Include="Editor.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Inputs.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

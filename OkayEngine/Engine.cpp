@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
+bool Okay::Engine::keys[]{};
 
 Okay::Engine::Engine()
 {
@@ -46,6 +47,8 @@ void Okay::Engine::ResizeScreen()
 
 void Okay::Engine::NewFrame()
 {
+	Get().deltaTime = std::chrono::system_clock::now() - Get().frameStart;
+
 	Get().renderer.NewFrame();
 	DX11::Get().NewFrame();
 }
@@ -53,6 +56,8 @@ void Okay::Engine::NewFrame()
 void Okay::Engine::EndFrame()
 {
 	DX11::Get().EndFrame();
+
+	Get().frameStart = std::chrono::system_clock::now();
 }
 
 void Okay::Engine::Update()
@@ -153,6 +158,22 @@ bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 bool Okay::Engine::LoadScene(UINT sceneIndex)
 {
 	return false;
+}
+
+void Okay::Engine::ReadInput(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	default:
+		return;
+	case WM_KEYDOWN:
+		keys[(UINT)wParam] = true;
+		return;
+
+	case WM_KEYUP:
+		keys[(UINT)wParam] = false;
+		return;
+	}
 }
 
 void Okay::Engine::ReadEntity(Entity& entity, std::ifstream& reader)
