@@ -19,9 +19,12 @@ namespace Okay
 
 	protected:
 		DirectX::XMFLOAT4X4 viewProject;
-		Float3 pos;
 
-		// TODO: Implement Camera movement
+		Float2 rot;
+
+		DirectX::XMVECTOR pos;
+		DirectX::XMVECTOR fwd, right;
+
 
 	};
 }

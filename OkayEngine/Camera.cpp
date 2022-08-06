@@ -3,20 +3,24 @@
 #include "Engine.h"
 
 Okay::Camera::Camera()
+    :rot()
 {
     using namespace DirectX;
 
-    pos = { 10.f, 10.f, -10.f };
+    pos = XMVectorSet(10.f, 10.f, -10.f, 0);
+    fwd = XMVectorSet(0.f, 0.f, 1.f, 0.f);
+    right = XMVectorSet(1.f, 0.f, 0.f, 0.f);
 
 #ifdef EDITOR
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-        XMMatrixLookAtLH(XMVectorSet(pos.x, pos.y, pos.z, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
+        XMMatrixLookToLH(pos, fwd, XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
         XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetMainAspectRatio(), 0.1f, 500.f)));
 #else
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-        XMMatrixLookAtLH(XMVectorSet(pos.x, pos.y, pos.z, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
+        XMMatrixLookAtLH(pos, fwd, XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
         XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
 #endif
+
 
     
 }
@@ -33,27 +37,41 @@ const DirectX::XMFLOAT4X4& Okay::Camera::GetViewProjectMatrix() const
 void Okay::Camera::Update()
 {
     using namespace DirectX;
-
-    static float speed = 5.f;
+    using namespace Okay;
 
     const float dt = Engine::GetDT();
+    const float speed = 5.f * dt, rotSpeed = 3.f * dt;
 
-    if (Okay::Engine::GetKeyDown(Keys::W))
-        pos.z += speed * dt;
+    if (Engine::GetKeyDown(Keys::Left))
+        rot.y -= rotSpeed;
+    else if (Engine::GetKeyDown(Keys::Right))
+        rot.y += rotSpeed;
+    
+    if (Engine::GetKeyDown(Keys::Up))
+        rot.x -= rotSpeed;
+    else if (Engine::GetKeyDown(Keys::Down))
+        rot.x += rotSpeed;
 
-    else if (Okay::Engine::GetKeyDown(Keys::S))
-        pos.z -= speed * dt;
+    fwd = XMVector3Rotate(XMVectorSet(0.f, 0.f, 1.f, 0.f), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, 0.f));
 
-    else if (Okay::Engine::GetKeyDown(Keys::R))
-        pos = { 10.f, 10.f, -10.f };
+    /*if (Engine::GetKeyDown(Keys::A))
+        pos = XMVectorAdd(pos, fwd * speed);
+    else if (Engine::GetKeyDown(Keys::D))
+        rot.y += rotSpeed;*/
+
+    if (Engine::GetKeyDown(Keys::W))
+        pos = XMVectorAdd(pos, fwd * speed);
+    else if (Engine::GetKeyDown(Keys::S))
+        pos = XMVectorAdd(pos, fwd * -speed);
+
 
 #ifdef EDITOR
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-        XMMatrixLookAtLH(XMVectorSet(pos.x, pos.y, pos.z, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
+        XMMatrixLookToLH(pos, fwd, XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
         XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetMainAspectRatio(), 0.1f, 500.f)));
 #else
     XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-        XMMatrixLookAtLH(XMVectorSet(pos.x, pos.y, pos.z, 0.f), XMVectorSet(0.f, 5.f, 0.f, 0.f), XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
+        XMMatrixLookAtLH(pos, fwd, XMVectorSet(0.f, 1.f, 0.f, 0.f)) *
         XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
 #endif
 

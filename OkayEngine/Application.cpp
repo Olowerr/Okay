@@ -50,7 +50,7 @@ void Application::Run()
 #ifdef EDITOR
 		Editor::NewFrame();
 #endif
-		Engine::NewFrame();
+		Engine::NewFrame(); 
 
 
 #ifdef EDITOR
