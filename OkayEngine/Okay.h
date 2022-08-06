@@ -9,6 +9,10 @@
 
 namespace Okay
 {
+	static const DirectX::XMVECTOR RIGHT = DirectX::XMVectorSet(1.f, 0.f, 0.f, 0.f);
+	static const DirectX::XMVECTOR UP = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
+	static const DirectX::XMVECTOR FORWARD = DirectX::XMVectorSet(0.f, 0.f, 1.f, 0.f);
+
 	struct String
 	{
 		static const UINT Size = 64;

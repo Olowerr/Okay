@@ -123,9 +123,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Inputs.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h">
@@ -209,7 +206,7 @@
     <ClInclude Include="Application.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Inputs.h">
+    <ClInclude Include="Keys.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>

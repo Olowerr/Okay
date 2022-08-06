@@ -21,7 +21,7 @@ void Application::Shutdown()
 
 bool Application::Initiate()
 {
-	VERIFY(InitiateWindow());
+	InitiateWindow();
 	Okay::Engine::Initialize(); // Should verify..
 
 	VERIFY(Okay::Engine::LoadScene(""));
@@ -47,10 +47,10 @@ void Application::Run()
 			DispatchMessage(&msg);
 		}
 
+		Engine::NewFrame();
 #ifdef EDITOR
 		Editor::NewFrame();
 #endif
-		Engine::NewFrame(); 
 
 
 #ifdef EDITOR
@@ -82,19 +82,26 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		return true;
 #endif // EDITOR
 
-	Okay::Engine::ReadInput(message, wParam, lParam);
 	switch (message)
 	{
-	case WM_SIZE:
-		Okay::Engine::ResizeScreen();
-		return 0;
-
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 
 	case WM_CLOSE:
 		PostQuitMessage(0);
+		return 0;
+
+	case WM_SIZE:
+		Okay::Engine::ResizeScreen();
+		return 0;
+
+	case WM_KEYUP:
+		Okay::Engine::SetKeyUp((UINT)wParam);
+		return 0;
+
+	case WM_KEYDOWN:
+		Okay::Engine::SetKeyDown((UINT)wParam);
 		return 0;
 
 	}

@@ -97,19 +97,18 @@ DX11::DX11()
 	hr = pDevice->CreateShaderResourceView(pMainBuffer, nullptr, &pMainSRV);
 	if (FAILED(hr))
 		return;
+
+	printf("DX11 Start\n");
 }
 
 DX11::~DX11()
 {
 	Shutdown();
+	printf("DX11 Shutdown\n");
 }
 
 void DX11::Shutdown()
 {
-	DX11_RELEASE(pDevice);
-	DX11_RELEASE(pDeviceContext);
-	DX11_RELEASE(pSwapChain);
-
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);
 	DX11_RELEASE(pBackBufferSRV);
@@ -120,13 +119,22 @@ void DX11::Shutdown()
 
 	DX11_RELEASE(pDepthBuffer);
 	DX11_RELEASE(pDepthBufferDSV);
+	
+	DX11_RELEASE(pDeviceContext);
+	DX11_RELEASE(pSwapChain);
+	DX11_RELEASE(pDevice);
 }
 
 void DX11::NewFrame()
 {
 	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 1.f };
-	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
+
+#ifdef EDITOR
 	pDeviceContext->ClearRenderTargetView(pMainRTV, clearColour);
+#else
+	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
+#endif
+
 	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 }
 
