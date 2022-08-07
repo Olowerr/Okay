@@ -8,6 +8,9 @@ cbuffer MatData : register(b3)
 
 cbuffer PointLight :  register(b4)
 {
+	float3 position;
+	float pad;
+
 	float intensity;
 	float3 colour;
 	float2 attenuation;

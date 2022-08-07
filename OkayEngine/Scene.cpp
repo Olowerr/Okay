@@ -42,6 +42,10 @@ void Scene::Update()
     Renderer& ren = Okay::Engine::GetRenderer();
     for (auto& entity : group)
         ren.Submit(&group.get<Okay::CompMesh>(entity), &group.get<Okay::CompTransform>(entity));
+
+    const auto& view = registry.view<Okay::CompPointLight>();
+    for (auto& entity : view)
+        ren.Submit(&view.get<Okay::CompPointLight>(entity), &view.get<Okay::CompTransform>(entity));
 }
 
 void Scene::Stop()

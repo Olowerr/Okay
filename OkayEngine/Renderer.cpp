@@ -50,7 +50,7 @@ void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 	++numActive;
 }
 
-void Renderer::Submit(Okay::CompPointLight* pLight)
+void Renderer::Submit(Okay::CompPointLight* pLight, Okay::CompTransform* pTransform)
 {
 	if (numLights >= lights.size())
 		lights.resize(numLights + 5);

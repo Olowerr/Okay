@@ -18,7 +18,7 @@ public:
 
 	// TEMP
 	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
-	void Submit(Okay::CompPointLight*);
+	void Submit(Okay::CompPointLight*, Okay::CompTransform* pTransform);
 
 	void NewFrame();
 
