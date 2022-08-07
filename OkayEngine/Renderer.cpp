@@ -23,6 +23,7 @@ Renderer::Renderer()
 	
 	meshesToRender.resize(10);
 	numActive = 0;
+	numLights = 0;
 }
 
 Renderer::~Renderer()
@@ -47,6 +48,14 @@ void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 	meshesToRender.at(numActive).transform = pTransform;
 
 	++numActive;
+}
+
+void Renderer::Submit(Okay::CompPointLight* pLight)
+{
+	if (numLights >= lights.size())
+		lights.resize(numLights + 5);
+
+	lights.at(numLights++) = pLight;
 }
 
 void Renderer::NewFrame()

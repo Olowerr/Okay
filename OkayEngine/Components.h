@@ -9,7 +9,8 @@ namespace Okay // Structs for now, change to classes
 		None = 0,
 		Mesh,
 		Transform,
-		Tag
+		Tag,
+		PointLight
 	};
 
 	struct CompMesh 

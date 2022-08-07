@@ -13,17 +13,14 @@ public:
 	void DestroyEntity(Entity entity);
 
 	entt::registry& GetRegistry() { return registry; }
-	std::vector<Entity>& GetEntities() { return entities; }
 
 	// Maybe temp
 	void Start();
 	void Update();
+	void Stop();
 
 private:
 	entt::registry registry;
-
-	// Maybe temp
-	std::vector<Entity> entities;
 
 	// Temp
 	int index;

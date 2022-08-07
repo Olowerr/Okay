@@ -68,7 +68,6 @@ namespace Okay
 
 		editor->DisplayContent();
 
-
 		ImVec2 size(1600.f, 900.f);
 		// Declare Viewport window
 		if (ImGui::Begin("Viewport", nullptr))

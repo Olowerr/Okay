@@ -73,6 +73,7 @@ bool Okay::Engine::SaveCurrentScene()
 	std::ofstream writer(SceneDecleration.c_str, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
+	activeScene->Stop();
 	entt::registry& registry = activeScene->GetRegistry();
 
 	// Might change

@@ -3,7 +3,7 @@
 
 #include "ShaderModel.h"
 #include "Camera.h"
-#include "Components.h"
+#include "CompLights.h"
 
 class Renderer	
 {
@@ -18,6 +18,7 @@ public:
 
 	// TEMP
 	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
+	void Submit(Okay::CompPointLight*);
 
 	void NewFrame();
 
@@ -37,6 +38,8 @@ private:
 	std::vector<RenderMesh> meshesToRender;
 	size_t numActive;
 
+	std::vector<Okay::CompPointLight*> lights;
+	size_t numLights; 
 
 private: // DX11 Specific
 	ID3D11DeviceContext* pDevContext;
@@ -45,6 +48,7 @@ private: // DX11 Specific
 	ID3D11Buffer* pWorldBuffer;
 
 	ID3D11Buffer* pMaterialBuffer;
+	ID3D11Buffer* tempPLightBuffer;
 
 	ID3D11InputLayout* pInputLayout;
 	ID3D11VertexShader* pVertexShader;

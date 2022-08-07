@@ -13,6 +13,11 @@ namespace Okay
 	static const DirectX::XMVECTOR UP = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
 	static const DirectX::XMVECTOR FORWARD = DirectX::XMVectorSet(0.f, 0.f, 1.f, 0.f);
 
+	static const Float3 WHITE	= Float3(1.f, 1.f, 1.f);
+	static const Float3 RED		= Float3(1.f, 0.f, 0.f);
+	static const Float3 GREEN	= Float3(0.f, 1.f, 0.f);
+	static const Float3 BLUE	= Float3(0.f, 0.f, 1.f);
+
 	struct String
 	{
 		static const UINT Size = 64;

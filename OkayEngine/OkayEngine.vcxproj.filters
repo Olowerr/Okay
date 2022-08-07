@@ -209,6 +209,9 @@
     <ClInclude Include="Keys.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="CompLights.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MeshVS.hlsl">
