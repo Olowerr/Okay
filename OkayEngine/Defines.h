@@ -6,7 +6,8 @@
 #include <Windows.h>
 
 #define VERIFY(X) if (!X) return false
-#define VERIFY_HR(HR) if (FAILED(HR)) return false
+#define VERIFY_HR(HR) if (FAILED(HR)) return HR
+#define VERIFY_HR_BOOL(HR) if (FAILED(HR)) return false
 
 #define WindowName L"Okay Engine"
 #define GetHWindow() FindWindow(NULL, WindowName)

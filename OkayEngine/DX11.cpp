@@ -127,7 +127,7 @@ void DX11::Shutdown()
 
 void DX11::NewFrame()
 {
-	static float clearColour[4] = { 0.1f, 0.5f, 0.9f, 1.f };
+	static float clearColour[4] = { 0.2f, 0.2f, 0.2f, 1.f };
 
 #ifdef EDITOR
 	pDeviceContext->ClearRenderTargetView(pMainRTV, clearColour);
@@ -222,8 +222,9 @@ bool DX11::ResizeBackBuffer()
 	pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
 	VERIFY(pBackBufferSRV);
 
-
+#ifndef EDITOR
 	ResizeDepthBuffer(pBackBuffer);
+#endif
 
 	return true;
 }

@@ -37,15 +37,16 @@ void Scene::Start()
 
 void Scene::Update()
 {
-    const auto& group = registry.group<Okay::CompMesh, Okay::CompTransform>();
-
     Renderer& ren = Okay::Engine::GetRenderer();
-    for (auto& entity : group)
-        ren.Submit(&group.get<Okay::CompMesh>(entity), &group.get<Okay::CompTransform>(entity));
 
-    const auto& view = registry.view<Okay::CompPointLight>();
-    for (auto& entity : view)
-        ren.Submit(&view.get<Okay::CompPointLight>(entity), &view.get<Okay::CompTransform>(entity));
+    const auto& meshView = registry.view<Okay::CompMesh, Okay::CompTransform>();
+    for (auto& entity : meshView)
+        ren.Submit(&meshView.get<Okay::CompMesh>(entity), &meshView.get<Okay::CompTransform>(entity));
+
+
+    const auto& lightView = registry.view<Okay::CompPointLight, Okay::CompTransform>();
+    for (auto& entity : lightView)
+        ren.SubmitLight(&lightView.get<Okay::CompPointLight>(entity), &lightView.get<Okay::CompTransform>(entity));
 }
 
 void Scene::Stop()

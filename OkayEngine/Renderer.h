@@ -18,7 +18,7 @@ public:
 
 	// TEMP
 	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
-	void Submit(Okay::CompPointLight*, Okay::CompTransform* pTransform);
+	void SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pTransform);
 
 	void NewFrame();
 
@@ -38,7 +38,14 @@ private:
 	std::vector<RenderMesh> meshesToRender;
 	size_t numActive;
 
-	std::vector<Okay::CompPointLight*> lights;
+
+	struct GPUPointLight
+	{
+		Okay::Float3 pos;
+		Okay::CompPointLight lightData;
+	};
+
+	std::vector<GPUPointLight> lights;
 	size_t numLights; 
 
 private: // DX11 Specific
@@ -46,10 +53,14 @@ private: // DX11 Specific
 
 	ID3D11Buffer* pViewProjectBuffer;
 	ID3D11Buffer* pWorldBuffer;
-
 	ID3D11Buffer* pMaterialBuffer;
-	ID3D11Buffer* tempPLightBuffer;
 
+	ID3D11Buffer* pPointLightBuffer;
+	ID3D11ShaderResourceView* pPointLightSRV;
+	ID3D11Buffer* pLightInfoBuffer;
+	bool ExpandPointLights();
+
+private: // Pipline
 	ID3D11InputLayout* pInputLayout;
 	ID3D11VertexShader* pVertexShader;
 	ID3D11HullShader* pHullShader;     // Disabled

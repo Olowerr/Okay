@@ -46,6 +46,36 @@ public:
 	static HRESULT CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static bool UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize);
 
+	template<typename T>
+	static HRESULT CreateStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT numElements, bool immutable = true)
+	{
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = sizeof(T) * numElements;
+		desc.CPUAccessFlags = immutable ? 0 : D3D11_CPU_ACCESS_WRITE;
+		desc.Usage = immutable ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		desc.StructureByteStride = sizeof(T);
+		D3D11_SUBRESOURCE_DATA inData;
+		inData.pSysMem = pData;
+		inData.SysMemPitch = 0;
+		inData.SysMemSlicePitch = 0;
+		
+		return Get().pDevice->CreateBuffer(&desc, &inData, ppBuffer);
+	}
+
+	template<typename T>
+	static HRESULT CreateStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements)
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.Buffer.FirstElement = 0;
+		desc.Buffer.NumElements = numElements;
+
+		return Get().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
+	}
+
 private:
 	UINT winWidth;
 	UINT winHeight;

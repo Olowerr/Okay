@@ -8,7 +8,7 @@ namespace Okay
 		static const Components ID = Components::PointLight;
 
 		CompPointLight() 
-		:intensity(2.f), colour(WHITE), attenuation(1.f, 0.1f) { }
+		:intensity(2.f), colour(WHITE), attenuation(0.2f, 0.0f) { }
 
 		CompPointLight(float intensity, Float3 colour, Float2 attentuation)
 			:intensity(intensity), colour(colour), attenuation(attentuation) { }
