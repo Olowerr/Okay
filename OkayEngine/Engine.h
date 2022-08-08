@@ -7,6 +7,17 @@
 #include "Entity.h"
 #include "Keys.h"
 
+
+#define COUNT_COMP(T) numComp += (bool)registry.try_get<Okay::T>(entity);
+
+#define WRITE_DATA(T)												\
+if (auto* tPtr = registry.try_get<Okay::T>(entity))					\
+{																	\
+	Okay::Components type = Okay::T::ID;							\
+	writer.write((const char*)&type, sizeof(Okay::Components));		\
+	tPtr->WritePrivateData(writer);									\
+}
+
 namespace Okay
 {
 

@@ -80,23 +80,27 @@ bool Okay::Engine::SaveCurrentScene()
 	const UINT NumEntities = (UINT)registry.alive();
 	writer.write((const char*)&NumEntities, sizeof(UINT));
 
-											
-#if 0
-	Okay::Components type;
-	registry.each([&registry, &writer](auto entity)
+
+#if 1
+	auto writeEntities = [&registry, &writer](auto entity)
 	{
-		
-		if (auto* ptr = registry.try_get<Okay::CompTransform>(entity))
-			foo(ptr, writer);
 
-		if (auto* ptr = registry.try_get<Okay::CompMesh>(entity))
-			foo(ptr, writer);
+		UINT numComp = 0;
+		COUNT_COMP(CompTransform);
+		COUNT_COMP(CompMesh);
+		COUNT_COMP(CompTag);
+		COUNT_COMP(CompPointLight);
 
-		if (auto* ptr = registry.try_get<Okay::CompTag>(entity))
-			foo(ptr, writer);
+		writer.write((const char*)&numComp, sizeof(UINT));
 
-		
-	});
+		WRITE_DATA(CompTransform);
+		WRITE_DATA(CompMesh);
+		WRITE_DATA(CompTag);
+		WRITE_DATA(CompPointLight);
+
+	};
+
+	registry.each(writeEntities);
 
 #else
 
@@ -187,7 +191,7 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 
 	case Components::Mesh:
 	{
-		entity.AddComponent<CompMesh>(reader);
+		entity.AddComponent<CompMesh>().ReadPrivateData(reader);
 		break;
 	}
 
@@ -202,5 +206,10 @@ void Okay::Engine::ReadComponentData(Entity& entity, Components type, std::ifstr
 		// All entities get a transform component on creation
 		entity.GetComponent<CompTag>().ReadPrivateData(reader);
 		break;
+
+	case Components::PointLight:
+		entity.AddComponent<CompPointLight>().ReadPrivateData(reader);
+		break;
 	}
+
 }

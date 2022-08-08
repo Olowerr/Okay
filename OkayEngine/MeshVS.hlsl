@@ -7,7 +7,7 @@ TransformedVertex main( InputVertex input)
 	output.worldPos = mul(float4(input.pos, 1.f), worldMatrix).xyz;
 	output.svPos = mul(float4(output.worldPos, 1.f), viewProjectMatrix);
 
-	output.normal = mul(float4(input.normal, 0.f), worldMatrix).xyz;
+	output.normal = normalize(mul(float4(input.normal, 0.f), worldMatrix).xyz);
 	output.uv = input.uv;
 
 	return output;

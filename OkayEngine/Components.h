@@ -2,6 +2,8 @@
 #include "Mesh.h"
 #include "Material.h"
 
+
+
 namespace Okay // Structs for now, change to classes
 {
 	enum struct Components
@@ -18,7 +20,6 @@ namespace Okay // Structs for now, change to classes
 		static const Components ID = Components::Mesh;
 
 		CompMesh();
-		CompMesh(std::ifstream& reader);
 		CompMesh(const std::string& meshName);
 
 		void AssignMesh(const std::string& meshName);

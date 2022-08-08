@@ -19,7 +19,7 @@ Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
     entity.AddComponent<Okay::CompTransform>();
-    entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)registry.alive()));
+    entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
     return entity;
 }
@@ -31,8 +31,8 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::Start()
 {
-    Entity entity = CreateEntity();
-    entity.AddComponent<Okay::CompPointLight>();
+    //Entity entity = CreateEntity();
+    //entity.AddComponent<Okay::CompPointLight>();
 }
 
 void Scene::Update()
@@ -51,7 +51,7 @@ void Scene::Update()
 
 void Scene::Stop()
 {
-    const auto& view = registry.view<Okay::CompPointLight>();
-    for (auto& entity : view)
-        registry.destroy(entity);
+    //const auto& view = registry.view<Okay::CompPointLight>();
+    //for (auto& entity : view)
+    //    registry.destroy(entity);
 }

@@ -581,6 +581,33 @@ namespace Okay
 			ImGui::PopItemWidth();
 			ImGui::EndChildFrame();
 		}
+
+		if (currentEntity.HasComponent<Okay::CompPointLight>())
+		{
+			if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
+			{
+				Okay::CompPointLight& light = currentEntity.GetComponent<Okay::CompPointLight>();
+
+
+				ImGui::Text("Point Light");
+				ImGui::Separator();
+
+				ImGui::PushItemWidth(-15.f);
+
+				ImGui::Text("Intensity:"); ImGui::SameLine();
+				ImGui::DragFloat("##LightIntLabel", &light.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+
+				ImGui::Text("Attenuation:"); ImGui::SameLine();
+				ImGui::DragFloat2("##LightAttLabel", &light.attenuation.x, 0.001f, 0.f, 1.f, nullptr, ImGuiSliderFlags_Logarithmic);
+				
+				ImGui::Text("Colour:"); //ImGui::SameLine();
+				ImGui::ColorEdit3("##LightColLabel", &light.colour.x);
+
+				ImGui::PopItemWidth();
+			}
+			ImGui::EndChildFrame();
+			
+		}
 	}
 
 	void Editor::InspectMaterial(ImGuiID& id, const ImVec2& Size)

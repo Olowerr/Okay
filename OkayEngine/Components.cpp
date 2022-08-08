@@ -10,11 +10,6 @@ Okay::CompMesh::CompMesh()
 	AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
 }
 
-Okay::CompMesh::CompMesh(std::ifstream& reader)
-{
-	ReadPrivateData(reader);
-}
-
 Okay::CompMesh::CompMesh(const std::string& meshName)
 	:mesh(Engine::GetAssets().GetMesh(meshName))
 {

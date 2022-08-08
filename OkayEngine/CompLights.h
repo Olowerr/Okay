@@ -16,5 +16,16 @@ namespace Okay
 		float intensity;
 		Float3 colour;
 		Float2 attenuation;
+
+		void WritePrivateData(std::ofstream& writer)
+		{
+			writer.write((const char*)this, sizeof(CompPointLight));
+		}
+
+		void ReadPrivateData(std::ifstream& reader)
+		{
+			reader.read((char*)this, sizeof(CompPointLight));
+		}
+			
 	};
 }

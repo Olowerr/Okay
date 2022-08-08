@@ -93,8 +93,12 @@ void Renderer::Render()
 	mainCamera->Update();
 
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
-	DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
-	DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
+	
+	if (numLights)
+	{
+		DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
+		DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
+	}
 
 	for (size_t i = 0; i < numActive; i++)
 	{
