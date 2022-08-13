@@ -11,6 +11,8 @@ public:
 	Entity(entt::entity id, Scene* scene)
 		:entityId(id), pScene(scene) { }
 
+	Entity& operator=(const Entity&) = default;
+
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)
 	{
@@ -30,6 +32,12 @@ public:
 		return pScene->GetRegistry().get<T>(entityId);
 	}
 
+	template<typename T>
+	bool RemoveComponent()
+	{
+		return pScene->GetRegistry().remove<T>(entityId);
+	}
+
 	operator entt::entity() { return entityId; }
 	operator entt::entity() const { return entityId; }
 
@@ -37,8 +45,6 @@ public:
 	bool IsValid() const { return entityId != entt::null; }
 
 	void SetInvalid() { entityId = entt::null; pScene = nullptr; }
-	// Maybe temp
-	void Set(entt::entity id, Scene* scene) { entityId = id; pScene = scene; }
 
 private:
 	entt::entity entityId;

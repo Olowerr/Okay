@@ -206,11 +206,11 @@
     <ClInclude Include="Application.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Keys.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="CompLights.h">
       <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Keys.h">
+      <Filter>Okay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

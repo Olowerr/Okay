@@ -181,13 +181,13 @@ namespace Okay
 			{
 				if (ImGui::Selectable(entities.get<Okay::CompTag>(entity).tag, entity == currentEntity))
 				{
-					currentEntity.Set(entity, Engine::GetActiveScene());
+					currentEntity = Entity(entity, Engine::GetActiveScene());
 					UpdateSelection(AssetType::ENTITY);
 				}
 
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					currentEntity.Set(entity, Engine::GetActiveScene());
+					currentEntity = Entity(entity, Engine::GetActiveScene());
 					UpdateSelection(AssetType::ENTITY);
 
 					entityMenu = true;
@@ -507,8 +507,29 @@ namespace Okay
 
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
+		static ImVec2 mousePos;
 		
+		static bool add = false;
+		static bool remove = false;
+
 		ImGui::Text("Entity: %s", currentEntity.GetComponent<CompTag>().tag);
+		
+		ImGui::SameLine();
+		if (ImGui::Button("Add"))
+		{
+			add = true;
+			remove = false;
+			mousePos = ImGui::GetMousePos();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Remove"))
+		{
+			remove = true;
+			add = false;
+			mousePos = ImGui::GetMousePos();
+		}
+
 		ImGui::Separator();
 
 		// Transform
@@ -608,6 +629,32 @@ namespace Okay
 			ImGui::EndChildFrame();
 			
 		}
+
+		if (add || remove)
+		{
+			static bool open = false;
+			if (OpenMenuWindow(mousePos, "CompMenu", &open))
+			{
+				if (ImGui::MenuItem("Mesh"))
+				{
+					if (add)
+						currentEntity.AddComponent<CompMesh>();
+					else
+					{
+						if (currentEntity.RemoveComponent<CompMesh>())
+							printf("Removed");
+					}
+				}
+				if (ImGui::MenuItem("Point Light"))
+				{
+					if (add)
+						currentEntity.AddComponent<CompPointLight>();
+					else
+						currentEntity.RemoveComponent<CompPointLight>();
+				}
+			}
+		}
+
 	}
 
 	void Editor::InspectMaterial(ImGuiID& id, const ImVec2& Size)
