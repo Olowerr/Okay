@@ -133,7 +133,6 @@ namespace Okay
 		assets.TryImport(text);
 	}
 
-
 	void Editor::DisplayEntityList()
 	{
 		if (!ImGui::Begin("Entity List"))
@@ -154,7 +153,7 @@ namespace Okay
 			UpdateSelection(AssetType::ENTITY);
 
 			// TEMP
-			currentEntity.AddComponent<Okay::CompMesh>("cube.OkayAsset");
+			currentEntity.AddComponent<CompMesh>("cube.OkayAsset");
 		}
 
 		ImGui::SameLine();
@@ -179,7 +178,7 @@ namespace Okay
 			
 			for (auto entity : entities)
 			{
-				if (ImGui::Selectable(entities.get<Okay::CompTag>(entity).tag, entity == currentEntity))
+				if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
 				{
 					currentEntity = Entity(entity, Engine::GetActiveScene());
 					UpdateSelection(AssetType::ENTITY);
@@ -205,9 +204,6 @@ namespace Okay
 			ImGui::EndListBox();
 		}
 
-		if (ImGui::IsKeyReleased(ImGuiKey_P))
-			entityMenu = false;
-
 		ImGui::End();
 
 
@@ -221,9 +217,9 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("###", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						currentEntity.GetComponent<Okay::CompTag>().tag = newName;
+						currentEntity.GetComponent<CompTag>().tag = newName;
 						newName = "";
 					}
 
@@ -396,7 +392,7 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					/*if (ImGui::InputText("##inputName", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					/*if (ImGui::InputText("##inputName", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
 						//assets.ChangeMeshName(pMesh, newName);
 						newName = "";
@@ -423,7 +419,7 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					if (ImGui::InputText("##inputName", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("##inputName", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
 						assets.ChangeMaterialName(pMaterial, newName);
 						newName = "";
@@ -450,7 +446,7 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					/*if (ImGui::InputText("###", newName, sizeof(Okay::String), ImGuiInputTextFlags_EnterReturnsTrue))
+					/*if (ImGui::InputText("###", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
 						assets.ChangeTextureName(pTexture, newName);
 						newName = "";
@@ -462,7 +458,6 @@ namespace Okay
 
 				if (ImGui::MenuItem("Remove"))
 				{
-					old = pTexture;
 					assets.RemoveTexture(pTexture);
 					UpdateSelection(AssetType::NONE);
 					texMenu = false;
@@ -508,36 +503,56 @@ namespace Okay
 		Scene* pScene = Engine::GetActiveScene();
 		auto& reg = pScene->GetRegistry();
 		static ImVec2 mousePos;
-		
-		static bool add = false;
-		static bool remove = false;
 
 		ImGui::Text("Entity: %s", currentEntity.GetComponent<CompTag>().tag);
 		
-		ImGui::SameLine();
-		if (ImGui::Button("Add"))
+		//ImGui::SameLine();
+		ImGui::PushItemWidth(-1.f);
+		if (ImGui::BeginCombo("##AddComp", "Add Component"))
 		{
-			add = true;
-			remove = false;
-			mousePos = ImGui::GetMousePos();
-		}
+			if (ImGui::Selectable("Mesh"))
+			{
+				if (!currentEntity.HasComponent<CompMesh>())
+					currentEntity.AddComponent<CompMesh>();
+			}
+			
+			else if (ImGui::Selectable("Point Light"))
+			{
+				if (!currentEntity.HasComponent<CompPointLight>())
+					currentEntity.AddComponent<CompPointLight>();
+			}
+			
 
-		ImGui::SameLine();
-		if (ImGui::Button("Remove"))
-		{
-			remove = true;
-			add = false;
-			mousePos = ImGui::GetMousePos();
+			ImGui::EndCombo();
 		}
+		if (ImGui::BeginCombo("##RemComp", "Remove Component"))
+		{
+			if (ImGui::Selectable("Mesh"))
+			{
+				if (currentEntity.HasComponent<CompMesh>())
+					currentEntity.RemoveComponent<CompMesh>();
+			}
+			
+			else if (ImGui::Selectable("Point Light"))
+			{
+				if (currentEntity.HasComponent<CompPointLight>())
+					currentEntity.RemoveComponent<CompPointLight>();
+			}
+			
+
+			ImGui::EndCombo();
+		}
+		ImGui::PopItemWidth();
 
 		ImGui::Separator();
+
 
 		// Transform
 		if (ImGui::BeginChildFrame(id++, { Size.x, 100.f }))
 		{
 			ImGui::Text("Transform Component");
 			ImGui::Separator();
-			auto& tra = currentEntity.GetComponent<Okay::CompTransform>();
+			auto& tra = currentEntity.GetComponent<CompTransform>();
 
 			ImGui::PushItemWidth(-15.f);
 
@@ -552,14 +567,14 @@ namespace Okay
 
 			ImGui::PopItemWidth();
 
-
 			tra.CalcMatrix();
+
 		}
 		ImGui::EndChildFrame();
 
 
 		// Mesh
-		if (currentEntity.HasComponent<Okay::CompMesh>())
+		if (currentEntity.HasComponent<CompMesh>())
 		{
 			if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
 			{
@@ -598,16 +613,17 @@ namespace Okay
 
 					ImGui::EndCombo();
 				}
+
 			}
 			ImGui::PopItemWidth();
 			ImGui::EndChildFrame();
 		}
 
-		if (currentEntity.HasComponent<Okay::CompPointLight>())
+		if (currentEntity.HasComponent<CompPointLight>())
 		{
 			if (ImGui::BeginChildFrame(id++, { Size.x, 120.f }))
 			{
-				Okay::CompPointLight& light = currentEntity.GetComponent<Okay::CompPointLight>();
+				CompPointLight& light = currentEntity.GetComponent<CompPointLight>();
 
 
 				ImGui::Text("Point Light");
@@ -625,36 +641,10 @@ namespace Okay
 				ImGui::ColorEdit3("##LightColLabel", &light.colour.x);
 
 				ImGui::PopItemWidth();
+
 			}
 			ImGui::EndChildFrame();
-			
 		}
-
-		if (add || remove)
-		{
-			static bool open = false;
-			if (OpenMenuWindow(mousePos, "CompMenu", &open))
-			{
-				if (ImGui::MenuItem("Mesh"))
-				{
-					if (add)
-						currentEntity.AddComponent<CompMesh>();
-					else
-					{
-						if (currentEntity.RemoveComponent<CompMesh>())
-							printf("Removed");
-					}
-				}
-				if (ImGui::MenuItem("Point Light"))
-				{
-					if (add)
-						currentEntity.AddComponent<CompPointLight>();
-					else
-						currentEntity.RemoveComponent<CompPointLight>();
-				}
-			}
-		}
-
 	}
 
 	void Editor::InspectMaterial(ImGuiID& id, const ImVec2& Size)

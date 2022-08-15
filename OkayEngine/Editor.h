@@ -41,8 +41,6 @@ namespace Okay
 		std::weak_ptr<Texture> pTexture;
 		Entity currentEntity;
 
-		std::weak_ptr<Texture> old;
-
 		enum struct AssetType { NONE, MESH, MATERIAL, TEXTURE, ENTITY };
 		AssetType type = AssetType::NONE;
 
@@ -89,7 +87,6 @@ namespace Okay
 		void DisplayContent();
 		void DisplayInspector();
 
-
 		bool OpenMenuWindow(const ImVec2& pos, const char* name, bool* openFlag = nullptr)
 		{
 			static const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
@@ -108,7 +105,6 @@ namespace Okay
 			return false;
 		}
 		void OpenFileExplorer();
-
 
 	private: // helpful variables
 		Okay::String newName;
