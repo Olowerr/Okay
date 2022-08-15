@@ -66,8 +66,6 @@ bool Assets::AddMesh(const std::string& filePath)
 	size_t pos = filePath.find_last_of('/');
 	pos = pos == -1 ? filePath.find_last_of('\\') : pos;
 
-	std::string fileName = filePath.substr(pos + 1);
-	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
 	std::string fileLocation = filePath.substr(0, pos + 1);
 
@@ -93,6 +91,9 @@ bool Assets::AddMesh(const std::string& filePath)
 		
 		AddMaterial(matDesc);
 	}
+
+	std::string fileName = filePath.substr(pos + 1);
+	fileName = fileName.substr(0, fileName.find_last_of('.'));
 
 	// Create the mesh
 	meshes[fileName] = std::make_shared<Okay::Mesh>(data, fileName);
@@ -271,20 +272,24 @@ bool Assets::LoadDeclared()
 {
 	VERIFY(ReadDeclaration());
 
-	for (const auto& file : decMeshes)
+	std::string file;
+
+	for (const Okay::String& mesh : decMeshes)
 	{
-		// Add the fileExtension here instead of it being in the name // or ?
+		file = mesh;
+		file = file.substr(0, file.find_last_of('.'));
+		//file += ".OkayAsset";
 
 		// Attempt to load the file
 		Okay::VertexData data;
-		if (!Importer::LoadOkayAsset(file.c_str, data))
+		if (!Importer::LoadOkayAsset(file, data))
 			continue;
 
 		// Create mesh and insert into map
-		meshes[file.c_str] = std::make_shared<Okay::Mesh>(data, file);
+		meshes[file] = std::make_shared<Okay::Mesh>(data, file);
 	}
 
-	for (const auto& texture : decTextures)
+	for (const Okay::String& texture : decTextures)
 	{
 		if (!Okay::Texture::IsValid(TexturePath + texture.c_str))
 			continue;
@@ -292,7 +297,7 @@ bool Assets::LoadDeclared()
 		textures[texture.c_str] = std::make_shared<Okay::Texture>(TexturePath + texture.c_str);
 	}
 
-	for (const auto& materialDesc : decMaterials)
+	for (const Okay::MaterialDesc_Strs& materialDesc : decMaterials)
 	{
 		materials[materialDesc.name.c_str] = std::make_shared<Okay::Material>(materialDesc);
 	}

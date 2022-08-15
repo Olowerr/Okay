@@ -151,9 +151,6 @@ namespace Okay
 		{
 			currentEntity = pScene->CreateEntity();
 			UpdateSelection(AssetType::ENTITY);
-
-			// TEMP
-			currentEntity.AddComponent<CompMesh>("cube.OkayAsset");
 		}
 
 		ImGui::SameLine();
@@ -161,7 +158,7 @@ namespace Okay
 		if (ImGui::Button("Remove") && currentEntity.IsValid())
 		{
 			pScene->DestroyEntity(currentEntity);
-			currentEntity.SetInvalid();
+			UpdateSelection(AssetType::NONE);
 		}
 
 		ImGui::Separator();

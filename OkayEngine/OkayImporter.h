@@ -14,18 +14,18 @@ class Importer
 private:
 	friend class Assets; 
 
-	static bool Load(const std::string& meshFile, Okay::VertexData& outData, std::string* texPath);
+	static bool Load(const std::string_view& meshFile, Okay::VertexData& outData, std::string* texPath);
 
 	static bool WriteOkayAsset(const std::string& meshFile, const Okay::VertexData& vertexData);
 
 	static bool LoadOkayAsset(const std::string& meshFile, Okay::VertexData& vertexData);
 };
 
-inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outData, std::string* texPaths)
+inline bool Importer::Load(const std::string_view& meshFile, Okay::VertexData& outData, std::string* texPaths)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(meshFile,
+	const aiScene* pScene = importer.ReadFile(meshFile.data(),
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	VERIFY(pScene);
@@ -94,7 +94,7 @@ inline bool Importer::Load(const std::string& meshFile, Okay::VertexData& outDat
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[2];
 	}
 
-	return WriteOkayAsset(meshFile, outData);
+	return WriteOkayAsset(meshFile.data(), outData);
 }
 
 inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData)
@@ -124,7 +124,7 @@ inline bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::Ve
 
 inline bool Importer::LoadOkayAsset(const std::string& fileName, Okay::VertexData& vertexData)
 {
-	std::ifstream reader("../Content/Meshes/" + fileName, std::ios::binary);
+	std::ifstream reader("../Content/Meshes/" + fileName + ".OkayAsset", std::ios::binary);
 	VERIFY(reader);
 
 	// info[0] = NumVertex, info[1] = NumIndex
