@@ -45,7 +45,12 @@ namespace Okay
 
 		static void NewFrame();
 		static void EndFrame();
+		
+		static void StartScene();
 		static void Update();
+		static void EndScene();
+
+		static void Render();
 
 		static bool LoadScene(const Okay::String& sceneName);
 		static bool LoadScene(UINT sceneIndex);
@@ -59,6 +64,7 @@ namespace Okay
 		static Scene* GetActiveScene() { return Get().activeScene.get(); }
 
         static float GetDT() { return Get().deltaTime.count(); };
+        static float GetUpTime() { return Get().upTime.count(); };
 
 		// Inputs
         static void SetKeyUp(UINT key)
@@ -81,14 +87,7 @@ namespace Okay
 
         std::chrono::duration<float> deltaTime;
         std::chrono::time_point<std::chrono::system_clock> frameStart;
-
-		template<typename T>
-		static void foo(T* tPtr, std::ofstream& writer)
-		{
-			Okay::Components type = T::ID;
-			writer.write((const char*)&type, sizeof(Okay::Components));
-			tPtr->WritePrivateData(writer);
-		}
+		std::chrono::duration<float> upTime;
 
 	private: // Scenes
 		static const Okay::String SceneDecleration;

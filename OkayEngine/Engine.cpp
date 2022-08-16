@@ -4,7 +4,7 @@ const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecl
 bool Okay::Engine::keys[]{};
 
 Okay::Engine::Engine()
-	:deltaTime()
+	:deltaTime(), upTime()
 {
 	printf("Engine Start\n");
 
@@ -61,6 +61,12 @@ void Okay::Engine::EndFrame()
 	DX11::Get().EndFrame();
 
 	Get().deltaTime = std::chrono::system_clock::now() - Get().frameStart;
+	Get().upTime += Get().deltaTime;
+}
+
+void Okay::Engine::StartScene()
+{
+	Get().activeScene->Start();
 }
 
 void Okay::Engine::Update()
@@ -68,12 +74,22 @@ void Okay::Engine::Update()
 	Get().activeScene->Update();
 }
 
+void Okay::Engine::EndScene()
+{
+	Get().activeScene->End();
+}
+
+void Okay::Engine::Render()
+{
+	Get().activeScene->Submit();
+	Get().renderer.Render();
+}
+
 bool Okay::Engine::SaveCurrentScene()
 {
 	std::ofstream writer(SceneDecleration.c_str, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
-	activeScene->Stop();
 	entt::registry& registry = activeScene->GetRegistry();
 
 	// Might change
@@ -159,7 +175,6 @@ bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 		ReadEntity(ent, reader);
 	}
 
-	Get().activeScene->Start();
 	return true;
 }
 

@@ -123,6 +123,9 @@
     <ClCompile Include="Main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Scripts.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h">
@@ -206,11 +209,11 @@
     <ClInclude Include="Application.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="CompLights.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="Keys.h">
       <Filter>Okay</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts.h">
+      <Filter>ECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

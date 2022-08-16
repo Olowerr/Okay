@@ -3,7 +3,7 @@
 
 #include "ShaderModel.h"
 #include "Camera.h"
-#include "CompLights.h"
+#include "Components.h"
 
 class Renderer	
 {

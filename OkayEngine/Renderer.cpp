@@ -102,7 +102,7 @@ void Renderer::Render()
 
 	for (size_t i = 0; i < numActive; i++)
 	{
-		CompMesh& cMesh= *meshesToRender.at(i).mesh;
+		CompMesh& cMesh = *meshesToRender.at(i).mesh;
 		const CompTransform& transform = *meshesToRender.at(i).transform;
 		auto material = cMesh.GetMaterial();
 		auto mesh = cMesh.GetMesh();

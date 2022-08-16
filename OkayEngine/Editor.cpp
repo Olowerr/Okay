@@ -42,7 +42,7 @@ namespace Okay
 		delete editor;
 	}
 
-	bool Editor::Update()
+	void Editor::Update()
 	{
 		static bool dockSpace = true;
 
@@ -63,12 +63,11 @@ namespace Okay
 		ImGui::End();
 
 		editor->DisplayEntityList();
-
 		editor->DisplayInspector();
-
 		editor->DisplayContent();
 
-		ImVec2 size(1600.f, 900.f);
+		static ImVec2 size(WIN_W, WIN_H);
+
 		// Declare Viewport window
 		if (ImGui::Begin("Viewport", nullptr))
 			size = ImGui::GetWindowSize();
@@ -78,10 +77,8 @@ namespace Okay
 		if ((UINT)size.x != dx11.GetMainWidth() || (UINT)size.y != dx11.GetMainHeight())
 		{
 			dx11.ResizeMainBuffer((UINT)size.x, (UINT)size.y);
-			return true;
+			Engine::GetRenderer().Resize();
 		}
-
-		return false;
 	}
 
 	void Editor::NewFrame()

@@ -37,6 +37,9 @@ void Application::Run()
 {
 	using namespace Okay;
 
+#ifndef EDITOR
+	Engine::StartScene();
+#endif
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
@@ -54,12 +57,12 @@ void Application::Run()
 
 
 #ifdef EDITOR
-		if (Editor::Update())
-			Engine::GetRenderer().Resize();
-#endif
+		Editor::Update();
+#else
 		Engine::Update();
+#endif
 
-		Engine::GetRenderer().Render();
+		Engine::Render();
 
 #ifdef EDITOR
 		Editor::EndFrame();
@@ -67,8 +70,12 @@ void Application::Run()
 		Engine::EndFrame();
 	}
 
-	// Will change with scene switching
+#ifndef EDITOR
+	Engine::EndScene();
+#else
 	Engine::SaveCurrent(); 
+#endif
+
 }
 
 #ifdef EDITOR

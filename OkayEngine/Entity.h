@@ -3,6 +3,8 @@
 #include "Scene.h"
 #include "Entt/Entt.hpp"
 
+class CompScript;
+
 class Entity
 {
 public:
@@ -12,6 +14,13 @@ public:
 		:entityId(id), pScene(scene) { }
 
 	Entity& operator=(const Entity&) = default;
+
+	template<typename T>
+	void AddScript()
+	{
+		// emplace_or_replace temp
+		pScene->GetRegistry().emplace_or_replace<CompScript>(entityId, new T(*this));
+	}
 
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)

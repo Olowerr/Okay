@@ -17,7 +17,10 @@ public:
 	// Maybe temp
 	void Start();
 	void Update();
-	void Stop();
+	void Submit();
+	void End();
+
+	entt::entity last;
 
 private:
 	entt::registry registry;

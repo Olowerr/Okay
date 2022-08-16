@@ -1,9 +1,6 @@
 #include "Scene.h"
 #include "Engine.h"
-#include <algorithm>
-
-// temp
-#include "CompLights.h"
+#include "Scripts.h"
 
 Scene::Scene()
     :index(-1)
@@ -21,6 +18,9 @@ Entity Scene::CreateEntity()
     entity.AddComponent<Okay::CompTransform>();
     entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
+    // Temp
+    last = entity.GetID();
+
     return entity;
 }
 
@@ -31,11 +31,26 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::Start()
 {
-    //Entity entity = CreateEntity();
-    //entity.AddComponent<Okay::CompPointLight>();
+    // Temp
+    Entity test(last, this);
+   // test.AddScript<RotateScript>();
+    test.AddScript<HoverScript>();
+
+    registry.view<CompScript>().each([](CompScript& script)
+    {
+        script.Start();
+    });
 }
 
 void Scene::Update()
+{
+    registry.view<CompScript>().each([](CompScript& script)
+    {
+        script.Update();
+    });
+}
+
+void Scene::Submit()
 {
     Renderer& ren = Okay::Engine::GetRenderer();
 
@@ -47,11 +62,13 @@ void Scene::Update()
     const auto& lightView = registry.view<Okay::CompPointLight, Okay::CompTransform>();
     for (auto& entity : lightView)
         ren.SubmitLight(&lightView.get<Okay::CompPointLight>(entity), &lightView.get<Okay::CompTransform>(entity));
+
 }
 
-void Scene::Stop()
+void Scene::End()
 {
-    //const auto& view = registry.view<Okay::CompPointLight>();
-    //for (auto& entity : view)
-    //    registry.destroy(entity);
+    registry.view<CompScript>().each([](CompScript& script)
+    {
+        script.Destroy();
+    });
 }

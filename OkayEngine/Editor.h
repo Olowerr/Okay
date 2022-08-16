@@ -22,7 +22,7 @@ namespace Okay
 		static bool Create();
 		static void Destroy();
 
-		static bool Update();
+		static void Update();
 
 		static void NewFrame();
 		static void EndFrame();

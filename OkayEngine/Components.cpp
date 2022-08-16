@@ -162,3 +162,16 @@ void Okay::CompTag::ReadPrivateData(std::ifstream& reader)
 {
 	reader.read(tag.c_str, sizeof(Okay::String));
 }
+
+
+/* ------ Point Light Component ------ */
+
+void Okay::CompPointLight::WritePrivateData(std::ofstream& writer)
+{
+	writer.write((const char*)this, sizeof(CompPointLight));
+}
+
+void Okay::CompPointLight::ReadPrivateData(std::ifstream& reader)
+{
+	reader.read((char*)this, sizeof(CompPointLight));
+}

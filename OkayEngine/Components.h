@@ -3,7 +3,6 @@
 #include "Material.h"
 
 
-
 namespace Okay // Structs for now, change to classes
 {
 	enum struct Components
@@ -75,6 +74,23 @@ namespace Okay // Structs for now, change to classes
 		CompTag(const String& tag) :tag(tag) { }
 
 		String tag;
+
+		void WritePrivateData(std::ofstream& writer);
+		void ReadPrivateData(std::ifstream& reader);
+	};
+
+	struct CompPointLight
+	{
+		static const Components ID = Components::PointLight;
+
+		CompPointLight()
+			:intensity(2.f), colour(WHITE), attenuation(0.2f, 0.0f) { }
+		CompPointLight(float intensity, Float3 colour, Float2 attentuation)
+			:intensity(intensity), colour(colour), attenuation(attentuation) { }
+
+		float intensity;
+		Float3 colour;
+		Float2 attenuation;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
