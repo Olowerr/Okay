@@ -8,7 +8,6 @@ class ScriptBehaviour
 public:
 	ScriptBehaviour(Entity entity)
 		:entity(entity) { }
-
 	virtual ~ScriptBehaviour() { }
 
 	virtual void Start() { }
@@ -50,17 +49,17 @@ class CompScript
 public:
 
 	CompScript() = default;
-	~CompScript() { OkayDelete(entity); }
+	~CompScript() { OkayDelete(pScript); }
 
 	CompScript(ScriptBehaviour* pScript)
-		:entity(pScript) { }
+		:pScript(pScript) { }
 
-	void Start() { entity->Start();  }
-	void Update() { entity->Update(); }
-	void Destroy()  { entity->Destroy(); }
+	void Start()	{ pScript->Start();   }
+	void Update()	{ pScript->Update();  }
+	void Destroy()  { pScript->Destroy(); }
 
 private:
-	ScriptBehaviour* entity;
+	ScriptBehaviour* pScript;
 };
 
 
