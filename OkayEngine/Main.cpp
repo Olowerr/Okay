@@ -21,6 +21,44 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
+    Assimp::Importer importer;
+
+    const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\StickANi.fbx",
+        aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+
+    auto ani = pScene->mAnimations[0];
+    auto mesh = pScene->mMeshes[0];
+    
+    std::vector<aiVertexWeight> weights[3];
+
+    int idx = 0;
+
+    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
+    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
+    idx++;
+
+    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
+    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
+    idx++;
+
+    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
+    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
+
+    std::vector<aiVector3t<float>> verts(mesh->mNumVertices);
+    memcpy(verts.data(), mesh->mVertices, sizeof(aiVector3t<float>) * verts.size());
+
+    std::vector< aiVector3t<float>> weightVerts(weights[2].size());
+
+    std::vector<aiNodeAnim> nodes(ani->mNumChannels);
+    for (size_t i = 0; i < nodes.size(); i++)
+        nodes[i] = *ani->mChannels[i];
+    
+
+    for (size_t i = 0; i < weights[2].size(); i++)
+        weightVerts[i] = verts[weights[1][i].mVertexId];
+    
+    return 0;
+
     Application application;
 
 	if (!application.Initiate())
