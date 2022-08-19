@@ -15,7 +15,10 @@ void RedirectIOToConsole();
 
 struct TimeStamp
 {
-    float time;
+    TimeStamp()
+        :scale(1.f, 1.f, 1.f) { }
+
+    float time = 0.f;
     aiVector3t<float> pos;
     aiQuaterniont<float> rot;
     aiVector3t<float> scale;
@@ -23,24 +26,76 @@ struct TimeStamp
 
 struct Joint
 {
-    std::string parentName;
-    aiMatrix4x4 bindPose;
+    std::string name;
+    int parentIdx = -1;
+    aiMatrix4x4 baseMatrix;
     std::vector<TimeStamp> stamps;
 };
 
-void FindParentName(std::map<std::string, Joint>& joints, aiNode* node)
+int FindJointIndex(std::vector<Joint>& joints, std::string_view name)
 {
-    if (joints.find(node->mName.C_Str()) != joints.end())
+    for (int i = 0; i < (int)joints.size(); i++)
     {
-        // skip scaling->rotation->preRotation->translation
-        std::string_view parentJointName = node->mParent->mParent->mParent->mParent->mParent->mName.C_Str();
+        if (joints[i].name == name)
+            return i;
+    }
 
-        if (parentJointName != "RootNode")
-            joints[node->mName.C_Str()].parentName = parentJointName;
+    return -1;
+}
+
+aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child)
+{
+    // Is root?
+    if (!child->mParent)
+        return nullptr;
+
+    // Is the parent node a joint?
+    if (FindJointIndex(joints, child->mParent->mName.C_Str()) != -1)
+        return child->mParent;
+    
+    // Continue searching...
+    return GetParentNode(joints, child->mParent);
+}
+
+void SetParents(std::vector<Joint>& joints, aiNode* node)
+{
+    int currentJointIdx = FindJointIndex(joints, node->mName.C_Str());
+    if (currentJointIdx != -1)
+    {
+        aiNode* pParent = GetParentNode(joints, node);
+        if (pParent)
+        {
+            joints[currentJointIdx].parentIdx = FindJointIndex(joints, pParent->mName.C_Str());
+        }
     }
 
     for (UINT i = 0; i < node->mNumChildren; i++)
-        FindParentName(joints, node->mChildren[i]);
+        SetParents(joints, node->mChildren[i]);
+}
+
+void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* parent)
+{
+    for (UINT i = 0; i < parent->mNumChildren; i++)
+    {
+        nodes[parent->mChildren[i]->mName.C_Str()] = parent->mChildren[i];
+        FillNodes(nodes, parent->mChildren[i]);
+    }
+}
+
+aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component)
+{
+    for (aiNodeAnim* node : vec)
+    {
+        std::string_view nodeName = node->mNodeName.C_Str();
+
+        if (nodeName.find(name) != -1)
+        {
+            if (nodeName.find(component) != -1)
+                return node;
+        }
+    }
+
+    return nullptr;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -53,75 +108,80 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
     Assimp::Importer importer;
 
-    const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\StickANi.fbx",
+    const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk.fbx",
         aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
-
+    
     auto ani = pScene->mAnimations[0];
     auto mesh = pScene->mMeshes[0];
+
+    std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
+    memcpy(aniNodes.data(), ani->mChannels, sizeof(ani->mChannels) * ani->mNumChannels);
+
+    ///////////////////
+
+    std::unordered_map<std::string_view, aiNode*> nodes;
+    FillNodes(nodes, pScene->mRootNode);
+
+    std::vector<Joint> joints(mesh->mNumBones);
     
-    std::vector<aiVertexWeight> weights[3];
-
-    int idx = 0;
-
-    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
-    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
-    idx++;
-
-    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
-    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
-    idx++;
-
-    weights[idx].resize((mesh->mBones[idx]->mNumWeights));
-    memcpy(weights[idx].data(), mesh->mBones[idx]->mWeights, sizeof(aiVertexWeight) * weights[idx].size());
-
-    std::vector<aiVector3t<float>> verts(mesh->mNumVertices);
-    memcpy(verts.data(), mesh->mVertices, sizeof(aiVector3t<float>) * verts.size());
-
-    std::vector< aiVector3t<float>> weightVerts(weights[2].size());
-    for (size_t i = 0; i < weights[2].size(); i++)
-        weightVerts[i] = verts[weights[1][i].mVertexId];
-
-    std::vector<aiNodeAnim> aniChannels(ani->mNumChannels);
-    for (size_t i = 0; i < aniChannels.size(); i++)
-        aniChannels[i] = *ani->mChannels[i];
- 
-    std::map<std::string, Joint> joints;
     for (UINT i = 0; i < mesh->mNumBones; i++)
     {
-        auto& traChannel = *ani->mChannels[i * 3];
-        auto& rotChannel = *ani->mChannels[i * 3 + 1];
-        auto& scaChannel = *ani->mChannels[i * 3 + 2];
+        joints[i].name = mesh->mBones[i]->mName.C_Str();
+        joints[i].baseMatrix = mesh->mBones[i]->mOffsetMatrix;
 
-        Joint& joint = joints[mesh->mBones[i]->mName.C_Str()];
+        aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
+        aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
+        aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
 
-        joint.bindPose = mesh->mBones[i]->mOffsetMatrix;
+        const size_t numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
+        joints[i].stamps.resize(numKeys);
 
-        joint.stamps.resize(traChannel.mNumPositionKeys);
-        for (size_t i = 0; i < joint.stamps.size(); i++)
+        for (size_t k = 0; k < numKeys; k++)
         {
-            joint.stamps[i].time = (float)traChannel.mPositionKeys[i].mTime;
-
-            joint.stamps[i].pos = traChannel.mPositionKeys[i].mValue;
-            joint.stamps[i].rot = rotChannel.mRotationKeys[i].mValue;
-            joint.stamps[i].scale = scaChannel.mScalingKeys[i].mValue;
+            if      (traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
+            else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
+            else if (scaChannel) joints[i].stamps[k].time = (float)scaChannel->mScalingKeys[k].mTime;
+                   
+            if (traChannel) joints[i].stamps[k].pos   = traChannel->mPositionKeys[k].mValue;
+            if (rotChannel) joints[i].stamps[k].rot   = rotChannel->mRotationKeys[k].mValue;
+            if (scaChannel) joints[i].stamps[k].scale = scaChannel->mScalingKeys[k].mValue;
         }
     }
 
-    FindParentName(joints, pScene->mRootNode);
+    SetParents(joints, pScene->mRootNode);
 
-    //for (aiNode* node : nodes)
-    //{
-    //    if (joints.find(node->mName.C_Str()) == joints.end())
-    //        continue;
+    struct VtxWeight
+    {
+        UINT jointIdx[4]{};
+        float weight[4]{};
+    };
 
-    //    // skip scaling->rotation->preRotation->translation
-    //    aiNode* parent = node->mParent->mParent->mParent->mParent->mParent;
+    // size is temp
+    std::vector<VtxWeight> weights(mesh->mNumVertices);
+    for (UINT i = 0; i < mesh->mNumBones; i++)
+    {
+        for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
+        {
+            aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
+            VtxWeight& currVertex = weights[aiWeight.mVertexId];
 
-    //    if (std::string_view(parent->mName.C_Str()) != "RootNode")
-    //        joints[node->mName.C_Str()].parentName = parent->mName.C_Str();
-    //}
+            if      (currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
+            else if (currVertex.weight[1] == 0.f) { currVertex.weight[1] = aiWeight.mWeight; currVertex.jointIdx[1] = i; }
+            else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
+            else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
 
+        }
+    }
 
+    for (size_t i = 0; i < joints.size(); i++)
+    {
+        if (joints[i].parentIdx >= (int)i)
+        {
+            printf("Wtf: %d\n", (int)i);
+            
+        }
+    }
+    
     return 0;
 
     Application application;
