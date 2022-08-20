@@ -3,7 +3,7 @@ struct InputVertex
 	float3 pos : POSITION;
 	float2 uv : UV;
 	float3 normal : NORMAL;
-	uint4 idx : JOINTIDX;
+	uint4 jointIdx : JOINTIDX;
 	float4 weight : WEIGHTS;
 };
 
@@ -29,11 +29,19 @@ cbuffer Camera : register(b0)
 	float camPad1;*/
 };
 
+struct Joint
+{
+	float4x4 transform;
+};
+
+StructuredBuffer<Joint> joints : register(t0);
+
 TransformedVertex main(InputVertex input)
 {
 	TransformedVertex output;
 
-	output.worldPos = input.pos;
+	output.worldPos = mul(float4(input.pos, 1.f), joints[input.jointIdx.x].transform).xyz;
+
 	output.svPos = mul(float4(output.worldPos, 1.f), viewProjectMatrix);
 
 	output.normal = input.normal;

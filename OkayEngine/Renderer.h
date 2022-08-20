@@ -99,13 +99,21 @@ private: // Create Shaders
 	{
 		std::string name;
 		int parentIdx = -1;
-		aiMatrix4x4 baseMatrix;
+		DirectX::XMMATRIX bindPose{};
+		DirectX::XMMATRIX matrix{};
 		std::vector<TimeStamp> stamps;
 	};
 
 
+	
+	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
+	ID3D11Buffer* aniBuffer;
+	ID3D11ShaderResourceView* aniSRV;
+	float aniDuration;
+	float aniTime;
+
 	ID3D11VertexShader* aniVS = nullptr;
-	ID3D11InputLayout* aniIL;
+	ID3D11InputLayout*  aniIL;
 	std::unique_ptr<Okay::SkeletalMesh> goblin;
 	std::vector<Joint> joints;
 
@@ -179,15 +187,18 @@ private: // Create Shaders
 		auto ani = pScene->mAnimations[0];
 		auto mesh = pScene->mMeshes[0];
 
+		aniDuration = (float)ani->mDuration;
+		aniTime = 0.f;
+
 		std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
 		memcpy(aniNodes.data(), ani->mChannels, sizeof(ani->mChannels) * ani->mNumChannels);
 
+		aniMatrices.resize(mesh->mNumBones);
 		joints.resize(mesh->mNumBones);
 		for (UINT i = 0; i < mesh->mNumBones; i++)
 		{
 			joints[i].name = mesh->mBones[i]->mName.C_Str();
-			joints[i].baseMatrix = mesh->mBones[i]->mOffsetMatrix;
-
+			
 			aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
 			aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
 			aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
@@ -213,18 +224,26 @@ private: // Create Shaders
 
 		// size is temp
 		data.weights.resize(mesh->mNumVertices);
+
 		for (UINT i = 0; i < mesh->mNumBones; i++)
 		{
+			memcpy(&joints[i].bindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+			
+			if (i > 0)
+				joints[i].bindPose = joints[joints[i].parentIdx].bindPose * joints[i].bindPose;
+
+			joints[i].bindPose = DirectX::XMMatrixInverse(nullptr, joints[i].bindPose);
+
+
 			for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
 			{
 				aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
 				Okay::SkinnedVertex& currVertex = data.weights[aiWeight.mVertexId];
 
-				if (currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
+				if		(currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
 				else if (currVertex.weight[1] == 0.f) { currVertex.weight[1] = aiWeight.mWeight; currVertex.jointIdx[1] = i; }
 				else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
 				else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
-
 			}
 		}
 
@@ -259,6 +278,48 @@ private: // Create Shaders
 		goblin = std::make_unique<Okay::SkeletalMesh>(data);
 	}
 
+	void CalculateAnimation()
+	{
+		size_t currentStamp = 0;
+		for (size_t i = 0; i < joints[0].stamps.size(); i++)
+		{
+			if (aniTime < joints[0].stamps[i].time)
+			{
+				currentStamp = i - 1;
+				if (currentStamp == -1)
+					currentStamp = 0;
+
+				break;
+			}
+		}
+		
+		printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
+
+		using namespace DirectX;
+		TimeStamp& root = joints[0].stamps[currentStamp];
+		joints[0].matrix =
+			XMMatrixScaling(root.scale.x, root.scale.y, root.scale.y) *
+			XMMatrixRotationQuaternion(XMVectorSet(root.rot.x, root.rot.y, root.rot.z, root.rot.w)) *
+			XMMatrixTranslation(root.pos.x, root.pos.y, root.pos.z) * joints[0].bindPose;
+
+		for (size_t i = 1; i < joints.size(); i++)
+		{
+			TimeStamp& stamp = joints[i].stamps[currentStamp];
+
+			joints[i].matrix = joints[joints[i].parentIdx].matrix *
+				XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.y) *
+				XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
+				XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z) *
+				joints[i].bindPose;
+
+		}
+
+		for (size_t i = 0; i < joints.size(); i++)
+			XMStoreFloat4x4(&aniMatrices[i], XMMatrixTranspose(joints[i].matrix));
+		
+		DX11::UpdateBuffer(aniBuffer, aniMatrices.data(), UINT(sizeof(XMFLOAT4X4) * aniMatrices.size()));
+
+	}
 };
 
 

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Engine.h"
 
 Renderer::Renderer()
 	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
@@ -20,21 +21,23 @@ Renderer::Renderer()
 	CreateVS();
 	CreateHS();
 	CreateDS();
-	ID3D11SamplerState* simp;
-	D3D11_SAMPLER_DESC desc;
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.MinLOD = -FLT_MAX;
-	desc.MaxLOD = FLT_MAX;
-	desc.MipLODBias = 0.f;
-	desc.MaxAnisotropy = 1U;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
+	{
+		ID3D11SamplerState* simp;
+		D3D11_SAMPLER_DESC desc;
+		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.MinLOD = -FLT_MAX;
+		desc.MaxLOD = FLT_MAX;
+		desc.MipLODBias = 0.f;
+		desc.MaxAnisotropy = 1U;
+		desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
 
-	pDevContext->PSSetSamplers(0, 1, &simp);
-	simp->Release();
+		pDevContext->PSSetSamplers(0, 1, &simp);
+		simp->Release();
+	}
 
 	Bind();
 	shaderModel->Bind();
@@ -43,8 +46,9 @@ Renderer::Renderer()
 	numActive = 0;
 	numLights = 0;
 
-
 	CreateSkeletal();
+	DX11::CreateStructuredBuffer<DirectX::XMFLOAT4X4A>(&aniBuffer, nullptr, (UINT)joints.size(), false);
+	DX11::CreateStructuredSRV<DirectX::XMFLOAT4X4A>(&aniSRV, aniBuffer, (UINT)joints.size());
 }
 
 Renderer::~Renderer()
@@ -101,7 +105,12 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pPointLightBuffer);
 	DX11_RELEASE(pPointLightSRV);
 	DX11_RELEASE(pLightInfoBuffer);
-}
+
+	DX11_RELEASE(aniVS);
+	DX11_RELEASE(aniIL);
+	DX11_RELEASE(aniBuffer);
+	DX11_RELEASE(aniSRV);
+}				 
 
 void Renderer::Render()
 {
@@ -117,6 +126,9 @@ void Renderer::Render()
 		DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
 		DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
 	}
+
+	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
+	pDevContext->IASetInputLayout(pInputLayout);
 
 	for (size_t i = 0; i < numActive; i++)
 	{
@@ -134,13 +146,21 @@ void Renderer::Render()
 		mesh->Draw();
 	}
 
+	// Very Wrong but it's fine :)
+	aniTime += Okay::Engine::GetDT() * 10;
+	if (aniTime > aniDuration)
+		aniTime -= aniDuration;
 
-	DX11& dx = DX11::Get();
+	CalculateAnimation();
+
 	pDevContext->IASetInputLayout(aniIL);
 	pDevContext->IASetIndexBuffer(goblin->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	pDevContext->IASetVertexBuffers(0, Okay::SkeletalMesh::NumBuffers, goblin->vertexBuffer, Okay::SkeletalMesh::Stride, Okay::SkeletalMesh::Offset);
 
 	pDevContext->VSSetShader(aniVS, nullptr, 0);
+	pDevContext->VSSetShaderResources(0, 1, &aniSRV);
+
+	pDevContext->DrawIndexed(goblin->numIndices, 0, 0);
 
 	shaderModel->UnBind();
 }

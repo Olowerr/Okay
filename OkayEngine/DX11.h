@@ -61,7 +61,7 @@ public:
 		inData.SysMemPitch = 0;
 		inData.SysMemSlicePitch = 0;
 		
-		return Get().pDevice->CreateBuffer(&desc, &inData, ppBuffer);
+		return Get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 	}
 
 	template<typename T>
