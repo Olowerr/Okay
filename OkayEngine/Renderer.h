@@ -241,8 +241,8 @@ private: // Create Shaders
 		for (UINT i = 0; i < mesh->mNumBones; i++)
 		{
 			memcpy(&joints[i].bindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-			joints[i].bindPose = DirectX::XMMatrixInverse(nullptr, joints[i].bindPose);
-			joints[i].bindPose = DirectX::XMMatrixTranspose(joints[i].bindPose);
+			//joints[i].bindPose = DirectX::XMMatrixInverse(nullptr, joints[i].bindPose);
+			//joints[i].bindPose = DirectX::XMMatrixTranspose(joints[i].bindPose);
 
 
 			for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
