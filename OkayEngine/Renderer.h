@@ -10,6 +10,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include <unordered_map>
 
 class Renderer	
 {
@@ -174,6 +175,15 @@ private: // Create Shaders
 		return nullptr;
 	}
 
+	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root)
+	{
+		for (UINT i = 0; i < root->mNumChildren; i++)
+		{
+			nodes[root->mChildren[i]->mName.C_Str()] = root->mChildren[i];
+			FillNodes(nodes, root->mChildren[i]);
+		}
+	}
+
 	void CreateSkeletal()
 	{
 		Assimp::Importer importer;
@@ -189,6 +199,9 @@ private: // Create Shaders
 
 		aniDuration = (float)ani->mDuration;
 		aniTime = 0.f;
+
+		std::unordered_map<std::string_view, aiNode*> nodes;
+
 
 		std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
 		memcpy(aniNodes.data(), ani->mChannels, sizeof(ani->mChannels) * ani->mNumChannels);
@@ -228,11 +241,8 @@ private: // Create Shaders
 		for (UINT i = 0; i < mesh->mNumBones; i++)
 		{
 			memcpy(&joints[i].bindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-			
-			if (i > 0)
-				joints[i].bindPose = joints[joints[i].parentIdx].bindPose * joints[i].bindPose;
-
 			joints[i].bindPose = DirectX::XMMatrixInverse(nullptr, joints[i].bindPose);
+			joints[i].bindPose = DirectX::XMMatrixTranspose(joints[i].bindPose);
 
 
 			for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
@@ -298,24 +308,25 @@ private: // Create Shaders
 		using namespace DirectX;
 		TimeStamp& root = joints[0].stamps[currentStamp];
 		joints[0].matrix =
-			XMMatrixScaling(root.scale.x, root.scale.y, root.scale.y) *
+			(XMMatrixScaling(root.scale.x, root.scale.y, root.scale.z) *
 			XMMatrixRotationQuaternion(XMVectorSet(root.rot.x, root.rot.y, root.rot.z, root.rot.w)) *
-			XMMatrixTranslation(root.pos.x, root.pos.y, root.pos.z) * joints[0].bindPose;
+			XMMatrixTranslation(root.pos.x, root.pos.y, root.pos.z)) *
+			joints[0].bindPose;
 
 		for (size_t i = 1; i < joints.size(); i++)
 		{
 			TimeStamp& stamp = joints[i].stamps[currentStamp];
 
 			joints[i].matrix = joints[joints[i].parentIdx].matrix *
-				XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.y) *
+				(XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
 				XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
-				XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z) *
+				XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z)) *
 				joints[i].bindPose;
 
 		}
 
 		for (size_t i = 0; i < joints.size(); i++)
-			XMStoreFloat4x4(&aniMatrices[i], XMMatrixTranspose(joints[i].matrix));
+			XMStoreFloat4x4(&aniMatrices[i], joints[i].matrix);
 		
 		DX11::UpdateBuffer(aniBuffer, aniMatrices.data(), UINT(sizeof(XMFLOAT4X4) * aniMatrices.size()));
 
