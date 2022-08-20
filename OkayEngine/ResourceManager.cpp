@@ -4,6 +4,7 @@
 Assets::Assets()
 {
 	// Make sure Okay::Engine::Get() is never called here
+	printf("Assets Constructor\n");
 }
 
 Assets::~Assets()

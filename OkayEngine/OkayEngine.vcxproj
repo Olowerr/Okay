@@ -194,6 +194,7 @@
     <ClCompile Include="Scripts.cpp" />
     <ClCompile Include="ShaderModel.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="Texture.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -238,6 +239,7 @@
     </ClInclude>
     <ClInclude Include="Scripts.h" />
     <ClInclude Include="ShaderModel.h" />
+    <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="stb_image.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -264,6 +266,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='D_Editor|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SkeletalMeshVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='D_Editor|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

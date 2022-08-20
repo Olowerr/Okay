@@ -57,7 +57,7 @@ namespace Okay
 		char c_str[Size]{};
 
 	private:
-		UINT GetMinLength(const char* string) const
+		static UINT GetMinLength(const char* string)
 		{
 			return (UINT)strlen(string) < Size ? (UINT)strlen(string) : Size;
 		}

@@ -20,8 +20,8 @@ namespace Okay
 		const String& GetName() const;
 
 		static const UINT NumBuffers = 2;
-		static const UINT Stride[2];
-		static const UINT Offset[2];
+		static const UINT Stride[NumBuffers];
+		static const UINT Offset[NumBuffers];
 
 	private:
 		const String name;

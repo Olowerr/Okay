@@ -14,4 +14,10 @@ namespace Okay
 		Float2 uv;
 		Float3 normal;
 	};
+
+	struct SkinnedVertex
+	{
+		unsigned int jointIdx[4]{};
+		float weight[4]{};
+	};
 }

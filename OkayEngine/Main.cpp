@@ -73,15 +73,6 @@ void SetParents(std::vector<Joint>& joints, aiNode* node)
         SetParents(joints, node->mChildren[i]);
 }
 
-void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* parent)
-{
-    for (UINT i = 0; i < parent->mNumChildren; i++)
-    {
-        nodes[parent->mChildren[i]->mName.C_Str()] = parent->mChildren[i];
-        FillNodes(nodes, parent->mChildren[i]);
-    }
-}
-
 aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component)
 {
     for (aiNodeAnim* node : vec)
@@ -106,9 +97,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     RedirectIOToConsole();
 #endif // CONSOLE_ENABLE
 
+    Application application;
+
+    if (!application.Initiate())
+        return -1;
+
+    application.Run();
+    application.Shutdown();
+
+    return 0;
+
     Assimp::Importer importer;
 
-    const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk.fbx",
+    const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\StickANi.fbx",
         aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
     
     auto ani = pScene->mAnimations[0];
@@ -118,9 +119,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     memcpy(aniNodes.data(), ani->mChannels, sizeof(ani->mChannels) * ani->mNumChannels);
 
     ///////////////////
-
-    std::unordered_map<std::string_view, aiNode*> nodes;
-    FillNodes(nodes, pScene->mRootNode);
 
     std::vector<Joint> joints(mesh->mNumBones);
     
@@ -183,16 +181,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     }
     
     return 0;
-
-    Application application;
-
-	if (!application.Initiate())
-		return -1;
-	
-    application.Run();
-    application.Shutdown();
-	 
-	return 0;
 }
 
 

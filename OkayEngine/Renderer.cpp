@@ -16,10 +16,25 @@ Renderer::Renderer()
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 	
-
+	aniVS;
 	CreateVS();
 	CreateHS();
 	CreateDS();
+	ID3D11SamplerState* simp;
+	D3D11_SAMPLER_DESC desc;
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.MinLOD = -FLT_MAX;
+	desc.MaxLOD = FLT_MAX;
+	desc.MipLODBias = 0.f;
+	desc.MaxAnisotropy = 1U;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
+
+	pDevContext->PSSetSamplers(0, 1, &simp);
+	simp->Release();
 
 	Bind();
 	shaderModel->Bind();
@@ -27,6 +42,9 @@ Renderer::Renderer()
 	meshesToRender.resize(10);
 	numActive = 0;
 	numLights = 0;
+
+
+	CreateSkeletal();
 }
 
 Renderer::~Renderer()
@@ -116,6 +134,14 @@ void Renderer::Render()
 		mesh->Draw();
 	}
 
+
+	DX11& dx = DX11::Get();
+	pDevContext->IASetInputLayout(aniIL);
+	pDevContext->IASetIndexBuffer(goblin->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	pDevContext->IASetVertexBuffers(0, Okay::SkeletalMesh::NumBuffers, goblin->vertexBuffer, Okay::SkeletalMesh::Stride, Okay::SkeletalMesh::Offset);
+
+	pDevContext->VSSetShader(aniVS, nullptr, 0);
+
 	shaderModel->UnBind();
 }
 
@@ -150,22 +176,7 @@ void Renderer::Bind()
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 	pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
 
-	ID3D11SamplerState* simp;
-	D3D11_SAMPLER_DESC desc;
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.MinLOD = -FLT_MAX;
-	desc.MaxLOD = FLT_MAX;
-	desc.MipLODBias = 0.f;
-	desc.MaxAnisotropy = 1U;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
-
-	pDevContext->PSSetSamplers(0, 1, &simp);
-
-	simp->Release();
+	
 
 }
 
@@ -182,6 +193,20 @@ bool Renderer::CreateVS()
 	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
+
+
+	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"UV",		 0, DXGI_FORMAT_R32G32_FLOAT,		1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"WEIGHTS",	 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	VERIFY(Okay::ReadShader("SkeletalMeshVS.cso", shaderData));
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &aniIL));
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &aniVS));
+
 
 	return true;
 }

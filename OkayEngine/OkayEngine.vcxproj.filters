@@ -126,6 +126,9 @@
     <ClCompile Include="Scripts.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
+    <ClCompile Include="SkeletalMesh.cpp">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h">
@@ -215,6 +218,9 @@
     <ClInclude Include="Scripts.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletalMesh.h">
+      <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MeshVS.hlsl">
@@ -222,6 +228,9 @@
     </FxCompile>
     <FxCompile Include="PhongPS.hlsl">
       <Filter>Shader Models\Default\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkeletalMeshVS.hlsl">
+      <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
