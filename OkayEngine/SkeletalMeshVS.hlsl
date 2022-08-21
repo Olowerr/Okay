@@ -40,7 +40,20 @@ TransformedVertex main(InputVertex input)
 {
 	TransformedVertex output;
 
-	output.worldPos = mul(float4(input.pos, 1.f), joints[input.jointIdx.x].transform).xyz;
+
+#if 0
+	output.worldPos = float3(0.f, 0.f, 0.f);
+	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.x].transform).xyz * input.weight.x;
+	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.y].transform).xyz * input.weight.y;
+	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.z].transform).xyz * input.weight.z;
+	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.w].transform).xyz * input.weight.w;
+#else
+	float4x4 mat = joints[input.jointIdx.x].transform * input.weight.x;
+	mat += joints[input.jointIdx.y].transform * input.weight.y;
+	mat += joints[input.jointIdx.z].transform * input.weight.z;
+	mat += joints[input.jointIdx.w].transform * input.weight.w;
+	output.worldPos = mul(float4(input.pos, 1.f), mat).xyz;
+#endif	
 
 	output.svPos = mul(float4(output.worldPos, 1.f), viewProjectMatrix);
 
