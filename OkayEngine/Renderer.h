@@ -100,7 +100,7 @@ private: // Create Shaders
 	{
 		std::string name;
 		int parentIdx = -1;
-		DirectX::XMMATRIX bindPose{};
+		DirectX::XMMATRIX invBindPose{};
 		DirectX::XMMATRIX localT{};
 		DirectX::XMMATRIX modelT{};
 		DirectX::XMMATRIX finalT{};

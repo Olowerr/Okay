@@ -380,8 +380,8 @@ void Renderer::CreateSkeletal()
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
-		memcpy(&joints[i].bindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-		joints[i].bindPose = DirectX::XMMatrixTranspose(joints[i].bindPose);
+		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
 
 		for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
 		{
@@ -468,9 +468,8 @@ void Renderer::CalculateAnimation(float dt)
 		XMMatrixRotationQuaternion(XMVectorSet(rootStamp.rot.x, rootStamp.rot.y, rootStamp.rot.z, rootStamp.rot.w)) *
 		XMMatrixTranslation(rootStamp.pos.x, rootStamp.pos.y, rootStamp.pos.z);
 
-	//joints[0].localT = XMMatrixIdentity();
 	joints[0].modelT = joints[0].localT;
-	joints[0].finalT = joints[0].modelT * joints[0].bindPose;
+	joints[0].finalT = joints[0].modelT * joints[0].invBindPose;
 
 	for (size_t i = 1; i < joints.size(); i++)
 	{
@@ -482,10 +481,9 @@ void Renderer::CalculateAnimation(float dt)
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
 			XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z);
 
-		//joints[i].localT = XMMatrixIdentity();
 		joints[i].modelT = joints[joints[i].parentIdx].modelT * joints[i].localT;
 
-		joints[i].finalT = joints[i].modelT * joints[i].bindPose;
+		joints[i].finalT = joints[i].modelT * joints[i].invBindPose;
 
 	}
 
