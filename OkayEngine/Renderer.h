@@ -210,6 +210,9 @@ private: // Create Shaders
 
 		aniMatrices.resize(mesh->mNumBones);
 		joints.resize(mesh->mNumBones);
+
+		size_t numKeys = 0;
+
 		for (UINT i = 0; i < mesh->mNumBones; i++)
 		{
 			joints[i].name = mesh->mBones[i]->mName.C_Str();
@@ -218,10 +221,13 @@ private: // Create Shaders
 			aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
 			aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
 
-			const size_t numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
+			size_t temp = numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
+			if (temp > numKeys)
+				numKeys = temp;
+
 			joints[i].stamps.resize(numKeys);
 
-			for (size_t k = 0; k < numKeys; k++)
+			for (size_t k = 0; k < temp; k++)
 			{
 				if (traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
 				else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
@@ -231,6 +237,12 @@ private: // Create Shaders
 				if (rotChannel) joints[i].stamps[k].rot = rotChannel->mRotationKeys[k].mValue;
 				if (scaChannel) joints[i].stamps[k].scale = scaChannel->mScalingKeys[k].mValue;
 			}
+		}
+
+		for (Joint& joint : joints)
+		{
+			if (joint.stamps.size() < numKeys)
+				joint.stamps.resize(numKeys);
 		}
 
 		SetParents(joints, pScene->mRootNode);
