@@ -127,11 +127,12 @@ Okay::CompTransform::CompTransform(Float3 pos, Float3 rot, Float3 scale)
 void Okay::CompTransform::CalcMatrix()
 {
 	using namespace DirectX;
-	XMStoreFloat4x4(&matrix, XMMatrixTranspose(
+	auto t = XMMatrixTranspose(
 		XMMatrixScaling(scale.x, scale.y, scale.z) *
 		XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 		XMMatrixTranslation(position.x, position.y, position.z)
-	));
+	);
+	XMStoreFloat4x4(&matrix, t);
 }
 
 void Okay::CompTransform::WritePrivateData(std::ofstream& writer)

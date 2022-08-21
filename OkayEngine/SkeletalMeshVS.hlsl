@@ -44,7 +44,7 @@ TransformedVertex main(InputVertex input)
 
 	output.svPos = mul(float4(output.worldPos, 1.f), viewProjectMatrix);
 
-	output.normal = input.normal;
+	output.normal = mul(float4(input.normal, 0.f), joints[input.jointIdx.x].transform).xyz;
 	output.uv = input.uv;
 
 	return output;
