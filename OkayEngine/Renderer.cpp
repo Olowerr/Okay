@@ -306,7 +306,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi3.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi4.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -323,7 +323,7 @@ void Renderer::CreateSkeletal()
 	FillNodes(nodes, pScene->mRootNode);
 
 	std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
-	memcpy(aniNodes.data(), ani->mChannels, sizeof(ani->mChannels) * ani->mNumChannels);
+	memcpy(aniNodes.data(), ani->mChannels, sizeof(aiNodeAnim*) * ani->mNumChannels);
 
 	aniMatrices.resize(mesh->mNumBones);
 	joints.resize(mesh->mNumBones);
@@ -388,11 +388,23 @@ void Renderer::CreateSkeletal()
 			aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
 			Okay::SkinnedVertex& currVertex = data.weights[aiWeight.mVertexId];
 
-			if (currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
+			if		(currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
 			else if (currVertex.weight[1] == 0.f) { currVertex.weight[1] = aiWeight.mWeight; currVertex.jointIdx[1] = i; }
 			else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
 			else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
 		}
+	}
+
+	// 1.2, 0, 0, 0 -> 1.2 / 1.2
+	// 1.3, 0.5, 0.1, 0 -> 1.9
+
+	for (auto& weight : data.weights)
+	{
+		float sum = weight.weight[0] + weight.weight[1] + weight.weight[2] + weight.weight[3];
+		weight.weight[0] /= sum;
+		weight.weight[1] /= sum;
+		weight.weight[2] /= sum;
+		weight.weight[3] /= sum;
 	}
 
 	data.position.resize(mesh->mNumVertices);
@@ -429,28 +441,23 @@ void Renderer::CreateSkeletal()
 void Renderer::CalculateAnimation(float dt)
 {
 	static size_t currentStamp = 0;
-	//static const float AniDur = aniDuration / tickPerSec;
+	static const float AniDur = aniDuration / tickPerSec;
+	static float tickTime = 0.f;
 
-	//aniTime += dt;
-	//if (aniTime > (1.f / tickPerSec))
-	//{
-	//	if (aniTime > AniDur)
-	//		aniTime = 0.f;
-	//}
+	tickTime += dt;
+	aniTime += dt;
 
-	//for (size_t i = 0; i < joints[0].stamps.size(); i++)
-	//{
-	//	if (aniTime < joints[0].stamps[i].time)
-	//	{
-	//		currentStamp = i - 1;
-	//		if (currentStamp == -1)
-	//			currentStamp = 0;
+	if (tickTime > (1.f / tickPerSec))
+	{
+		tickTime = 0.f;
+		currentStamp++;	
+	}
+	if (aniTime > AniDur || currentStamp >= joints[0].stamps.size())
+	{
+		aniTime = 0.f;
+		currentStamp = 0;
+	}
 
-	//		break;
-	//	}
-	//}
-	//
-	//currentStamp = 0;
 	printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
@@ -469,6 +476,7 @@ void Renderer::CalculateAnimation(float dt)
 	{
 		TimeStamp& stamp = joints[i].stamps[currentStamp];
 
+		
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
