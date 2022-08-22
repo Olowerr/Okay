@@ -306,7 +306,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi4.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk2.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -314,6 +314,38 @@ void Renderer::CreateSkeletal()
 
 	auto ani = pScene->mAnimations[0];
 	auto mesh = pScene->mMeshes[0];
+	Okay::SkeletalMesh::VertexData data;
+
+	// Mesh
+	{
+		data.position.resize(mesh->mNumVertices);
+		memcpy(data.position.data(), mesh->mVertices, sizeof(Okay::Float3) * mesh->mNumVertices);
+
+		// Vertex UV & mesh
+		data.uvNormal.resize(mesh->mNumVertices);
+		for (UINT i = 0; i < mesh->mNumVertices; i++)
+		{
+			data.uvNormal[i].normal.x = mesh->mNormals[i].x;
+			data.uvNormal[i].normal.y = mesh->mNormals[i].y;
+			data.uvNormal[i].normal.z = mesh->mNormals[i].z;
+
+			data.uvNormal[i].uv.x = mesh->mTextureCoords[0][i].x;
+			data.uvNormal[i].uv.y = mesh->mTextureCoords[0][i].y;
+		}
+
+		// Indices
+		UINT counter = 0;
+		const UINT NumIndices = mesh->mNumFaces * 3;
+
+		data.indices.resize(NumIndices);
+		for (UINT i = 0; i < mesh->mNumFaces; i++)
+		{
+			data.indices[counter++] = mesh->mFaces[i].mIndices[0];
+			data.indices[counter++] = mesh->mFaces[i].mIndices[1];
+			data.indices[counter++] = mesh->mFaces[i].mIndices[2];
+		}
+	}
+	
 
 	aniDuration = (float)ani->mDuration;
 	tickPerSec = (float)ani->mTicksPerSecond;
@@ -373,10 +405,7 @@ void Renderer::CreateSkeletal()
 
 	SetParents(joints, pScene->mRootNode);
 
-	Okay::SkeletalMesh::VertexData data;
-
-	// size is temp
-	data.weights.resize(mesh->mNumVertices);
+	data.weights.resize(data.indices.size());
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
@@ -395,43 +424,13 @@ void Renderer::CreateSkeletal()
 		}
 	}
 
-	// 1.2, 0, 0, 0 -> 1.2 / 1.2
-	// 1.3, 0.5, 0.1, 0 -> 1.9
-
-	for (auto& weight : data.weights)
+	for (Okay::SkinnedVertex& weight : data.weights)
 	{
 		float sum = weight.weight[0] + weight.weight[1] + weight.weight[2] + weight.weight[3];
 		weight.weight[0] /= sum;
 		weight.weight[1] /= sum;
 		weight.weight[2] /= sum;
 		weight.weight[3] /= sum;
-	}
-
-	data.position.resize(mesh->mNumVertices);
-	memcpy(data.position.data(), mesh->mVertices, sizeof(Okay::Float3) * mesh->mNumVertices);
-
-	// Vertex UV & mesh
-	data.uvNormal.resize(mesh->mNumVertices);
-	for (UINT i = 0; i < mesh->mNumVertices; i++)
-	{
-		data.uvNormal[i].normal.x = mesh->mNormals[i].x;
-		data.uvNormal[i].normal.y = mesh->mNormals[i].y;
-		data.uvNormal[i].normal.z = mesh->mNormals[i].z;
-
-		data.uvNormal[i].uv.x = mesh->mTextureCoords[0][i].x;
-		data.uvNormal[i].uv.y = mesh->mTextureCoords[0][i].y;
-	}
-
-	// Indices
-	UINT counter = 0;
-	const UINT NumIndices = mesh->mNumFaces * 3;
-
-	data.indices.resize(NumIndices);
-	for (UINT i = 0; i < mesh->mNumFaces; i++)
-	{
-		data.indices[counter++] = mesh->mFaces[i].mIndices[0];
-		data.indices[counter++] = mesh->mFaces[i].mIndices[1];
-		data.indices[counter++] = mesh->mFaces[i].mIndices[2];
 	}
 
 
@@ -469,7 +468,7 @@ void Renderer::CalculateAnimation(float dt)
 		XMMatrixTranslation(rootStamp.pos.x, rootStamp.pos.y, rootStamp.pos.z);
 
 	joints[0].modelT = joints[0].localT;
-	joints[0].finalT = joints[0].modelT * joints[0].invBindPose;
+	joints[0].finalT = joints[0].invBindPose * joints[0].modelT;
 
 	for (size_t i = 1; i < joints.size(); i++)
 	{
@@ -481,9 +480,9 @@ void Renderer::CalculateAnimation(float dt)
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
 			XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z);
 
-		joints[i].modelT = joints[joints[i].parentIdx].modelT * joints[i].localT;
+		joints[i].modelT = joints[i].localT * joints[joints[i].parentIdx].modelT;
 
-		joints[i].finalT = joints[i].modelT * joints[i].invBindPose;
+		joints[i].finalT = joints[i].invBindPose * joints[i].modelT;
 
 	}
 
