@@ -306,7 +306,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickani5.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -369,36 +369,33 @@ void Renderer::CreateSkeletal()
 	aniMatrices.resize(mesh->mNumBones);
 	joints.resize(mesh->mNumBones);
 
-	size_t numKeys = 0;
+	size_t numKeys = 0, highestNumKeys = 0;
+
+	std::vector<bool> jointHasTra(mesh->mNumBones, false);
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
 		joints[i].name = mesh->mBones[i]->mName.C_Str();
+		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
+
 
 		aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
 		aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
 		aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
+		jointHasTra[i] = (bool)traChannel;
 
-
-
-#if 1
-		size_t temp = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
-		if (temp > numKeys)
-			numKeys = temp;
-
-		joints[i].stamps.resize(numKeys);
-
-		for (size_t k = 0; k < temp; k++)
-#else
 		size_t numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
-		joints[i].stamps.resize(numKeys);
+		if (numKeys > highestNumKeys)
+			highestNumKeys = numKeys;
 
-		printf("%s : %zd\n", joints[i].name.c_str(), numKeys);
+		if (!numKeys)
+			continue;
 
+		joints[i].stamps.resize(highestNumKeys);
 		for (size_t k = 0; k < numKeys; k++)
-#endif
 		{
-			if (traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
+			if		(traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
 			else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
 			else if (scaChannel) joints[i].stamps[k].time = (float)scaChannel->mScalingKeys[k].mTime;
 
@@ -408,21 +405,55 @@ void Renderer::CreateSkeletal()
 		}
 	}
 
-	for (Joint& joint : joints)
+	SetParents(joints, pScene->mRootNode);
+
+	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
-		if (joint.stamps.size() < numKeys)
-			joint.stamps.resize(numKeys);
+		Joint& joint = joints[i];
+		int q = 0;
+		if (joint.stamps.size() < highestNumKeys || !jointHasTra[i])
+		{
+			joint.stamps.resize(highestNumKeys);
+			const std::string nodeName(std::string(joint.name) + "_$AssimpFbx$_Translation");
+			
+			if (nodes.find(nodeName) != nodes.end())
+			{
+				auto& n = nodes[nodeName];
+				for (TimeStamp& stamp : joint.stamps)
+				{
+					stamp.pos.x = nodes[nodeName]->mTransformation.a4;
+					stamp.pos.y = nodes[nodeName]->mTransformation.b4;
+					stamp.pos.z = nodes[nodeName]->mTransformation.c4;
+				}
+			}
+			else
+			{
+				aiVector3t<float> pos;
+				if (joint.parentIdx != -1)
+				{
+					pos.x = joint.invBindPose.r[3].m128_f32[0] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[0];
+					pos.y = joint.invBindPose.r[3].m128_f32[1] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[1];
+					pos.z = joint.invBindPose.r[3].m128_f32[2] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[2];
+				}
+				else
+				{
+					pos.x = joint.invBindPose.r[3].m128_f32[0] * -1.f;
+					pos.y = joint.invBindPose.r[3].m128_f32[1] * -1.f;
+					pos.z = joint.invBindPose.r[3].m128_f32[2] * -1.f;
+				}
+
+				for (TimeStamp& stamp : joint.stamps)
+					stamp.pos = pos;
+
+			}
+		}
 	}
 
-	SetParents(joints, pScene->mRootNode);
 
 	data.weights.resize(data.indices.size());
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
-		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
-
 		for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
 		{
 			aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
