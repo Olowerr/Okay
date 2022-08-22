@@ -306,7 +306,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk2.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi4.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
