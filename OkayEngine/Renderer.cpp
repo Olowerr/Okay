@@ -306,8 +306,12 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi4.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi7.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+	//
+	//Assimp::Importer importer2;
+	//const aiScene* pScene2 = importer2.ReadFile("..\\Content\\Meshes\\ani\\stickANi5.fbx",
+	//	aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
 		return;
@@ -320,7 +324,7 @@ void Renderer::CreateSkeletal()
 	{
 		data.position.resize(mesh->mNumVertices);
 		memcpy(data.position.data(), mesh->mVertices, sizeof(Okay::Float3) * mesh->mNumVertices);
-
+		
 		// Vertex UV & mesh
 		data.uvNormal.resize(mesh->mNumVertices);
 		for (UINT i = 0; i < mesh->mNumVertices; i++)
@@ -336,6 +340,7 @@ void Renderer::CreateSkeletal()
 		// Indices
 		UINT counter = 0;
 		const UINT NumIndices = mesh->mNumFaces * 3;
+		UINT highest = 0;
 
 		data.indices.resize(NumIndices);
 		for (UINT i = 0; i < mesh->mNumFaces; i++)
@@ -343,7 +348,15 @@ void Renderer::CreateSkeletal()
 			data.indices[counter++] = mesh->mFaces[i].mIndices[0];
 			data.indices[counter++] = mesh->mFaces[i].mIndices[1];
 			data.indices[counter++] = mesh->mFaces[i].mIndices[2];
+
+
+			if (mesh->mFaces[i].mIndices[0] > highest) highest = mesh->mFaces[i].mIndices[0];
+			if (mesh->mFaces[i].mIndices[1] > highest) highest = mesh->mFaces[i].mIndices[1];
+			if (mesh->mFaces[i].mIndices[2] > highest) highest = mesh->mFaces[i].mIndices[2];
+
 		}
+
+		int q = 0;
 	}
 	
 
