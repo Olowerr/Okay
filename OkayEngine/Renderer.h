@@ -91,8 +91,8 @@ private: // Create Shaders
 			:scale(1.f, 1.f, 1.f) { }
 
 		float time = 0.f;
-		aiQuaterniont<float> rot;
 		aiVector3t<float> pos;
+		aiQuaterniont<float> rot;
 		aiVector3t<float> scale;
 	};
 
@@ -112,9 +112,9 @@ private: // Create Shaders
 	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
 	ID3D11Buffer* aniBuffer;
 	ID3D11ShaderResourceView* aniSRV;
-	float aniDuration;
+	float aniDurationS;
 	float aniTime;
-	float tickPerSec;
+	float tickLengthS;
 
 	ID3D11VertexShader* aniVS = nullptr;
 	ID3D11InputLayout*  aniIL;

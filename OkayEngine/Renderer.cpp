@@ -306,12 +306,8 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi7.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
-	//
-	//Assimp::Importer importer2;
-	//const aiScene* pScene2 = importer2.ReadFile("..\\Content\\Meshes\\ani\\stickANi5.fbx",
-	//	aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
 		return;
@@ -360,8 +356,8 @@ void Renderer::CreateSkeletal()
 	}
 	
 
-	aniDuration = (float)ani->mDuration;
-	tickPerSec = (float)ani->mTicksPerSecond;
+	tickLengthS = 1.f / (float)ani->mTicksPerSecond;
+	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
 
 	std::unordered_map<std::string_view, aiNode*> nodes;
@@ -382,6 +378,8 @@ void Renderer::CreateSkeletal()
 		aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
 		aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
 		aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
+
+
 
 #if 1
 		size_t temp = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
@@ -453,18 +451,17 @@ void Renderer::CreateSkeletal()
 void Renderer::CalculateAnimation(float dt)
 {
 	static size_t currentStamp = 0;
-	static const float AniDur = aniDuration / tickPerSec;
 	static float tickTime = 0.f;
 
 	tickTime += dt;
 	aniTime += dt;
 
-	if (tickTime > (1.f / tickPerSec))
+	if (tickTime > tickLengthS)
 	{
 		tickTime = 0.f;
 		currentStamp++;	
 	}
-	if (aniTime > AniDur || currentStamp >= joints[0].stamps.size())
+	if (aniTime > aniDurationS || currentStamp >= joints[0].stamps.size())
 	{
 		aniTime = 0.f;
 		currentStamp = 0;
