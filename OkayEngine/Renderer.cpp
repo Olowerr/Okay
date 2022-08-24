@@ -293,20 +293,27 @@ aiNodeAnim* Renderer::FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_vie
 	return nullptr;
 }
 
+void Renderer::FillNodes(std::vector<aiNode*>& nodes, aiNode* root)
+{
+	for (UINT i = 0; i < root->mNumChildren; i++)
+	{
+		nodes.emplace_back(root->mChildren[i]);
+		FillNodes(nodes, root->mChildren[i]);
+	}
+}
+
 void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root)
 {
 	for (UINT i = 0; i < root->mNumChildren; i++)
 	{
-		nodes[root->mChildren[i]->mName.C_Str()] = root->mChildren[i];
+		nodes[root->mName.C_Str()] = (root->mChildren[i]);
 		FillNodes(nodes, root->mChildren[i]);
 	}
 }
 
 void Renderer::CreateSkeletal()
 {
-	Assimp::Importer importer;
-
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
+	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobStand.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -360,10 +367,10 @@ void Renderer::CreateSkeletal()
 	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
 
-	std::unordered_map<std::string_view, aiNode*> nodes;
 	FillNodes(nodes, pScene->mRootNode);
+	FillNodes(nodesMap, pScene->mRootNode);
 
-	std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
+	aniNodes.resize(ani->mNumChannels);
 	memcpy(aniNodes.data(), ani->mChannels, sizeof(aiNodeAnim*) * ani->mNumChannels);
 
 	aniMatrices.resize(mesh->mNumBones);
@@ -416,14 +423,15 @@ void Renderer::CreateSkeletal()
 			joint.stamps.resize(highestNumKeys);
 			const std::string nodeName(std::string(joint.name) + "_$AssimpFbx$_Translation");
 			
-			if (nodes.find(nodeName) != nodes.end())
+			if (nodesMap.find(nodeName) != nodesMap.end())
 			{
-				auto& n = nodes[nodeName];
+				printf("%s\n", nodeName.c_str());
+				auto& n = nodesMap[nodeName];
 				for (TimeStamp& stamp : joint.stamps)
 				{
-					stamp.pos.x = nodes[nodeName]->mTransformation.a4;
-					stamp.pos.y = nodes[nodeName]->mTransformation.b4;
-					stamp.pos.z = nodes[nodeName]->mTransformation.c4;
+					stamp.pos.x = nodesMap[nodeName]->mTransformation.a4;
+					stamp.pos.y = nodesMap[nodeName]->mTransformation.b4;
+					stamp.pos.z = nodesMap[nodeName]->mTransformation.c4;
 				}
 			}
 			else
@@ -498,7 +506,7 @@ void Renderer::CalculateAnimation(float dt)
 		currentStamp = 0;
 	}
 
-	printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
+	printf("Stamp: %zd | Time: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
 	TimeStamp& rootStamp = joints[0].stamps[currentStamp];
@@ -508,6 +516,7 @@ void Renderer::CalculateAnimation(float dt)
 		XMMatrixRotationQuaternion(XMVectorSet(rootStamp.rot.x, rootStamp.rot.y, rootStamp.rot.z, rootStamp.rot.w)) *
 		XMMatrixTranslation(rootStamp.pos.x, rootStamp.pos.y, rootStamp.pos.z);
 
+	
 	joints[0].modelT = joints[0].localT;
 	joints[0].finalT = joints[0].invBindPose * joints[0].modelT;
 
@@ -520,12 +529,14 @@ void Renderer::CalculateAnimation(float dt)
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
 			XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z);
-
+		
 		joints[i].modelT = joints[i].localT * joints[joints[i].parentIdx].modelT;
 
 		joints[i].finalT = joints[i].invBindPose * joints[i].modelT;
 
 	}
+
+
 
 	for (size_t i = 0; i < joints.size(); i++)
 		XMStoreFloat4x4(&aniMatrices[i], XMMatrixTranspose(joints[i].finalT));

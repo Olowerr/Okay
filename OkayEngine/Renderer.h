@@ -108,7 +108,12 @@ private: // Create Shaders
 	};
 
 
-	
+	Assimp::Importer importer;
+	const aiScene* pScene;
+	std::vector<aiNode*> nodes;
+	std::unordered_map<std::string_view, aiNode*> nodesMap;
+	std::vector<aiNodeAnim*> aniNodes;
+
 	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
 	ID3D11Buffer* aniBuffer;
 	ID3D11ShaderResourceView* aniSRV;
@@ -125,6 +130,7 @@ private: // Create Shaders
 	aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child);
 	void SetParents(std::vector<Joint>& joints, aiNode* node);
 	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
+	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
 	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
