@@ -313,7 +313,7 @@ void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, a
 
 void Renderer::CreateSkeletal()
 {
-	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobStand.fbx",
+	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -509,13 +509,14 @@ void Renderer::CalculateAnimation(float dt)
 	printf("Stamp: %zd | Time: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
+
+
 	TimeStamp& rootStamp = joints[0].stamps[currentStamp];
 
 	joints[0].localT =
 		XMMatrixScaling(rootStamp.scale.x, rootStamp.scale.y, rootStamp.scale.z) *
 		XMMatrixRotationQuaternion(XMVectorSet(rootStamp.rot.x, rootStamp.rot.y, rootStamp.rot.z, rootStamp.rot.w)) *
 		XMMatrixTranslation(rootStamp.pos.x, rootStamp.pos.y, rootStamp.pos.z);
-
 	
 	joints[0].modelT = joints[0].localT;
 	joints[0].finalT = joints[0].invBindPose * joints[0].modelT;
@@ -524,19 +525,15 @@ void Renderer::CalculateAnimation(float dt)
 	{
 		TimeStamp& stamp = joints[i].stamps[currentStamp];
 
-		
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *
 			XMMatrixTranslation(stamp.pos.x, stamp.pos.y, stamp.pos.z);
 		
 		joints[i].modelT = joints[i].localT * joints[joints[i].parentIdx].modelT;
-
 		joints[i].finalT = joints[i].invBindPose * joints[i].modelT;
 
 	}
-
-
 
 	for (size_t i = 0; i < joints.size(); i++)
 		XMStoreFloat4x4(&aniMatrices[i], XMMatrixTranspose(joints[i].finalT));
