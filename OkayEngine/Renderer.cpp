@@ -306,14 +306,14 @@ void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, a
 {
 	for (UINT i = 0; i < root->mNumChildren; i++)
 	{
-		nodes[root->mName.C_Str()] = (root->mChildren[i]);
+		nodes[root->mName.C_Str()] = root;
 		FillNodes(nodes, root->mChildren[i]);
 	}
 }
 
 void Renderer::CreateSkeletal()
 {
-	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
+	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobstand.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -425,7 +425,10 @@ void Renderer::CreateSkeletal()
 			
 			if (nodesMap.find(nodeName) != nodesMap.end())
 			{
-				printf("%s\n", nodeName.c_str());
+				printf("%s	|	", nodeName.c_str());
+				printf("X: %f, Y: %f, Z: %f\n", nodesMap[nodeName]->mTransformation.a4,
+					nodesMap[nodeName]->mTransformation.b4, nodesMap[nodeName]->mTransformation.c4);
+
 				auto& n = nodesMap[nodeName];
 				for (TimeStamp& stamp : joint.stamps)
 				{
@@ -436,6 +439,8 @@ void Renderer::CreateSkeletal()
 			}
 			else
 			{
+				printf("Else | %s\n", nodeName.c_str());
+
 				aiVector3t<float> pos;
 				if (joint.parentIdx != -1)
 				{
@@ -456,7 +461,6 @@ void Renderer::CreateSkeletal()
 			}
 		}
 	}
-
 
 	data.weights.resize(data.indices.size());
 
@@ -506,7 +510,7 @@ void Renderer::CalculateAnimation(float dt)
 		currentStamp = 0;
 	}
 
-	printf("Stamp: %zd | Time: %f\n", currentStamp, aniTime);
+	//printf("Stamp: %zd | Time: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
 
