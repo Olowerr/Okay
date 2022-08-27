@@ -13,9 +13,8 @@ namespace Okay
 		virtual ~Mesh();
 		virtual void Shutdown();
 
-		void Bind() const;			// Will change with instancing
-		void BindPosition() const;	// Will change with instancing
 		void Draw() const;			// Will change with instancing
+		void DrawGeometry() const;	// Will change with instancing
 
 		const String& GetName() const;
 

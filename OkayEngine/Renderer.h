@@ -87,26 +87,11 @@ private: // Create Shaders
 	// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
 
 
-	struct TimeStamp
-	{
-		TimeStamp()
-			:scale(1.f, 1.f, 1.f) { }
-
-		float time = 0.f;
-		aiVector3t<float> pos;
-		aiQuaterniont<float> rot;
-		aiVector3t<float> scale;
-	};
+	
 
 	struct Joint
 	{
-		std::string name;
-		int parentIdx = -1;
-		DirectX::XMMATRIX invBindPose{};
-		DirectX::XMMATRIX localT{};
-		DirectX::XMMATRIX modelT{};
-		DirectX::XMMATRIX finalT{};
-		std::vector<TimeStamp> stamps;
+		
 	};
 
 

@@ -9,6 +9,7 @@ namespace Okay // Structs for now, change to classes
 	{
 		None = 0,
 		Mesh,
+		SkeletalMesh,
 		Transform,
 		Tag,
 		PointLight
@@ -39,6 +40,40 @@ namespace Okay // Structs for now, change to classes
 		}
 
 		mutable std::weak_ptr<const Mesh> mesh;
+		mutable std::weak_ptr<const Material> material;
+
+		void WritePrivateData(std::ofstream& writer);
+		void ReadPrivateData(std::ifstream& reader);
+
+		void CheckMaterial() const;
+		void CheckMesh() const;
+	};
+
+	struct CompSkeletalMesh
+	{
+		static const Components ID = Components::SkeletalMesh;
+
+		CompSkeletalMesh();
+		CompSkeletalMesh(const std::string& meshName);
+
+		void AssignMesh(const std::string& meshName);
+		void AssignMesh(const std::shared_ptr<const Mesh>& mesh);
+
+		void AssignMaterial(UINT index, const Okay::String& materialName);
+		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);
+
+		std::shared_ptr<const Material> GetMaterial() const
+		{
+			CheckMaterial();
+			return std::shared_ptr<const Material>(material);
+		}
+		std::shared_ptr<const SkeletalMesh> GetMesh() const
+		{
+			CheckMesh();
+			return std::shared_ptr<const SkeletalMesh>(mesh);
+		}
+
+		mutable std::weak_ptr<const SkeletalMesh> mesh;
 		mutable std::weak_ptr<const Material> material;
 
 		void WritePrivateData(std::ofstream& writer);

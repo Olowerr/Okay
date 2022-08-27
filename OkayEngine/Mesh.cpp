@@ -52,20 +52,17 @@ void Okay::Mesh::Shutdown()
 	DX11_RELEASE(indexBuffer);
 }
 
-void Okay::Mesh::Bind() const
+void Okay::Mesh::Draw() const
 {
 	DX11::Get().GetDeviceContext()->IASetVertexBuffers(0, NumBuffers, vertexBuffers, Stride, Offset);
 	DX11::Get().GetDeviceContext()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	DX11::Get().GetDeviceContext()->DrawIndexed(numIndices, 0, 0);
 }
 
-void Okay::Mesh::BindPosition() const
+void Okay::Mesh::DrawGeometry() const
 {
 	DX11::Get().GetDeviceContext()->IASetVertexBuffers(0, 1, vertexBuffers, Stride, Offset);
 	DX11::Get().GetDeviceContext()->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-}
-
-void Okay::Mesh::Draw() const
-{
 	DX11::Get().GetDeviceContext()->DrawIndexed(numIndices, 0, 0);
 }
 

@@ -3,19 +3,42 @@
 
 namespace Okay
 {
+	struct TimeStamp
+	{
+		TimeStamp()
+			:scale(1.f, 1.f, 1.f) { }
+
+		float time = 0.f;
+		Float3 pos;
+		Float4 rot;
+		Float3 scale;
+	};
+
+	struct Joint
+	{
+		String name;
+		int parentIdx = -1;
+		DirectX::XMMATRIX invBindPose{};
+		DirectX::XMMATRIX localT{};
+		DirectX::XMMATRIX modelT{};
+		DirectX::XMMATRIX finalT{};
+		std::vector<TimeStamp> stamps;
+	};
+	
+	struct SkeletalVertexData
+	{
+		std::vector<Float3> position;
+		std::vector<UVNormal> uvNormal;
+		std::vector<UINT> indices;
+		std::vector<SkinnedVertex> weights;
+		std::vector<Joint> joints;
+	};
+
 	class SkeletalMesh
 	{
 	public:
 
-		struct VertexData
-		{
-			std::vector<Float3> position;
-			std::vector<UVNormal> uvNormal;
-			std::vector<UINT> indices;
-			std::vector<SkinnedVertex> weights;
-		};
-
-		SkeletalMesh(const VertexData& vertices);
+		SkeletalMesh(const SkeletalVertexData& vertices);
 		virtual ~SkeletalMesh();
 		virtual void Shutdown();
 
@@ -23,12 +46,20 @@ namespace Okay
 		static const UINT Stride[NumBuffers];
 		static const UINT Offset[NumBuffers];
 
-	//private:
+		void Draw() const;
+		void DrawGeometry() const;
+
+		std::vector<Joint>& GetJoints() { return joints; }
+
+	private:
 		ID3D11Buffer* vertexBuffer[NumBuffers];
 		ID3D11Buffer* indexBuffer;
 
 		const UINT numIndices;
 
+		ID3D11Buffer* matricesBuffer;
+		ID3D11ShaderResourceView* matricesSRV;
+		std::vector<Joint> joints;
 
 	public:
 		SkeletalMesh(const SkeletalMesh&) = delete;

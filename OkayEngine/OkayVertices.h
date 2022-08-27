@@ -3,6 +3,7 @@
 
 namespace Okay
 {
+	using Float4 = DirectX::XMFLOAT4;
 	using Float3 = DirectX::XMFLOAT3;
 	using Float2 = DirectX::XMFLOAT2;
 

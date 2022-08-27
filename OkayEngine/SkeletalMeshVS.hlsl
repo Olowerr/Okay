@@ -1,10 +1,12 @@
 struct InputVertex
 {
 	float3 pos : POSITION;
-	float2 uv : UV;
-	float3 normal : NORMAL;
+	
 	uint4 jointIdx : JOINTIDX;
 	float4 weight : WEIGHTS;
+
+	float2 uv : UV;
+	float3 normal : NORMAL;
 };
 
 struct TransformedVertex
@@ -18,15 +20,7 @@ struct TransformedVertex
 
 cbuffer Camera : register(b0)
 {
-	//float4x4 viewMatrix;
-	//float4x4 projectMatrix;
 	float4x4 viewProjectMatrix;
-
-	/*float3 camPos;
-	float camPad0;
-
-	float3 camDir;
-	float camPad1;*/
 };
 
 struct Joint
