@@ -24,9 +24,6 @@ public:
 
 private:
 	entt::registry registry;
-
-	// Temp
-	int index;
 };
 
 /*

@@ -3,7 +3,6 @@
 #include "Scripts.h"
 
 Scene::Scene()
-    :index(-1)
 {
 }
     

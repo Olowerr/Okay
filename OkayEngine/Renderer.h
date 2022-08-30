@@ -6,12 +6,6 @@
 #include "Components.h"
 #include "SkeletalMesh.h"
 
-#include <assimp/importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
-#include <unordered_map>
-
 class Renderer
 {
 public:
@@ -78,59 +72,6 @@ private: // Create Shaders
 	bool CreateVS();
 	bool CreateHS();
 	bool CreateDS();
-
-
-
-
-
-
-	// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
-	struct TimeStamp
-	{
-		TimeStamp()
-			:scale(1.f, 1.f, 1.f) { }
-
-		float time = 0.f;
-		aiQuaterniont<float> rot;
-		aiVector3t<float> pos;
-		aiVector3t<float> scale;
-	};
-
-	struct Joint
-	{
-		std::string name;
-		int parentIdx = -1;
-		DirectX::XMMATRIX invBindPose{};
-		DirectX::XMMATRIX localT{};
-		DirectX::XMMATRIX modelT{};
-		DirectX::XMMATRIX finalT{};
-		std::vector<TimeStamp> stamps;
-	};
-
-
-
-	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
-	ID3D11Buffer* aniBuffer;
-	ID3D11ShaderResourceView* aniSRV;
-	float aniDuration;
-	float aniTime;
-	float tickPerSec;
-
-	ID3D11VertexShader* aniVS = nullptr;
-	ID3D11InputLayout* aniIL;
-	std::unique_ptr<Okay::SkeletalMesh> goblin;
-	std::vector<Joint> joints;
-
-	int FindJointIndex(std::vector<Joint>& joints, std::string_view name);
-	aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child);
-	void SetParents(std::vector<Joint>& joints, aiNode* node);
-	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
-	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
-	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
-	
-	void CreateSkeletal();
-	void CalculateAnimation(float dt);
-
 };
 
 
