@@ -16,7 +16,7 @@ Renderer::Renderer()
 	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
-	
+
 	aniVS;
 	CreateVS();
 	CreateHS();
@@ -41,7 +41,7 @@ Renderer::Renderer()
 
 	Bind();
 	shaderModel->Bind();
-	
+
 	meshesToRender.resize(10);
 	numActive = 0;
 	numLights = 0;
@@ -65,7 +65,7 @@ void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 {
 	if (numActive >= meshesToRender.size())
 		meshesToRender.resize(meshesToRender.size() + 10);
-	
+
 	meshesToRender.at(numActive).mesh = pMesh;
 	meshesToRender.at(numActive).transform = pTransform;
 
@@ -110,7 +110,7 @@ void Renderer::Shutdown()
 	DX11_RELEASE(aniIL);
 	DX11_RELEASE(aniBuffer);
 	DX11_RELEASE(aniSRV);
-}				 
+}
 
 void Renderer::Render()
 {
@@ -120,7 +120,7 @@ void Renderer::Render()
 	mainCamera->Update();
 
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
-	
+
 	if (numLights)
 	{
 		DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
@@ -142,7 +142,7 @@ void Renderer::Render()
 
 		mesh->Bind();
 		material->BindTextures();
-			
+
 		mesh->Draw();
 	}
 
@@ -191,7 +191,7 @@ void Renderer::Bind()
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 	pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
 
-	
+
 
 }
 
@@ -302,11 +302,20 @@ void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, a
 	}
 }
 
+void Renderer::FillNodes(std::vector<aiNode*>& nodes, aiNode* root)
+{
+	for (UINT i = 0; i < root->mNumChildren; i++)
+	{
+		nodes.emplace_back(root->mChildren[i]);
+		FillNodes(nodes, root->mChildren[i]);
+	}
+}
+
 void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\stickANi4.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -345,7 +354,7 @@ void Renderer::CreateSkeletal()
 			data.indices[counter++] = mesh->mFaces[i].mIndices[2];
 		}
 	}
-	
+
 
 	aniDuration = (float)ani->mDuration;
 	tickPerSec = (float)ani->mTicksPerSecond;
@@ -353,6 +362,9 @@ void Renderer::CreateSkeletal()
 
 	std::unordered_map<std::string_view, aiNode*> nodes;
 	FillNodes(nodes, pScene->mRootNode);
+
+	std::vector<aiNode*> vNodes;
+	FillNodes(vNodes, pScene->mRootNode);
 
 	std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
 	memcpy(aniNodes.data(), ani->mChannels, sizeof(aiNodeAnim*) * ani->mNumChannels);
@@ -417,7 +429,7 @@ void Renderer::CreateSkeletal()
 			aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
 			Okay::SkinnedVertex& currVertex = data.weights[aiWeight.mVertexId];
 
-			if		(currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
+			if (currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
 			else if (currVertex.weight[1] == 0.f) { currVertex.weight[1] = aiWeight.mWeight; currVertex.jointIdx[1] = i; }
 			else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
 			else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
@@ -449,7 +461,7 @@ void Renderer::CalculateAnimation(float dt)
 	if (tickTime > (1.f / tickPerSec))
 	{
 		tickTime = 0.f;
-		currentStamp++;	
+		currentStamp++;
 	}
 	if (aniTime > AniDur || currentStamp >= joints[0].stamps.size())
 	{
@@ -474,7 +486,7 @@ void Renderer::CalculateAnimation(float dt)
 	{
 		TimeStamp& stamp = joints[i].stamps[currentStamp];
 
-		
+
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
 			XMMatrixRotationQuaternion(XMVectorSet(stamp.rot.x, stamp.rot.y, stamp.rot.z, stamp.rot.w)) *

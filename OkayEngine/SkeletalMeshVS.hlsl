@@ -41,7 +41,7 @@ TransformedVertex main(InputVertex input)
 	TransformedVertex output;
 
 
-#if 1
+#if 0
 	output.worldPos = float3(0.f, 0.f, 0.f);
 	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.x].transform).xyz * input.weight.x;
 	output.worldPos += mul(float4(input.pos, 1.f), joints[input.jointIdx.y].transform).xyz * input.weight.y;

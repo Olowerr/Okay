@@ -12,7 +12,7 @@
 
 #include <unordered_map>
 
-class Renderer	
+class Renderer
 {
 public:
 	Renderer();
@@ -30,7 +30,7 @@ public:
 
 	void Shutdown();
 	void Render();
-	
+
 
 private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
@@ -52,7 +52,7 @@ private:
 	};
 
 	std::vector<GPUPointLight> lights;
-	size_t numLights; 
+	size_t numLights;
 
 private: // DX11 Specific
 	ID3D11DeviceContext* pDevContext;
@@ -108,7 +108,7 @@ private: // Create Shaders
 	};
 
 
-	
+
 	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
 	ID3D11Buffer* aniBuffer;
 	ID3D11ShaderResourceView* aniSRV;
@@ -117,7 +117,7 @@ private: // Create Shaders
 	float tickPerSec;
 
 	ID3D11VertexShader* aniVS = nullptr;
-	ID3D11InputLayout*  aniIL;
+	ID3D11InputLayout* aniIL;
 	std::unique_ptr<Okay::SkeletalMesh> goblin;
 	std::vector<Joint> joints;
 
@@ -126,6 +126,8 @@ private: // Create Shaders
 	void SetParents(std::vector<Joint>& joints, aiNode* node);
 	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
 	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
+	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
+	
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
 
@@ -141,12 +143,12 @@ private: // Create Shaders
 	Implement Importer (Seperate project) (.fbx & .obj)
 	Materials somewhere here..?
 	Implement rendering without instancing
-	
+
 	Include Entt
 	Create Okay::MeshComponent & Okay::Transform (component ?)
 	Render by Entity
 
 	Create Scene Class
-	
+
 
 */
