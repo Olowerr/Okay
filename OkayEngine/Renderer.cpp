@@ -315,7 +315,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobWalk3.fbx",
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobwalk5.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -419,10 +419,12 @@ void Renderer::CreateSkeletal()
 
 	data.weights.resize(data.indices.size());
 
+	DirectX::XMFLOAT4X4 mat;
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
-		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
+		memcpy(&mat, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+
+		joints[i].invBindPose = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&mat));
 
 		for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
 		{
