@@ -6,11 +6,17 @@
 #include "Components.h"
 #include "SkeletalMesh.h"
 
-#include <assimp/importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
+#define ANIMATION 0
+
+#if ANIMATION == 1
+#include <assimp2/inc/assimp/cimport.h>
+#include <assimp2/inc/assimp/importer.hpp>
+#include <assimp2/inc/assimp/postprocess.h>
+#include <assimp2/inc/assimp/scene.h>
+#endif
 
 #include <unordered_map>
+
 
 class Renderer
 {
@@ -83,7 +89,7 @@ private: // Create Shaders
 
 
 
-
+#if ANIMATION == 1
 	// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
 	struct TimeStamp
 	{
@@ -116,7 +122,7 @@ private: // Create Shaders
 	float aniTime;
 	float tickPerSec;
 
-	ID3D11VertexShader* aniVS = nullptr;
+	ID3D11VertexShader* aniVS;
 	ID3D11InputLayout* aniIL;
 	std::unique_ptr<Okay::SkeletalMesh> goblin;
 	std::vector<Joint> joints;
@@ -130,7 +136,7 @@ private: // Create Shaders
 
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
-
+#endif
 };
 
 

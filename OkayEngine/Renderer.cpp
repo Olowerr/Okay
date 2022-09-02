@@ -17,7 +17,6 @@ Renderer::Renderer()
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 
-	aniVS;
 	CreateVS();
 	CreateHS();
 	CreateDS();
@@ -46,9 +45,11 @@ Renderer::Renderer()
 	numActive = 0;
 	numLights = 0;
 
+#if ANIMATION == 1
 	CreateSkeletal();
 	DX11::CreateStructuredBuffer<DirectX::XMFLOAT4X4A>(&aniBuffer, nullptr, (UINT)joints.size(), false);
 	DX11::CreateStructuredSRV<DirectX::XMFLOAT4X4A>(&aniSRV, aniBuffer, (UINT)joints.size());
+#endif
 }
 
 Renderer::~Renderer()
@@ -106,10 +107,12 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pPointLightSRV);
 	DX11_RELEASE(pLightInfoBuffer);
 
+#if ANIMATION == 1
 	DX11_RELEASE(aniVS);
 	DX11_RELEASE(aniIL);
 	DX11_RELEASE(aniBuffer);
 	DX11_RELEASE(aniSRV);
+#endif
 }
 
 void Renderer::Render()
@@ -146,6 +149,9 @@ void Renderer::Render()
 		mesh->Draw();
 	}
 
+
+#if ANIMATION == 1
+	// Temp
 	CalculateAnimation(Okay::Engine::GetDT());
 
 	pDevContext->IASetInputLayout(aniIL);
@@ -158,6 +164,7 @@ void Renderer::Render()
 	pDevContext->DrawIndexed(goblin->numIndices, 0, 0);
 
 	shaderModel->UnBind();
+#endif
 }
 
 bool Renderer::ExpandPointLights()
@@ -209,7 +216,7 @@ bool Renderer::CreateVS()
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
 
-
+#if ANIMATION == 1
 	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"UV",		 0, DXGI_FORMAT_R32G32_FLOAT,		1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -221,7 +228,7 @@ bool Renderer::CreateVS()
 	VERIFY(Okay::ReadShader("SkeletalMeshVS.cso", shaderData));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &aniIL));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &aniVS));
-
+#endif
 
 	return true;
 }
@@ -235,6 +242,9 @@ bool Renderer::CreateDS()
 {
 	return false; // Disabled
 }
+
+
+#if ANIMATION == 1
 
 int Renderer::FindJointIndex(std::vector<Joint>& joints, std::string_view name)
 {
@@ -268,9 +278,7 @@ void Renderer::SetParents(std::vector<Joint>& joints, aiNode* node)
 	{
 		aiNode* pParent = GetParentNode(joints, node);
 		if (pParent)
-		{
 			joints[currentJointIdx].parentIdx = FindJointIndex(joints, pParent->mName.C_Str());
-		}
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
@@ -315,7 +323,7 @@ void Renderer::CreateSkeletal()
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobwalk5.fbx",
+	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk5.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -497,3 +505,5 @@ void Renderer::CalculateAnimation(float dt)
 	DX11::UpdateBuffer(aniBuffer, aniMatrices.data(), UINT(sizeof(XMFLOAT4X4) * aniMatrices.size()));
 
 }
+
+#endif
