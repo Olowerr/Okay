@@ -39,7 +39,7 @@ namespace Okay
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
-		delete editor;
+		OkayDelete(editor);
 	}
 
 	void Editor::Update()
@@ -54,8 +54,21 @@ namespace Okay
 		if (dockSpace)
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-		if (ImGui::Begin("Dockspace"))
+		if (ImGui::Begin("Other.."))
 		{
+			static float time = 0;
+			static float curFps = 1.f / Engine::GetDT();
+
+			time += Engine::GetDT();
+
+			if (time > 0.5f)
+			{
+				curFps = 1.f / Engine::GetDT();
+				time = 0.f;
+			}
+
+			ImGui::Text("FPS: %f", curFps);
+
 			ImGui::BeginDisabled();
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
 			ImGui::EndDisabled();

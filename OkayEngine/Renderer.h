@@ -6,13 +6,19 @@
 #include "Components.h"
 #include "SkeletalMesh.h"
 
+#define ANIMATION 1
+
+#if ANIMATION == 1
+#include <assimp/cimport.h>
 #include <assimp/importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#endif
 
 #include <unordered_map>
 
-class Renderer	
+
+class Renderer
 {
 public:
 	Renderer();
@@ -30,7 +36,7 @@ public:
 
 	void Shutdown();
 	void Render();
-	
+
 
 private:
 	std::unique_ptr<Okay::ShaderModel> shaderModel;
@@ -52,7 +58,7 @@ private:
 	};
 
 	std::vector<GPUPointLight> lights;
-	size_t numLights; 
+	size_t numLights;
 
 private: // DX11 Specific
 	ID3D11DeviceContext* pDevContext;
@@ -83,7 +89,7 @@ private: // Create Shaders
 
 
 
-
+#if ANIMATION == 1
 	// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
 
 
@@ -95,11 +101,6 @@ private: // Create Shaders
 	};
 
 
-	Assimp::Importer importer;
-	const aiScene* pScene;
-	std::vector<aiNode*> nodes;
-	std::unordered_map<std::string_view, aiNode*> nodesMap;
-	std::vector<aiNodeAnim*> aniNodes;
 
 	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
 	ID3D11Buffer* aniBuffer;
@@ -108,21 +109,61 @@ private: // Create Shaders
 	float aniTime;
 	float tickLengthS;
 
-	ID3D11VertexShader* aniVS = nullptr;
-	ID3D11InputLayout*  aniIL;
+	ID3D11VertexShader* aniVS;
+	ID3D11InputLayout* aniIL;
 	std::unique_ptr<Okay::SkeletalMesh> goblin;
 	std::vector<Joint> joints;
+
+	aiNodeAnim* FindAnimNode(aiNodeAnim** nodes, UINT num, std::string_view name)
+	{
+		for (UINT i = 0; i < num; i++)
+		{
+			if (nodes[i]->mNodeName.C_Str() == name)
+				return nodes[i];
+		}
+
+		return nullptr;
+	}
+	aiNode* FindTraNode(aiNode* parent, const std::string& jointName)
+	{
+		aiNode* ptr = nullptr;
+
+		for (size_t i = 0; i < parent->mNumChildren; i++)
+		{
+			if (parent->mChildren[i]->mName.C_Str() == jointName)
+				ptr = parent->mChildren[i];
+
+			else if (!ptr)
+				ptr = FindTraNode(parent->mChildren[i], jointName);
+		}
+
+		return ptr;
+	}
+
+	bool FixJoint(Joint& joint, aiNode* root)
+	{
+		std::string name = joint.name + "_$AssimpFbx$_Translation";
+		aiNode* pNode = FindTraNode(root, name);
+		if (!pNode)
+			return false;
+
+		joint.stamps.resize(1);
+		joint.stamps[0].time = 0.f;
+
+		joint.stamps[0].pos.x = pNode->mTransformation.a4;
+		joint.stamps[0].pos.y = pNode->mTransformation.b4;
+		joint.stamps[0].pos.z = pNode->mTransformation.c4;
+
+		return true;
+	}
 
 	int FindJointIndex(std::vector<Joint>& joints, std::string_view name);
 	aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child);
 	void SetParents(std::vector<Joint>& joints, aiNode* node);
-	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
-	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
-	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
 
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
-
+#endif
 };
 
 
@@ -135,12 +176,12 @@ private: // Create Shaders
 	Implement Importer (Seperate project) (.fbx & .obj)
 	Materials somewhere here..?
 	Implement rendering without instancing
-	
+
 	Include Entt
 	Create Okay::MeshComponent & Okay::Transform (component ?)
 	Render by Entity
 
 	Create Scene Class
-	
+
 
 */

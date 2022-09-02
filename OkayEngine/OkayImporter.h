@@ -1,5 +1,10 @@
 #pragma once
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // !NOMINMAX
+
+#include <assimp/cimport.h>
 #include <assimp/importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>

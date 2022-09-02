@@ -16,8 +16,7 @@ Renderer::Renderer()
 	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
 	DX11::CreateConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
-	
-	aniVS;
+
 	CreateVS();
 	CreateHS();
 	CreateDS();
@@ -41,14 +40,16 @@ Renderer::Renderer()
 
 	Bind();
 	shaderModel->Bind();
-	
+
 	meshesToRender.resize(10);
 	numActive = 0;
 	numLights = 0;
 
+#if ANIMATION == 1
 	CreateSkeletal();
 	DX11::CreateStructuredBuffer<DirectX::XMFLOAT4X4A>(&aniBuffer, nullptr, (UINT)joints.size(), false);
 	DX11::CreateStructuredSRV<DirectX::XMFLOAT4X4A>(&aniSRV, aniBuffer, (UINT)joints.size());
+#endif
 }
 
 Renderer::~Renderer()
@@ -65,7 +66,7 @@ void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 {
 	if (numActive >= meshesToRender.size())
 		meshesToRender.resize(meshesToRender.size() + 10);
-	
+
 	meshesToRender.at(numActive).mesh = pMesh;
 	meshesToRender.at(numActive).transform = pTransform;
 
@@ -106,11 +107,13 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pPointLightSRV);
 	DX11_RELEASE(pLightInfoBuffer);
 
+#if ANIMATION == 1
 	DX11_RELEASE(aniVS);
 	DX11_RELEASE(aniIL);
 	DX11_RELEASE(aniBuffer);
 	DX11_RELEASE(aniSRV);
-}				 
+#endif
+}
 
 void Renderer::Render()
 {
@@ -120,7 +123,7 @@ void Renderer::Render()
 	mainCamera->Update();
 
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
-	
+
 	if (numLights)
 	{
 		DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
@@ -142,10 +145,13 @@ void Renderer::Render()
 
 		mesh->Bind();
 		material->BindTextures();
-			
+
 		mesh->Draw();
 	}
 
+
+#if ANIMATION == 1
+	// Temp
 	CalculateAnimation(Okay::Engine::GetDT());
 
 	pDevContext->IASetInputLayout(aniIL);
@@ -158,6 +164,7 @@ void Renderer::Render()
 	pDevContext->DrawIndexed(goblin->numIndices, 0, 0);
 
 	shaderModel->UnBind();
+#endif
 }
 
 bool Renderer::ExpandPointLights()
@@ -191,7 +198,7 @@ void Renderer::Bind()
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 	pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
 
-	
+
 
 }
 
@@ -209,7 +216,7 @@ bool Renderer::CreateVS()
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
 
-
+#if ANIMATION == 1
 	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -221,7 +228,7 @@ bool Renderer::CreateVS()
 	VERIFY(Okay::ReadShader("SkeletalMeshVS.cso", shaderData));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &aniIL));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &aniVS));
-
+#endif
 
 	return true;
 }
@@ -235,6 +242,9 @@ bool Renderer::CreateDS()
 {
 	return false; // Disabled
 }
+
+
+#if ANIMATION == 1
 
 int Renderer::FindJointIndex(std::vector<Joint>& joints, std::string_view name)
 {
@@ -268,52 +278,18 @@ void Renderer::SetParents(std::vector<Joint>& joints, aiNode* node)
 	{
 		aiNode* pParent = GetParentNode(joints, node);
 		if (pParent)
-		{
 			joints[currentJointIdx].parentIdx = FindJointIndex(joints, pParent->mName.C_Str());
-		}
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 		SetParents(joints, node->mChildren[i]);
 }
 
-aiNodeAnim* Renderer::FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component)
-{
-	for (aiNodeAnim* node : vec)
-	{
-		std::string_view nodeName = node->mNodeName.C_Str();
-
-		if (nodeName.find(name) != -1)
-		{
-			if (nodeName.find(component) != -1)
-				return node;
-		}
-	}
-
-	return nullptr;
-}
-
-void Renderer::FillNodes(std::vector<aiNode*>& nodes, aiNode* root)
-{
-	for (UINT i = 0; i < root->mNumChildren; i++)
-	{
-		nodes.emplace_back(root->mChildren[i]);
-		FillNodes(nodes, root->mChildren[i]);
-	}
-}
-
-void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root)
-{
-	for (UINT i = 0; i < root->mNumChildren; i++)
-	{
-		nodes[root->mName.C_Str()] = root;
-		FillNodes(nodes, root->mChildren[i]);
-	}
-}
-
 void Renderer::CreateSkeletal()
 {
-	pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobstand.fbx",
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -361,24 +337,13 @@ void Renderer::CreateSkeletal()
 
 		int q = 0;
 	}
-	
 
 	tickLengthS = 1.f / (float)ani->mTicksPerSecond;
 	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
 
-	FillNodes(nodes, pScene->mRootNode);
-	FillNodes(nodesMap, pScene->mRootNode);
-
-	aniNodes.resize(ani->mNumChannels);
-	memcpy(aniNodes.data(), ani->mChannels, sizeof(aiNodeAnim*) * ani->mNumChannels);
-
 	aniMatrices.resize(mesh->mNumBones);
 	joints.resize(mesh->mNumBones);
-
-	size_t numKeys = 0, highestNumKeys = 0;
-
-	std::vector<bool> jointHasTra(mesh->mNumBones, false);
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
@@ -386,29 +351,38 @@ void Renderer::CreateSkeletal()
 		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
 		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
 
-
-		aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
-		aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
-		aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
-		jointHasTra[i] = (bool)traChannel;
-
-		size_t numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
-		if (numKeys > highestNumKeys)
-			highestNumKeys = numKeys;
-
-		if (!numKeys)
-			continue;
-
-		joints[i].stamps.resize(highestNumKeys);
-		for (size_t k = 0; k < numKeys; k++)
+		aiNodeAnim* channel = FindAnimNode(ani->mChannels, ani->mNumChannels, std::string_view(joints[i].name));
+		if (!channel)
 		{
-			if		(traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
-			else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
-			else if (scaChannel) joints[i].stamps[k].time = (float)scaChannel->mScalingKeys[k].mTime;
+			printf("%s: channel was NULL\n", joints[i].name.c_str());
 
-			if (traChannel) joints[i].stamps[k].pos = traChannel->mPositionKeys[k].mValue;
-			if (rotChannel) joints[i].stamps[k].rot = rotChannel->mRotationKeys[k].mValue;
-			if (scaChannel) joints[i].stamps[k].scale = scaChannel->mScalingKeys[k].mValue;
+			if (!FixJoint(joints[i], pScene->mRootNode))
+				printf("%s: failed fixing", joints[i].name.c_str());
+
+			continue;
+		}
+
+		// ASSUMING ALL STAMPS SAME LENGTH & TIME MATCHING
+		if (channel->mNumPositionKeys != channel->mNumRotationKeys && 
+			channel->mNumPositionKeys != channel->mNumScalingKeys &&
+			channel->mNumRotationKeys != channel->mNumScalingKeys)
+		{
+			printf("%s: keys not matching\n", joints[i].name.c_str());
+			if (!FixJoint(joints[i], pScene->mRootNode))
+				printf("%s: failed fixing", joints[i].name.c_str());
+
+			continue;
+		}
+
+		joints[i].stamps.resize(channel->mNumPositionKeys);
+
+		for (UINT k = 0; k < channel->mNumPositionKeys; k++)
+		{
+			joints[i].stamps[k].time = (float)channel->mPositionKeys[k].mTime;
+
+			joints[i].stamps[k].pos = channel->mPositionKeys[k].mValue;
+			joints[i].stamps[k].rot = channel->mRotationKeys[k].mValue;
+			joints[i].stamps[k].scale = channel->mScalingKeys[k].mValue;
 		}
 	}
 
@@ -441,19 +415,6 @@ void Renderer::CreateSkeletal()
 			{
 				printf("Else | %s\n", nodeName.c_str());
 
-				aiVector3t<float> pos;
-				if (joint.parentIdx != -1)
-				{
-					pos.x = joint.invBindPose.r[3].m128_f32[0] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[0];
-					pos.y = joint.invBindPose.r[3].m128_f32[1] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[1];
-					pos.z = joint.invBindPose.r[3].m128_f32[2] * -1.f + joints[joint.parentIdx].invBindPose.r[3].m128_f32[2];
-				}
-				else
-				{
-					pos.x = joint.invBindPose.r[3].m128_f32[0] * -1.f;
-					pos.y = joint.invBindPose.r[3].m128_f32[1] * -1.f;
-					pos.z = joint.invBindPose.r[3].m128_f32[2] * -1.f;
-				}
 
 				for (TimeStamp& stamp : joint.stamps)
 					stamp.pos = pos;
@@ -463,7 +424,6 @@ void Renderer::CreateSkeletal()
 	}
 
 	data.weights.resize(data.indices.size());
-
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
 		for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
@@ -502,7 +462,7 @@ void Renderer::CalculateAnimation(float dt)
 	if (tickTime > tickLengthS)
 	{
 		tickTime = 0.f;
-		currentStamp++;	
+		currentStamp++;
 	}
 	if (aniTime > aniDurationS || currentStamp >= joints[0].stamps.size())
 	{
@@ -510,7 +470,7 @@ void Renderer::CalculateAnimation(float dt)
 		currentStamp = 0;
 	}
 
-	//printf("Stamp: %zd | Time: %f\n", currentStamp, aniTime);
+	//printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
 
@@ -527,7 +487,7 @@ void Renderer::CalculateAnimation(float dt)
 
 	for (size_t i = 1; i < joints.size(); i++)
 	{
-		TimeStamp& stamp = joints[i].stamps[currentStamp];
+		TimeStamp& stamp = joints[i].stamps.size() > 1 ? joints[i].stamps[currentStamp] : joints[i].stamps[0];
 
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
@@ -545,3 +505,5 @@ void Renderer::CalculateAnimation(float dt)
 	DX11::UpdateBuffer(aniBuffer, aniMatrices.data(), UINT(sizeof(XMFLOAT4X4) * aniMatrices.size()));
 
 }
+
+#endif
