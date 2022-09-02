@@ -382,7 +382,6 @@ void Renderer::CreateSkeletal()
 		aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
 		aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
 
-#if 1
 		size_t temp = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
 		if (temp > numKeys)
 			numKeys = temp;
@@ -390,14 +389,6 @@ void Renderer::CreateSkeletal()
 		joints[i].stamps.resize(numKeys);
 
 		for (size_t k = 0; k < temp; k++)
-#else
-		size_t numKeys = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
-		joints[i].stamps.resize(numKeys);
-
-		printf("%s : %zd\n", joints[i].name.c_str(), numKeys);
-
-		for (size_t k = 0; k < numKeys; k++)
-#endif
 		{
 			if (traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
 			else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
