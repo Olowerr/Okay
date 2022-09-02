@@ -156,12 +156,12 @@ void Okay::CompTransform::ReadPrivateData(std::ifstream& reader)
 
 void Okay::CompTag::WritePrivateData(std::ofstream& writer)
 {
-	writer.write(tag.c_str, sizeof(Okay::String));
+	writer.write(tag, sizeof(Okay::String));
 }
 
 void Okay::CompTag::ReadPrivateData(std::ifstream& reader)
 {
-	reader.read(tag.c_str, sizeof(Okay::String));
+	reader.read(tag, sizeof(Okay::String));
 }
 
 
