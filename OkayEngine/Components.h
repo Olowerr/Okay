@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include "SkeletalMesh.h"
 #include "Material.h"
 
 
@@ -53,11 +54,11 @@ namespace Okay // Structs for now, change to classes
 	{
 		static const Components ID = Components::SkeletalMesh;
 
-		CompSkeletalMesh();
 		CompSkeletalMesh(const std::string& meshName);
+		CompSkeletalMesh(const std::shared_ptr<const SkeletalMesh>& mesh);
 
 		void AssignMesh(const std::string& meshName);
-		void AssignMesh(const std::shared_ptr<const Mesh>& mesh);
+		void AssignMesh(const std::shared_ptr<const SkeletalMesh>& mesh);
 
 		void AssignMaterial(UINT index, const Okay::String& materialName);
 		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);

@@ -49,6 +49,31 @@ private:
 #pragma endregion Meshes
 
 
+	// Skeletal Mesh
+#pragma region 
+
+
+	// TEMP
+	bool LoadSkeletalMesh(std::string_view filePath)
+	{
+		Okay::SkeletalVertexData data;
+		VERIFY(Importer::Load(filePath, data));
+
+		size_t pos = filePath.find_last_of('/');
+		pos = pos == -1 ? filePath.find_last_of('\\') : pos;
+
+		std::string fileName = filePath.substr(pos + 1).data();
+		fileName = fileName.substr(0, fileName.find_last_of('.'));
+
+		skeletalMeshes[fileName] = std::make_shared<Okay::SkeletalMesh>(data);
+
+		return true;
+	}
+	// move to private
+	std::unordered_map<std::string, std::shared_ptr<Okay::SkeletalMesh>> skeletalMeshes;
+
+#pragma endregion Skeletal Mesh
+
 	// Textures
 #pragma region
 public: // Getters

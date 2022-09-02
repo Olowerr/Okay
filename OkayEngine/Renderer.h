@@ -119,6 +119,7 @@ private: // Create Shaders
 	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
 	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
 	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
+
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
 

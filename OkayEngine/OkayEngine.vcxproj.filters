@@ -129,6 +129,9 @@
     <ClCompile Include="SkeletalMesh.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
+    <ClCompile Include="OkayImporter.cpp">
+      <Filter>Importer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h">

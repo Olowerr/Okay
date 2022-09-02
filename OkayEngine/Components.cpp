@@ -2,177 +2,237 @@
 #include "Engine.h"
 
 
-/* ------ Mesh Component ------ */
-
-Okay::CompMesh::CompMesh()
-	:mesh(Engine::GetAssets().GetMesh("Default"))
+namespace Okay
 {
-	AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
-}
 
-Okay::CompMesh::CompMesh(const std::string& meshName)
-	:mesh(Engine::GetAssets().GetMesh(meshName))
-{
-	//materials.clear(); 
-	//materials.resize(mesh->NumSub);
+#pragma region
+	CompMesh::CompMesh()
+		:mesh(Engine::GetAssets().GetMesh("Default"))
+	{
+		AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
+	}
 
-	//for (size_t i = 0; i < mesh->NumSub; i++)
-	AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
-}
+	CompMesh::CompMesh(const std::string& meshName)
+		:mesh(Engine::GetAssets().GetMesh(meshName))
+	{
+		//materials.clear(); 
+		//materials.resize(mesh->NumSub);
 
-void Okay::CompMesh::AssignMesh(const std::string& meshName)
-{
-	mesh = Engine::GetAssets().GetMesh(meshName);
-	//materials.clear();
-	//materials.resize(mesh->NumSub);
-}
+		//for (size_t i = 0; i < mesh->NumSub; i++)
+		AssignMaterial(0, Engine::GetAssets().GetMaterial("Default"));
+	}
 
-void Okay::CompMesh::AssignMesh(const std::shared_ptr<const Mesh>& mesh)
-{
-	this->mesh = mesh;
-}
+	void CompMesh::AssignMesh(const std::string& meshName)
+	{
+		mesh = Engine::GetAssets().GetMesh(meshName);
+		//materials.clear();
+		//materials.resize(mesh->NumSub);
+	}
 
-void Okay::CompMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
-{
-	// TEMP
-	this->material = material;
-}
+	void CompMesh::AssignMesh(const std::shared_ptr<const Mesh>& mesh)
+	{
+		this->mesh = mesh;
+	}
 
-void Okay::CompMesh::AssignMaterial(UINT index, const Okay::String& materialName)
-{
-	material = Engine::GetAssets().GetMaterial(materialName.c_str);
-}
+	void CompMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
+	{
+		// TEMP
+		this->material = material;
+	}
 
-void Okay::CompMesh::WritePrivateData(std::ofstream& writer)
-{
-	CheckMaterial();
-	CheckMesh();
+	void CompMesh::AssignMaterial(UINT index, const String& materialName)
+	{
+		material = Engine::GetAssets().GetMaterial(materialName.c_str);
+	}
 
-	writer.write((const char*)&mesh.lock()->GetName(), sizeof(Okay::String));
+	void CompMesh::WritePrivateData(std::ofstream& writer)
+	{
+		CheckMaterial();
+		CheckMesh();
 
-	const UINT NumMaterials = 1;
-	writer.write((const char*)&NumMaterials, sizeof(UINT));
-	writer.write((const char*)&material.lock()->GetName(), sizeof(Okay::String));
+		writer.write((const char*)&mesh.lock()->GetName(), sizeof(String));
+
+		const UINT NumMaterials = 1;
+		writer.write((const char*)&NumMaterials, sizeof(UINT));
+		writer.write((const char*)&material.lock()->GetName(), sizeof(String));
 
 #if 0
-	const UINT NumMaterials = (UINT)materials.size();
-	writer.write((const char*)&NumMaterials, sizeof(UINT));
+		const UINT NumMaterials = (UINT)materials.size();
+		writer.write((const char*)&NumMaterials, sizeof(UINT));
 
-	for (UINT i = 0; i < NumMaterials; i++)
-	{
-		std::shared_ptr<Material> currentMat(materials.at(i));
-		writer.write((const char*)&currentMat->GetName(), sizeof(Okay::String));
-	}
+		for (UINT i = 0; i < NumMaterials; i++)
+		{
+			std::shared_ptr<Material> currentMat(materials.at(i));
+			writer.write((const char*)&currentMat->GetName(), sizeof(String));
+		}
 #endif
-}
+	}
 
-void Okay::CompMesh::ReadPrivateData(std::ifstream& reader)
-{
-	Okay::String readData;
-	reader.read((char*)&readData, sizeof(Okay::String));
-	mesh = Engine::GetAssets().GetMesh(readData.c_str);
+	void CompMesh::ReadPrivateData(std::ifstream& reader)
+	{
+		String readData;
+		reader.read((char*)&readData, sizeof(String));
+		mesh = Engine::GetAssets().GetMesh(readData.c_str);
 
 
-	UINT NumMaterials = 0;
-	reader.read((char*)&NumMaterials, sizeof(UINT));
+		UINT NumMaterials = 0;
+		reader.read((char*)&NumMaterials, sizeof(UINT));
 
-	reader.read((char*)&readData, sizeof(Okay::String));
-	material = Engine::GetAssets().GetMaterial(readData.c_str);
+		reader.read((char*)&readData, sizeof(String));
+		material = Engine::GetAssets().GetMaterial(readData.c_str);
 
 #if 0 
-	UINT NumMaterials = 0;
+		UINT NumMaterials = 0;
 
-	materials.resize(NumMaterials);
+		materials.resize(NumMaterials);
 
-	for (UINT i = 0; i < NumMaterials; i++)
-	{
-		reader.read((char*)&readData, sizeof(Okay::String));
+		for (UINT i = 0; i < NumMaterials; i++)
+		{
+			reader.read((char*)&readData, sizeof(String));
 
-		materials.at(i) = Engine::GetAssets().GetMaterial(readData.c_str);
-	}
+			materials.at(i) = Engine::GetAssets().GetMaterial(readData.c_str);
+		}
 #endif
-}
+	}
 
-void Okay::CompMesh::CheckMaterial() const
-{
-	if (!material.expired())
-		return;
+	void CompMesh::CheckMaterial() const
+	{
+		if (!material.expired())
+			return;
 
-	material = Engine::GetAssets().GetMaterial("Default");
-}
+		material = Engine::GetAssets().GetMaterial("Default");
+	}
 
-void Okay::CompMesh::CheckMesh() const
-{
-	if (!mesh.expired())
-		return;
+	void CompMesh::CheckMesh() const
+	{
+		if (!mesh.expired())
+			return;
 
-	mesh = Engine::GetAssets().GetMesh("Default");
-}
-
-
-/* ------ Transform Component ------ */
-
-Okay::CompTransform::CompTransform()
-	:position(), rotation(), scale(1.f, 1.f, 1.f)
-{
-	CalcMatrix();
-}
-
-Okay::CompTransform::CompTransform(Float3 pos, Float3 rot, Float3 scale)
-	:position(pos), rotation(rot), scale(scale)
-{
-	CalcMatrix();
-}
-
-void Okay::CompTransform::CalcMatrix()
-{
-	using namespace DirectX;
-	auto t = XMMatrixTranspose(
-		XMMatrixScaling(scale.x, scale.y, scale.z) *
-		XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
-		XMMatrixTranslation(position.x, position.y, position.z)
-	);
-	XMStoreFloat4x4(&matrix, t);
-}
-
-void Okay::CompTransform::WritePrivateData(std::ofstream& writer)
-{
-	writer.write((const char*)&position, sizeof(Okay::Float3));
-	writer.write((const char*)&rotation, sizeof(Okay::Float3));
-	writer.write((const char*)&scale, sizeof(Okay::Float3));
-}
-
-void Okay::CompTransform::ReadPrivateData(std::ifstream& reader)
-{
-	reader.read((char*)&position, sizeof(Okay::Float3));
-	reader.read((char*)&rotation, sizeof(Okay::Float3));
-	reader.read((char*)&scale, sizeof(Okay::Float3));
-
-	CalcMatrix();
-}
+		mesh = Engine::GetAssets().GetMesh("Default");
+	}
+#pragma endregion Mesh Component
 
 
-/* ------ Tag Component ------ */
+#pragma region
 
-void Okay::CompTag::WritePrivateData(std::ofstream& writer)
-{
-	writer.write(tag.c_str, sizeof(Okay::String));
-}
+	CompTransform::CompTransform()
+		:position(), rotation(), scale(1.f, 1.f, 1.f)
+	{
+		CalcMatrix();
+	}
 
-void Okay::CompTag::ReadPrivateData(std::ifstream& reader)
-{
-	reader.read(tag.c_str, sizeof(Okay::String));
-}
+	CompTransform::CompTransform(Float3 pos, Float3 rot, Float3 scale)
+		:position(pos), rotation(rot), scale(scale)
+	{
+		CalcMatrix();
+	}
+
+	void CompTransform::CalcMatrix()
+	{
+		using namespace DirectX;
+		auto t = XMMatrixTranspose(
+			XMMatrixScaling(scale.x, scale.y, scale.z) *
+			XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
+			XMMatrixTranslation(position.x, position.y, position.z)
+		);
+		XMStoreFloat4x4(&matrix, t);
+	}
+
+	void CompTransform::WritePrivateData(std::ofstream& writer)
+	{
+		writer.write((const char*)&position, sizeof(Float3));
+		writer.write((const char*)&rotation, sizeof(Float3));
+		writer.write((const char*)&scale, sizeof(Float3));
+	}
+
+	void CompTransform::ReadPrivateData(std::ifstream& reader)
+	{
+		reader.read((char*)&position, sizeof(Float3));
+		reader.read((char*)&rotation, sizeof(Float3));
+		reader.read((char*)&scale, sizeof(Float3));
+
+		CalcMatrix();
+	}
+#pragma endregion Transform Component
 
 
-/* ------ Point Light Component ------ */
+#pragma region
 
-void Okay::CompPointLight::WritePrivateData(std::ofstream& writer)
-{
-	writer.write((const char*)this, sizeof(CompPointLight));
-}
+	void CompTag::WritePrivateData(std::ofstream& writer)
+	{
+		writer.write(tag.c_str, sizeof(String));
+	}
 
-void Okay::CompPointLight::ReadPrivateData(std::ifstream& reader)
-{
-	reader.read((char*)this, sizeof(CompPointLight));
+	void CompTag::ReadPrivateData(std::ifstream& reader)
+	{
+		reader.read(tag.c_str, sizeof(String));
+	}
+
+
+	/* ------ Point Light Component ------ */
+
+	void CompPointLight::WritePrivateData(std::ofstream& writer)
+	{
+		writer.write((const char*)this, sizeof(CompPointLight));
+	}
+
+	void CompPointLight::ReadPrivateData(std::ifstream& reader)
+	{
+		reader.read((char*)this, sizeof(CompPointLight));
+	}
+#pragma endregion Tag Component
+
+
+#pragma region
+	CompSkeletalMesh::CompSkeletalMesh(const std::string& meshName)
+	{
+		//mesh = Engine::GetAssets().GetSkeletalMesh(meshName);
+	}
+
+	CompSkeletalMesh::CompSkeletalMesh(const std::shared_ptr<const SkeletalMesh>& mesh)
+	{
+		this->mesh = mesh;
+	}
+
+	void CompSkeletalMesh::AssignMesh(const std::string& meshName)
+	{
+		//mesh = Engine::GetAssets().GetSkeletalMesh(meshName);
+	}
+
+	void CompSkeletalMesh::AssignMesh(const std::shared_ptr<const SkeletalMesh>& mesh)
+	{
+		this->mesh = mesh;
+	}
+
+	void CompSkeletalMesh::AssignMaterial(UINT index, const String& materialName)
+	{
+		//material = Engine::GetAssets().GetMaterial(materialName);
+	}
+
+	void CompSkeletalMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
+	{
+		this->material = material;
+	}
+
+	void CompSkeletalMesh::WritePrivateData(std::ofstream& writer)
+	{
+	}
+
+	void CompSkeletalMesh::ReadPrivateData(std::ifstream& reader)
+	{
+	}
+
+	void CompSkeletalMesh::CheckMaterial() const
+	{
+		if (material.expired())
+			material = Engine::GetAssets().GetMaterial("Default");
+	}
+
+	void CompSkeletalMesh::CheckMesh() const
+	{
+		
+	}
+
+#pragma endregion Skeletal Mesh Component
+
 }
