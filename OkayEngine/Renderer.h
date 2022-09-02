@@ -127,6 +127,17 @@ private: // Create Shaders
 	std::unique_ptr<Okay::SkeletalMesh> goblin;
 	std::vector<Joint> joints;
 
+	aiNodeAnim* FindAnimNode(aiNodeAnim** nodes, UINT num, std::string_view name)
+	{
+		for (UINT i = 0; i < num; i++)
+		{
+			if (nodes[i]->mNodeName.C_Str() == name)
+				return nodes[i];
+		}
+
+		return nullptr;
+	}
+
 	int FindJointIndex(std::vector<Joint>& joints, std::string_view name);
 	aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child);
 	void SetParents(std::vector<Joint>& joints, aiNode* node);

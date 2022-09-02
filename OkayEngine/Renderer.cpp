@@ -324,7 +324,6 @@ void Renderer::CreateSkeletal()
 	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
-
 	if (!pScene)
 		return;
 
@@ -362,7 +361,6 @@ void Renderer::CreateSkeletal()
 		}
 	}
 
-
 	tickLengthS = 1.f / (float)ani->mTicksPerSecond;
 	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
@@ -385,51 +383,49 @@ void Renderer::CreateSkeletal()
 	{
 		joints[i].name = mesh->mBones[i]->mName.C_Str();
 
-		aiNodeAnim* traChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Translation");
-		aiNodeAnim* rotChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Rotation");
-		aiNodeAnim* scaChannel = FindAniNode(aniNodes, joints[i].name.c_str(), "Scaling");
-
-		size_t temp = traChannel ? traChannel->mNumPositionKeys : rotChannel ? rotChannel->mNumRotationKeys : scaChannel ? scaChannel->mNumScalingKeys : 0;
-		if (temp > numKeys)
-			numKeys = temp;
-
-		joints[i].stamps.resize(numKeys);
-
-		for (size_t k = 0; k < temp; k++)
+		aiNodeAnim* channel = FindAnimNode(ani->mChannels, ani->mNumChannels, std::string_view(joints[i].name));
+		if (!channel)
 		{
-			if (traChannel) joints[i].stamps[k].time = (float)traChannel->mPositionKeys[k].mTime;
-			else if (rotChannel) joints[i].stamps[k].time = (float)rotChannel->mRotationKeys[k].mTime;
-			else if (scaChannel) joints[i].stamps[k].time = (float)scaChannel->mScalingKeys[k].mTime;
+			printf("%s: channel was NULL\n", joints[i].name.c_str());
+			continue;
+		}
 
-			if (traChannel) joints[i].stamps[k].pos = traChannel->mPositionKeys[k].mValue;
-			if (rotChannel) joints[i].stamps[k].rot = rotChannel->mRotationKeys[k].mValue;
-			if (scaChannel) joints[i].stamps[k].scale = scaChannel->mScalingKeys[k].mValue;
+		// ASSUMING ALL STAMPS SAME LENGTH & TIME MATCHING
+		if (channel->mNumPositionKeys != channel->mNumRotationKeys && 
+			channel->mNumPositionKeys != channel->mNumScalingKeys &&
+			channel->mNumRotationKeys != channel->mNumScalingKeys)
+		{
+			printf("%s: keys not matching\n", joints[i].name.c_str());
+			continue;
+		}
+
+		joints[i].stamps.resize(channel->mNumPositionKeys);
+
+		for (UINT k = 0; k < channel->mNumPositionKeys; k++)
+		{
+			joints[i].stamps[k].time = channel->mPositionKeys[k].mTime;
+
+			joints[i].stamps[k].pos = channel->mPositionKeys[k].mValue;
+			joints[i].stamps[k].rot = channel->mRotationKeys[k].mValue;
+			joints[i].stamps[k].scale = channel->mScalingKeys[k].mValue;
 		}
 	}
 
-	for (Joint& joint : joints)
-	{
-		if (joint.stamps.size() < numKeys)
-			joint.stamps.resize(numKeys);
-	}
 
 	SetParents(joints, pScene->mRootNode);
 
 	data.weights.resize(data.indices.size());
-
-	DirectX::XMFLOAT4X4 mat;
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
-		memcpy(&mat, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
-
-		joints[i].invBindPose = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&mat));
+		memcpy(&joints[i].invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+		joints[i].invBindPose = DirectX::XMMatrixTranspose(joints[i].invBindPose);
 
 		for (UINT k = 0; k < mesh->mBones[i]->mNumWeights; k++)
 		{
 			aiVertexWeight& aiWeight = mesh->mBones[i]->mWeights[k];
 			Okay::SkinnedVertex& currVertex = data.weights[aiWeight.mVertexId];
 
-			if (currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
+			if		(currVertex.weight[0] == 0.f) { currVertex.weight[0] = aiWeight.mWeight; currVertex.jointIdx[0] = i; }
 			else if (currVertex.weight[1] == 0.f) { currVertex.weight[1] = aiWeight.mWeight; currVertex.jointIdx[1] = i; }
 			else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
 			else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
@@ -468,7 +464,7 @@ void Renderer::CalculateAnimation(float dt)
 		currentStamp = 0;
 	}
 
-	printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
+	//printf("Stamp: %zd\nTime: %f\n", currentStamp, aniTime);
 
 	using namespace DirectX;
 	TimeStamp& rootStamp = joints[0].stamps[currentStamp];
@@ -483,8 +479,14 @@ void Renderer::CalculateAnimation(float dt)
 
 	for (size_t i = 1; i < joints.size(); i++)
 	{
-		TimeStamp& stamp = joints[i].stamps[currentStamp];
+		if (joints[i].stamps.empty())
+		{
+			joints[i].modelT = joints[joints[i].parentIdx].modelT;
+			joints[i].finalT = joints[i].invBindPose * joints[i].modelT;
+			continue;
+		}
 
+		TimeStamp& stamp = joints[i].stamps[currentStamp];
 
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
