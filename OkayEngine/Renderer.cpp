@@ -321,10 +321,9 @@ void Renderer::FillNodes(std::vector<aiNode*>& nodes, aiNode* root)
 
 void Renderer::CreateSkeletal()
 {
-	Assimp::Importer importer;
-
-	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk5.fbx",
+	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+
 
 	if (!pScene)
 		return;

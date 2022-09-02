@@ -6,13 +6,13 @@
 #include "Components.h"
 #include "SkeletalMesh.h"
 
-#define ANIMATION 0
+#define ANIMATION 1
 
 #if ANIMATION == 1
-#include <assimp2/inc/assimp/cimport.h>
-#include <assimp2/inc/assimp/importer.hpp>
-#include <assimp2/inc/assimp/postprocess.h>
-#include <assimp2/inc/assimp/scene.h>
+#include <assimp/cimport.h>
+#include <assimp/importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #endif
 
 #include <unordered_map>
