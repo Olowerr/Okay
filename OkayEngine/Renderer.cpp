@@ -405,6 +405,8 @@ void Renderer::CreateSkeletal()
 
 
 	goblin = std::make_unique<Okay::SkeletalMesh>(data);
+
+	aiReleaseImport(pScene);
 }
 
 void Renderer::CalculateAnimation(float dt)
