@@ -39,7 +39,7 @@ namespace Okay
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
-		delete editor;
+		OkayDelete(editor);
 	}
 
 	void Editor::Update()

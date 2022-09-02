@@ -341,7 +341,7 @@ void Renderer::CreateSkeletal()
 		aiNodeAnim* channel = FindAnimNode(ani->mChannels, ani->mNumChannels, std::string_view(joints[i].name));
 		if (!channel)
 		{
-			printf("%s: channel was NULL", joints[i].name.c_str());
+			printf("%s: channel was NULL\n", joints[i].name.c_str());
 
 			if (!FixJoint(joints[i], pScene->mRootNode))
 				printf("%s: failed fixing", joints[i].name.c_str());
