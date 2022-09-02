@@ -363,8 +363,8 @@ void Renderer::CreateSkeletal()
 	}
 
 
-	aniDuration = (float)ani->mDuration;
-	tickPerSec = (float)ani->mTicksPerSecond;
+	tickLengthS = 1.f / (float)ani->mTicksPerSecond;
+	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
 
 	std::unordered_map<std::string_view, aiNode*> nodes;
@@ -452,18 +452,17 @@ void Renderer::CreateSkeletal()
 void Renderer::CalculateAnimation(float dt)
 {
 	static size_t currentStamp = 0;
-	static const float AniDur = aniDuration / tickPerSec;
 	static float tickTime = 0.f;
 
 	tickTime += dt;
 	aniTime += dt;
 
-	if (tickTime > (1.f / tickPerSec))
+	if (tickTime > tickLengthS)
 	{
 		tickTime = 0.f;
 		currentStamp++;
 	}
-	if (aniTime > AniDur || currentStamp >= joints[0].stamps.size())
+	if (aniTime > aniDurationS || currentStamp >= joints[0].stamps.size())
 	{
 		aniTime = 0.f;
 		currentStamp = 0;

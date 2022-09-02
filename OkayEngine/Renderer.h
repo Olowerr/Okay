@@ -118,9 +118,9 @@ private: // Create Shaders
 	std::vector<DirectX::XMFLOAT4X4> aniMatrices;
 	ID3D11Buffer* aniBuffer;
 	ID3D11ShaderResourceView* aniSRV;
-	float aniDuration;
+	float aniDurationS;
 	float aniTime;
-	float tickPerSec;
+	float tickLengthS;
 
 	ID3D11VertexShader* aniVS;
 	ID3D11InputLayout* aniIL;
