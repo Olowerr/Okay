@@ -5,6 +5,7 @@
 #endif // !NOMINMAX
 
 #include <assimp/cimport.h>
+#include <assimp/importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
@@ -23,9 +24,11 @@ private:
 
 inline bool Importer::Load(const std::string_view& meshFile, Okay::VertexData& outData, std::string* texPaths)
 {
-	const aiScene* pScene = aiImportFile(meshFile.data(),
-		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+	Assimp::Importer importer;
 
+	const aiScene* pScene = importer.ReadFile(meshFile.data(),
+		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+	
 	VERIFY(pScene);
 
 	//aiNode* pNode = pScene->mRootNode;
@@ -91,8 +94,6 @@ inline bool Importer::Load(const std::string_view& meshFile, Okay::VertexData& o
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[1];
 		outData.indices[counter++] = pMesh->mFaces[i].mIndices[2];
 	}
-
-	aiReleaseImport(pScene);
 
 	return WriteOkayAsset(meshFile.data(), outData);
 }
