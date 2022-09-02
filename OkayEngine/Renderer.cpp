@@ -287,7 +287,9 @@ void Renderer::SetParents(std::vector<Joint>& joints, aiNode* node)
 
 void Renderer::CreateSkeletal()
 {
-	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
@@ -365,7 +367,7 @@ void Renderer::CreateSkeletal()
 
 		for (UINT k = 0; k < channel->mNumPositionKeys; k++)
 		{
-			joints[i].stamps[k].time = channel->mPositionKeys[k].mTime;
+			joints[i].stamps[k].time = (float)channel->mPositionKeys[k].mTime;
 
 			joints[i].stamps[k].pos = channel->mPositionKeys[k].mValue;
 			joints[i].stamps[k].rot = channel->mRotationKeys[k].mValue;
@@ -405,8 +407,6 @@ void Renderer::CreateSkeletal()
 
 
 	goblin = std::make_unique<Okay::SkeletalMesh>(data);
-
-	aiReleaseImport(pScene);
 }
 
 void Renderer::CalculateAnimation(float dt)
