@@ -137,13 +137,42 @@ private: // Create Shaders
 
 		return nullptr;
 	}
+	aiNode* FindTraNode(aiNode* parent, const std::string& jointName)
+	{
+		aiNode* ptr = nullptr;
+
+		for (size_t i = 0; i < parent->mNumChildren; i++)
+		{
+			if (parent->mChildren[i]->mName.C_Str() == jointName)
+				ptr = parent->mChildren[i];
+
+			else if (!ptr)
+				ptr = FindTraNode(parent->mChildren[i], jointName);
+		}
+
+		return ptr;
+	}
+
+	bool FixJoint(Joint& joint, aiNode* root)
+	{
+		std::string name = joint.name + "_$AssimpFbx$_Translation";
+		aiNode* pNode = FindTraNode(root, name);
+		if (!pNode)
+			return false;
+
+		joint.stamps.resize(1);
+		joint.stamps[0].time = 0.f;
+
+		joint.stamps[0].pos.x = pNode->mTransformation.a4;
+		joint.stamps[0].pos.y = pNode->mTransformation.b4;
+		joint.stamps[0].pos.z = pNode->mTransformation.c4;
+
+		return true;
+	}
 
 	int FindJointIndex(std::vector<Joint>& joints, std::string_view name);
 	aiNode* GetParentNode(std::vector<Joint>& joints, aiNode* child);
 	void SetParents(std::vector<Joint>& joints, aiNode* node);
-	aiNodeAnim* FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component);
-	void FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root);
-	void FillNodes(std::vector<aiNode*>& nodes, aiNode* root);
 
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);

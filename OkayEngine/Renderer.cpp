@@ -285,40 +285,6 @@ void Renderer::SetParents(std::vector<Joint>& joints, aiNode* node)
 		SetParents(joints, node->mChildren[i]);
 }
 
-aiNodeAnim* Renderer::FindAniNode(std::vector<aiNodeAnim*>& vec, std::string_view name, const std::string_view component)
-{
-	for (aiNodeAnim* node : vec)
-	{
-		std::string_view nodeName = node->mNodeName.C_Str();
-
-		if (nodeName.find(name) != -1)
-		{
-			if (nodeName.find(component) != -1)
-				return node;
-		}
-	}
-
-	return nullptr;
-}
-
-void Renderer::FillNodes(std::unordered_map<std::string_view, aiNode*>& nodes, aiNode* root)
-{
-	for (UINT i = 0; i < root->mNumChildren; i++)
-	{
-		nodes[root->mChildren[i]->mName.C_Str()] = root->mChildren[i];
-		FillNodes(nodes, root->mChildren[i]);
-	}
-}
-
-void Renderer::FillNodes(std::vector<aiNode*>& nodes, aiNode* root)
-{
-	for (UINT i = 0; i < root->mNumChildren; i++)
-	{
-		nodes.emplace_back(root->mChildren[i]);
-		FillNodes(nodes, root->mChildren[i]);
-	}
-}
-
 void Renderer::CreateSkeletal()
 {
 	const aiScene* pScene = aiImportFile("..\\Content\\Meshes\\ani\\gobwalk3.fbx",
@@ -365,19 +331,8 @@ void Renderer::CreateSkeletal()
 	aniDurationS = (float)ani->mDuration / (float)ani->mTicksPerSecond;
 	aniTime = 0.f;
 
-	std::unordered_map<std::string_view, aiNode*> nodes;
-	FillNodes(nodes, pScene->mRootNode);
-
-	std::vector<aiNode*> vNodes;
-	FillNodes(vNodes, pScene->mRootNode);
-
-	std::vector<aiNodeAnim*> aniNodes(ani->mNumChannels);
-	memcpy(aniNodes.data(), ani->mChannels, sizeof(aiNodeAnim*) * ani->mNumChannels);
-
 	aniMatrices.resize(mesh->mNumBones);
 	joints.resize(mesh->mNumBones);
-
-	size_t numKeys = 0;
 
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
@@ -386,7 +341,11 @@ void Renderer::CreateSkeletal()
 		aiNodeAnim* channel = FindAnimNode(ani->mChannels, ani->mNumChannels, std::string_view(joints[i].name));
 		if (!channel)
 		{
-			printf("%s: channel was NULL\n", joints[i].name.c_str());
+			printf("%s: channel was NULL", joints[i].name.c_str());
+
+			if (!FixJoint(joints[i], pScene->mRootNode))
+				printf("%s: failed fixing", joints[i].name.c_str());
+
 			continue;
 		}
 
@@ -396,6 +355,9 @@ void Renderer::CreateSkeletal()
 			channel->mNumRotationKeys != channel->mNumScalingKeys)
 		{
 			printf("%s: keys not matching\n", joints[i].name.c_str());
+			if (!FixJoint(joints[i], pScene->mRootNode))
+				printf("%s: failed fixing", joints[i].name.c_str());
+
 			continue;
 		}
 
@@ -479,14 +441,7 @@ void Renderer::CalculateAnimation(float dt)
 
 	for (size_t i = 1; i < joints.size(); i++)
 	{
-		if (joints[i].stamps.empty())
-		{
-			joints[i].modelT = joints[joints[i].parentIdx].modelT;
-			joints[i].finalT = joints[i].invBindPose * joints[i].modelT;
-			continue;
-		}
-
-		TimeStamp& stamp = joints[i].stamps[currentStamp];
+		TimeStamp& stamp = joints[i].stamps.size() > 1 ? joints[i].stamps[currentStamp] : joints[i].stamps[0];
 
 		joints[i].localT =
 			XMMatrixScaling(stamp.scale.x, stamp.scale.y, stamp.scale.z) *
