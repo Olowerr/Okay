@@ -4,15 +4,11 @@
 #define NOMINMAX
 #endif // !NOMINMAX
 
-/*
 #include <assimp2/cimport.h>
 #include <assimp2/importer.hpp>
 #include <assimp2/postprocess.h>
 #include <assimp2/scene.h>
-*/
 
-
-#include <assimp2/cimport.h>
 
 // Private class with friend class acts like a private namespace
 class Importer
