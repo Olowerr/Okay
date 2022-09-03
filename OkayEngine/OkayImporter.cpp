@@ -13,7 +13,6 @@ bool Importer::Load(const std::string_view& filePath, Okay::VertexData& outData,
 
 	VERIFY(pScene);
 
-	//aiNode* pNode = pScene->mRootNode;
 	aiMesh* pMesh = pScene->mMeshes[0];	////
 	aiMaterial* pMat = pScene->mMaterials[pMesh->mMaterialIndex];
 
@@ -82,7 +81,6 @@ bool Importer::Load(const std::string_view& filePath, Okay::VertexData& outData,
 
 bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVertexData& outData)
 {
-
 	const aiScene* pScene = aiImportFile(filePath.data(),
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
@@ -91,34 +89,37 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 	aiMesh* pMesh = pScene->mMeshes[0];	////
 	aiAnimation* pAni = pScene->mAnimations[0];
 
-	// Vertex Positions
-	outData.position.resize(pMesh->mNumVertices);
-	memcpy(outData.position.data(), pMesh->mVertices, sizeof(Okay::Float3) * pMesh->mNumVertices);
-
-
-	// Vertex UV & Normals
-	outData.uvNormal.resize(pMesh->mNumVertices);
-	for (UINT i = 0; i < pMesh->mNumVertices; i++)
+	// Mesh
 	{
-		outData.uvNormal[i].normal.x = pMesh->mNormals[i].x;
-		outData.uvNormal[i].normal.y = pMesh->mNormals[i].y;
-		outData.uvNormal[i].normal.z = pMesh->mNormals[i].z;
-
-		outData.uvNormal[i].uv.x = pMesh->mTextureCoords[0][i].x;
-		outData.uvNormal[i].uv.y = pMesh->mTextureCoords[0][i].y;
-	}
+		// Vertex Positions
+		outData.position.resize(pMesh->mNumVertices);
+		memcpy(outData.position.data(), pMesh->mVertices, sizeof(Okay::Float3) * pMesh->mNumVertices);
 
 
-	// Indices
-	UINT counter = 0;
-	const UINT NumIndices = pMesh->mNumFaces * 3;
+		// Vertex UV & Normals
+		outData.uvNormal.resize(pMesh->mNumVertices);
+		for (UINT i = 0; i < pMesh->mNumVertices; i++)
+		{
+			outData.uvNormal[i].normal.x = pMesh->mNormals[i].x;
+			outData.uvNormal[i].normal.y = pMesh->mNormals[i].y;
+			outData.uvNormal[i].normal.z = pMesh->mNormals[i].z;
 
-	outData.indices.resize(NumIndices);
-	for (UINT i = 0; i < pMesh->mNumFaces; i++)
-	{
-		outData.indices[counter++] = pMesh->mFaces[i].mIndices[0];
-		outData.indices[counter++] = pMesh->mFaces[i].mIndices[1];
-		outData.indices[counter++] = pMesh->mFaces[i].mIndices[2];
+			outData.uvNormal[i].uv.x = pMesh->mTextureCoords[0][i].x;
+			outData.uvNormal[i].uv.y = pMesh->mTextureCoords[0][i].y;
+		}
+
+
+		// Indices
+		UINT counter = 0;
+		const UINT NumIndices = pMesh->mNumFaces * 3;
+
+		outData.indices.resize(NumIndices);
+		for (UINT i = 0; i < pMesh->mNumFaces; i++)
+		{
+			outData.indices[counter++] = pMesh->mFaces[i].mIndices[0];
+			outData.indices[counter++] = pMesh->mFaces[i].mIndices[1];
+			outData.indices[counter++] = pMesh->mFaces[i].mIndices[2];
+		}
 	}
 
 
@@ -181,14 +182,16 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 		}
 	}
 
+	SetParents(outData.joints, pScene->mRootNode);
+
 	// Normalize Weights
 	for (Okay::SkinnedVertex& weight : outData.weights)
 	{
-		float sum = weight.weight[0] + weight.weight[1] + weight.weight[2] + weight.weight[3];
-		weight.weight[0] /= sum;
-		weight.weight[1] /= sum;
-		weight.weight[2] /= sum;
-		weight.weight[3] /= sum;
+		float invSum = 1.f / (weight.weight[0] + weight.weight[1] + weight.weight[2] + weight.weight[3]);
+		weight.weight[0] *= invSum;
+		weight.weight[1] *= invSum;
+		weight.weight[2] *= invSum;
+		weight.weight[3] *= invSum;
 	}
 
 
