@@ -18,7 +18,7 @@ namespace Okay
 
 	struct SkinnedVertex
 	{
-		unsigned int jointIdx[4]{};
+		UINT jointIdx[4]{};
 		float weight[4]{};
 	};
 }

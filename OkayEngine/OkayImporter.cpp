@@ -122,10 +122,13 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 	}
 
 
-	// Weights
+	// Joints
 	outData.weights.resize(outData.indices.size());
+	outData.joints.resize(pMesh->mNumBones);
+
 	for (UINT i = 0; i < pMesh->mNumBones; i++)
 	{
+		// Weights & Indices
 		for (UINT k = 0; k < pMesh->mBones[i]->mNumWeights; k++)
 		{
 			aiVertexWeight& aiWeight = pMesh->mBones[i]->mWeights[k];
@@ -136,25 +139,21 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 			else if (currVertex.weight[2] == 0.f) { currVertex.weight[2] = aiWeight.mWeight; currVertex.jointIdx[2] = i; }
 			else if (currVertex.weight[3] == 0.f) { currVertex.weight[3] = aiWeight.mWeight; currVertex.jointIdx[3] = i; }
 		}
-	}
 
-	outData.joints.resize(pMesh->mNumBones);
 
-	for (UINT i = 0; i < pMesh->mNumBones; i++)
-	{
+		// Joint Specific
 		Okay::Joint& joint = outData.joints[i];
 
 		joint.name = pMesh->mBones[i]->mName.C_Str();
-		memcpy(&joint.invBindPose, &mesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
+		memcpy(&joint.invBindPose, &pMesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
 		joint.invBindPose = DirectX::XMMatrixTranspose(joint.invBindPose);
 
-		aiNodeAnim* channel = FindAnimNode(pAni->mChannels, pAni->mNumChannels, std::string_view(joint.name));
+		aiNodeAnim* channel = FindAnimNode(pAni->mChannels, pAni->mNumChannels, joint.name);
 		if (!channel)
 		{
-			printf("%s: channel was NULL\n", joint.name);
-
+			printf("%s: channel was NULL\n", joint.name.c_str());
 			if (!FixJoint(joint, pScene->mRootNode))
-				printf("%s: failed fixing, using identity transform.\n", joint.name);
+				printf("%s: failed fixing, using identity transform.\n", joint.name.c_str());
 
 			continue;
 		}
@@ -172,20 +171,28 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 		}
 
 		joint.stamps.resize(channel->mNumPositionKeys);
-
 		for (UINT k = 0; k < channel->mNumPositionKeys; k++)
 		{
 			joint.stamps[k].time = (float)channel->mPositionKeys[k].mTime;
 
-			joint.stamps[k].pos = channel->mPositionKeys[k].mValue;
-			joint.stamps[k].rot = channel->mRotationKeys[k].mValue;
-			joint.stamps[k].scale = channel->mScalingKeys[k].mValue;
+			memcpy(&joint.stamps[k].pos, &channel->mPositionKeys[k].mValue, sizeof(Okay::Float3));
+			memcpy(&joint.stamps[k].rot, &channel->mRotationKeys[k].mValue, sizeof(Okay::Float4));
+			memcpy(&joint.stamps[k].scale, &channel->mScalingKeys[k].mValue, sizeof(Okay::Float3));
 		}
 	}
 
+	// Normalize Weights
+	for (Okay::SkinnedVertex& weight : outData.weights)
+	{
+		float sum = weight.weight[0] + weight.weight[1] + weight.weight[2] + weight.weight[3];
+		weight.weight[0] /= sum;
+		weight.weight[1] /= sum;
+		weight.weight[2] /= sum;
+		weight.weight[3] /= sum;
+	}
 
 
-	return false;
+	return true;
 }
 
 bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData)

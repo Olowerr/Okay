@@ -16,7 +16,7 @@ namespace Okay
 
 	struct Joint
 	{
-		String name;
+		std::string name;
 		int parentIdx = -1;
 		DirectX::XMMATRIX invBindPose{};
 		DirectX::XMMATRIX localT{};

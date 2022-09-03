@@ -388,41 +388,6 @@ void Renderer::CreateSkeletal()
 
 	SetParents(joints, pScene->mRootNode);
 
-	for (UINT i = 0; i < mesh->mNumBones; i++)
-	{
-		Joint& joint = joints[i];
-		int q = 0;
-		if (joint.stamps.size() < highestNumKeys || !jointHasTra[i])
-		{
-			joint.stamps.resize(highestNumKeys);
-			const std::string nodeName(std::string(joint.name) + "_$AssimpFbx$_Translation");
-			
-			if (nodesMap.find(nodeName) != nodesMap.end())
-			{
-				printf("%s	|	", nodeName.c_str());
-				printf("X: %f, Y: %f, Z: %f\n", nodesMap[nodeName]->mTransformation.a4,
-					nodesMap[nodeName]->mTransformation.b4, nodesMap[nodeName]->mTransformation.c4);
-
-				auto& n = nodesMap[nodeName];
-				for (TimeStamp& stamp : joint.stamps)
-				{
-					stamp.pos.x = nodesMap[nodeName]->mTransformation.a4;
-					stamp.pos.y = nodesMap[nodeName]->mTransformation.b4;
-					stamp.pos.z = nodesMap[nodeName]->mTransformation.c4;
-				}
-			}
-			else
-			{
-				printf("Else | %s\n", nodeName.c_str());
-
-
-				for (TimeStamp& stamp : joint.stamps)
-					stamp.pos = pos;
-
-			}
-		}
-	}
-
 	data.weights.resize(data.indices.size());
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
