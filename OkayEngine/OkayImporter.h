@@ -18,9 +18,62 @@ class Importer
 private:
 	friend class Assets; 
 
-	static bool Load(const std::string_view& meshFile, Okay::VertexData& outData, std::string* texPath);
+	static bool Load(const std::string_view& filePath, Okay::VertexData& outData, std::string* texPath);
 
-	static bool WriteOkayAsset(const std::string& meshFile, const Okay::VertexData& vertexData);
+	static bool LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVertexData& outData);
 
-	static bool LoadOkayAsset(const std::string& meshFile, Okay::VertexData& vertexData);
+	static bool WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData);
+
+	static bool LoadOkayAsset(const std::string& filePath, Okay::VertexData& vertexData);
+
+
+	// Helper Functions
+	static aiNodeAnim* FindAnimNode(aiNodeAnim** nodes, UINT numNodesa, std::string_view name);
+	static bool FixJoint(Okay::Joint& joint, aiNode* pRootNode);
+	static aiNode* FindTraNode(aiNode* pParent, std::string_view name);
 };
+
+inline aiNodeAnim* Importer::FindAnimNode(aiNodeAnim** nodes, UINT numNodes, std::string_view name)
+{
+	for (UINT i = 0; i < numNodes; i++)
+	{
+		if (nodes[i]->mNodeName.C_Str() == name)
+			return nodes[i];
+	}
+
+	return nullptr;
+}
+
+inline bool Importer::FixJoint(Okay::Joint& joint, aiNode* pRootNode)
+{
+	std::string name = std::string(joint.name) + "_$AssimpFbx$_Translation";
+	aiNode* pNode = FindTraNode(pRootNode, name);
+	joint.stamps.resize(1);
+
+	if (!pNode)
+		return false;
+
+	joint.stamps[0].time = 0.f;
+
+	joint.stamps[0].pos.x = pNode->mTransformation.a4;
+	joint.stamps[0].pos.y = pNode->mTransformation.b4;
+	joint.stamps[0].pos.z = pNode->mTransformation.c4;
+
+	return true;
+}
+
+inline aiNode* Importer::FindTraNode(aiNode* parent, std::string_view jointName)
+{
+	aiNode* ptr = nullptr;
+
+	for (size_t i = 0; i < parent->mNumChildren; i++)
+	{
+		if (parent->mChildren[i]->mName.C_Str() == jointName)
+			ptr = parent->mChildren[i];
+
+		else if (!ptr)
+			ptr = FindTraNode(parent->mChildren[i], jointName);
+	}
+
+	return ptr;
+}

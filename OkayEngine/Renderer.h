@@ -144,10 +144,11 @@ private: // Create Shaders
 	{
 		std::string name = joint.name + "_$AssimpFbx$_Translation";
 		aiNode* pNode = FindTraNode(root, name);
+		joint.stamps.resize(1);
+
 		if (!pNode)
 			return false;
 
-		joint.stamps.resize(1);
 		joint.stamps[0].time = 0.f;
 
 		joint.stamps[0].pos.x = pNode->mTransformation.a4;
