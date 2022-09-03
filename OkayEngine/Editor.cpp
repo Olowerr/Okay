@@ -152,7 +152,7 @@ namespace Okay
 		}
 
 		Scene* pScene = Engine::GetActiveScene();
-		auto& reg = pScene->GetRegistry();
+		entt::registry& reg = pScene->GetRegistry();
 		const ImVec2 Size(ImGui::GetWindowSize());
 
 		ImGui::Text("Entities:");
@@ -228,6 +228,7 @@ namespace Okay
 					{
 						currentEntity.GetComponent<CompTag>().tag = newName;
 						newName = "";
+						entityMenu = false;
 					}
 
 					ImGui::EndMenu();
@@ -399,12 +400,12 @@ namespace Okay
 
 				if (ImGui::BeginMenu("Change name"))
 				{
-					/*if (ImGui::InputText("##inputName", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
+					if (ImGui::InputText("##inputName", newName, sizeof(String), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						//assets.ChangeMeshName(pMesh, newName);
+						assets.ChangeMeshName(pMesh, newName);
 						newName = "";
 						meshMenu = false;
-					}*/
+					}
 
 					ImGui::EndMenu();
 				}

@@ -18,13 +18,14 @@ namespace Okay
 		void Draw() const;			// Will change with instancing
 
 		const String& GetName() const;
+		void SetName(const Okay::String& name);
 
 		static const UINT NumBuffers = 2;
 		static const UINT Stride[NumBuffers];
 		static const UINT Offset[NumBuffers];
 
 	private:
-		const String name;
+		String name;
 		ID3D11Buffer* vertexBuffers[NumBuffers];
 		ID3D11Buffer* indexBuffer;
 
