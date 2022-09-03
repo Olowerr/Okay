@@ -339,6 +339,9 @@ void Renderer::CreateSkeletal()
 	aniMatrices.resize(mesh->mNumBones);
 	joints.resize(mesh->mNumBones);
 
+	std::vector<aiNode*> nodes;
+	Fill(nodes, pScene->mRootNode);
+
 	for (UINT i = 0; i < mesh->mNumBones; i++)
 	{
 		joints[i].name = mesh->mBones[i]->mName.C_Str();
@@ -416,6 +419,8 @@ void Renderer::CalculateAnimation(float dt)
 {
 	static size_t currentStamp = 0;
 	static float tickTime = 0.f;
+
+	dt *= 0.3f;
 
 	tickTime += dt;
 	aniTime += dt;

@@ -176,6 +176,16 @@ private: // Create Shaders
 
 	void CreateSkeletal();
 	void CalculateAnimation(float dt);
+
+	void Fill(std::vector<aiNode*>& nodes, aiNode* pRoot)
+	{
+		for (UINT i = 0; i < pRoot->mNumChildren; i++)
+		{
+			nodes.emplace_back(pRoot->mChildren[i]);
+			Fill(nodes, pRoot->mChildren[i]);
+		}
+	}
+
 #endif
 };
 
