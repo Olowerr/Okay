@@ -293,7 +293,10 @@ void Renderer::CreateSkeletal()
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 	if (!pScene)
+	{
+		printf("Failed to load animation\n");
 		return;
+	}
 
 	auto ani = pScene->mAnimations[0];
 	auto mesh = pScene->mMeshes[0];
