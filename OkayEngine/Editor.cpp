@@ -595,7 +595,7 @@ namespace Okay
 				ImGui::PushItemWidth(-15.f);
 				if (ImGui::BeginCombo("##MeshNoLabel", compMesh.GetMesh()->GetName()))
 				{
-					static auto ListMeshes = [](const SPtr<const Mesh>& mesh, CompMesh& cMesh)
+					static auto ListMeshes = [](const SPtr<Mesh>& mesh, CompMesh& cMesh)
 					{
 						if (ImGui::Selectable(mesh->GetName()))
 							cMesh.AssignMesh(mesh);
@@ -610,7 +610,7 @@ namespace Okay
 				ImGui::Text("Material:");
 				if (ImGui::BeginCombo("##MatNoLabel", compMesh.GetMaterial()->GetName()))
 				{
-					static auto ListMaterials = [](const SPtr<const Material>& material, CompMesh& cMesh)
+					static auto ListMaterials = [](const SPtr<Material>& material, CompMesh& cMesh)
 					{
 						if (ImGui::Selectable(material->GetName()))
 							cMesh.AssignMaterial(0, material);

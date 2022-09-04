@@ -160,6 +160,8 @@ bool Okay::Engine::SaveCurrentScene()
 
 bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 {
+	printf("Loading scene..\n");
+
 	Get().activeScene.release();
 	Get().activeScene = std::make_unique<Scene>();
 
@@ -174,6 +176,9 @@ bool Okay::Engine::LoadScene(const Okay::String& sceneName)
 		Entity ent = Get().activeScene->CreateEntity();
 		ReadEntity(ent, reader);
 	}
+
+	printf("Scene loaded\n");
+
 
 	return true;
 }

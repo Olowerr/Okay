@@ -36,7 +36,7 @@ void Scene::Start()
     test.AddScript<HoverScript>();
 
     Entity gobWalk = CreateEntity();
-    gobWalk.AddComponent<Okay::CompSkeletalMesh>();
+    gobWalk.AddComponent<Okay::CompSkeletalMesh>("gobWalk3").StartAnimation();
 
     registry.view<CompScript>().each([](CompScript& script)
     {

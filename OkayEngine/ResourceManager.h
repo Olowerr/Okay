@@ -24,7 +24,7 @@ public:
 	void SetUp();
 	void Save();
 
-	bool TryImport(const std::string_view& path);
+	bool TryImport(std::string_view path);
 
 	// Meshes
 #pragma region
@@ -64,10 +64,10 @@ public:
 		size_t pos = filePath.find_last_of('/');
 		pos = pos == -1 ? filePath.find_last_of('\\') : pos;
 
-		std::string_view fileName = filePath.substr(pos + 1).data();
+		std::string fileName = filePath.substr(pos + 1).data();
 		fileName = fileName.substr(0, fileName.find_last_of('.'));
 
-		skeletalMeshes[fileName.data()] = std::make_shared<Okay::SkeletalMesh>(data);
+		skeletalMeshes[fileName] = std::make_shared<Okay::SkeletalMesh>(data);
 
 		return true;
 	}

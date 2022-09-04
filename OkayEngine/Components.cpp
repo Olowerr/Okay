@@ -6,6 +6,8 @@ namespace Okay
 {
 
 #pragma region
+	/* ------ Mesh Component ------ */
+
 	CompMesh::CompMesh()
 		:mesh(Engine::GetAssets().GetMesh("Default"))
 	{
@@ -29,12 +31,12 @@ namespace Okay
 		//materials.resize(mesh->NumSub);
 	}
 
-	void CompMesh::AssignMesh(const std::shared_ptr<const Mesh>& mesh)
+	void CompMesh::AssignMesh(std::shared_ptr<Mesh> mesh)
 	{
 		this->mesh = mesh;
 	}
 
-	void CompMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
+	void CompMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
 	{
 		// TEMP
 		this->material = material;
@@ -114,6 +116,7 @@ namespace Okay
 
 
 #pragma region
+	/* ------ Transform Component ------ */
 
 	CompTransform::CompTransform()
 		:position(), rotation(), scale(1.f, 1.f, 1.f)
@@ -153,10 +156,6 @@ namespace Okay
 
 		CalcMatrix();
 	}
-#pragma endregion Transform Component
-
-
-#pragma region
 
 	void CompTag::WritePrivateData(std::ofstream& writer)
 	{
@@ -167,8 +166,10 @@ namespace Okay
 	{
 		reader.read(tag.c_str, sizeof(String));
 	}
+#pragma endregion Transform Component
 
 
+#pragma region
 	/* ------ Point Light Component ------ */
 
 	void CompPointLight::WritePrivateData(std::ofstream& writer)
@@ -180,21 +181,27 @@ namespace Okay
 	{
 		reader.read((char*)this, sizeof(CompPointLight));
 	}
+
 #pragma endregion Tag Component
 
 
 #pragma region
+	/* ------ Skeletal Mesh Component ------ */
+
 	CompSkeletalMesh::CompSkeletalMesh()
+		:aniTime(0.f), tickTime(0.f), currentFrame(0), playing(false)
 	{
 		mesh = Engine::GetAssets().GetSkeletalMesh("Default");
 	}
 
 	CompSkeletalMesh::CompSkeletalMesh(std::string_view meshName)
+		:aniTime(0.f), tickTime(0.f), currentFrame(0), playing(false)
 	{
 		mesh = Engine::GetAssets().GetSkeletalMesh(meshName.data());
 	}
 
-	CompSkeletalMesh::CompSkeletalMesh(const std::shared_ptr<SkeletalMesh>& mesh)
+	CompSkeletalMesh::CompSkeletalMesh(std::shared_ptr<SkeletalMesh> mesh)
+		:aniTime(0.f), tickTime(0.f), currentFrame(0), playing(false)
 	{
 		this->mesh = mesh;
 	}
@@ -204,7 +211,7 @@ namespace Okay
 		//mesh = Engine::GetAssets().GetSkeletalMesh(meshName);
 	}
 
-	void CompSkeletalMesh::AssignMesh(const std::shared_ptr<SkeletalMesh>& mesh)
+	void CompSkeletalMesh::AssignMesh(std::shared_ptr<SkeletalMesh> mesh)
 	{
 		this->mesh = mesh;
 	}
@@ -214,7 +221,7 @@ namespace Okay
 		//material = Engine::GetAssets().GetMaterial(materialName);
 	}
 
-	void CompSkeletalMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
+	void CompSkeletalMesh::AssignMaterial(UINT index, std::shared_ptr<Material> material)
 	{
 		this->material = material;
 	}
@@ -227,22 +234,19 @@ namespace Okay
 		tickTime += Engine::GetDT();
 		aniTime += Engine::GetDT();
 
-		std::shared_ptr<Okay::SkeletalMesh> pMesh = mesh.lock();;
+		std::shared_ptr<Okay::SkeletalMesh> pMesh = mesh.lock();
 
-		if (tickTime >= pMesh->GetTickLengthS())
+		if (tickTime > pMesh->GetTickLengthS())
 		{
 			++currentFrame;
 			tickTime = 0.f;
 		}
 
-		if (aniTime >= pMesh->GetDurationS())
+		if (aniTime > pMesh->GetDurationS())
 		{
 			currentFrame = 0;
 			aniTime = 0.f;
 		}
-
-		pMesh->SetPose(currentFrame);
-
 	}
 
 	void CompSkeletalMesh::StartAnimation()
@@ -254,7 +258,20 @@ namespace Okay
 
 	void CompSkeletalMesh::StopAnimation()
 	{
+		aniTime = tickTime = 0.f;
+		currentFrame = 0;
 		playing = false;
+	}
+
+	void CompSkeletalMesh::UpdateSkeletalMatrices()
+	{
+		if (CheckMesh())
+		{
+			StopAnimation();
+			return;
+		}
+
+		mesh.lock()->SetPose(currentFrame);
 	}
 
 	void CompSkeletalMesh::WritePrivateData(std::ofstream& writer)
@@ -271,10 +288,15 @@ namespace Okay
 			material = Engine::GetAssets().GetMaterial("Default");
 	}
 
-	void CompSkeletalMesh::CheckMesh() const
+	bool CompSkeletalMesh::CheckMesh() const
 	{
 		if (mesh.expired())
+		{
 			mesh = Engine::GetAssets().GetSkeletalMesh("Default");
+			return true;
+		}
+
+		return false;
 	}
 
 #pragma endregion Skeletal Mesh Component

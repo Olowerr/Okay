@@ -15,7 +15,7 @@ Assets::~Assets()
 void Assets::SetUp()
 {
 	AddTexture(TexturePath + "quack.jpg");
-	auto defaultTexture = GetTexture("quack.jpg");
+	std::shared_ptr<Okay::Texture> defaultTexture = GetTexture("quack.jpg");
 
 	Okay::MaterialDesc_Ptrs defaultDesc;
 	defaultDesc.name = "Default";
@@ -41,7 +41,7 @@ void Assets::Save()
 	WriteDeclaration();
 }
 
-bool Assets::TryImport(const std::string_view& path)
+bool Assets::TryImport(std::string_view path)
 {
 	const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 	bool result = false;
@@ -109,7 +109,7 @@ bool Assets::MeshExists(const std::string& fileName)
 
 std::shared_ptr<Okay::SkeletalMesh> Assets::GetSkeletalMesh(const std::string& name)
 {
-	if (skeletalMeshes.find(name) != skeletalMeshes.end())
+	if (skeletalMeshes.find(name) == skeletalMeshes.end())
 	{
 		skeletalMeshes.insert({ "Default", std::make_shared<Okay::SkeletalMesh>() });
 		return skeletalMeshes["Default"];

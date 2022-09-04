@@ -10,10 +10,10 @@ namespace Okay // Structs for now, change to classes
 	{
 		None = 0,
 		Mesh,
-		SkeletalMesh,
 		Transform,
 		Tag,
-		PointLight
+		PointLight,
+		SkeletalMesh
 	};
 
 	struct CompMesh 
@@ -24,24 +24,24 @@ namespace Okay // Structs for now, change to classes
 		CompMesh(const std::string& meshName);
 
 		void AssignMesh(const std::string& meshName);
-		void AssignMesh(const std::shared_ptr<const Mesh>& mesh);
+		void AssignMesh(std::shared_ptr<Mesh> mesh);
 
 		void AssignMaterial(UINT index, const Okay::String& materialName);
-		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);
+		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
 
-		std::shared_ptr<const Material> GetMaterial() const
+		std::shared_ptr<Material> GetMaterial() const
 		{
 			CheckMaterial();
-			return std::shared_ptr<const Material>(material);
+			return std::shared_ptr<Material>(material);
 		}
-		std::shared_ptr<const Mesh> GetMesh() const
+		std::shared_ptr<Mesh> GetMesh() const
 		{
 			CheckMesh();
-			return std::shared_ptr<const Mesh>(mesh);
+			return std::shared_ptr<Mesh>(mesh);
 		}
 
-		mutable std::weak_ptr<const Mesh> mesh;
-		mutable std::weak_ptr<const Material> material;
+		mutable std::weak_ptr<Mesh> mesh;
+		mutable std::weak_ptr<Material> material;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
@@ -56,28 +56,30 @@ namespace Okay // Structs for now, change to classes
 
 		CompSkeletalMesh();
 		CompSkeletalMesh(std::string_view meshName);
-		CompSkeletalMesh(const std::shared_ptr<SkeletalMesh>& mesh);
+		CompSkeletalMesh(std::shared_ptr<SkeletalMesh> mesh);
 
 		void AssignMesh(std::string_view meshName);
-		void AssignMesh(const std::shared_ptr<SkeletalMesh>& mesh);
+		void AssignMesh(std::shared_ptr<SkeletalMesh> mesh);
 
 		void AssignMaterial(UINT index, const Okay::String& materialName);
-		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);
+		void AssignMaterial(UINT index, std::shared_ptr<Material> material);
 
-		std::shared_ptr<const Material> GetMaterial() const
+		std::shared_ptr<Material> GetMaterial() const
 		{
 			CheckMaterial();
-			return std::shared_ptr<const Material>(material);
+			return std::shared_ptr<Material>(material);
 		}
-		std::shared_ptr<const SkeletalMesh> GetMesh() const
+		std::shared_ptr<SkeletalMesh> GetMesh() const
 		{
 			CheckMesh();
-			return std::shared_ptr<const SkeletalMesh>(mesh);
+			return std::shared_ptr<SkeletalMesh>(mesh);
 		}
 
 		void UpdateAnimation();
 		void StartAnimation();
 		void StopAnimation();
+		void ResetAnimation();
+		void UpdateSkeletalMatrices();
 
 		float aniTime;
 		float tickTime;
@@ -85,13 +87,13 @@ namespace Okay // Structs for now, change to classes
 		bool playing;
 
 		mutable std::weak_ptr<SkeletalMesh> mesh;
-		mutable std::weak_ptr<const Material> material;
+		mutable std::weak_ptr<Material> material;
 
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
 
 		void CheckMaterial() const;
-		void CheckMesh() const;
+		bool CheckMesh() const;
 	};
 
 	struct CompTransform

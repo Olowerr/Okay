@@ -197,6 +197,7 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 		weight.weight[3] *= invSum;
 	}
 
+	aiReleaseImport(pScene);
 
 	return true;
 }

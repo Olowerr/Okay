@@ -31,12 +31,22 @@ namespace Okay
 		
 
 		joints.resize(data.joints.size());
-		memcpy(joints.data(), data.joints.data(), sizeof(Joint) * joints.size());
+		
+		for (size_t i = 0; i < joints.size(); i++)
+		{
+			joints[i].name = data.joints[i].name;
+			joints[i].parentIdx = data.joints[i].parentIdx;
+			joints[i].invBindPose = data.joints[i].invBindPose;
+			
+			joints[i].stamps.resize(data.joints[i].stamps.size());
+			memcpy(joints[i].stamps.data(), data.joints[i].stamps.data(), sizeof(TimeStamp) * joints[i].stamps.size());
+		}
+		
 
 		gpuMatrices.resize(data.joints.size());
 
-		DX11::CreateStructuredBuffer(&matricesBuffer, nullptr, 64U, joints.size(), false);
-		DX11::CreateStructuredSRV(&matricesSRV, matricesBuffer, joints.size());
+		DX11::CreateStructuredBuffer(&matricesBuffer, nullptr, sizeof(DirectX::XMFLOAT4X4), UINT(joints.size()), false);
+		DX11::CreateStructuredSRV(&matricesSRV, matricesBuffer, UINT(joints.size()));
 	}
 
 	SkeletalMesh::~SkeletalMesh()
@@ -113,6 +123,8 @@ namespace Okay
 
 		for (size_t i = 0; i < joints.size(); i++)
 			XMStoreFloat4x4(&gpuMatrices[i], XMMatrixTranspose(joints[i].finalT));
+
+		DX11::UpdateBuffer(matricesBuffer, gpuMatrices.data(), UINT(sizeof(XMFLOAT4X4) * joints.size()));
 	}
 
 }

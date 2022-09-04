@@ -2,7 +2,7 @@
 #include "Engine.h"
 
 Renderer::Renderer()
-	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
+	:pMeshIL(), pMeshVS(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
 {
 	// Make sure Okay::Engine::Get() is never called here
 
@@ -38,7 +38,7 @@ Renderer::Renderer()
 		simp->Release();
 	}
 
-	Bind();
+	BindBasics();
 	shaderModel->Bind();
 
 	meshesToRender.resize(10);
@@ -102,6 +102,7 @@ void Renderer::SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pT
 void Renderer::NewFrame()
 {
 	numActive = 0;
+	numSkeletalActive = 0;
 	numLights = 0;
 }
 
@@ -113,8 +114,8 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pWorldBuffer);
 	DX11_RELEASE(pMaterialBuffer);
 
-	DX11_RELEASE(pInputLayout);
-	DX11_RELEASE(pVertexShader);
+	DX11_RELEASE(pMeshIL);
+	DX11_RELEASE(pMeshVS);
 	DX11_RELEASE(pHullShader);
 	DX11_RELEASE(pDomainShader);
 
@@ -122,9 +123,10 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pPointLightSRV);
 	DX11_RELEASE(pLightInfoBuffer);
 
+	DX11_RELEASE(pAniVS);
+	DX11_RELEASE(pAniIL);
+
 #if FORCE_ANIMATION == 1
-	DX11_RELEASE(aniVS);
-	DX11_RELEASE(aniIL);
 	DX11_RELEASE(aniBuffer);
 	DX11_RELEASE(aniSRV);
 #endif
@@ -137,6 +139,7 @@ void Renderer::Render()
 	shaderModel->Bind();
 	mainCamera->Update();
 
+	// Update generic buffers
 	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 
 	if (numLights)
@@ -145,24 +148,48 @@ void Renderer::Render()
 		DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
 	}
 
-	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
-	pDevContext->IASetInputLayout(pInputLayout);
 
-	for (size_t i = 0; i < numActive; i++)
+	// Preperation
+	std::shared_ptr<const Material> material;
+	size_t i = 0;
+
+	// Draw static meshes
+	BindMeshPipeline();
+
+	for (i = 0; i < numActive; i++)
 	{
-		CompMesh& cMesh = *meshesToRender.at(i).mesh;
+		const CompMesh& cMesh = *meshesToRender.at(i).mesh;
 		const CompTransform& transform = *meshesToRender.at(i).transform;
-		auto material = cMesh.GetMaterial();
-		auto mesh = cMesh.GetMesh();
+
+		material = cMesh.GetMaterial();
+
+		material->BindTextures();
 
 		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
 		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
-		material->BindTextures();
-
-		mesh->Draw();
+		cMesh.GetMesh()->Draw();
 	}
 
+
+	// Draw skeletal meshes
+	BindSkeletalPipeline();
+
+	for (i = 0; i < numSkeletalActive; i++)
+	{
+		CompSkeletalMesh& cMesh = *skeletalMeshes[i].first;
+		const CompTransform& transform = *skeletalMeshes[i].second;
+
+		material = cMesh.GetMaterial();
+		material->BindTextures();
+		cMesh.UpdateSkeletalMatrices();
+
+		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
+		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
+
+		cMesh.GetMesh()->Draw();
+		
+	}
 
 
 #if FORCE_ANIMATION == 1
@@ -200,21 +227,28 @@ bool Renderer::ExpandPointLights()
 	return true;
 }
 
-void Renderer::Bind()
+void Renderer::BindBasics()
 {
 	pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pDevContext->IASetInputLayout(pInputLayout);
 
-	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
 	pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
 	pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
 	pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
 
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 	pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
+}
 
+void Renderer::BindMeshPipeline()
+{
+	pDevContext->IASetInputLayout(pMeshIL);
+	pDevContext->VSSetShader(pMeshVS, nullptr, 0);
+}
 
-
+void Renderer::BindSkeletalPipeline()
+{
+	pDevContext->IASetInputLayout(pAniIL);
+	pDevContext->VSSetShader(pAniVS, nullptr, 0);
 }
 
 bool Renderer::CreateVS()
@@ -228,10 +262,9 @@ bool Renderer::CreateVS()
 	};
 
 	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pMeshIL));
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS));
 
-#if FORCE_ANIMATION == 1
 	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -241,9 +274,8 @@ bool Renderer::CreateVS()
 	};
 
 	VERIFY(Okay::ReadShader("SkeletalMeshVS.cso", shaderData));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &aniIL));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &aniVS));
-#endif
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &pAniIL));
+	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pAniVS));
 
 	return true;
 }

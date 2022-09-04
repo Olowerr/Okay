@@ -77,12 +77,18 @@ private: // DX11 Specific
 	bool ExpandPointLights();
 
 private: // Pipline
-	ID3D11InputLayout* pInputLayout;
-	ID3D11VertexShader* pVertexShader;
+	ID3D11InputLayout* pMeshIL;
+	ID3D11VertexShader* pMeshVS;
 	ID3D11HullShader* pHullShader;     // Disabled
 	ID3D11DomainShader* pDomainShader; // Disabled
 
-	void Bind();
+	void BindBasics();
+	void BindMeshPipeline();
+	void BindSkeletalPipeline();
+
+	// Animation
+	ID3D11InputLayout* pAniIL;
+	ID3D11VertexShader* pAniVS;
 
 private: // Create Shaders
 	bool CreateVS();
