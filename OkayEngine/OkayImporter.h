@@ -19,11 +19,9 @@ private:
 	friend class Assets; 
 
 	static bool Load(const std::string_view& filePath, Okay::VertexData& outData, std::string* texPath);
-
 	static bool LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVertexData& outData);
 
 	static bool WriteOkayAsset(const std::string& filePath, const Okay::VertexData& vertexData);
-
 	static bool LoadOkayAsset(const std::string& filePath, Okay::VertexData& vertexData);
 
 

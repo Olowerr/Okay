@@ -52,20 +52,22 @@ private:
 	// Skeletal Mesh
 #pragma region 
 
+public:
+	std::shared_ptr<Okay::SkeletalMesh> GetSkeletalMesh(const std::string& name);
 
 	// TEMP
 	bool LoadSkeletalMesh(std::string_view filePath)
 	{
 		Okay::SkeletalVertexData data;
-		VERIFY(Importer::Load(filePath, data));
+		VERIFY(Importer::LoadSkeletal(filePath, data));
 
 		size_t pos = filePath.find_last_of('/');
 		pos = pos == -1 ? filePath.find_last_of('\\') : pos;
 
-		std::string fileName = filePath.substr(pos + 1).data();
+		std::string_view fileName = filePath.substr(pos + 1).data();
 		fileName = fileName.substr(0, fileName.find_last_of('.'));
 
-		skeletalMeshes[fileName] = std::make_shared<Okay::SkeletalMesh>(data);
+		skeletalMeshes[fileName.data()] = std::make_shared<Okay::SkeletalMesh>(data);
 
 		return true;
 	}

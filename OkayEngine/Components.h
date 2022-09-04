@@ -54,11 +54,12 @@ namespace Okay // Structs for now, change to classes
 	{
 		static const Components ID = Components::SkeletalMesh;
 
-		CompSkeletalMesh(const std::string& meshName);
-		CompSkeletalMesh(const std::shared_ptr<const SkeletalMesh>& mesh);
+		CompSkeletalMesh();
+		CompSkeletalMesh(std::string_view meshName);
+		CompSkeletalMesh(const std::shared_ptr<SkeletalMesh>& mesh);
 
-		void AssignMesh(const std::string& meshName);
-		void AssignMesh(const std::shared_ptr<const SkeletalMesh>& mesh);
+		void AssignMesh(std::string_view meshName);
+		void AssignMesh(const std::shared_ptr<SkeletalMesh>& mesh);
 
 		void AssignMaterial(UINT index, const Okay::String& materialName);
 		void AssignMaterial(UINT index, const std::shared_ptr<const Material>& material);
@@ -74,7 +75,16 @@ namespace Okay // Structs for now, change to classes
 			return std::shared_ptr<const SkeletalMesh>(mesh);
 		}
 
-		mutable std::weak_ptr<const SkeletalMesh> mesh;
+		void UpdateAnimation();
+		void StartAnimation();
+		void StopAnimation();
+
+		float aniTime;
+		float tickTime;
+		size_t currentFrame;
+		bool playing;
+
+		mutable std::weak_ptr<SkeletalMesh> mesh;
 		mutable std::weak_ptr<const Material> material;
 
 		void WritePrivateData(std::ofstream& writer);

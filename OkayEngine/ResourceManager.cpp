@@ -28,7 +28,7 @@ void Assets::SetUp()
 	
 	// Manually modify assets here -----
 	
-
+	LoadSkeletalMesh("../content/meshes/ani/gobWalk3.fbx");
 
 	// -----
 
@@ -105,6 +105,17 @@ bool Assets::AddMesh(const std::string& filePath)
 bool Assets::MeshExists(const std::string& fileName)
 {
 	return meshes.find(fileName) != meshes.end();
+}
+
+std::shared_ptr<Okay::SkeletalMesh> Assets::GetSkeletalMesh(const std::string& name)
+{
+	if (skeletalMeshes.find(name) != skeletalMeshes.end())
+	{
+		skeletalMeshes.insert({ "Default", std::make_shared<Okay::SkeletalMesh>() });
+		return skeletalMeshes["Default"];
+	}
+
+	return skeletalMeshes[name];
 }
 
 std::shared_ptr<Okay::Mesh> Assets::GetMesh(const std::string& fileName)

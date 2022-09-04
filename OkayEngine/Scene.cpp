@@ -35,6 +35,9 @@ void Scene::Start()
    // test.AddScript<RotateScript>();
     test.AddScript<HoverScript>();
 
+    Entity gobWalk = CreateEntity();
+    gobWalk.AddComponent<Okay::CompSkeletalMesh>();
+
     registry.view<CompScript>().each([](CompScript& script)
     {
         script.Start();
@@ -58,6 +61,11 @@ void Scene::Submit()
         ren.Submit(&meshView.get<Okay::CompMesh>(entity), &meshView.get<Okay::CompTransform>(entity));
 
 
+    const auto& skeletalView = registry.view<Okay::CompSkeletalMesh, Okay::CompTransform>();
+    for (auto& entity : skeletalView)
+        ren.SumbitSkeletal(&skeletalView.get<Okay::CompSkeletalMesh>(entity), &skeletalView.get<Okay::CompTransform>(entity));
+
+
     const auto& lightView = registry.view<Okay::CompPointLight, Okay::CompTransform>();
     for (auto& entity : lightView)
         ren.SubmitLight(&lightView.get<Okay::CompPointLight>(entity), &lightView.get<Okay::CompTransform>(entity));
@@ -69,5 +77,13 @@ void Scene::End()
     registry.view<CompScript>().each([](CompScript& script)
     {
         script.Destroy();
+    });
+
+    const auto& skeleltalView = registry.view<Okay::CompSkeletalMesh>();
+    entt::registry& reg = registry;
+
+    skeleltalView.each([&reg](entt::entity entity)
+    {
+        reg.destroy(entity);
     });
 }

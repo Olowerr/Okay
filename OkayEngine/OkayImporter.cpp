@@ -127,6 +127,9 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 	outData.weights.resize(outData.indices.size());
 	outData.joints.resize(pMesh->mNumBones);
 
+	outData.tickLengthS = 1.f / (float)pAni->mTicksPerSecond;
+	outData.durationS = float(pAni->mDuration / pAni->mTicksPerSecond);
+
 	for (UINT i = 0; i < pMesh->mNumBones; i++)
 	{
 		// Weights & Indices

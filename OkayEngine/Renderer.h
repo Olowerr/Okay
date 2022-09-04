@@ -6,9 +6,9 @@
 #include "Components.h"
 #include "SkeletalMesh.h"
 
-#define ANIMATION 1
+#define FORCE_ANIMATION 0
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 #include <assimp/cimport.h>
 #include <assimp/importer.hpp>
 #include <assimp/postprocess.h>
@@ -16,7 +16,7 @@
 #endif
 
 #include <unordered_map>
-
+#include <tuple>
 
 class Renderer
 {
@@ -30,6 +30,7 @@ public:
 	void Resize();
 
 	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
+	void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::CompTransform* pTransform);
 	void SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pTransform);
 
 	void NewFrame();
@@ -50,6 +51,9 @@ private:
 	std::vector<RenderMesh> meshesToRender;
 	size_t numActive;
 
+	// Testing std::pair..
+	std::vector<std::pair<Okay::CompSkeletalMesh*, Okay::CompTransform*>> skeletalMeshes;
+	size_t numSkeletalActive;
 
 	struct GPUPointLight
 	{
@@ -89,7 +93,7 @@ private: // Create Shaders
 
 
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 	// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP 
 
 

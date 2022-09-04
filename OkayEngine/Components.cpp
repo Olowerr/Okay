@@ -184,22 +184,27 @@ namespace Okay
 
 
 #pragma region
-	CompSkeletalMesh::CompSkeletalMesh(const std::string& meshName)
+	CompSkeletalMesh::CompSkeletalMesh()
 	{
-		//mesh = Engine::GetAssets().GetSkeletalMesh(meshName);
+		mesh = Engine::GetAssets().GetSkeletalMesh("Default");
 	}
 
-	CompSkeletalMesh::CompSkeletalMesh(const std::shared_ptr<const SkeletalMesh>& mesh)
+	CompSkeletalMesh::CompSkeletalMesh(std::string_view meshName)
+	{
+		mesh = Engine::GetAssets().GetSkeletalMesh(meshName.data());
+	}
+
+	CompSkeletalMesh::CompSkeletalMesh(const std::shared_ptr<SkeletalMesh>& mesh)
 	{
 		this->mesh = mesh;
 	}
 
-	void CompSkeletalMesh::AssignMesh(const std::string& meshName)
+	void CompSkeletalMesh::AssignMesh(std::string_view meshName)
 	{
 		//mesh = Engine::GetAssets().GetSkeletalMesh(meshName);
 	}
 
-	void CompSkeletalMesh::AssignMesh(const std::shared_ptr<const SkeletalMesh>& mesh)
+	void CompSkeletalMesh::AssignMesh(const std::shared_ptr<SkeletalMesh>& mesh)
 	{
 		this->mesh = mesh;
 	}
@@ -212,6 +217,44 @@ namespace Okay
 	void CompSkeletalMesh::AssignMaterial(UINT index, const std::shared_ptr<const Material>& material)
 	{
 		this->material = material;
+	}
+
+	void CompSkeletalMesh::UpdateAnimation()
+	{
+		if (!playing)
+			return;
+
+		tickTime += Engine::GetDT();
+		aniTime += Engine::GetDT();
+
+		std::shared_ptr<Okay::SkeletalMesh> pMesh = mesh.lock();;
+
+		if (tickTime >= pMesh->GetTickLengthS())
+		{
+			++currentFrame;
+			tickTime = 0.f;
+		}
+
+		if (aniTime >= pMesh->GetDurationS())
+		{
+			currentFrame = 0;
+			aniTime = 0.f;
+		}
+
+		pMesh->SetPose(currentFrame);
+
+	}
+
+	void CompSkeletalMesh::StartAnimation()
+	{
+		aniTime = tickTime = 0.f;
+		currentFrame = 0;
+		playing = true;
+	}
+
+	void CompSkeletalMesh::StopAnimation()
+	{
+		playing = false;
 	}
 
 	void CompSkeletalMesh::WritePrivateData(std::ofstream& writer)
@@ -230,7 +273,8 @@ namespace Okay
 
 	void CompSkeletalMesh::CheckMesh() const
 	{
-		
+		if (mesh.expired())
+			mesh = Engine::GetAssets().GetSkeletalMesh("Default");
 	}
 
 #pragma endregion Skeletal Mesh Component

@@ -6,7 +6,7 @@ namespace Okay
 	struct TimeStamp
 	{
 		TimeStamp()
-			:scale(1.f, 1.f, 1.f) { }
+			:scale(1.f, 1.f, 1.f), pos(), rot() { }
 
 		float time = 0.f;
 		Float3 pos;
@@ -32,13 +32,16 @@ namespace Okay
 		std::vector<UINT> indices;
 		std::vector<SkinnedVertex> weights;
 		std::vector<Joint> joints;
+		float durationS;
+		float tickLengthS;
 	};
 
 	class SkeletalMesh
 	{
 	public:
 
-		SkeletalMesh(const SkeletalVertexData& vertices);
+		SkeletalMesh();
+		SkeletalMesh(const SkeletalVertexData& data);
 		virtual ~SkeletalMesh();
 		virtual void Shutdown();
 
@@ -51,6 +54,10 @@ namespace Okay
 
 		std::vector<Joint>& GetJoints() { return joints; }
 
+		void SetPose(size_t frame);
+		float GetDurationS()   const { return durationS;	 }
+		float GetTickLengthS() const { return tickLengthS; }
+
 	private:
 		ID3D11Buffer* vertexBuffer[NumBuffers];
 		ID3D11Buffer* indexBuffer;
@@ -60,6 +67,10 @@ namespace Okay
 		ID3D11Buffer* matricesBuffer;
 		ID3D11ShaderResourceView* matricesSRV;
 		std::vector<Joint> joints;
+		const float durationS;
+		const float tickLengthS;
+
+		std::vector<DirectX::XMFLOAT4X4> gpuMatrices;
 
 	public:
 		SkeletalMesh(const SkeletalMesh&) = delete;

@@ -43,9 +43,13 @@ Renderer::Renderer()
 
 	meshesToRender.resize(10);
 	numActive = 0;
+
+	skeletalMeshes.resize(10);
+	numSkeletalActive = 0;
+
 	numLights = 0;
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 	CreateSkeletal();
 	DX11::CreateStructuredBuffer<DirectX::XMFLOAT4X4A>(&aniBuffer, nullptr, (UINT)joints.size(), false);
 	DX11::CreateStructuredSRV<DirectX::XMFLOAT4X4A>(&aniSRV, aniBuffer, (UINT)joints.size());
@@ -67,10 +71,21 @@ void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
 	if (numActive >= meshesToRender.size())
 		meshesToRender.resize(meshesToRender.size() + 10);
 
-	meshesToRender.at(numActive).mesh = pMesh;
-	meshesToRender.at(numActive).transform = pTransform;
+	meshesToRender[numActive].mesh = pMesh;
+	meshesToRender[numActive].transform = pTransform;
 
 	++numActive;
+}
+
+void Renderer::SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::CompTransform* pTransform)
+{
+	if (numSkeletalActive >= skeletalMeshes.size())
+		skeletalMeshes.resize(skeletalMeshes.size() + 10);
+
+	skeletalMeshes[numSkeletalActive].first = pMesh;
+	skeletalMeshes[numSkeletalActive].second = pTransform;
+
+	++numSkeletalActive;
 }
 
 void Renderer::SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pTransform)
@@ -78,8 +93,8 @@ void Renderer::SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pT
 	if (numLights >= lights.size())
 		ExpandPointLights();
 
-	lights.at(numLights).lightData = *pLight;
-	lights.at(numLights).pos = pTransform->position;
+	lights[numLights].lightData = *pLight;
+	lights[numLights].pos = pTransform->position;
 
 	++numLights;
 }
@@ -107,7 +122,7 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pPointLightSRV);
 	DX11_RELEASE(pLightInfoBuffer);
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 	DX11_RELEASE(aniVS);
 	DX11_RELEASE(aniIL);
 	DX11_RELEASE(aniBuffer);
@@ -143,14 +158,14 @@ void Renderer::Render()
 		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
 		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
-		mesh->Bind();
 		material->BindTextures();
 
 		mesh->Draw();
 	}
 
 
-#if ANIMATION == 1
+
+#if FORCE_ANIMATION == 1
 	// Temp
 	CalculateAnimation(Okay::Engine::GetDT());
 
@@ -177,8 +192,8 @@ bool Renderer::ExpandPointLights()
 
 	lights.resize(numLights + Increase);
 
-	VERIFY_HR_BOOL(DX11::CreateStructuredBuffer<GPUPointLight>(&pPointLightBuffer, lights.data(), (UINT)lights.size(), false));
-	VERIFY_HR_BOOL(DX11::CreateStructuredSRV<GPUPointLight>(&pPointLightSRV, pPointLightBuffer, (UINT)lights.size()));
+	VERIFY_HR_BOOL(DX11::CreateStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (UINT)lights.size(), false));
+	VERIFY_HR_BOOL(DX11::CreateStructuredSRV(&pPointLightSRV, pPointLightBuffer, (UINT)lights.size()));
 
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 
@@ -216,7 +231,7 @@ bool Renderer::CreateVS()
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pInputLayout));
 	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pVertexShader));
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -244,7 +259,7 @@ bool Renderer::CreateDS()
 }
 
 
-#if ANIMATION == 1
+#if FORCE_ANIMATION == 1
 
 int Renderer::FindJointIndex(std::vector<Joint>& joints, std::string_view name)
 {
