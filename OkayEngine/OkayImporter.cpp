@@ -4,7 +4,7 @@
 
 #include "OkayImporter.h"
 
-bool Importer::Load(const std::string_view& filePath, Okay::VertexData& outData, std::string* texPaths)
+bool Importer::Load(std::string_view filePath, Okay::VertexData& outData, std::string* texPaths)
 {
 	Assimp::Importer importer;
 
@@ -79,7 +79,7 @@ bool Importer::Load(const std::string_view& filePath, Okay::VertexData& outData,
 	return WriteOkayAsset(filePath.data(), outData);
 }
 
-bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVertexData& outData)
+bool Importer::LoadSkeletal(std::string_view filePath, Okay::SkeletalVertexData& outData)
 {
 	const aiScene* pScene = aiImportFile(filePath.data(),
 		aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
@@ -130,6 +130,9 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 	outData.tickLengthS = 1.f / (float)pAni->mTicksPerSecond;
 	outData.durationS = float(pAni->mDuration / pAni->mTicksPerSecond);
 
+	std::vector<aiNodeAnim*> aniNodes(pAni->mNumChannels);
+	memcpy(aniNodes.data(), pAni->mChannels, sizeof(aiNodeAnim*) * pAni->mNumChannels);
+
 	for (UINT i = 0; i < pMesh->mNumBones; i++)
 	{
 		// Weights & Indices
@@ -149,6 +152,7 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 		Okay::Joint& joint = outData.joints[i];
 
 		joint.name = pMesh->mBones[i]->mName.C_Str();
+
 		memcpy(&joint.invBindPose, &pMesh->mBones[i]->mOffsetMatrix, sizeof(DirectX::XMFLOAT4X4));
 		joint.invBindPose = DirectX::XMMatrixTranspose(joint.invBindPose);
 
@@ -180,8 +184,13 @@ bool Importer::LoadSkeletal(const std::string_view& filePath, Okay::SkeletalVert
 			joint.stamps[k].time = (float)channel->mPositionKeys[k].mTime;
 
 			memcpy(&joint.stamps[k].pos, &channel->mPositionKeys[k].mValue, sizeof(Okay::Float3));
-			memcpy(&joint.stamps[k].rot, &channel->mRotationKeys[k].mValue, sizeof(Okay::Float4));
 			memcpy(&joint.stamps[k].scale, &channel->mScalingKeys[k].mValue, sizeof(Okay::Float3));
+
+			// Assimp quaternion struct order (W, X, Y, Z) differs from Okay(X, Y, Z, W)
+			joint.stamps[k].rot.x = channel->mRotationKeys[k].mValue.x;
+			joint.stamps[k].rot.y = channel->mRotationKeys[k].mValue.y;
+			joint.stamps[k].rot.z = channel->mRotationKeys[k].mValue.z;
+			joint.stamps[k].rot.w = channel->mRotationKeys[k].mValue.w;
 		}
 	}
 

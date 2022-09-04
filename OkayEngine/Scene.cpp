@@ -50,6 +50,13 @@ void Scene::Update()
     {
         script.Update();
     });
+
+    registry.view<Okay::CompSkeletalMesh>().each([](Okay::CompSkeletalMesh& cMesh)
+    {
+        cMesh.UpdateAnimation();
+    });
+
+
 }
 
 void Scene::Submit()
