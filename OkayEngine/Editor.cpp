@@ -61,7 +61,7 @@ namespace Okay
 
 			time += Engine::GetDT();
 
-			if (time > 0.5f)
+			if (time > 1.0f)
 			{
 				curFps = 1.f / Engine::GetDT();
 				time = 0.f;
