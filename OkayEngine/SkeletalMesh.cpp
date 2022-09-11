@@ -88,6 +88,9 @@ namespace Okay
 	{
 		// ASSUMING ALL TIMESTAMPS ARE SYNCED AND SAME LENGTH
 
+		if (!joints.size())
+			return;
+
 		if (frame >= joints[0].stamps.size())
 			frame = joints[0].stamps.size() - 1;
 

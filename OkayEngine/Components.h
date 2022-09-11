@@ -32,12 +32,12 @@ namespace Okay // Structs for now, change to classes
 		std::shared_ptr<Material> GetMaterial() const
 		{
 			CheckMaterial();
-			return std::shared_ptr<Material>(material);
+			return material.lock();
 		}
 		std::shared_ptr<Mesh> GetMesh() const
 		{
 			CheckMesh();
-			return std::shared_ptr<Mesh>(mesh);
+			return mesh.lock();
 		}
 
 		mutable std::weak_ptr<Mesh> mesh;
@@ -67,18 +67,17 @@ namespace Okay // Structs for now, change to classes
 		std::shared_ptr<Material> GetMaterial() const
 		{
 			CheckMaterial();
-			return std::shared_ptr<Material>(material);
+			return material.lock();
 		}
 		std::shared_ptr<SkeletalMesh> GetMesh() const
 		{
 			CheckMesh();
-			return std::shared_ptr<SkeletalMesh>(mesh);
+			return mesh.lock();
 		}
 
 		void UpdateAnimation();
 		void StartAnimation();
 		void StopAnimation();
-		void ResetAnimation();
 		void UpdateSkeletalMatrices();
 
 		float aniTime;

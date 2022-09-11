@@ -328,7 +328,7 @@ HRESULT DX11::CreateConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 bool DX11::UpdateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize)
 {
 	D3D11_MAPPED_SUBRESOURCE sub;
-	VERIFY_HR(Get().GetDeviceContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub));
+	VERIFY_HR_BOOL(Get().GetDeviceContext()->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub));
 
 	memcpy(sub.pData, pData, byteSize);
 	Get().GetDeviceContext()->Unmap(pBuffer, 0);
