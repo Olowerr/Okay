@@ -39,9 +39,14 @@ protected:
 		return entity.RemoveComponent<T>();
 	}
 
+	template<typename T>
+	T& GetScript()
+	{
+		return entity.GetScript<T>();
+	}
+
 private:
 	Entity entity;
-
 };
 
 class CompScript
@@ -49,7 +54,7 @@ class CompScript
 public:
 
 	CompScript() = default;
-	~CompScript() { for (auto& script : pScripts) OkayDelete(script); }
+	~CompScript() { for (UINT i = 0; i < numScripts; i++) OkayDelete(pScripts[i]); }
 
 	void AddScript(ScriptBehaviour* pScript)
 	{
@@ -59,9 +64,21 @@ public:
 		pScripts[numScripts++] = pScript;
 	}
 
+	template<typename T>
+	T& GetScript()
+	{
+		for (UINT i = 0; i < numScripts; i++)
+		{
+			if (dynamic_cast<T*>(pScripts[i]))
+				return *(T*)pScripts[i];
+		}
+
+		assert(false);
+	}
+
 	void Start()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Start();	}
-	void Update()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Update();  }
-	void Destroy()  { for (UINT i = 0; i < numScripts; i++) pScripts[i]->Destroy(); }
+	void Update()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Update();	}
+	void Destroy()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Destroy(); }
 
 private:
 	static const UINT MaxScripts = 5;
@@ -70,22 +87,26 @@ private:
 	ScriptBehaviour* pScripts[MaxScripts];
 };
 
-
-
 class ScriptCameraMovement : public ScriptBehaviour
 {
 public:
 	ScriptCameraMovement(Entity entity)
 		:ScriptBehaviour(entity)
 		, tra(entity.GetComponent<Okay::CompTransform>())
-		, cam(entity.GetComponent<Okay::CompCamera>()) 
-		, pos(), fwd(), up() { };
+		, cam(entity.GetComponent<Okay::CompCamera>())
+		, pos(), fwd(), up()
+		, camRot()
+	{ };
 
+	void Start();
 	void Update() override;
 
-private:
+	//private:
 	Okay::CompTransform& tra;
 	Okay::CompCamera& cam;
+
+	float sens = 2.f;
+	Okay::Float2 camRot;
 
 	DirectX::XMVECTOR pos;
 	DirectX::XMVECTOR fwd, up;
@@ -97,14 +118,19 @@ public:
 	ScriptBasicMovement(Entity entity)
 		:ScriptBehaviour(entity)
 		, tra(entity.GetComponent<Okay::CompTransform>())
+		, cam(nullptr)
 	{ }
 
+	void Start() override;
 	void Update() override;
+
 
 private:
 	Okay::CompTransform& tra;
-};
+	ScriptCameraMovement* cam;
 
+	float speed = 5.f;
+};
 
 
 class ScriptRotate : public ScriptBehaviour

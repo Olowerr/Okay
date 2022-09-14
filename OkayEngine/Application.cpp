@@ -7,8 +7,8 @@ Application::Application()
 
 Application::~Application()
 {
+	Okay::Editor::Destroy(); // Temp moved out of #ifdef
 #ifdef EDITOR
-	Okay::Editor::Destroy();
 #endif // EDITOR
 
 	Shutdown();
@@ -26,8 +26,9 @@ bool Application::Initiate()
 
 	VERIFY(Okay::Engine::LoadScene(""));
 
+
+	VERIFY(Okay::Editor::Create()); // Temp moved out of #ifdef
 #ifdef EDITOR
-	VERIFY(Okay::Editor::Create());
 #endif // EDITOR
 
 	return true;
@@ -90,8 +91,6 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		return true;
 #endif // EDITOR
 
-	Okay::Engine::CheckMouseDelta(lParam);
-
 	switch (message)
 	{
 	case WM_DESTROY:
@@ -114,9 +113,6 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		Okay::Engine::SetKeyDown((UINT)wParam);
 		return 0;
 
-	case WM_MOUSEMOVE:
-		Okay::Engine::UpdateMouse(lParam);
-		return 0;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

@@ -3,9 +3,6 @@
 
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
 bool Okay::Engine::keys[]{};
-DIMOUSESTATE Okay::Engine::lastState;
-int Okay::Engine::mouseXPos = 0;
-int Okay::Engine::mouseYPos = 0;
 
 Okay::Engine::Engine()
 	:deltaTime(), upTime()
@@ -65,7 +62,15 @@ void Okay::Engine::NewFrame()
 	DX11::Get().NewFrame();
 
 	// Me no like
-	//UpdateMouse();
+	UpdateMouse();
+
+	if (Get().mouseLocked)
+	{
+		RECT rect;
+		GetWindowRect(GetHWindow(), &rect);
+		SetCursorPos(rect.left + (rect.right - rect.left) / 2,
+			rect.top + (rect.bottom - rect.top) / 2);
+	}
 }
 
 void Okay::Engine::EndFrame()
@@ -97,7 +102,7 @@ void Okay::Engine::Render()
 	Get().renderer.Render();
 }
 
-void Okay::Engine::UpdateMouse(LPARAM lParam)
+void Okay::Engine::UpdateMouse()
 {
 	static DIMOUSESTATE currentState;
 	static Okay::Engine& eng = Get();
@@ -106,25 +111,17 @@ void Okay::Engine::UpdateMouse(LPARAM lParam)
 	eng.DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &currentState);
 	eng.lastState = currentState;
 
-	mouseXPos = GET_X_LPARAM(lParam);
-	mouseYPos = GET_Y_LPARAM(lParam);
-	
-}
+	if (eng.keys[Keys::E])
+	{
+		while (ShowCursor(FALSE) >= 0);
+		eng.mouseLocked = true;
+	}
+	else if (eng.keys[Keys::R])
+	{
+		while (ShowCursor(TRUE) <= 0);
+		eng.mouseLocked = false;
+	}
 
-void Okay::Engine::CheckMouseDelta(LPARAM lParam)
-{
-	return;
-
-	const int curX = GET_X_LPARAM(lParam);
-	const int curY = GET_Y_LPARAM(lParam);
-
-	if (mouseXPos == curX)
-		lastState.lX = 0;
-	if (mouseYPos == curY)
-		lastState.lY = 0;
-
-	mouseXPos = curX;
-	mouseYPos = curY;
 }
 
 bool Okay::Engine::SaveCurrentScene()

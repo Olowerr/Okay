@@ -32,7 +32,7 @@ void Scene::Start()
 
     auto foo = [&reg, &me](entt::entity entity) 
     {
-        if (reg.get<Okay::CompTag>(entity).tag == "smol goomba")
+        if (reg.get<Okay::CompTag>(entity).tag == "Target")
         {
             Entity curEnt(entity, me);
             Okay::CompCamera* cam = &curEnt.AddComponent<Okay::CompCamera>();
@@ -45,11 +45,12 @@ void Scene::Start()
     
     reg.each(foo);
 
+
+
     registry.view<CompScript>().each([](CompScript& script)
     {
         script.Start();
     });
-
 }
 
 void Scene::Update()

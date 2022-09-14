@@ -129,6 +129,9 @@
     <ClCompile Include="SkeletalMesh.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX11.h">

@@ -44,6 +44,12 @@ public:
 	}
 
 	template<typename T>
+	T& GetScript();
+	/*{
+		return GetComponent<CompScript>().GetScript<T>();
+	}*/
+
+	template<typename T>
 	bool RemoveComponent()
 	{
 		return pScene->GetRegistry().remove<T>(entityId);

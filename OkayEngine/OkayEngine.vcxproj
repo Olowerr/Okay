@@ -181,6 +181,7 @@
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />

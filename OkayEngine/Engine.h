@@ -69,8 +69,7 @@ namespace Okay
         {
             keys[key] = true;
         }
-		static void UpdateMouse(LPARAM lParam);
-		static void CheckMouseDelta(LPARAM lParam);
+		static void UpdateMouse();
 
 		// Get Inputs
         static bool GetKeyDown(Keys key)
@@ -79,6 +78,7 @@ namespace Okay
         }
 		static float GetMouseDeltaX() { return (float)Get().lastState.lX; }
 		static float GetMouseDeltaY() { return (float)Get().lastState.lY; }
+		static bool GetMouseLocked() { return Get().mouseLocked; }
 
 	private:
 		Renderer renderer;
@@ -97,14 +97,14 @@ namespace Okay
 		bool SaveCurrentScene(); 	
 
 
-	public: //private: // Inputs
+	private: // Inputs
 		static bool keys[256];
 
-		static int mouseXPos, mouseYPos;
-	
 		LPDIRECTINPUT8 mInput;
 		IDirectInputDevice8* DIMouse;
-		static DIMOUSESTATE lastState;
+		DIMOUSESTATE lastState;
+
+		bool mouseLocked = false;
 	};
 
 }
