@@ -7,16 +7,10 @@
 #include "Entity.h"
 #include "Keys.h"
 
-
-#define COUNT_COMP(T) numComp += (bool)registry.try_get<Okay::T>(entity);
-
-#define WRITE_DATA(T)												\
-if (auto* tPtr = registry.try_get<Okay::T>(entity))					\
-{																	\
-	Okay::Components type = Okay::T::ID;							\
-	writer.write((const char*)&type, sizeof(Okay::Components));		\
-	tPtr->WritePrivateData(writer);									\
-}
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "dxguid.lib")
 
 namespace Okay
 {
@@ -66,7 +60,7 @@ namespace Okay
         static float GetDT() { return Get().deltaTime.count(); };
         static float GetUpTime() { return Get().upTime.count(); };
 
-		// Inputs
+		// Set/Update inputs
         static void SetKeyUp(UINT key)
         {
             keys[key] = false;
@@ -75,11 +69,16 @@ namespace Okay
         {
             keys[key] = true;
         }
+		static void UpdateMouse(LPARAM lParam);
+		static void CheckMouseDelta(LPARAM lParam);
+
+		// Get Inputs
         static bool GetKeyDown(Keys key)
         {
             return keys[key];
         }
-
+		static float GetMouseDeltaX() { return (float)Get().lastState.lX; }
+		static float GetMouseDeltaY() { return (float)Get().lastState.lY; }
 
 	private:
 		Renderer renderer;
@@ -98,9 +97,27 @@ namespace Okay
 		bool SaveCurrentScene(); 	
 
 
-	private: // Inputs
+	public: //private: // Inputs
 		static bool keys[256];
 
+		static int mouseXPos, mouseYPos;
+	
+		LPDIRECTINPUT8 mInput;
+		IDirectInputDevice8* DIMouse;
+		static DIMOUSESTATE lastState;
 	};
 
+}
+
+
+
+
+#define COUNT_COMP(T) numComp += (bool)registry.try_get<Okay::T>(entity);
+
+#define WRITE_DATA(T)												\
+if (auto* tPtr = registry.try_get<Okay::T>(entity))					\
+{																	\
+	Okay::Components type = Okay::T::ID;							\
+	writer.write((const char*)&type, sizeof(Okay::Components));		\
+	tPtr->WritePrivateData(writer);									\
 }

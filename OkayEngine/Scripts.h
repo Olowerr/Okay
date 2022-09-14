@@ -49,27 +49,68 @@ class CompScript
 public:
 
 	CompScript() = default;
-	~CompScript() { OkayDelete(pScript); }
+	~CompScript() { for (auto& script : pScripts) OkayDelete(script); }
 
-	CompScript(ScriptBehaviour* pScript)
-		:pScript(pScript) { }
+	void AddScript(ScriptBehaviour* pScript)
+	{
+		if (numScripts >= MaxScripts)
+			return;
 
-	void Start()	{ pScript->Start();   }
-	void Update()	{ pScript->Update();  }
-	void Destroy()  { pScript->Destroy(); }
+		pScripts[numScripts++] = pScript;
+	}
+
+	void Start()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Start();	}
+	void Update()	{ for (UINT i = 0; i < numScripts; i++) pScripts[i]->Update();  }
+	void Destroy()  { for (UINT i = 0; i < numScripts; i++) pScripts[i]->Destroy(); }
 
 private:
-	ScriptBehaviour* pScript;
+	static const UINT MaxScripts = 5;
+
+	UINT numScripts = 0;
+	ScriptBehaviour* pScripts[MaxScripts];
 };
 
 
 
-
-
-class RotateScript : public ScriptBehaviour
+class ScriptCameraMovement : public ScriptBehaviour
 {
 public:
-	RotateScript(Entity entity)
+	ScriptCameraMovement(Entity entity)
+		:ScriptBehaviour(entity)
+		, tra(entity.GetComponent<Okay::CompTransform>())
+		, cam(entity.GetComponent<Okay::CompCamera>()) 
+		, pos(), fwd(), up() { };
+
+	void Update() override;
+
+private:
+	Okay::CompTransform& tra;
+	Okay::CompCamera& cam;
+
+	DirectX::XMVECTOR pos;
+	DirectX::XMVECTOR fwd, up;
+};
+
+class ScriptBasicMovement : public ScriptBehaviour
+{
+public:
+	ScriptBasicMovement(Entity entity)
+		:ScriptBehaviour(entity)
+		, tra(entity.GetComponent<Okay::CompTransform>())
+	{ }
+
+	void Update() override;
+
+private:
+	Okay::CompTransform& tra;
+};
+
+
+
+class ScriptRotate : public ScriptBehaviour
+{
+public:
+	ScriptRotate(Entity entity)
 		:ScriptBehaviour(entity) { }
 
 	void Update() override;
@@ -77,11 +118,10 @@ public:
 private:
 };
 
-
-class HoverScript : public ScriptBehaviour
+class ScriptHover: public ScriptBehaviour
 {
 public:
-	HoverScript(Entity entity)
+	ScriptHover(Entity entity)
 		:ScriptBehaviour(entity), initPosY(0.f) { }
 
 	void Start() override { initPosY = GetComponent<Okay::CompTransform>().position.y; }

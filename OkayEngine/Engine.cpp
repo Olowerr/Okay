@@ -1,13 +1,21 @@
 #include "Engine.h"
+#include <windowsx.h>
 
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
 bool Okay::Engine::keys[]{};
+DIMOUSESTATE Okay::Engine::lastState;
+int Okay::Engine::mouseXPos = 0;
+int Okay::Engine::mouseYPos = 0;
 
 Okay::Engine::Engine()
 	:deltaTime(), upTime()
 {
-	printf("Engine Start\n");
-
+	
+	DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<void**>(&mInput), NULL);
+	mInput->CreateDevice(GUID_SysMouse, &DIMouse, NULL);
+	DIMouse->SetDataFormat(&c_dfDIMouse);
+	DIMouse->SetCooperativeLevel(GetHWindow(), DISCL_NONEXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
+	
 	/*
 	
 	//NumScenes
@@ -30,6 +38,7 @@ Okay::Engine::Engine()
 
 	*/
 	
+	printf("Engine Start\n");
 }
 
 Okay::Engine::~Engine()
@@ -54,6 +63,9 @@ void Okay::Engine::NewFrame()
 
 	Get().renderer.NewFrame();
 	DX11::Get().NewFrame();
+
+	// Me no like
+	//UpdateMouse();
 }
 
 void Okay::Engine::EndFrame()
@@ -83,6 +95,36 @@ void Okay::Engine::Render()
 {
 	Get().activeScene->Submit();
 	Get().renderer.Render();
+}
+
+void Okay::Engine::UpdateMouse(LPARAM lParam)
+{
+	static DIMOUSESTATE currentState;
+	static Okay::Engine& eng = Get();
+
+	eng.DIMouse->Acquire();
+	eng.DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &currentState);
+	eng.lastState = currentState;
+
+	mouseXPos = GET_X_LPARAM(lParam);
+	mouseYPos = GET_Y_LPARAM(lParam);
+	
+}
+
+void Okay::Engine::CheckMouseDelta(LPARAM lParam)
+{
+	return;
+
+	const int curX = GET_X_LPARAM(lParam);
+	const int curY = GET_Y_LPARAM(lParam);
+
+	if (mouseXPos == curX)
+		lastState.lX = 0;
+	if (mouseYPos == curY)
+		lastState.lY = 0;
+
+	mouseXPos = curX;
+	mouseYPos = curY;
 }
 
 bool Okay::Engine::SaveCurrentScene()

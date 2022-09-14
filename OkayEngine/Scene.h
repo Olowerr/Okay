@@ -14,13 +14,11 @@ public:
 
 	entt::registry& GetRegistry() { return registry; }
 
-	// Maybe temp
 	void Start();
 	void Update();
 	void Submit();
 	void End();
 
-	entt::entity last;
 
 private:
 	entt::registry registry;

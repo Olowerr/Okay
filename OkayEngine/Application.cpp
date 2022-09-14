@@ -37,8 +37,8 @@ void Application::Run()
 {
 	using namespace Okay;
 
+	Engine::StartScene(); // Temp moved out of #ifndef
 #ifndef EDITOR
-	Engine::StartScene();
 #endif
 
 	MSG msg{};
@@ -59,8 +59,9 @@ void Application::Run()
 #ifdef EDITOR
 		Editor::Update();
 #else
-		Engine::Update();
 #endif
+		Engine::Update(); // Temp moved out of #else
+
 
 		Engine::Render();
 
@@ -70,8 +71,8 @@ void Application::Run()
 		Engine::EndFrame();
 	}
 
+	Engine::EndScene(); // Temp moved out of #ifndef
 #ifndef EDITOR
-	Engine::EndScene();
 #else
 	Engine::SaveCurrent(); 
 #endif
@@ -88,6 +89,8 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
 #endif // EDITOR
+
+	Okay::Engine::CheckMouseDelta(lParam);
 
 	switch (message)
 	{
@@ -111,6 +114,9 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		Okay::Engine::SetKeyDown((UINT)wParam);
 		return 0;
 
+	case WM_MOUSEMOVE:
+		Okay::Engine::UpdateMouse(lParam);
+		return 0;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

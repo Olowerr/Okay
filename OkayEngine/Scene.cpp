@@ -17,9 +17,6 @@ Entity Scene::CreateEntity()
     entity.AddComponent<Okay::CompTransform>();
     entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
-    // Temp
-    last = entity.GetID();
-
     return entity;
 }
 
@@ -30,15 +27,29 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::Start()
 {
-    // Temp
-    Entity test(last, this);
-   // test.AddScript<RotateScript>();
-    test.AddScript<HoverScript>();
+    entt::registry& reg = registry;
+    Scene* me = this;
+
+    auto foo = [&reg, &me](entt::entity entity) 
+    {
+        if (reg.get<Okay::CompTag>(entity).tag == "smol goomba")
+        {
+            Entity curEnt(entity, me);
+            Okay::CompCamera* cam = &curEnt.AddComponent<Okay::CompCamera>();
+            curEnt.AddScript<ScriptCameraMovement>();
+            curEnt.AddScript<ScriptBasicMovement>();
+
+            Okay::Engine::GetRenderer().SetCamera(cam);
+        }
+    };
+    
+    reg.each(foo);
 
     registry.view<CompScript>().each([](CompScript& script)
     {
         script.Start();
     });
+
 }
 
 void Scene::Update()

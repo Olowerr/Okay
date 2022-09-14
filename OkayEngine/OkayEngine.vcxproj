@@ -174,7 +174,9 @@
     <ClCompile Include="..\include\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Components.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="Editor.cpp" />
@@ -211,7 +213,9 @@
     <ClInclude Include="..\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Camera.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Components.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />

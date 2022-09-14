@@ -176,3 +176,21 @@ void Okay::CompPointLight::ReadPrivateData(std::ifstream& reader)
 {
 	reader.read((char*)this, sizeof(CompPointLight));
 }
+
+
+/* ------ Point Light Component ------ */
+
+void Okay::CompCamera::Update(DirectX::XMVECTOR pos, DirectX::XMVECTOR tPos, DirectX::XMVECTOR up)
+{
+	using namespace DirectX;
+#ifdef EDITOR
+	XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
+		XMMatrixLookAtLH(pos, tPos, up) *
+		XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetMainAspectRatio(), 0.1f, 500.f)));
+#else
+	XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
+		XMMatrixLookAtLH(pos, fwd, up) *
+		XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
+#endif // EDITOR
+
+}

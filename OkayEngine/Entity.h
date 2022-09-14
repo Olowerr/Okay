@@ -18,8 +18,10 @@ public:
 	template<typename T>
 	void AddScript()
 	{
-		// emplace_or_replace temp
-		pScene->GetRegistry().emplace_or_replace<CompScript>(entityId, new T(*this));
+		if (!HasComponent<CompScript>())
+			pScene->GetRegistry().emplace<CompScript>(entityId);
+
+		GetComponent<CompScript>().AddScript(new T(*this));
 	}
 
 	template<typename T, typename... Args>
