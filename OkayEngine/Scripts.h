@@ -128,8 +128,6 @@ public:
 private:
 	Okay::CompTransform& tra;
 	ScriptCameraMovement* cam;
-
-	float speed = 5.f;
 };
 
 
