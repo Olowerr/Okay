@@ -39,19 +39,19 @@ void ScriptCameraMovement::Update()
 	if (ImGui::Begin("Yas"))
 	{
 		ImGui::PushItemWidth(-1.f);
-		
+
 		ImGui::Text("CamDistance"); ImGui::SameLine();
 		ImGui::DragFloat("##CamDistance", &camDist, 0.01f);
 
 		ImGui::Text("CamHeight  "); ImGui::SameLine();
 		ImGui::DragFloat("##CamHeight", &camHeight, 0.01f);
-		
+
 		ImGui::Text("Sens       "); ImGui::SameLine();
 		ImGui::DragFloat("##Sens", &sens, 0.01f, 0.f, 20.f);
-		
+
 		ImGui::Text("MaxRotation"); ImGui::SameLine();
 		ImGui::DragFloat("##MaxRotation", &maxXRot, 0.001f);
-		
+
 		ImGui::Text("MinRotation"); ImGui::SameLine();
 		ImGui::DragFloat("##MinRotation", &minXRot, 0.001f);
 
@@ -79,20 +79,20 @@ void ScriptCameraMovement::Update()
 
 	XMVECTOR vector = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(camRot.x, camRot.y, 0.f));
 	fwd = XMVector3Normalize(XMVector3Rotate(Okay::FORWARD, vector));
-	up =  XMVector3Normalize(XMVector3Rotate(Okay::UP, vector));
+	up = XMVector3Normalize(XMVector3Rotate(Okay::UP, vector));
 	pos = XMVectorAdd(targetPos, XMVectorScale(fwd, -camDist));
 
 	printf("Tar: %f, %f, %f\nCam: %f, %f, %f\n\n",
 		tra.position.x, tra.position.y, tra.position.z,
 		pos.m128_f32[0], pos.m128_f32[1], pos.m128_f32[2]);
-	
+
 
 	cam.Update(pos, targetPos, up);
 }
 
 void ScriptBasicMovement::Start()
 {
-	cam = &GetScript<ScriptCameraMovement>(); 
+	cam = &GetScript<ScriptCameraMovement>();
 }
 
 void ScriptBasicMovement::Update()

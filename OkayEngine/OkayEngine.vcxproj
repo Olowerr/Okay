@@ -178,10 +178,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Components.cpp" />
+    <ClCompile Include="CompScript.cpp" />
     <ClCompile Include="DX11.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Entity.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='D_Editor|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -218,6 +221,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Components.h" />
+    <ClInclude Include="CompScript.h" />
     <ClInclude Include="DX11.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Editor.h" />
@@ -243,6 +247,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='R_Editor|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Scripts.h" />
+    <ClInclude Include="ScriptBehaviour.h" />
     <ClInclude Include="ShaderModel.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="stb_image.h">
