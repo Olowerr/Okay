@@ -1,6 +1,6 @@
 #include "Application.h"
 
-bool Application::bruh = false;
+#include <thread>
 
 Application::Application()
 	:hWnd(nullptr)
@@ -38,11 +38,8 @@ bool Application::Initiate()
 	return true;
 }
 
-#include <thread>
-
 void Application::Run()
 {
-	bruh = true;
 	using namespace Okay;
 
 	Engine::StartScene(); // Temp moved out of #ifndef
@@ -67,30 +64,31 @@ void Application::Run()
 		Editor::NewFrame();
 #endif
 
-		static double time = 10.0;
-		static bool use = false;
-		if (ImGui::Begin("Frames"))
 		{
-			ImGui::InputDouble("ms", &time, 0.1);
-			ImGui::Checkbox("use", &use);
-		}
-		ImGui::End();
-
-		if (use)
-		{
-			a = std::chrono::system_clock::now();
-			std::chrono::duration<double, std::milli> work_time = a - b;
-
-			if (work_time.count() < time)
+			static double time = 10.0;
+			static bool use = false;
+			if (ImGui::Begin("Frames"))
 			{
-				std::chrono::duration<double, std::milli> delta_ms(time - work_time.count());
-				auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
-				std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
+				ImGui::InputDouble("ms", &time, 0.1);
+				ImGui::Checkbox("use", &use);
 			}
+			ImGui::End();
 
-			b = std::chrono::system_clock::now();
+			if (use)
+			{
+				a = std::chrono::system_clock::now();
+				std::chrono::duration<double, std::milli> work_time = a - b;
+
+				if (work_time.count() < time)
+				{
+					std::chrono::duration<double, std::milli> delta_ms(time - work_time.count());
+					auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+					std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
+				}
+
+				b = std::chrono::system_clock::now();
+			}
 		}
-
 
 #ifdef EDITOR
 		Editor::Update();
@@ -146,10 +144,6 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 	case WM_KEYDOWN:
 		Okay::Engine::SetKeyDown((UINT)wParam);
-		return 0;
-
-	case WM_MOUSEMOVE:
-		if (bruh) Okay::Engine::UpdateMouse();
 		return 0;
 
 	}
