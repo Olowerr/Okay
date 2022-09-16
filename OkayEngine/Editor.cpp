@@ -69,9 +69,9 @@ namespace Okay
 
 			ImGui::Text("FPS: %f", curFps);
 
-			ImGui::BeginDisabled();
+			//ImGui::BeginDisabled();
 			ImGui::Checkbox("Enable Dockspace", &dockSpace);
-			ImGui::EndDisabled();
+			//ImGui::EndDisabled();
 		}
 		ImGui::End();
 

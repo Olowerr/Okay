@@ -189,7 +189,7 @@ void Okay::CompCamera::Update(DirectX::XMVECTOR pos, DirectX::XMVECTOR tPos, Dir
 		XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetMainAspectRatio(), 0.1f, 500.f)));
 #else
 	XMStoreFloat4x4(&viewProject, XMMatrixTranspose(
-		XMMatrixLookAtLH(pos, fwd, up) *
+		XMMatrixLookAtLH(pos, tPos, up) *
 		XMMatrixPerspectiveFovLH(XM_PIDIV2, DX11::Get().GetWindowAspectRatio(), 0.1f, 500.f)));
 #endif // EDITOR
 
