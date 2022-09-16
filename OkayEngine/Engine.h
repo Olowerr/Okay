@@ -61,21 +61,25 @@ namespace Okay
         static float GetUpTime() { return Get().upTime.count(); };
 
 		// Set/Update inputs
-        static void SetKeyUp(UINT key)
+        /*static void SetKeyUp(UINT key)
         {
             keys[key] = false;
         }
         static void SetKeyDown(UINT key)
         {
             keys[key] = true;
-        }
-		static void UpdateMouse();
+        }*/
 
 		// Get Inputs
-        static bool GetKeyDown(Keys key)
+        static bool GetKeyDown(int key)
         {
-            return keys[key];
+            return keysDown[key];
         }
+		static bool GetKeyRelease(int key)
+        {
+            return keysDown[key];
+        }
+
 		static float GetMouseDeltaX() { return (float)Get().lastState.lX; }
 		static float GetMouseDeltaY() { return (float)Get().lastState.lY; }
 		static bool GetMouseLocked() { return Get().mouseLocked; }
@@ -98,13 +102,17 @@ namespace Okay
 
 
 	private: // Inputs
-		static bool keys[256];
+		static bool keysDown[256];
+		static bool keysReleased[256];
 
-		LPDIRECTINPUT8 mInput;
+		LPDIRECTINPUT8 dInput;
 		IDirectInputDevice8* DIMouse;
+		IDirectInputDevice8* DIKeyboard;
 		DIMOUSESTATE lastState;
 
 		bool mouseLocked = false;
+
+
 	};
 
 }

@@ -46,10 +46,6 @@ void Application::Run()
 #ifndef EDITOR
 #endif
 
-	std::chrono::system_clock::time_point a = std::chrono::system_clock::now();
-	std::chrono::system_clock::time_point b = std::chrono::system_clock::now();
-
-
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -63,32 +59,6 @@ void Application::Run()
 #ifdef EDITOR
 		Editor::NewFrame();
 #endif
-
-		{
-			static double time = 10.0;
-			static bool use = false;
-			if (ImGui::Begin("Frames"))
-			{
-				ImGui::InputDouble("ms", &time, 0.1);
-				ImGui::Checkbox("use", &use);
-			}
-			ImGui::End();
-
-			if (use)
-			{
-				a = std::chrono::system_clock::now();
-				std::chrono::duration<double, std::milli> work_time = a - b;
-
-				if (work_time.count() < time)
-				{
-					std::chrono::duration<double, std::milli> delta_ms(time - work_time.count());
-					auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
-					std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
-				}
-
-				b = std::chrono::system_clock::now();
-			}
-		}
 
 #ifdef EDITOR
 		Editor::Update();
@@ -138,13 +108,13 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		Okay::Engine::ResizeScreen();
 		return 0;
 
-	case WM_KEYUP:
+	/*case WM_KEYUP:
 		Okay::Engine::SetKeyUp((UINT)wParam);
 		return 0;
 
 	case WM_KEYDOWN:
 		Okay::Engine::SetKeyDown((UINT)wParam);
-		return 0;
+		return 0;*/
 
 	}
 

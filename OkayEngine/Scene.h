@@ -22,6 +22,8 @@ public:
 
 private:
 	entt::registry registry;
+
+	Entity* thaEnt;
 };
 
 /*

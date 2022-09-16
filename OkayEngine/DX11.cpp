@@ -104,6 +104,7 @@ DX11::DX11()
 DX11::~DX11()
 {
 	Shutdown();
+
 	printf("DX11 Shutdown\n");
 }
 

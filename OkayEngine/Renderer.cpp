@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include "Engine.h"
 
+#include "imgui/imgui.h"
+
 Renderer::Renderer()
 	:pInputLayout(), pVertexShader(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
 {
@@ -119,21 +121,35 @@ void Renderer::Render()
 	pDevContext->VSSetShader(pVertexShader, nullptr, 0);
 	pDevContext->IASetInputLayout(pInputLayout);
 
-	for (size_t i = 0; i < numActive; i++)
+
+	static int numLoop = 1;
+	if (ImGui::Begin("slay"))
 	{
-		CompMesh& cMesh = *meshesToRender.at(i).mesh;
-		const CompTransform& transform = *meshesToRender.at(i).transform;
-		auto material = cMesh.GetMaterial();
-		auto mesh = cMesh.GetMesh();
-
-		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
-		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
-
-		mesh->Bind();
-		material->BindTextures();
-
-		mesh->Draw();
+		ImGui::PushItemWidth(-100.f);
+		ImGui::DragInt("loop draws", &numLoop, 1, 1, 1000);
+		ImGui::PopItemWidth();
 	}
+	ImGui::End();
+
+	for (int k = 0; k < numLoop; k++)
+	{
+		for (size_t i = 0; i < numActive; i++)
+		{
+			CompMesh& cMesh = *meshesToRender.at(i).mesh;
+			const CompTransform& transform = *meshesToRender.at(i).transform;
+			auto material = cMesh.GetMaterial();
+			auto mesh = cMesh.GetMesh();
+
+			DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
+			DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
+
+			mesh->Bind();
+			material->BindTextures();
+
+			mesh->Draw();
+		}
+	}
+	
 }
 
 bool Renderer::ExpandPointLights()

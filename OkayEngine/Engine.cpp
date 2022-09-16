@@ -2,17 +2,24 @@
 #include <windowsx.h>
 
 const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
-bool Okay::Engine::keys[]{};
+bool Okay::Engine::keysDown[]{};
+bool Okay::Engine::keysReleased[]{};
 
 Okay::Engine::Engine()
 	:deltaTime(), upTime()
 {
 	
-	DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<void**>(&mInput), NULL);
-	mInput->CreateDevice(GUID_SysMouse, &DIMouse, NULL);
+	DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<void**>(&dInput), NULL);
+
+	dInput->CreateDevice(GUID_SysMouse, &DIMouse, NULL);
 	DIMouse->SetDataFormat(&c_dfDIMouse);
 	DIMouse->SetCooperativeLevel(GetHWindow(), DISCL_NONEXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
 	
+	dInput->CreateDevice(GUID_SysKeyboard, &DIKeyboard, NULL);
+	DIKeyboard->SetDataFormat(&c_dfDIKeyboard);
+	DIKeyboard->SetCooperativeLevel(GetHWindow(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+
+
 	/*
 	
 	//NumScenes
@@ -40,6 +47,10 @@ Okay::Engine::Engine()
 
 Okay::Engine::~Engine()
 {
+	Get().DIMouse->Unacquire();
+	Get().DIKeyboard->Unacquire();
+
+
 	printf("Engine Shutdown\n");
 }
 
@@ -61,29 +72,43 @@ void Okay::Engine::NewFrame()
 	Get().renderer.NewFrame();
 	DX11::Get().NewFrame();
 
-	// Me no like
-	//UpdateMouse();
 
-	if (Get().keys[Keys::E])
+	static DIMOUSESTATE currentState;
+	static Okay::Engine& eng = Get();
+
+	eng.DIMouse->Acquire();
+	eng.DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &currentState);
+	eng.lastState = currentState;
+
+	eng.DIKeyboard->Acquire();
+
+	static bool currentKeys[256] = {};
+	eng.DIKeyboard->GetDeviceState(256, (LPVOID)&currentKeys);
+
+	for (UINT i = 0; i < 256; i++)
+		eng.keysReleased[i] = !currentKeys[i] && eng.keysDown[i];
+
+	memcpy(eng.keysDown, currentKeys, 256);
+
+
+	if (Get().keysReleased[DIK_E])
 	{
 		while (ShowCursor(FALSE) >= 0);
 		Get().mouseLocked = true;
 	}
-	else if (Get().keys[Keys::R])
+	else if (Get().keysReleased[DIK_R])
 	{
 		while (ShowCursor(TRUE) <= 0);
 		Get().mouseLocked = false;
 	}
 
-
-	//static LPPOINT old, now;
-	//GetCursorPos(now);
-	//if (old->x == now->x && old->y == now->y)
-	//{
-	//	Get().lastState.lX = 0;
-	//	Get().lastState.lY = 0;
-	//}
-	//old = now;
+	if (Get().mouseLocked)
+	{
+		static RECT rect;
+		GetWindowRect(GetHWindow(), &rect);
+		SetCursorPos(rect.left + (rect.right - rect.left) / 2,
+			rect.top + (rect.bottom - rect.top) / 2);
+	}
 }
 
 void Okay::Engine::EndFrame()
@@ -113,17 +138,6 @@ void Okay::Engine::Render()
 {
 	Get().activeScene->Submit();
 	Get().renderer.Render();
-}
-
-void Okay::Engine::UpdateMouse()
-{
-	static DIMOUSESTATE currentState;
-	static Okay::Engine& eng = Get();
-
-	eng.DIMouse->Acquire();
-	eng.DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &currentState);
-	eng.lastState = currentState;
-
 }
 
 bool Okay::Engine::SaveCurrentScene()

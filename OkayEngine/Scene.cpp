@@ -9,6 +9,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+    delete thaEnt;
 }
 
 Entity Scene::CreateEntity()
@@ -30,22 +31,24 @@ void Scene::Start()
     entt::registry& reg = registry;
     Scene* me = this;
 
-    auto foo = [&reg, &me](entt::entity entity) 
+    Entity a;
+
+    auto foo = [&reg, &me, &a](entt::entity entity) 
     {
         if (reg.get<Okay::CompTag>(entity).tag == "Target")
         {
-            Entity curEnt(entity, me);
-            Okay::CompCamera* cam = &curEnt.AddComponent<Okay::CompCamera>();
-            curEnt.AddScript<ScriptCameraMovement>();
-            curEnt.AddScript<ScriptBasicMovement>();
+            a = Entity(entity, me);
+            Okay::CompCamera* cam = &a.AddComponent<Okay::CompCamera>();
+            a.AddScript<ScriptBasicMovement>();
+            a.AddScript<ScriptCameraMovement>();
 
             Okay::Engine::GetRenderer().SetCamera(cam);
         }
     };
     
-    reg.each(foo);
+    registry.each(foo);
 
-
+    thaEnt = new Entity(a);
 
     registry.view<CompScript>().each([](CompScript& script)
     {
@@ -59,6 +62,9 @@ void Scene::Update()
     {
         script.Update();
     });
+
+    //thaEnt->GetScript<ScriptBasicMovement>().Update();
+    //thaEnt->GetScript<ScriptCameraMovement>().Update();
 }
 
 void Scene::Submit()

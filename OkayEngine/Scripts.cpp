@@ -63,11 +63,11 @@ void ScriptCameraMovement::Update()
 
 	if (Okay::Engine::GetMouseLocked())
 	{
-		if (Okay::Engine::GetKeyDown(Keys::Q) && !shaking)
+		if (Okay::Engine::GetKeyDown(DIK_Q) && !shaking)
 			shaking = true;
 
-		float XInput = Okay::Engine::GetMouseDeltaX();
-		float YInput = Okay::Engine::GetMouseDeltaY();
+		const float XInput = Okay::Engine::GetMouseDeltaX();
+		const float YInput = Okay::Engine::GetMouseDeltaY();
 
 		camRot.x += sens * YInput * Okay::Engine::GetDT();
 		camRot.y += sens * XInput * Okay::Engine::GetDT();
@@ -138,8 +138,8 @@ void ScriptBasicMovement::Update()
 	if (!Okay::Engine::GetMouseLocked())
 		return;
 
-	const float ZInput = Okay::Engine::GetKeyDown(Keys::W) ? 1.f : Okay::Engine::GetKeyDown(Keys::S) ? -1.f : 0.f;
-	const float XInput = Okay::Engine::GetKeyDown(Keys::D) ? 1.f : Okay::Engine::GetKeyDown(Keys::A) ? -1.f : 0.f;
+	const float ZInput = Okay::Engine::GetKeyDown(DIK_W) ? 1.f : Okay::Engine::GetKeyDown(DIK_S) ? -1.f : 0.f;
+	const float XInput = Okay::Engine::GetKeyDown(DIK_D) ? 1.f : Okay::Engine::GetKeyDown(DIK_A) ? -1.f : 0.f;
 	const float frameSpeed = speed * Okay::Engine::GetDT();
 
 	XMVECTOR yasFwd = cam->fwd;
