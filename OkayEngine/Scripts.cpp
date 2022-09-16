@@ -31,42 +31,48 @@ void ScriptCameraMovement::Start()
 
 void ScriptCameraMovement::Update()
 {
-	static float maxXRot = DirectX::XM_PIDIV4;
-	static float minXRot = -DirectX::XM_PIDIV4;
+	static float maxXRot = DirectX::XM_PIDIV2 - DirectX::XM_PIDIV2 * 0.15f;
+	static float minXRot = -DirectX::XM_PIDIV4 + DirectX::XM_PIDIV4 * 0.1f;
 	static float camDist = 20.f;
-	static float camHeight = 12.f;
+	static float camHeight = 14.f;
+	static float sens = 1.7f;
 
-	if (ImGui::Begin("Yas"))
+	static bool shaking = false;
+	static float shakeTimer = 0.f;
+	static float shakeDuration = 0.3f;
+	static float shakeScalar = 0.3f;
+
+	if (ImGui::Begin("yas"))
 	{
-		ImGui::PushItemWidth(-1.f);
+		ImGui::PushItemWidth(-100.f);
 
-		ImGui::Text("CamDistance"); ImGui::SameLine();
-		ImGui::DragFloat("##CamDistance", &camDist, 0.01f);
+		ImGui::DragFloat("Sens", &sens, 0.01f, 0.f, 50.f);
+		ImGui::DragFloat("Cam Distance", &camDist, 0.01f);
+		ImGui::DragFloat("Cam Height", &camHeight, 0.01f);
 
-		ImGui::Text("CamHeight  "); ImGui::SameLine();
-		ImGui::DragFloat("##CamHeight", &camHeight, 0.01f);
+		ImGui::DragFloat("Max Rotation", &maxXRot, 0.001f);
+		ImGui::DragFloat("Min Rotation", &minXRot, 0.001f);
+		
+		ImGui::DragFloat("Shake Scalar", &shakeScalar, 0.0005f, 0.f, 20.f);
+		ImGui::DragFloat("Shake Duration", &shakeDuration, 0.001f);
 
-		ImGui::Text("Sens       "); ImGui::SameLine();
-		ImGui::DragFloat("##Sens", &sens, 0.01f, 0.f, 20.f);
-
-		ImGui::Text("MaxRotation"); ImGui::SameLine();
-		ImGui::DragFloat("##MaxRotation", &maxXRot, 0.001f);
-
-		ImGui::Text("MinRotation"); ImGui::SameLine();
-		ImGui::DragFloat("##MinRotation", &minXRot, 0.001f);
 
 		ImGui::PopItemWidth();
 	}
 	ImGui::End();
 
-	using namespace DirectX;
 	if (Okay::Engine::GetMouseLocked())
 	{
-		const float XInput = Okay::Engine::GetMouseDeltaX();
-		const float YInput = Okay::Engine::GetMouseDeltaY();
+		if (Okay::Engine::GetKeyDown(Keys::Q) && !shaking)
+			shaking = true;
+
+		float XInput = Okay::Engine::GetMouseDeltaX();
+		float YInput = Okay::Engine::GetMouseDeltaY();
 
 		camRot.x += sens * YInput * Okay::Engine::GetDT();
 		camRot.y += sens * XInput * Okay::Engine::GetDT();
+
+		printf("DT: %f\nX Input: %f\nY Input: %f\n", Okay::Engine::GetDT(), XInput, YInput);
 	}
 
 	if (camRot.x >= maxXRot)
@@ -74,17 +80,36 @@ void ScriptCameraMovement::Update()
 	else if (camRot.x <= minXRot)
 		camRot.x = minXRot;
 
+	//printf("X Rot: %f\nY Rot: %f\n\n", camRot.x, camRot.y);
+
+	using namespace DirectX;
 	XMVECTOR targetPos = XMLoadFloat3(&tra.position);
 	targetPos.m128_f32[1] += camHeight;
+
+	if (shaking)
+	{
+		shakeTimer += Okay::Engine::GetDT();
+		if (shakeTimer >= shakeDuration)
+		{
+			shakeTimer = 0.f;
+			shaking = false;
+		}
+		else
+		{
+			targetPos = XMVectorAdd(targetPos, GetRandVec(shakeScalar));
+			
+
+		}
+	}
 
 	XMVECTOR vector = XMQuaternionNormalize(XMQuaternionRotationRollPitchYaw(camRot.x, camRot.y, 0.f));
 	fwd = XMVector3Normalize(XMVector3Rotate(Okay::FORWARD, vector));
 	up = XMVector3Normalize(XMVector3Rotate(Okay::UP, vector));
 	pos = XMVectorAdd(targetPos, XMVectorScale(fwd, -camDist));
 
-	printf("Tar: %f, %f, %f\nCam: %f, %f, %f\n\n",
+	/*printf("Tar: %f, %f, %f\nCam: %f, %f, %f\n\n",
 		tra.position.x, tra.position.y, tra.position.z,
-		pos.m128_f32[0], pos.m128_f32[1], pos.m128_f32[2]);
+		pos.m128_f32[0], pos.m128_f32[1], pos.m128_f32[2]);*/
 
 
 	cam.Update(pos, targetPos, up);
@@ -99,12 +124,11 @@ void ScriptBasicMovement::Update()
 {
 	static float speed = 20.f;
 
-	if (ImGui::Begin("Yas"))
+	if (ImGui::Begin("yas"))
 	{
-		ImGui::PushItemWidth(-1.f);
+		ImGui::PushItemWidth(-100.f);
 
-		ImGui::Text("Speed      "); ImGui::SameLine();
-		ImGui::DragFloat("##Speed", &speed, 0.01f, 0.f, 20.f);
+		ImGui::DragFloat("Speed", &speed, 0.01f, 0.f, 20.f);
 
 		ImGui::PopItemWidth();
 	}

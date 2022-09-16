@@ -62,15 +62,28 @@ void Okay::Engine::NewFrame()
 	DX11::Get().NewFrame();
 
 	// Me no like
-	UpdateMouse();
+	//UpdateMouse();
 
-	if (Get().mouseLocked)
+	if (Get().keys[Keys::E])
 	{
-		RECT rect;
-		GetWindowRect(GetHWindow(), &rect);
-		SetCursorPos(rect.left + (rect.right - rect.left) / 2,
-			rect.top + (rect.bottom - rect.top) / 2);
+		while (ShowCursor(FALSE) >= 0);
+		Get().mouseLocked = true;
 	}
+	else if (Get().keys[Keys::R])
+	{
+		while (ShowCursor(TRUE) <= 0);
+		Get().mouseLocked = false;
+	}
+
+
+	//static LPPOINT old, now;
+	//GetCursorPos(now);
+	//if (old->x == now->x && old->y == now->y)
+	//{
+	//	Get().lastState.lX = 0;
+	//	Get().lastState.lY = 0;
+	//}
+	//old = now;
 }
 
 void Okay::Engine::EndFrame()
@@ -110,17 +123,6 @@ void Okay::Engine::UpdateMouse()
 	eng.DIMouse->Acquire();
 	eng.DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &currentState);
 	eng.lastState = currentState;
-
-	if (eng.keys[Keys::E])
-	{
-		while (ShowCursor(FALSE) >= 0);
-		eng.mouseLocked = true;
-	}
-	else if (eng.keys[Keys::R])
-	{
-		while (ShowCursor(TRUE) <= 0);
-		eng.mouseLocked = false;
-	}
 
 }
 

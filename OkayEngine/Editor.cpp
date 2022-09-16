@@ -57,7 +57,7 @@ namespace Okay
 		if (ImGui::Begin("Other.."))
 		{
 			static float time = 0;
-			static float curFps = 1.f / Engine::GetDT();
+			static float curFps = 1.f / ImGui::GetIO().DeltaTime;
 
 			time += Engine::GetDT();
 

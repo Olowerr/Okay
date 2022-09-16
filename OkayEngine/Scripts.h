@@ -2,6 +2,8 @@
 #include "ScriptBehaviour.h"
 #include "Components.h"
 
+#include <ctime>
+
 class ScriptCameraMovement : public ScriptBehaviour
 {
 public:
@@ -20,11 +22,20 @@ public:
 	Okay::CompTransform& tra;
 	Okay::CompCamera& cam;
 
-	float sens = 2.f;
 	Okay::Float2 camRot;
 
 	DirectX::XMVECTOR pos;
 	DirectX::XMVECTOR fwd, up;
+
+
+	static DirectX::XMVECTOR GetRandVec(float scalar)
+	{
+		return DirectX::XMVectorSet(
+			((rand() % 200) * 0.01f - 1.f) * scalar,
+			((rand() % 200) * 0.01f - 1.f) * scalar,
+			((rand() % 200) * 0.01f - 1.f) * scalar, 
+			1.f);
+	}
 };
 
 class ScriptBasicMovement : public ScriptBehaviour
@@ -43,6 +54,7 @@ public:
 private:
 	Okay::CompTransform& tra;
 	ScriptCameraMovement* cam;
+
 };
 
 
