@@ -17,8 +17,6 @@ Entity Scene::CreateEntity()
     entity.AddComponent<Okay::CompTransform>();
     entity.AddComponent<Okay::CompTag>("Entity " + std::to_string((size_t)entity.GetID()));
 
-    // Temp
-    last = entity.GetID();
 
     return entity;
 }
@@ -30,11 +28,6 @@ void Scene::DestroyEntity(Entity entity)
 
 void Scene::Start()
 {
-    // Temp
-    Entity test(last, this);
-   // test.AddScript<ScriptRotate>();
-    test.AddScript<ScriptHover>();
-
     Entity gobWalk = CreateEntity();
     gobWalk.AddComponent<Okay::CompSkeletalMesh>("gobWalk3").StartAnimation();
 

@@ -22,7 +22,7 @@ public:
 
 
 private:
-	entt::entity last;
+	
 	entt::registry registry;
 };
 

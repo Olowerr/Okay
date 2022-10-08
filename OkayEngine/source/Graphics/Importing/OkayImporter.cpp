@@ -219,7 +219,7 @@ bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexDat
 	std::string fileName = filePath.substr(pos + 1);
 	fileName = fileName.substr(0, fileName.find_last_of('.')) + ".okayAsset";
 
-	std::ofstream writer("../Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
+	std::ofstream writer("Content/Meshes/" + fileName, std::ios::binary | std::ios::trunc);
 	VERIFY(writer);
 
 	UINT info[2];
@@ -238,7 +238,7 @@ bool Importer::WriteOkayAsset(const std::string& filePath, const Okay::VertexDat
 
 bool Importer::LoadOkayAsset(const std::string& fileName, Okay::VertexData& vertexData)
 {
-	std::ifstream reader("../Content/Meshes/" + fileName + ".OkayAsset", std::ios::binary);
+	std::ifstream reader("Content/Meshes/" + fileName + ".OkayAsset", std::ios::binary);
 	VERIFY(reader);
 
 	// info[0] = NumVertex, info[1] = NumIndex
