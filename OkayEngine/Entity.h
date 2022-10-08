@@ -19,11 +19,10 @@ public:
 		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 	}
 
-	template<typename T>
+	template<typename... T>
 	bool HasComponent()
 	{
-		// apparently has() doesn't exist
-		return pScene->GetRegistry().try_get<T>(entityId);
+		return pScene->GetRegistry().all_of<T...>(entityId);
 	}
 
 	template<typename T>
@@ -44,7 +43,6 @@ public:
 		if (!HasComponent<CompScript>())
 			pScene->GetRegistry().emplace<CompScript>(entityId);
 
-		//GetComponent<CompScript>().AddScript(new T(*this));
 		return GetComponent<CompScript>().AddScript<T>(*this);
 	}
 
@@ -66,8 +64,5 @@ public:
 private:
 	entt::entity entityId;
 
-	// Could FwdDeclare Entity in engine and call the engine functions from here
-	// But then entities wouldn't care which scene they're in
-	// pScene makes it possible to open multiple scenes with their own entities
 	Scene* pScene;
 };

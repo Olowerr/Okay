@@ -9,8 +9,8 @@ Application::Application()
 
 Application::~Application()
 {
-	Okay::Editor::Destroy(); // Temp moved out of #ifdef
 #ifdef EDITOR
+	Okay::Editor::Destroy(); 
 #endif // EDITOR
 
 	Shutdown();
@@ -31,9 +31,9 @@ bool Application::Initiate()
 	VERIFY(Okay::Engine::LoadScene(""));
 
 
-	VERIFY(Okay::Editor::Create()); // Temp moved out of #ifdef
 #ifdef EDITOR
-#endif // EDITOR
+	VERIFY(Okay::Editor::Create());
+#endif
 
 	return true;
 }
@@ -42,8 +42,8 @@ void Application::Run()
 {
 	using namespace Okay;
 
-	Engine::StartScene(); // Temp moved out of #ifndef
 #ifndef EDITOR
+	Engine::StartScene(); 
 #endif
 
 	MSG msg{};
@@ -63,8 +63,8 @@ void Application::Run()
 #ifdef EDITOR
 		Editor::Update();
 #else
+		Engine::Update(); 
 #endif
-		Engine::Update(); // Temp moved out of #else
 
 
 		Engine::Render();
@@ -75,8 +75,8 @@ void Application::Run()
 		Engine::EndFrame();
 	}
 
-	Engine::EndScene(); // Temp moved out of #ifndef
 #ifndef EDITOR
+	Engine::EndScene(); 
 #else
 	Engine::SaveCurrent(); 
 #endif
@@ -92,7 +92,7 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 #ifdef EDITOR
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
-#endif // EDITOR
+#endif
 
 	switch (message)
 	{
@@ -107,15 +107,6 @@ LRESULT Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_SIZE:
 		Okay::Engine::ResizeScreen();
 		return 0;
-
-	/*case WM_KEYUP:
-		Okay::Engine::SetKeyUp((UINT)wParam);
-		return 0;
-
-	case WM_KEYDOWN:
-		Okay::Engine::SetKeyDown((UINT)wParam);
-		return 0;*/
-
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
