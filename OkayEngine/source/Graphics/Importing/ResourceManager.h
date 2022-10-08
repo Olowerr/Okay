@@ -130,8 +130,8 @@ private: // All loaded "assets"
 	std::unordered_map<std::string, std::shared_ptr<Okay::Material>> materials;
 
 private: // Asset loading and writing
-	const Okay::String DeclarationPath = "../Content/Meshes/AssetDeclaration.okayDec";
-	const std::string TexturePath = "../Content/Textures/";
+	const Okay::String DeclarationPath = "Content/Meshes/AssetDeclaration.okayDec";
+	const std::string TexturePath = "Content/Textures/";
 
 	bool LoadDeclared();
 	void ClearDeclared();

@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include <windowsx.h>
 
-const Okay::String Okay::Engine::SceneDecleration = "../Content/Scenes/SceneDecleration.okayDec";
+const Okay::String Okay::Engine::SceneDecleration = "Content/Scenes/SceneDecleration.okayDec";
 bool Okay::Engine::keysDown[]{};
 bool Okay::Engine::keysReleased[]{};
 

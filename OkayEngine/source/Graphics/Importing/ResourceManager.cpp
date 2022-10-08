@@ -28,7 +28,7 @@ void Assets::SetUp()
 	
 	// Manually modify assets here -----
 	
-	LoadSkeletalMesh("../content/meshes/ani/gobWalk3.fbx");
+	//LoadSkeletalMesh("content/meshes/ani/gobWalk3.fbx");
 
 	// -----
 
