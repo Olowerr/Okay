@@ -70,3 +70,8 @@ const Okay::String& Okay::Mesh::GetName() const
 {
 	return name;
 }
+
+void Okay::Mesh::SetName(const Okay::String& name)
+{
+	this->name = name;
+}

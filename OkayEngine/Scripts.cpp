@@ -1,14 +1,14 @@
 #include "Scripts.h"
 #include "Engine.h"
 
-void RotateScript::Update()
+void ScriptRotate::Update()
 {
 	auto& tra = GetComponent<Okay::CompTransform>();
 	tra.rotation.y += 2.f * Okay::Engine::GetDT();
 	tra.CalcMatrix();
 }
 
-void HoverScript::Update()
+void ScriptHover::Update()
 {
 	auto& tra = GetComponent<Okay::CompTransform>();
 	tra.position.y = initPosY + 1.5f * std::sin(Okay::Engine::GetUpTime());

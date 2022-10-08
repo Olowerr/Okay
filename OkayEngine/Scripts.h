@@ -1,87 +1,76 @@
 #pragma once
-#include "Entity.h"
-#include "Okay.h"
+#include "ScriptBehaviour.h"
 #include "Components.h"
 
-class ScriptBehaviour
+#include <ctime>
+
+class ScriptCameraMovement : public ScriptBehaviour
 {
 public:
-	ScriptBehaviour(Entity entity)
-		:entity(entity) { }
-	virtual ~ScriptBehaviour() { }
+	ScriptCameraMovement(Entity entity)
+		:ScriptBehaviour(entity)
+		, tra(entity.GetComponent<Okay::CompTransform>())
+		, cam(entity.GetComponent<Okay::CompCamera>())
+		, pos(), fwd(), up()
+		, camRot()
+	{ };
 
-	virtual void Start() { }
-	virtual void Update() { }
-	virtual void Destroy() { }
+	void Start();
+	void Update() override;
 
-protected:
-	template<typename T, typename... Args>
-	T& AddComponent(Args&&... args)
+	//private:
+	Okay::CompTransform& tra;
+	Okay::CompCamera& cam;
+
+	Okay::Float2 camRot;
+
+	DirectX::XMVECTOR pos;
+	DirectX::XMVECTOR fwd, up;
+
+
+	static DirectX::XMVECTOR GetRandVec(float scalar)
 	{
-		return entity.AddComponent<T>(std::forward<Args>(args)...);
+		return DirectX::XMVectorSet(
+			((rand() % 200) * 0.01f - 1.f) * scalar,
+			((rand() % 200) * 0.01f - 1.f) * scalar,
+			((rand() % 200) * 0.01f - 1.f) * scalar, 
+			1.f);
 	}
+};
 
-	template<typename T>
-	bool HasComponent()
-	{
-		return entity.HasComponent<T>();
-	}
+class ScriptBasicMovement : public ScriptBehaviour
+{
+public:
+	ScriptBasicMovement(Entity entity)
+		:ScriptBehaviour(entity)
+		, tra(entity.GetComponent<Okay::CompTransform>())
+		, cam(nullptr)
+	{ }
 
-	template<typename T>
-	T& GetComponent()
-	{
-		return entity.GetComponent<T>();
-	}
+	void Start() override;
+	void Update() override;
 
-	template<typename T>
-	bool RemoveComponent()
-	{
-		return entity.RemoveComponent<T>();
-	}
 
 private:
-	Entity entity;
+	Okay::CompTransform& tra;
+	ScriptCameraMovement* cam;
 
 };
 
-class CompScript
+
+class ScriptRotate : public ScriptBehaviour
 {
 public:
-
-	CompScript() = default;
-	~CompScript() { OkayDelete(pScript); }
-
-	CompScript(ScriptBehaviour* pScript)
-		:pScript(pScript) { }
-
-	void Start()	{ pScript->Start();   }
-	void Update()	{ pScript->Update();  }
-	void Destroy()  { pScript->Destroy(); }
-
-private:
-	ScriptBehaviour* pScript;
-};
-
-
-
-
-
-class RotateScript : public ScriptBehaviour
-{
-public:
-	RotateScript(Entity entity)
+	ScriptRotate(Entity entity)
 		:ScriptBehaviour(entity) { }
 
 	void Update() override;
-
-private:
 };
 
-
-class HoverScript : public ScriptBehaviour
+class ScriptHover : public ScriptBehaviour
 {
 public:
-	HoverScript(Entity entity)
+	ScriptHover(Entity entity)
 		:ScriptBehaviour(entity), initPosY(0.f) { }
 
 	void Start() override { initPosY = GetComponent<Okay::CompTransform>().position.y; }

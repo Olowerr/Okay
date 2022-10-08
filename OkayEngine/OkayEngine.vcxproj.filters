@@ -55,6 +55,9 @@
     <Filter Include="Application">
       <UniqueIdentifier>{7dfbe1f9-a261-4c2d-a5b9-f8b7fc60187d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ECS\Script">
+      <UniqueIdentifier>{066d1d85-5e78-45ac-a36c-4fef8d7bd05f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DX11.cpp">
@@ -123,14 +126,14 @@
     <ClCompile Include="Main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts.cpp">
-      <Filter>ECS</Filter>
-    </ClCompile>
     <ClCompile Include="SkeletalMesh.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
-    <ClCompile Include="OkayImporter.cpp">
-      <Filter>Importer</Filter>
+    <ClCompile Include="Scripts.cpp">
+      <Filter>ECS\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CompScript.cpp">
+      <Filter>ECS\Script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,11 +221,17 @@
     <ClInclude Include="Keys.h">
       <Filter>Okay</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="SkeletalMesh.h">
       <Filter>Header Files\Rendering\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBehaviour.h">
+      <Filter>ECS\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripts.h">
+      <Filter>ECS\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="CompScript.h">
+      <Filter>ECS\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

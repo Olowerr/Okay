@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Scene.h"
-#include "Entt/Entt.hpp"
-
-class CompScript;
+#include "CompScript.h"
 
 class Entity
 {
@@ -15,24 +13,16 @@ public:
 
 	Entity& operator=(const Entity&) = default;
 
-	template<typename T>
-	void AddScript()
-	{
-		// emplace_or_replace temp
-		pScene->GetRegistry().emplace_or_replace<CompScript>(entityId, new T(*this));
-	}
-
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)
 	{
 		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 	}
 
-	template<typename T>
+	template<typename... T>
 	bool HasComponent()
 	{
-		// apparently has() doesn't exist
-		return pScene->GetRegistry().try_get<T>(entityId);
+		return pScene->GetRegistry().all_of<T...>(entityId);
 	}
 
 	template<typename T>
@@ -47,19 +37,32 @@ public:
 		return pScene->GetRegistry().remove<T>(entityId);
 	}
 
-	operator entt::entity() { return entityId; }
-	operator entt::entity() const { return entityId; }
+	template<typename T>
+	T& AddScript()
+	{
+		if (!HasComponent<CompScript>())
+			pScene->GetRegistry().emplace<CompScript>(entityId);
 
-	entt::entity GetID() const { return entityId; }
-	bool IsValid() const { return entityId != entt::null; }
+		return GetComponent<CompScript>().AddScript<T>(*this);
+	}
+
+	template<typename T>
+	T& GetScript()
+	{
+		return GetComponent<CompScript>().GetScript<T>();
+	}
+
+
+	operator entt::entity()			{ return entityId; }
+	operator entt::entity() const	{ return entityId; }
+
+	entt::entity GetID() const	{ return entityId; }
+	bool IsValid() const		{ return entityId != entt::null; }
 
 	void SetInvalid() { entityId = entt::null; pScene = nullptr; }
 
 private:
 	entt::entity entityId;
 
-	// Could FwdDeclare Entity in engine and call the engine functions from here
-	// But then an entities wouldn't care which scene they're in
-	// pScene makes it possible to open multiple scenes with their own entities
 	Scene* pScene;
 };

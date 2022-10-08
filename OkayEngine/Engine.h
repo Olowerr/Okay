@@ -7,16 +7,10 @@
 #include "Entity.h"
 #include "Keys.h"
 
-
-#define COUNT_COMP(T) numComp += (bool)registry.try_get<Okay::T>(entity);
-
-#define WRITE_DATA(T)												\
-if (auto* tPtr = registry.try_get<Okay::T>(entity))					\
-{																	\
-	Okay::Components type = Okay::T::ID;							\
-	writer.write((const char*)&type, sizeof(Okay::Components));		\
-	tPtr->WritePrivateData(writer);									\
-}
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "dxguid.lib")
 
 namespace Okay
 {
@@ -66,20 +60,29 @@ namespace Okay
         static float GetDT() { return Get().deltaTime.count(); };
         static float GetUpTime() { return Get().upTime.count(); };
 
-		// Inputs
-        static void SetKeyUp(UINT key)
+		// Set/Update inputs
+        /*static void SetKeyUp(UINT key)
         {
             keys[key] = false;
         }
         static void SetKeyDown(UINT key)
         {
             keys[key] = true;
-        }
-        static bool GetKeyDown(Keys key)
+        }*/
+
+		// Get Inputs
+        static bool GetKeyDown(int key)
         {
-            return keys[key];
+            return keysDown[key];
+        }
+		static bool GetKeyRelease(int key)
+        {
+            return keysDown[key];
         }
 
+		static float GetMouseDeltaX() { return (float)Get().lastState.lX; }
+		static float GetMouseDeltaY() { return (float)Get().lastState.lY; }
+		static bool GetMouseLocked() { return Get().mouseLocked; }
 
 	private:
 		Renderer renderer;
@@ -99,8 +102,30 @@ namespace Okay
 
 
 	private: // Inputs
-		static bool keys[256];
+		static bool keysDown[256];
+		static bool keysReleased[256];
+
+		LPDIRECTINPUT8 dInput;
+		IDirectInputDevice8* DIMouse;
+		IDirectInputDevice8* DIKeyboard;
+		DIMOUSESTATE lastState;
+
+		bool mouseLocked = false;
+
 
 	};
 
+}
+
+
+
+
+#define COUNT_COMP(T) numComp += (bool)registry.try_get<Okay::T>(entity);
+
+#define WRITE_DATA(T)												\
+if (auto* tPtr = registry.try_get<Okay::T>(entity))					\
+{																	\
+	Okay::Components type = Okay::T::ID;							\
+	writer.write((const char*)&type, sizeof(Okay::Components));		\
+	tPtr->WritePrivateData(writer);									\
 }

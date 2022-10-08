@@ -104,6 +104,7 @@ DX11::DX11()
 DX11::~DX11()
 {
 	Shutdown();
+
 	printf("DX11 Shutdown\n");
 }
 
@@ -132,8 +133,8 @@ void DX11::NewFrame()
 #ifdef EDITOR
 	pDeviceContext->ClearRenderTargetView(pMainRTV, clearColour);
 #else
-	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
 #endif
+	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
 
 	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 }

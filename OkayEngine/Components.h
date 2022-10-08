@@ -142,4 +142,16 @@ namespace Okay // Structs for now, change to classes
 		void WritePrivateData(std::ofstream& writer);
 		void ReadPrivateData(std::ifstream& reader);
 	};
+
+	struct CompCamera
+	{
+		CompCamera()
+		{
+			DirectX::XMVECTOR pos = DirectX::XMVectorSet(10.f, 10.f, 10.f, 0.f);
+			Update(pos, DirectX::XMVectorScale(pos, -1.f), DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f));
+		}
+
+		DirectX::XMFLOAT4X4 viewProject;
+		void Update(DirectX::XMVECTOR pos, DirectX::XMVECTOR tPos, DirectX::XMVECTOR up);
+	};
 }

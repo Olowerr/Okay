@@ -136,6 +136,30 @@ const Okay::String& Assets::GetMeshName(UINT index)
 	return it->second.get()->GetName();
 }
 
+void Assets::ChangeMeshName(std::weak_ptr<Okay::Mesh> mesh, const Okay::String& name)
+{
+	if (mesh.expired())
+		return;
+
+	const Okay::String& oldName = mesh.lock()->GetName();
+	
+	if (!MeshExists(oldName.c_str))
+		return;
+
+	// Rename file
+	const std::string oldPath = "../Content/Meshes/" + std::string(oldName) + ".OkayAsset";
+	const std::string newPath = "../Content/Meshes/" + std::string(name) + ".OkayAsset";
+
+	if (rename(oldPath.c_str(), newPath.c_str()) != 0)
+		return;
+
+	auto node = meshes.extract(oldName.c_str);
+	node.key() = name;
+	node.mapped()->SetName(name);
+
+	meshes.insert(std::move(node));
+}
+
 void Assets::RemoveMesh(std::weak_ptr<Okay::Mesh> mesh)
 {
 	if (mesh.expired())

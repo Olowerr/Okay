@@ -12,7 +12,6 @@ namespace Okay
 		Camera(Camera&&) = default;
 		Camera& operator=(const Camera&) = default;
 
-		//virtual void SetPosition(Float3 position);
 		const DirectX::XMFLOAT4X4& GetViewProjectMatrix() const;
 
 		virtual void Update();
