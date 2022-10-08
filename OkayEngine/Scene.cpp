@@ -32,8 +32,8 @@ void Scene::Start()
 {
     // Temp
     Entity test(last, this);
-   // test.AddScript<RotateScript>();
-    test.AddScript<HoverScript>();
+   // test.AddScript<ScriptRotate>();
+    test.AddScript<ScriptHover>();
 
     Entity gobWalk = CreateEntity();
     gobWalk.AddComponent<Okay::CompSkeletalMesh>("gobWalk3").StartAnimation();
