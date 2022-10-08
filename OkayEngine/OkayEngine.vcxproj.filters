@@ -60,40 +60,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DX11.cpp">
+    <ClCompile Include="source\Engine\DX11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Okay.cpp">
+    <ClCompile Include="source\Okay\Okay.cpp">
       <Filter>Okay</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Header Files\Rendering\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderModel.cpp">
+    <ClCompile Include="source\Engine\ShaderModel.cpp">
       <Filter>Shader Models\Default</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
+    <ClCompile Include="source\Engine\Renderer.cpp">
       <Filter>Header Files\Rendering\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
+    <ClCompile Include="source\Graphics\Importing\ResourceManager.cpp">
       <Filter>Importer</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
+    <ClCompile Include="source\Engine\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="source\Application\Scene.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
-    <ClCompile Include="Components.cpp">
+    <ClCompile Include="source\ECS\Components\Components.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="source\Graphics\Mesh.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="source\Graphics\Texture.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
+    <ClCompile Include="source\Graphics\Material.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
     <ClCompile Include="..\include\imgui\imgui.cpp">
@@ -117,75 +114,78 @@
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp">
       <Filter>Resource Files\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Editor.cpp">
+    <ClCompile Include="source\Editor\Editor.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
+    <ClCompile Include="source\Application\Application.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="source\Application\Main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="SkeletalMesh.cpp">
+    <ClCompile Include="source\Graphics\SkeletalMesh.cpp">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClCompile>
-    <ClCompile Include="Scripts.cpp">
+    <ClCompile Include="source\ECS\Scripts\Scripts.cpp">
       <Filter>ECS\Script</Filter>
     </ClCompile>
-    <ClCompile Include="CompScript.cpp">
+    <ClCompile Include="source\ECS\CompScript.cpp">
       <Filter>ECS\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\Importing\OkayImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine\Camera.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DX11.h">
+    <ClInclude Include="source\Engine\DX11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderModel.h">
+    <ClInclude Include="source\Engine\ShaderModel.h">
       <Filter>Shader Models\Default</Filter>
     </ClInclude>
-    <ClInclude Include="Okay.h">
+    <ClInclude Include="source\Okay\Okay.h">
       <Filter>Okay</Filter>
     </ClInclude>
-    <ClInclude Include="Defines.h">
+    <ClInclude Include="source\Okay\Defines.h">
       <Filter>Okay</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Rendering\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="source\Engine\Renderer.h">
       <Filter>Header Files\Rendering\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="OkayImporter.h">
+    <ClInclude Include="source\Graphics\Importing\OkayImporter.h">
       <Filter>Importer</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h">
+    <ClInclude Include="source\Engine\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
+    <ClInclude Include="source\ECS\Entity.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="source\Application\Scene.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Components.h">
+    <ClInclude Include="source\ECS\Components\Components.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="source\Graphics\Mesh.h">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="source\Graphics\Texture.h">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="source\Graphics\Importing\stb_image.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
+    <ClInclude Include="source\Graphics\Material.h">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
+    <ClInclude Include="source\Graphics\Importing\ResourceManager.h">
       <Filter>Importer</Filter>
     </ClInclude>
-    <ClInclude Include="OkayVertices.h">
+    <ClInclude Include="source\Okay\OkayVertices.h">
       <Filter>Okay</Filter>
     </ClInclude>
     <ClInclude Include="..\include\imgui\imconfig.h">
@@ -212,41 +212,44 @@
     <ClInclude Include="..\include\imgui\imstb_truetype.h">
       <Filter>Resource Files\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Editor.h">
+    <ClInclude Include="source\Editor\Editor.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h">
+    <ClInclude Include="source\Application\Application.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="Keys.h">
+    <ClInclude Include="source\Application\Keys.h">
       <Filter>Okay</Filter>
     </ClInclude>
-    <ClInclude Include="SkeletalMesh.h">
+    <ClInclude Include="source\Graphics\SkeletalMesh.h">
       <Filter>Header Files\Rendering\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptBehaviour.h">
+    <ClInclude Include="source\ECS\ScriptBehaviour.h">
       <Filter>ECS\Script</Filter>
     </ClInclude>
-    <ClInclude Include="Scripts.h">
+    <ClInclude Include="source\ECS\Scripts\Scripts.h">
       <Filter>ECS\Script</Filter>
     </ClInclude>
-    <ClInclude Include="CompScript.h">
+    <ClInclude Include="source\ECS\CompScript.h">
       <Filter>ECS\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="MeshVS.hlsl">
+    <FxCompile Include="source\Engine\Shaders\MeshVS.hlsl">
       <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPS.hlsl">
+    <FxCompile Include="source\Engine\Shaders\PhongPS.hlsl">
       <Filter>Shader Models\Default\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkeletalMeshVS.hlsl">
+    <FxCompile Include="source\Engine\Shaders\SkeletalMeshVS.hlsl">
       <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderInclude.hlsli">
+    <None Include="source\Engine\Shaders\ShaderInclude.hlsli">
       <Filter>Header Files\Rendering\Renderer\Shaders</Filter>
     </None>
   </ItemGroup>
