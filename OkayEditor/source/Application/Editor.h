@@ -4,7 +4,7 @@
 class Editor : public Application
 {
 public:
-	Editor();
+	Editor(std::string_view scene);
 	~Editor();
 
 	// Inherited via Application

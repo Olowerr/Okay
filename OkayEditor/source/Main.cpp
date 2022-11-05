@@ -1,8 +1,10 @@
 #include "Application/Editor.h"
 
-int main()
+int main(int argc, char* args[])
 {
-	Editor editor;
+	const char* scene = argc == 1 ? "" : args[1];
+
+	Editor editor(scene);
 	editor.run();
 
 	return 0;
