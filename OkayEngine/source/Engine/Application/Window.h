@@ -15,11 +15,12 @@ public:
 	void close();
 	bool isOpen() const;
 
+	void update();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
+	MSG msg;
 	HWND hWnd;
-	HINSTANCE hInst;
 
 	bool open;
 };

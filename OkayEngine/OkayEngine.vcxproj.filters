@@ -15,21 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Application\Application.h">
+    <ClInclude Include="source\Engine\Application\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Application\Window.h">
+    <ClInclude Include="source\Engine\Application\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Okay\OkayHelper.h">
+    <ClInclude Include="source\Engine\Okay\OkayHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Okay\OkayAssert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Application\Application.cpp">
+    <ClCompile Include="source\Engine\Application\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Application\Window.cpp">
+    <ClCompile Include="source\Engine\Application\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

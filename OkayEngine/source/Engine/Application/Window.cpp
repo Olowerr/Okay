@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <iostream>
 
 Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 {
@@ -14,14 +15,19 @@ Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 	RegisterClass(&winClass);
 
 	RECT rect = {};
-	rect.right = width;
-	rect.bottom = height;
+	rect.right = (LONG)width;
+	rect.bottom = (LONG)height;
+
+	RECT desktop;
+	GetWindowRect(GetDesktopWindow(), &desktop);
+	LONG xDiff = desktop.right - rect.right;
+	LONG yDiff = desktop.bottom - rect.bottom;
+
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-
 	hWnd = CreateWindowEx(0, win_Class, name.data(), WS_OVERLAPPEDWINDOW,
-		0, 0, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
-
+		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
 	open = true;
+
 	show();
 }
 
@@ -42,6 +48,17 @@ void Window::close()
 bool Window::isOpen() const
 {
 	return open;
+}
+
+void Window::update()
+{
+	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	if (msg.message == WM_QUIT)
+		open = false;
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

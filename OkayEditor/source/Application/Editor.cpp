@@ -1,9 +1,9 @@
 #include "Editor.h"
+#include "Engine/Okay/OkayAssert.h"
 
 Editor::Editor()
-	:Application("Editor")
+	:Application(L"Editor")
 {
-	
 }
 
 Editor::~Editor()
@@ -12,5 +12,9 @@ Editor::~Editor()
 
 void Editor::run()
 {
-	//window;
+	while (window.isOpen())
+	{
+		window.update();
+
+	}
 }
