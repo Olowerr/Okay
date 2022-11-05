@@ -183,11 +183,6 @@
     <ClInclude Include="source\Engine\Application\Scene.h" />
     <ClInclude Include="source\Engine\Application\Window.h" />
     <ClInclude Include="source\Engine\Components\Transform.h" />
-    <ClInclude Include="source\Engine\Okay.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="source\Engine\Okay\OkayAssert.h" />
     <ClInclude Include="source\Engine\Okay\OkayHelper.h" />
     <ClInclude Include="source\Engine\Okay\OkayString.h" />
