@@ -1,15 +1,17 @@
 #pragma once
 #include <string>
-#include "Window.h"
 
 class Application
 {
 public:
-	Application(std::wstring_view appName, uint32_t width = 1600u, uint32_t height = 900u);
+	Application(std::string_view appName);
 	virtual ~Application();
 
 	virtual void run() = 0;
 
-	Window window;
 protected:
+	// Window
+
+private:
+	std::string appName;
 };
