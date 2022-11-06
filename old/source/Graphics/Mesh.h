@@ -35,7 +35,4 @@ namespace Okay
 		Mesh& operator=(const Mesh&) = delete;
 	};
 	
-
-
-
 }

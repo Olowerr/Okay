@@ -13,35 +13,35 @@ public:
 	Entity& operator=(const Entity&) = default;
 
 	template<typename T, typename... Args>
-	T& AddComponent(Args&&... args)
+	T& addComponent(Args&&... args)
 	{
-		return pScene->GetRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
+		return pScene->getRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 	}
 
 	template<typename... T>
-	bool HasComponent()
+	bool hasComponent()
 	{
-		return pScene->GetRegistry().all_of<T...>(entityId);
+		return pScene->getRegistry().all_of<T...>(entityId);
 	}
 
 	template<typename T>
-	T& GetComponent()
+	T& getComponent()
 	{
-		return pScene->GetRegistry().get<T>(entityId);
+		return pScene->getRegistry().get<T>(entityId);
 	}
 
 	template<typename T>
-	bool RemoveComponent()
+	bool removeComponent()
 	{
-		return pScene->GetRegistry().remove<T>(entityId);
+		return pScene->getRegistry().remove<T>(entityId);
 	}
 
 
-	operator entt::entity()			{ return entityId; }
-	operator entt::entity() const	{ return entityId; }
+	operator entt::entity()	{ return entityId; }
+	operator entt::entity() const { return entityId; }
 
-	entt::entity GetID() const	{ return entityId; }
-	bool IsValid() const		{ return entityId != entt::null; }
+	entt::entity getID() const	{ return entityId; }
+	bool isValid() const		{ return entityId != entt::null; }
 
 private:
 	entt::entity entityId;

@@ -5,41 +5,40 @@
 Scene::Scene()
 {
 }
-    
 
 Scene::~Scene()
 {
 }
 
-Entity Scene::CreateEntity()
+Entity Scene::createEntity()
 {
     Entity entity(registry.create(), this);
-    entity.AddComponent<Okay::Transform>();
-
+    entity.addComponent<Okay::Transform>();
+    
     return entity;
 }
 
-void Scene::DestroyEntity(Entity entity)
+void Scene::destroyEntity(Entity entity)
 {
     registry.destroy(entity);
 }
 
-void Scene::Start()
+void Scene::start()
 {
     
 }
 
-void Scene::Update()
+void Scene::update()
 {
 
 }
 
-void Scene::Submit()
+void Scene::submit()
 {
 
 }
 
-void Scene::End()
+void Scene::end()
 {
 
 }

@@ -27,7 +27,7 @@ Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 	hWnd = CreateWindowEx(0, win_Class, name.data(), WS_OVERLAPPEDWINDOW,
 		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
 
-	OKAYASSERT(hWnd != nullptr);
+	OKAY_ASSERT(hWnd != nullptr);
 	open = true;
 	show();
 }
@@ -49,6 +49,11 @@ void Window::close()
 bool Window::isOpen() const
 {
 	return open;
+}
+
+HWND Window::getHWnd() const
+{
+	return hWnd;
 }
 
 void Window::update()

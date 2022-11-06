@@ -10,11 +10,12 @@ public:
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;
 	Window& operator=(const Window&) = delete;
-
+	
 	void show();
 	void close();
 	bool isOpen() const;
 
+	HWND getHWnd() const;
 	void update();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

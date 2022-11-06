@@ -9,16 +9,16 @@ public:
 	Scene();
 	~Scene();
 
-	Entity CreateEntity();
-	void DestroyEntity(Entity entity);
+	Entity createEntity();
+	void destroyEntity(Entity entity);
 
-	entt::registry& GetRegistry() { return registry; }
+	entt::registry& getRegistry() { return registry; }
 
 
-	void Start();
-	void Update();
-	void Submit();
-	void End();
+	void start();
+	void update();
+	void submit();
+	void end();
 
 
 private:

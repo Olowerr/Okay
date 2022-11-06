@@ -1,5 +1,7 @@
 #pragma once
 #include <Engine/Application/Application.h>
+#include <Engine/Application/Scene.h>
+#include <Engine/DirectX/DX11.h>
 
 class Editor : public Application
 {
@@ -11,5 +13,6 @@ public:
 	virtual void run() override;
 
 private:
-
+	Scene scene;
+	DX11 dx11;
 };
