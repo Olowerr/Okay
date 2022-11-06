@@ -1,20 +1,28 @@
 #pragma once
 #include <d3d11.h>
-#include "Engine/Okay/OkayDefine.h"
+
+#include "Engine/Okay/Okay.h"
 
 class Window;
 
 class DX11
 {
-public:
+private:
 	DX11();
-	virtual ~DX11();
-
+public:
+	~DX11();
 	DX11(const DX11&) = delete;
 	DX11(DX11&&) = delete;
 	DX11& operator=(const DX11&) = delete;
 
-	void initalize(Window* window);
+	static DX11& getInstance()
+	{
+		static DX11 dx11;
+		return dx11;
+	}
+
+	static void initialize(Window* window);
+
 	void shutdown();
 
 	void clear();
@@ -34,13 +42,13 @@ public:
 	bool resizeBackBuffer(uint32 width, uint32 height);
 
 	// Helper functions
-	HRESULT createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
-	HRESULT createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
-	HRESULT createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
-	bool updateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize);
+	static HRESULT createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static HRESULT createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static HRESULT createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
+	static bool updateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize);
 
-	HRESULT createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable = true);
-	HRESULT createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements);
+	static HRESULT createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable = true);
+	static HRESULT createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements);
 
 private:
 	ID3D11Device* pDevice;
@@ -55,7 +63,4 @@ private:
 	ID3D11DepthStencilView* pDepthBufferDSV;
 
 	bool resizeDepthBuffer();
-
-public:
-	
 };

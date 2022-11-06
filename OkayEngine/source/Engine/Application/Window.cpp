@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "Engine/Okay/OkayAssert.h"
+#include "Engine/Okay/Okay.h"
 
 Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 {
@@ -49,6 +49,11 @@ void Window::close()
 bool Window::isOpen() const
 {
 	return open;
+}
+
+void Window::setName(std::wstring_view name)
+{
+	SetWindowText(hWnd, name.data());
 }
 
 HWND Window::getHWnd() const

@@ -3,7 +3,6 @@
 Editor::Editor(std::string_view scene)
 	:Application(L"Okay Editor")
 {
-	dx11.initalize(&window);
 }
 
 Editor::~Editor()
@@ -12,6 +11,8 @@ Editor::~Editor()
    
 void Editor::run()
 {
+	DX11& dx11 = DX11::getInstance();
+
 	while (window.isOpen())
 	{
 		window.update();

@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "Engine/Okay/OkayDefine.h"
+#include "Engine/Okay/Okay.h"
 #include "Engine/DirectX/DX11.h"
 
 namespace Okay
@@ -10,8 +10,10 @@ namespace Okay
 	class Mesh
 	{
 	public:
-		struct VertexData
+		struct MeshInfo
 		{
+			std::string name;
+
 			std::vector<uint32> indices;
 
 			std::vector<Okay::Float3> positions;
@@ -26,8 +28,8 @@ namespace Okay
 		static const uint32 Stride[NumBuffers];
 		static const uint32 Offset[NumBuffers];
 
-		Mesh(const VertexData& data, DX11* pDx11, std::string_view meshName);
-		virtual ~Mesh();
+		Mesh(const MeshInfo& data, DX11* pDx11);
+		~Mesh();
 		Mesh(const Mesh&) = delete;
 		Mesh(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;

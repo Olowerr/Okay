@@ -6,8 +6,8 @@ namespace Okay
 	const uint32 Mesh::Stride[] = { sizeof(Float3), sizeof(Float2), sizeof(Float3) };
 	const uint32 Mesh::Offset[] = { 0u, 0u, 0u };
 
-	Mesh::Mesh(const VertexData& data, DX11* pDx11, std::string_view meshName)
-		:numIndices((uint32)data.indices.size()), vertexBuffers{}, indexBuffer(), name(meshName)
+	Mesh::Mesh(const MeshInfo& data, DX11* pDx11)
+		:numIndices((uint32)data.indices.size()), vertexBuffers{}, indexBuffer(), name(data.name)
 	{
 		pDx11->createIndexBuffer(&indexBuffer, data.indices.data(), sizeof(UINT)* (UINT)data.indices.size());
 

@@ -14,6 +14,7 @@ public:
 	void show();
 	void close();
 	bool isOpen() const;
+	void setName(std::wstring_view name);
 
 	HWND getHWnd() const;
 	void update();

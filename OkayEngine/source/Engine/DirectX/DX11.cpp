@@ -3,7 +3,7 @@
 
 DX11::DX11()
 	:pDevice(), pDeviceContext(), pSwapChain()
-	, pBackBuffer(), pBackBufferRTV()
+	, pBackBuffer(), pBackBufferRTV(), pBackBufferSRV()
 	, pDepthBuffer(), pDepthBufferDSV()
 {
 	
@@ -14,8 +14,10 @@ DX11::~DX11()
 	shutdown();
 }
 
-void DX11::initalize(Window* window)
+void DX11::initialize(Window* window)
 {
+	DX11& inst = DX11::getInstance();
+
 	const uint32 Width = 0u;
 	const uint32 Height = 0u;
 
@@ -50,26 +52,26 @@ void DX11::initalize(Window* window)
 
 	// Device, DeviceContext, SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
-		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &pSwapChain, &pDevice, nullptr, &pDeviceContext);
+		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &inst.pSwapChain, &inst.pDevice, nullptr, &inst.pDeviceContext);
 	if (FAILED(hr))
 		return;
 
 	// BackBuffer
-	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
+	hr = inst.pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&inst.pBackBuffer);
 	if (FAILED(hr))
 		return;
 
-	hr = pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
+	hr = inst.pDevice->CreateRenderTargetView(inst.pBackBuffer, nullptr, &inst.pBackBufferRTV);
 	if (FAILED(hr))
 		return;
 
-	hr = pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
+	hr = inst.pDevice->CreateShaderResourceView(inst.pBackBuffer, nullptr, &inst.pBackBufferSRV);
 	if (FAILED(hr))
 		return;
 
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
-	pBackBuffer->GetDesc(&backBufferDesc);
+	inst.pBackBuffer->GetDesc(&backBufferDesc);
 
 	// DepthBuffer
 	D3D11_TEXTURE2D_DESC texDesc{};
@@ -87,11 +89,11 @@ void DX11::initalize(Window* window)
 		texDesc.MiscFlags = 0;
 	}
 
-	hr = pDevice->CreateTexture2D(&texDesc, nullptr, &pDepthBuffer);
+	hr = inst.pDevice->CreateTexture2D(&texDesc, nullptr, &inst.pDepthBuffer);
 	if (FAILED(hr))
 		return;
 
-	hr = pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
+	hr = inst.pDevice->CreateDepthStencilView(inst.pDepthBuffer, nullptr, &inst.pDepthBufferDSV);
 	if (FAILED(hr))
 		return;
 }
@@ -112,7 +114,7 @@ void DX11::shutdown()
 
 void DX11::clear()
 {
-	static float clearColour[4] = { 0.2f, 0.2f, 0.8f, 1.f };
+	static float clearColour[4] = { 0.6f, 0.2f, 0.8f, 1.f };
 
 	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
 	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
@@ -221,7 +223,7 @@ HRESULT DX11::createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UIN
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -236,7 +238,7 @@ HRESULT DX11::createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -251,16 +253,16 @@ HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 bool DX11::updateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize)
 {
 	D3D11_MAPPED_SUBRESOURCE sub;
-	OKAY_VERIFY(SUCCEEDED(pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)));
+	OKAY_VERIFY(SUCCEEDED(getInstance().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)));
 
 	memcpy(sub.pData, pData, byteSize);
-	pDeviceContext->Unmap(pBuffer, 0);
+	getInstance().pDeviceContext->Unmap(pBuffer, 0);
 
 	return true;
 }
@@ -279,7 +281,7 @@ HRESULT DX11::createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData,
 	inData.SysMemPitch = 0;
 	inData.SysMemSlicePitch = 0;
 
-	return pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements)
 {
@@ -289,5 +291,5 @@ HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer
 	desc.Buffer.FirstElement = 0;
 	desc.Buffer.NumElements = numElements;
 
-	return pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
+	return getInstance().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
 }

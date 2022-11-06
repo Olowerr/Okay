@@ -11,32 +11,35 @@
 //#define OKAY_ASSET
 
 // Private class with friend class acts like a private namespace
-class Importer
+namespace Okay
 {
-private:
-	friend class Assets; 
+	class Importer
+	{
+	private:
+		friend class Content;
 
-	static bool Load(std::string_view filePath, Okay::Mesh::VertexData& outData, std::string* texPath);
+		static bool Load(std::string_view filePath, Okay::Mesh::MeshInfo& outData, std::string* texPath, std::string& matName);
 #ifdef SKELETAL 
-	//static bool LoadSkeletal(std::string_view filePath, Okay::SkeletalVertexData& outData);
+		//static bool LoadSkeletal(std::string_view filePath, Okay::SkeletalVertexData& outData);
 #endif
 
 #ifdef OKAY_ASSET
-	static bool WriteOkayAsset(const std::string& filePath, const Okay::Mesh::VertexData& vertexData);
-	static bool LoadOkayAsset(const std::string& filePath, Okay::Mesh::VertexData& vertexData);
+		static bool WriteOkayAsset(const std::string& filePath, const Okay::Mesh::VertexData& vertexData);
+		static bool LoadOkayAsset(const std::string& filePath, Okay::Mesh::VertexData& vertexData);
 #endif
 
 #ifdef SKELETAL
-	// Helper Functions
-	/*static aiNodeAnim* FindAnimNode(aiNodeAnim** nodes, UINT numNodesa, std::string_view name);
-	static bool FixJoint(Okay::Joint& joint, aiNode* pRootNode);
-	static aiNode* FindTraNode(aiNode* pParent, std::string_view name);
+		// Helper Functions
+		/*static aiNodeAnim* FindAnimNode(aiNodeAnim** nodes, UINT numNodesa, std::string_view name);
+		static bool FixJoint(Okay::Joint& joint, aiNode* pRootNode);
+		static aiNode* FindTraNode(aiNode* pParent, std::string_view name);
 
-	static int FindJointIndex(std::vector<Okay::Joint>& joints, std::string_view name);
-	static aiNode* GetJointParentNode(std::vector<Okay::Joint>& joints, aiNode* child);
-	static void SetParents(std::vector<Okay::Joint>& joints, aiNode* node);*/
+		static int FindJointIndex(std::vector<Okay::Joint>& joints, std::string_view name);
+		static aiNode* GetJointParentNode(std::vector<Okay::Joint>& joints, aiNode* child);
+		static void SetParents(std::vector<Okay::Joint>& joints, aiNode* node);*/
 #endif
-};
+	};
+}
 
 #ifdef SKELETAL
 inline aiNodeAnim* Importer::FindAnimNode(aiNodeAnim** nodes, UINT numNodes, std::string_view name)

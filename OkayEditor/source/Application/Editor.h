@@ -14,5 +14,4 @@ public:
 
 private:
 	Scene scene;
-	DX11 dx11;
 };

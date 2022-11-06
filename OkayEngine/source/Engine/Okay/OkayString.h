@@ -16,6 +16,10 @@ namespace Okay
 		{
 			copy(str.c_str());
 		}
+		String(std::string_view str)
+		{
+			copy(str);
+		}
 
 		String& operator=(const char* str)
 		{
@@ -27,6 +31,11 @@ namespace Okay
 			copy(str.c_str());
 			return *this;
 		}
+		String& operator=(const std::string_view& str)
+		{
+			copy(str);
+			return *this;
+		}
 
 		bool operator==(const char* str)
 		{
@@ -36,10 +45,16 @@ namespace Okay
 		{
 			return strcmp(cStr, str.c_str()) == 0;
 		}
+		bool operator==(const std::string_view& str)
+		{
+			return memcmp(cStr, str.data(), str.length()) == 0;
+		}
+
+		char& operator[](int index) { return cStr[index]; }
 
 		operator char* () { return cStr; }
 		operator const char* () { return cStr; } const
-
+		
 		void copy(const char* str)
 		{
 			size_t length = strlen(str);
@@ -47,6 +62,19 @@ namespace Okay
 				length = LENGTH;
 
 			memcpy(cStr, str, length);
+		}
+		void copy(const std::string_view& str)
+		{
+			size_t length = str.length();
+			if (length > LENGTH)
+				length = LENGTH;
+
+			memcpy(cStr, str.data(), length);
+		}
+
+		size_t length() const
+		{
+			return strlen(cStr);
 		}
 
 		char cStr[LENGTH]{};

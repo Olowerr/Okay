@@ -1,114 +1,29 @@
 #include "Texture.h"
 
-Okay::Texture::Texture()
-	:name("Quack.jpg"), texture(), srv(), rtv(), uav(), width(0), height(0), isValid(false)
+namespace Okay
 {
-	unsigned char* pData = nullptr;
-	if (!LoadTexture("../Content/Textures/Quack.jpg", &pData))
-		return;
-
-	D3D11_TEXTURE2D_DESC desc = CreateDefaultDesc();
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
-	D3D11_SUBRESOURCE_DATA inData{pData, width * 4, 0};
-
-	DX11::Get().GetDevice()->CreateTexture2D(&desc, &inData, &texture);
-	
-	stbi_image_free(pData);
-	if (!texture)
-		return;
-
-	DX11::Get().GetDevice()->CreateShaderResourceView(texture, nullptr, &srv);
-	
-	isValid = srv;
-}
-
-Okay::Texture::Texture(UINT width, UINT height, DXGI_FORMAT format, UINT bindFlags, const Okay::String& name)
-	:isValid(false), width(width), height(height), name(name), texture(), srv(), rtv(), uav()
-{
-	D3D11_TEXTURE2D_DESC desc = CreateDefaultDesc();
-
-	desc.Format = format;
-	desc.BindFlags = bindFlags;
-
-	DX11::Get().GetDevice()->CreateTexture2D(&desc, nullptr, &texture);
-	if (!texture)
-		return;
-
-	CreateViews(bindFlags);
-}
-
-Okay::Texture::Texture(const std::string& path, UINT bindFlags)
-	:isValid(false), width(0), height(0), texture(), srv(), rtv(), uav()
-{
-	size_t pos = path.find_last_of('/');
-	pos = pos == -1 ? path.find_last_of('\\') : pos;
-	name = path.substr(pos + 1);
-
-	unsigned char* pData = nullptr;
-	if (!LoadTexture(path, &pData))
-		return;
-
-	D3D11_TEXTURE2D_DESC desc = CreateDefaultDesc();
-	desc.BindFlags = bindFlags;
-	D3D11_SUBRESOURCE_DATA inData{ pData, width * 4, 0 };
-
-	DX11::Get().GetDevice()->CreateTexture2D(&desc, &inData, &texture);
-
-	stbi_image_free(pData);
-	if (!texture)
-		return;
-
-	CreateViews(bindFlags);
-}
-
-Okay::Texture::~Texture()
-{
-	Shutdown();
-}
-
-void Okay::Texture::Shutdown()
-{
-	DX11_RELEASE(texture);
-	DX11_RELEASE(srv);
-	DX11_RELEASE(rtv);
-	DX11_RELEASE(uav);
-	isValid = false;
-}
-
-bool Okay::Texture::LoadTexture(const std::string& path, unsigned char** ppData)
-{
-	int x, y, c;
-	unsigned char* pData = stbi_load(path.c_str(), &x, &y, &c, 4);
-
-	if (!pData)
-		return false;
-
-	width = (UINT)x;
-	height = (UINT)y;
-	*ppData = pData;
-
-	return true;
-}
-
-void Okay::Texture::CreateViews(UINT bindFlags)
-{
-	isValid = true;
-
-	if ((bindFlags | D3D11_BIND_SHADER_RESOURCE) == bindFlags)
+	Texture::Texture(const unsigned char* pData, uint32 width, uint32 height, std::string_view name)
+		:name(name), width(width), height(height)
 	{
-		DX11::Get().GetDevice()->CreateShaderResourceView(texture, nullptr, &srv);
-		isValid = srv;
+		D3D11_TEXTURE2D_DESC desc = createDefaultDesc();
+		D3D11_SUBRESOURCE_DATA initData{pData, width * 4, 0};
+
+		DX11& dx11 = DX11::getInstance();
+		dx11.getDevice()->CreateTexture2D(&desc, &initData, &texture);
+		if (!texture)
+			return;
+
+		dx11.getDevice()->CreateShaderResourceView(texture, nullptr, &srv);
 	}
 
-	if ((bindFlags | D3D11_BIND_RENDER_TARGET) == bindFlags)
+	Texture::~Texture()
 	{
-		DX11::Get().GetDevice()->CreateRenderTargetView(texture, nullptr, &rtv);
-		isValid = rtv && isValid;
+		shutdown();
 	}
 
-	if ((bindFlags | D3D11_BIND_UNORDERED_ACCESS) == bindFlags)
+	void Texture::shutdown()
 	{
-		DX11::Get().GetDevice()->CreateUnorderedAccessView(texture, nullptr, &uav);
-		isValid = uav && isValid;
+		DX11_RELEASE(texture);
+		DX11_RELEASE(srv);
 	}
 }
