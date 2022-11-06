@@ -7,5 +7,5 @@
 #else
 #define OKAYASSERT(X)\
 if (!(X))\
-MessageBoxW(NULL, L#X, L"ERROR", MB_OK)
+MessageBoxW(NULL, L"(" L#X L") was false.", L"ERROR", MB_OK)
 #endif // DIST

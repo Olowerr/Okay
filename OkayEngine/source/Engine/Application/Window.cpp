@@ -1,5 +1,5 @@
 #include "Window.h"
-#include <iostream>
+#include "Engine/Okay/OkayAssert.h"
 
 Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 {
@@ -26,8 +26,9 @@ Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 	hWnd = CreateWindowEx(0, win_Class, name.data(), WS_OVERLAPPEDWINDOW,
 		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
-	open = true;
 
+	OKAYASSERT(hWnd != nullptr);
+	open = true;
 	show();
 }
 

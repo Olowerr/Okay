@@ -1,6 +1,6 @@
 #include "Scene.h"
 #include "Entity.h"
-#include "../Components/Transform.h"
+#include "Engine/Components/Transform.h"
 
 Scene::Scene()
 {
@@ -15,7 +15,6 @@ Entity Scene::CreateEntity()
 {
     Entity entity(registry.create(), this);
     entity.AddComponent<Okay::Transform>();
-
 
     return entity;
 }
