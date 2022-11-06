@@ -1,82 +1,57 @@
 #pragma once
 #include "Texture.h"
- 
+#include <memory>
+
 namespace Okay
 {
-	struct MaterialDesc_Strs
-	{
-		String name;
-		String baseColour;
-		String specular;
-		String ambient;
-		Float2 uvTiling = { 1.f, 1.f };
-		Float2 uvOffset = { 0.f, 0.f };
-		bool twoSided = false;
-	};
-	
-	struct MaterialDesc_Ptrs
-	{
-		String name;
-		std::shared_ptr<Texture> baseColour;
-		std::shared_ptr<Texture> specular;
-		std::shared_ptr<Texture> ambient;
-		Float2 uvTiling = { 1.f, 1.f };
-		Float2 uvOffset = { 0.f, 0.f };
-		bool twoSided = false;
-	};
-
-	struct MaterialGPUData 
-	{
-		Float2 uvTiling = {1.f, 1.f};
-		Float2 uvOffset = {0.f, 0.f};
-	};
-
 	class Material  
 	{
 	public:
-		Material();
-		Material(const MaterialDesc_Strs& desc);
-		Material(const MaterialDesc_Ptrs& desc);
+
+		struct GPUData
+		{
+			Float2 uvTiling = { 1.f, 1.f };
+			Float2 uvOffset = { 0.f, 0.f };
+		};
+
+		struct Description
+		{
+			std::string name;
+			std::shared_ptr<Texture> baseColour;
+			std::shared_ptr<Texture> specular;
+			std::shared_ptr<Texture> ambient;
+			GPUData gpuData;
+			bool twoSided = false;
+		};
+
+		Material(const Description& desc);
 		~Material();
 
-		void BindTextures() const;
-		const Okay::String& GetName() const;
-		void SetName(const Okay::String& name) { this->name = name; }
+		const std::string& getName() const;
+		void setName(std::string_view name) { this->name = name; }
 
-		void SetGPUData(Float2 uvTiling, Float2 uvOffset);
-		MaterialGPUData& GetGPUData();
-		const MaterialGPUData& GetGPUData() const;
+		void setGPUData(const GPUData& data);
+		GPUData& getGPUData();
+		const GPUData& getGPUData() const;
 
-		MaterialDesc_Strs GetDesc() const;
+		Description getDesc() const;
+		bool isValid() const;
 
-		std::shared_ptr<const Texture> GetBaseColour() const 
-		{
-			CheckValid(0);
-			return textures[0].lock();
-		} 
-		std::shared_ptr<const Texture> GetSpecular() const 
-		{ 
-			CheckValid(1);
-			return textures[1].lock();
-		} 
-		std::shared_ptr<const Texture> GetAmbient() const 
-		{ 
-			CheckValid(2);
-			return textures[2].lock(); 
-		} 
+		std::shared_ptr<const Texture> getBaseColour() const { return textures[0].lock(); } 
+		std::shared_ptr<const Texture> getSpecular() const	 { return textures[1].lock(); } 
+		std::shared_ptr<const Texture> getAmbient() const	 { return textures[2].lock(); }
 
-		void SetBaseColour(std::shared_ptr<const Texture> texture) { textures[0] = texture; }
-		void SetSpecular(std::shared_ptr<const Texture> texture) { textures[1] = texture; }
-		void SetAmbient(std::shared_ptr<const Texture> texture) { textures[2] = texture; }
+		void setBaseColour(std::shared_ptr<const Texture> texture) { textures[0] = texture; }
+		void setSpecular(std::shared_ptr<const Texture> texture)   { textures[1] = texture; }
+		void setAmbient(std::shared_ptr<const Texture> texture)    { textures[2] = texture; }
 
 	private:
-		Okay::String name;
-		mutable std::weak_ptr<const Texture> textures[3];
-		MaterialGPUData data;
+		std::string name;
+		std::weak_ptr<const Texture> textures[3];
+		GPUData data;
 		bool isTwoSided;
 
 		void CheckValid(int index = -1) const;
-
 	};
 }
 
