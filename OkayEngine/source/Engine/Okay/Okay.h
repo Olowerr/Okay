@@ -3,7 +3,7 @@
 #include <cassert>
 #include <comdef.h>
 #include "glm/glm.hpp"
-
+assert
 #ifdef DIST
 #define OKAY_ASSERT(X)
 #else
@@ -21,7 +21,8 @@ using uint64 = unsigned long long;
 
 namespace Okay
 {
-	using Float2 = glm::vec2;
-	using Float3 = glm::vec3;
-	using Float4 = glm::vec4;
+	using Float2	= glm::vec2;
+	using Float3	= glm::vec3;
+	using Float4	= glm::vec4;
+	using Float4x4	= glm::mat4;
 }

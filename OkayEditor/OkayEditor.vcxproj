@@ -162,7 +162,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>DIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DIST;NDEBUG;</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(SolutionDir)OkayEngine\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>

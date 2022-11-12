@@ -54,7 +54,6 @@ namespace Okay
 			loadTexture(textures[2]);
 #endif
 
-		// Creating mesh first 
 		meshes.emplace_back(std::make_shared<Mesh>(meshInfo, pDx11));
 		
 		return true;
