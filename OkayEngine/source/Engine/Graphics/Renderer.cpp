@@ -143,6 +143,22 @@ void Renderer::render()
 		//DX11::updateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
 
+		/*
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+			man
+			fix rendering, make scene submit the pairs, pls, make it work, i cri
+
+		*/
+
 	}
 
 
