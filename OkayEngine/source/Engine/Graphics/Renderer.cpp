@@ -1,25 +1,20 @@
 #include "Renderer.h"
-#include "Engine.h"
+#include "Engine/Okay/Okay.h"
 
 Renderer::Renderer()
-	:pMeshIL(), pMeshVS(), pHullShader(), pDomainShader(), pDevContext(DX11::Get().GetDeviceContext())
+	:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), defaultPixelShader("PhongPS.cso")
 {
 	// Make sure Okay::Engine::Get() is never called here
+	
+	Okay::Float4x4 Identity4x4(1.f);
 
-	shaderModel = std::make_unique<Okay::ShaderModel>(true);
-	mainCamera = std::make_unique<Okay::Camera>();
+	//DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::Material::GPUData), false);
+	//DX11::createConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
+	DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(Okay::Float4x4), false);
+	//DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 
-	DirectX::XMFLOAT4X4 Identity4x4;
-	DirectX::XMStoreFloat4x4(&Identity4x4, DirectX::XMMatrixIdentity());
-
-	DX11::CreateConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::MaterialGPUData), false);
-	DX11::CreateConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
-	DX11::CreateConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(DirectX::XMFLOAT4X4), false);
-	DX11::CreateConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
-
-	CreateVS();
-	CreateHS();
-	CreateDS();
+	createVertexShaders();
+	createPixelShaders();
 	{
 		ID3D11SamplerState* simp;
 		D3D11_SAMPLER_DESC desc;
@@ -32,46 +27,40 @@ Renderer::Renderer()
 		desc.MipLODBias = 0.f;
 		desc.MaxAnisotropy = 1U;
 		desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		DX11::Get().GetDevice()->CreateSamplerState(&desc, &simp);
+		DX11::getInstance().getDevice()->CreateSamplerState(&desc, &simp);
 
 		pDevContext->PSSetSamplers(0, 1, &simp);
 		simp->Release();
 	}
 
-	BindBasics();
-	shaderModel->Bind();
+	bindNecessities();
 
 	meshesToRender.resize(10);
-	numActive = 0;
+	numActiveMeshes = 0;
 
-	skeletalMeshes.resize(10);
-	numSkeletalActive = 0;
-
-	numLights = 0;
+	//skeletalMeshes.resize(10);
+	//numSkeletalActive = 0;
+	//
+	//numLights = 0;
 }
 
 Renderer::~Renderer()
 {
-	Shutdown();
+	shutdown();
 }
 
-void Renderer::Resize()
+void Renderer::submit(Okay::MeshComponent* pMesh, Okay::Transform* pTransform)
 {
-	shaderModel->Resize();
+	if (numActiveMeshes >= meshesToRender.size())
+		meshesToRender.resize(meshesToRender.size() + 10ull);
+
+	meshesToRender[numActiveMeshes].mesh = pMesh;
+	meshesToRender[numActiveMeshes].transform = pTransform;
+
+	++numActiveMeshes;
 }
 
-void Renderer::Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform)
-{
-	if (numActive >= meshesToRender.size())
-		meshesToRender.resize(meshesToRender.size() + 10);
-
-	meshesToRender[numActive].mesh = pMesh;
-	meshesToRender[numActive].transform = pTransform;
-
-	++numActive;
-}
-
-void Renderer::SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::CompTransform* pTransform)
+/*void Renderer::SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::CompTransform* pTransform)
 {
 	if (numSkeletalActive >= skeletalMeshes.size())
 		skeletalMeshes.resize(skeletalMeshes.size() + 10);
@@ -91,27 +80,23 @@ void Renderer::SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pT
 	lights[numLights].pos = pTransform->position;
 
 	++numLights;
+}*/
+
+void Renderer::newFrame()
+{
+	numActiveMeshes = 0;
+	//numSkeletalActive = 0;
+	//numLights = 0;
 }
 
-void Renderer::NewFrame()
+void Renderer::shutdown()
 {
-	numActive = 0;
-	numSkeletalActive = 0;
-	numLights = 0;
-}
-
-void Renderer::Shutdown()
-{
-	shaderModel->Shutdown();
-
 	DX11_RELEASE(pViewProjectBuffer);
 	DX11_RELEASE(pWorldBuffer);
 	DX11_RELEASE(pMaterialBuffer);
 
 	DX11_RELEASE(pMeshIL);
 	DX11_RELEASE(pMeshVS);
-	DX11_RELEASE(pHullShader);
-	DX11_RELEASE(pDomainShader);
 
 	DX11_RELEASE(pPointLightBuffer);
 	DX11_RELEASE(pPointLightSRV);
@@ -121,48 +106,48 @@ void Renderer::Shutdown()
 	DX11_RELEASE(pAniIL);
 }
 
-void Renderer::Render()
+void Renderer::render()
 {
 	using namespace Okay;
 
-	shaderModel->Bind();
-	mainCamera->Update();
+	//shaderModel->Bind();
+	//mainCamera->Update();
 
 	// Update generic buffers
-	DX11::UpdateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
+	//DX11::updateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 
-	if (numLights)
+	/*if (numLights)
 	{
 		DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
 		DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
-	}
+	}*/
 
 
 	// Preperation
-	std::shared_ptr<const Material> material;
+	//std::shared_ptr<const Material> material;
 	size_t i = 0;
 
 	// Draw static meshes
-	BindMeshPipeline();
+	bindMeshPipeline();
 
-	for (i = 0; i < numActive; i++)
+	for (i = 0; i < numActiveMeshes; i++)
 	{
-		const CompMesh& cMesh = *meshesToRender.at(i).mesh;
-		const CompTransform& transform = *meshesToRender.at(i).transform;
+		const MeshComponent& cMesh = *meshesToRender.at(i).mesh;
+		const Transform& cTransform = *meshesToRender.at(i).transform;
 
-		material = cMesh.GetMaterial();
+		//material = cMesh.GetMaterial();
 
-		material->BindTextures();
+		//material->BindTextures();
 
-		DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
-		DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
+		DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(Okay::Float4x4));
+		//DX11::updateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
-		cMesh.GetMesh()->Draw();
+
 	}
 
 
 	// Draw skeletal meshes
-	BindSkeletalPipeline();
+	/*BindSkeletalPipeline();
 
 	for (i = 0; i < numSkeletalActive; i++)
 	{
@@ -178,28 +163,29 @@ void Renderer::Render()
 
 		cMesh.GetMesh()->Draw();
 		
-	}
-
+	}*/
 }
 
-bool Renderer::ExpandPointLights()
+void Renderer::expandPointLights()
 {
 	static const UINT Increase = 5;
+	HRESULT hr = E_FAIL;
 
 	DX11_RELEASE(pPointLightBuffer);
 	DX11_RELEASE(pPointLightSRV);
 
 	lights.resize(numLights + Increase);
 
-	VERIFY_HR_BOOL(DX11::CreateStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (UINT)lights.size(), false));
-	VERIFY_HR_BOOL(DX11::CreateStructuredSRV(&pPointLightSRV, pPointLightBuffer, (UINT)lights.size()));
+	hr = DX11::createStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (uint32)lights.size(), false);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight structured buffer");
+
+	hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32)lights.size());
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight SRV");
 
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
-
-	return true;
 }
 
-void Renderer::BindBasics()
+void Renderer::bindNecessities()
 {
 	pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -211,21 +197,24 @@ void Renderer::BindBasics()
 	pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
 }
 
-void Renderer::BindMeshPipeline()
+void Renderer::bindMeshPipeline()
 {
 	pDevContext->IASetInputLayout(pMeshIL);
 	pDevContext->VSSetShader(pMeshVS, nullptr, 0);
 }
 
-void Renderer::BindSkeletalPipeline()
+void Renderer::bindSkeletalPipeline()
 {
 	pDevContext->IASetInputLayout(pAniIL);
 	pDevContext->VSSetShader(pAniVS, nullptr, 0);
 }
 
-bool Renderer::CreateVS()
+void Renderer::createVertexShaders()
 {
+	DX11& dx11 = DX11::getInstance();
 	std::string shaderData;
+	bool result = false;
+	HRESULT hr = E_FAIL;
 
 	D3D11_INPUT_ELEMENT_DESC desc[3] = {
 		{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -233,9 +222,16 @@ bool Renderer::CreateVS()
 		{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	VERIFY(Okay::ReadShader("MeshVS.cso", shaderData));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pMeshIL));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS));
+	result = Okay::Shader::readShader("MeshVS.cso", shaderData);
+	OKAY_ASSERT(result, "Failed reading MeshVS.cso");
+
+	hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Vertex Shader");
+
+	hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pMeshIL);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Input Layout");
+
+	return;
 
 	D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -245,19 +241,17 @@ bool Renderer::CreateVS()
 		{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	VERIFY(Okay::ReadShader("SkeletalMeshVS.cso", shaderData));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateInputLayout(aniDesc, 5, shaderData.c_str(), shaderData.length(), &pAniIL));
-	VERIFY_HR_BOOL(DX11::Get().GetDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pAniVS));
+	result = Okay::Shader::readShader("SkeletalMeshVS.cso", shaderData);
+	OKAY_ASSERT(result, "Failed reading SkeletalMeshVS.cso");
 
-	return true;
+	hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pAniVS);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Vertex Shader");
+
+	hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pAniIL);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Input Layout");
 }
 
-bool Renderer::CreateHS()
+void Renderer::createPixelShaders()
 {
-	return false; // Disabled
-}
 
-bool Renderer::CreateDS()
-{
-	return false; // Disabled
 }

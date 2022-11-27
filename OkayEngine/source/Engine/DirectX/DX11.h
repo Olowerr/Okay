@@ -21,8 +21,6 @@ public:
 		return dx11;
 	}
 
-	static void initialize(Window* window);
-
 	void shutdown();
 
 	void clear();

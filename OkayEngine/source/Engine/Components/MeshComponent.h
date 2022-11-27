@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "Engine/Graphics/Assets/Mesh.h"
 
 namespace Okay
@@ -8,6 +7,7 @@ namespace Okay
 	{
 		MeshComponent() = default;
 
-		std::weak_ptr<Mesh> pMesh;
+		uint32 meshIdx;
+
 	};
 }

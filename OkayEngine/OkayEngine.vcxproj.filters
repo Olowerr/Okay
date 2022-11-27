@@ -39,7 +39,7 @@
     <ClInclude Include="source\Engine\Graphics\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Graphics\ShaderModel.h">
+    <ClInclude Include="source\Engine\Graphics\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Engine\DirectX\DX11.h">
@@ -86,7 +86,7 @@
     <ClCompile Include="source\Engine\Graphics\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\ShaderModel.cpp">
+    <ClCompile Include="source\Engine\Graphics\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Engine\DirectX\DX11.cpp">
@@ -110,5 +110,12 @@
     <ClCompile Include="source\Engine\Graphics\Assets\Importing\Content.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="resources\shaders\MeshVS.hlsl" />
+    <FxCompile Include="resources\shaders\PhongPS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\ShaderInclude.hlsli" />
   </ItemGroup>
 </Project>

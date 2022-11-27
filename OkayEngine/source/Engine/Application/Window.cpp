@@ -1,7 +1,6 @@
 #include "Window.h"
-#include "Engine/Okay/Okay.h"
 
-Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
+Window::Window(uint32 width, uint32 height)
 {
 	const wchar_t win_Class[] = L"WinClass";
 
@@ -24,10 +23,10 @@ Window::Window(std::wstring_view name, uint32_t width, uint32_t height)
 	LONG yDiff = desktop.bottom - rect.bottom;
 
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-	hWnd = CreateWindowEx(0, win_Class, name.data(), WS_OVERLAPPEDWINDOW,
+	hWnd = CreateWindowEx(0, win_Class, L"Okay Engine", WS_OVERLAPPEDWINDOW,
 		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
 
-	OKAY_ASSERT(hWnd != nullptr);
+	OKAY_ASSERT(hWnd != nullptr, "Failed creating window");
 	open = true;
 	show();
 }

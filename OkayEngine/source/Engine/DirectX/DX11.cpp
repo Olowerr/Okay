@@ -6,18 +6,6 @@ DX11::DX11()
 	, pBackBuffer(), pBackBufferRTV(), pBackBufferSRV()
 	, pDepthBuffer(), pDepthBufferDSV()
 {
-	
-}
-
-DX11::~DX11()
-{
-	shutdown();
-}
-
-void DX11::initialize(Window* window)
-{
-	DX11& inst = DX11::getInstance();
-
 	const uint32 Width = 0u;
 	const uint32 Height = 0u;
 
@@ -39,39 +27,34 @@ void DX11::initialize(Window* window)
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 
-		desc.OutputWindow = window->getHWnd();
+		desc.OutputWindow = FindWindow(NULL, L"Okay Engine");
 		desc.Windowed = true;
 		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	}
 
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	UINT flags = 0;
-#ifdef _DEBUG
+#ifndef DIST
 	flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 	// Device, DeviceContext, SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
-		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &inst.pSwapChain, &inst.pDevice, nullptr, &inst.pDeviceContext);
-	if (FAILED(hr))
-		return;
+		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &pSwapChain, &pDevice, nullptr, &pDeviceContext);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating instantiating DX11");
 
 	// BackBuffer
-	hr = inst.pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&inst.pBackBuffer);
-	if (FAILED(hr))
-		return;
+	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed getting backBuffer");
 
-	hr = inst.pDevice->CreateRenderTargetView(inst.pBackBuffer, nullptr, &inst.pBackBufferRTV);
-	if (FAILED(hr))
-		return;
+	hr = pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating backBuffer RTV");
 
-	hr = inst.pDevice->CreateShaderResourceView(inst.pBackBuffer, nullptr, &inst.pBackBufferSRV);
-	if (FAILED(hr))
-		return;
-
+	hr = pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating backBuffer SRV");
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
-	inst.pBackBuffer->GetDesc(&backBufferDesc);
+	pBackBuffer->GetDesc(&backBufferDesc);
 
 	// DepthBuffer
 	D3D11_TEXTURE2D_DESC texDesc{};
@@ -89,13 +72,16 @@ void DX11::initialize(Window* window)
 		texDesc.MiscFlags = 0;
 	}
 
-	hr = inst.pDevice->CreateTexture2D(&texDesc, nullptr, &inst.pDepthBuffer);
-	if (FAILED(hr))
-		return;
+	hr = pDevice->CreateTexture2D(&texDesc, nullptr, &pDepthBuffer);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating depthBuffer texture");
 
-	hr = inst.pDevice->CreateDepthStencilView(inst.pDepthBuffer, nullptr, &inst.pDepthBufferDSV);
-	if (FAILED(hr))
-		return;
+	hr = pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating depthBuffer DSV");
+}
+
+DX11::~DX11()
+{
+	shutdown();
 }
 
 void DX11::shutdown()

@@ -1,5 +1,6 @@
 #pragma once
 #include "Window.h"
+#include "../Graphics/Renderer.h"
 
 class Application
 {
@@ -11,4 +12,5 @@ public:
 
 protected:
 	Window window;
+	Renderer renderer;
 };

@@ -28,10 +28,8 @@ namespace Okay
 		static const uint32 Stride[NumBuffers];
 		static const uint32 Offset[NumBuffers];
 
-		Mesh(const MeshInfo& data, DX11* pDx11);
+		Mesh(const MeshInfo& data);
 		~Mesh();
-		Mesh(const Mesh&) = delete;
-		Mesh(Mesh&&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
 
 		void shutdown();

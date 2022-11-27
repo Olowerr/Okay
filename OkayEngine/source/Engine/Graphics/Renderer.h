@@ -1,13 +1,11 @@
 #pragma once
 #include <vector>
 
-#include "Camera.h"
-#include "ShaderModel.h"
-#include "ECS/Components/Components.h"
-#include "Graphics/SkeletalMesh.h"
+#include "Engine/Graphics/Shader.h"
 
-#include <unordered_map>
-#include <tuple>
+//#include "Graphics/SkeletalMesh.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Components/MeshComponent.h"
 
 class Renderer
 {
@@ -18,44 +16,45 @@ public:
 	Renderer(Renderer&&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
-	void Resize();
+	void submit(Okay::MeshComponent* pMesh, Okay::Transform* pTransform);
+	//void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::Transform* pTransform);
+	//void SubmitLight(Okay::CompPointLight* pLight, Okay::Transform* pTransform);
 
-	void Submit(Okay::CompMesh* pMesh, Okay::CompTransform* pTransform);
-	void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::CompTransform* pTransform);
-	void SubmitLight(Okay::CompPointLight* pLight, Okay::CompTransform* pTransform);
+	void newFrame();
 
-	void NewFrame();
-
-	void Shutdown();
-	void Render();
+	void shutdown();
+	void render();
 
 
 private:
-	std::unique_ptr<Okay::ShaderModel> shaderModel;
-	std::unique_ptr<Okay::Camera> mainCamera;
 
 	struct RenderMesh
 	{
-		Okay::CompMesh* mesh;
-		Okay::CompTransform* transform;
+		Okay::MeshComponent* mesh;
+		Okay::Transform* transform;
 	};
 	std::vector<RenderMesh> meshesToRender;
-	size_t numActive;
+	size_t numActiveMeshes;
 
-	// Testing std::pair..
-	std::vector<std::pair<Okay::CompSkeletalMesh*, Okay::CompTransform*>> skeletalMeshes;
-	size_t numSkeletalActive;
+
+	struct RenderSkeleton
+	{
+		Okay::MeshComponent* mesh;
+		Okay::Transform* transform;
+	};
+	std::vector<RenderSkeleton> skeletonsToRender;
+	size_t numActiveSkeletons;
 
 	struct GPUPointLight
 	{
 		Okay::Float3 pos;
-		Okay::CompPointLight lightData;
+		//Okay::CompPointLight lightData;
 	};
 
 	std::vector<GPUPointLight> lights;
 	size_t numLights;
 
-private: // DX11 Specific
+private: // Buffers
 	ID3D11DeviceContext* pDevContext;
 
 	ID3D11Buffer* pViewProjectBuffer;
@@ -65,26 +64,26 @@ private: // DX11 Specific
 	ID3D11Buffer* pPointLightBuffer;
 	ID3D11ShaderResourceView* pPointLightSRV;
 	ID3D11Buffer* pLightInfoBuffer;
-	bool ExpandPointLights();
+	void expandPointLights();
 
-private: // Pipline
+
+private: // Piplines
+	void bindNecessities();
+	Okay::Shader defaultPixelShader;
+
+	// Static meshes
+	void bindMeshPipeline();
 	ID3D11InputLayout* pMeshIL;
 	ID3D11VertexShader* pMeshVS;
-	ID3D11HullShader* pHullShader;     // Disabled
-	ID3D11DomainShader* pDomainShader; // Disabled
 
-	void BindBasics();
-	void BindMeshPipeline();
-	void BindSkeletalPipeline();
-
-	// Animation
+	// Skeletal meshes
+	void bindSkeletalPipeline();
 	ID3D11InputLayout* pAniIL;
 	ID3D11VertexShader* pAniVS;
 
 private: // Create Shaders
-	bool CreateVS();
-	bool CreateHS();
-	bool CreateDS();
+	void createVertexShaders();
+	void createPixelShaders();
 };
 
 

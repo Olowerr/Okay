@@ -1,19 +1,20 @@
 #include "Mesh.h"
-
+#include "Engine/DirectX/DX11.h"
 
 namespace Okay
 {
 	const uint32 Mesh::Stride[] = { sizeof(Float3), sizeof(Float2), sizeof(Float3) };
 	const uint32 Mesh::Offset[] = { 0u, 0u, 0u };
 
-	Mesh::Mesh(const MeshInfo& data, DX11* pDx11)
+	Mesh::Mesh(const MeshInfo& data)
 		:numIndices((uint32)data.indices.size()), vertexBuffers{}, indexBuffer(), name(data.name)
 	{
-		pDx11->createIndexBuffer(&indexBuffer, data.indices.data(), sizeof(UINT)* (UINT)data.indices.size());
+		DX11& dx11 = DX11::getInstance();
+		dx11.createIndexBuffer(&indexBuffer, data.indices.data(), uint32(sizeof(uint32) * data.indices.size()));
 
-		pDx11->createVertexBuffer(&vertexBuffers[0], data.positions.data(), sizeof(Float3) * (uint32_t)data.positions.size());
-		pDx11->createVertexBuffer(&vertexBuffers[1], data.uvs.data(),		sizeof(Float2) * (uint32_t)data.uvs.size());
-		pDx11->createVertexBuffer(&vertexBuffers[1], data.normals.data(),	sizeof(Float3) * (uint32_t)data.normals.size());
+		dx11.createVertexBuffer(&vertexBuffers[0], data.positions.data(), uint32(sizeof(Float3) * data.positions.size()));
+		dx11.createVertexBuffer(&vertexBuffers[1], data.uvs.data(),		  uint32(sizeof(Float2) * data.uvs.size()));
+		dx11.createVertexBuffer(&vertexBuffers[1], data.normals.data(),	  uint32(sizeof(Float3) * data.normals.size()));
 	}
 
 	Mesh::~Mesh()

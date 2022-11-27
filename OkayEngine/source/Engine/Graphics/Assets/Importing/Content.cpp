@@ -3,7 +3,6 @@
 namespace Okay
 {
 	Content::Content()
-		:pDx11(nullptr)
 	{
 	}
 
@@ -11,27 +10,20 @@ namespace Okay
 	{
 	}
 
-	void Content::setDx11(DX11* pDx11)
-	{
-		this->pDx11 = pDx11;
-	}
-
-	bool Content::tryImport(std::string_view path)
+	bool Content::importFile(std::string_view path)
 	{
 		const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 		bool result = false;
 
 #ifdef TEXTURE
 		if (Okay::Texture::IsValid(path))
-			result = loadTexture(path.data());
+			return loadTexture(path.data());
 #endif
 
 		if (fileEnding == ".fbx" || fileEnding == ".FBX" || fileEnding == ".obj" || fileEnding == ".OBJ")
-			result = loadMesh(path);
+			return loadMesh(path);
 
-		OKAY_VERIFY(result);
-
-		return true;
+		return false;
 	}
 
 	bool Content::loadMesh(std::string_view path)
@@ -54,7 +46,7 @@ namespace Okay
 			loadTexture(textures[2]);
 #endif
 
-		meshes.emplace_back(std::make_shared<Mesh>(meshInfo, pDx11));
+		meshes.emplace_back(meshInfo);
 		
 		return true;
 

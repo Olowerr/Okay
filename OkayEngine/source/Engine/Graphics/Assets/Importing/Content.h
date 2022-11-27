@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "OkayImporter.h"
-#include "Engine/Okay/OkayString.h"
 
 //#define TEXTURE
 
@@ -17,14 +16,11 @@ namespace Okay
 	public:
 		Content();
 		~Content();
-		void setDx11(DX11* pDx11);
 
-		bool tryImport(std::string_view path);
+		bool importFile(std::string_view path);
 
 	private:
-		DX11* pDx11;
-
-		std::vector<std::shared_ptr<Mesh>> meshes;
+		std::vector<Mesh> meshes;
 
 		bool loadMesh(std::string_view path);
 #ifdef TEXTURE
