@@ -90,23 +90,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build\intermediate\$(Platform)\$(Configuration)\</IntDir>
-    <PublicIncludeDirectories>
-    </PublicIncludeDirectories>
+    <PublicIncludeDirectories>$(ProjectDir)deps\include;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <AllProjectBMIsArePublic>false</AllProjectBMIsArePublic>
     <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build\intermediate\$(Platform)\$(Configuration)\</IntDir>
-    <PublicIncludeDirectories>
-    </PublicIncludeDirectories>
+    <PublicIncludeDirectories>$(ProjectDir)deps\include;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <AllProjectBMIsArePublic>false</AllProjectBMIsArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)build\intermediate\$(Platform)\$(Configuration)\</IntDir>
-    <PublicIncludeDirectories>
-    </PublicIncludeDirectories>
+    <PublicIncludeDirectories>$(ProjectDir)deps\include;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <AllProjectBMIsArePublic>false</AllProjectBMIsArePublic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -151,7 +148,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;assimp\assimp-vc143-mtd.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,7 +170,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;assimp\assimp-vc143-mt.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -183,7 +182,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir)deps\include;$(ProjectDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;assimp\assimp-vc143-mt.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

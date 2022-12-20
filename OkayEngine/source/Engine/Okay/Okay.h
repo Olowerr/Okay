@@ -12,7 +12,8 @@
 #define OKAY_ASSERT(X, msg)\
 if (!(X))\
 {\
-	MessageBoxW(NULL, L"(" L#X L") was false.\n" msg, L"ERROR", MB_OK);\
+	const std::wstring message(L"(" L#X L") was false. Location: " __FILE__ ", Line: ");\
+	MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + L"\n\nDev message: " msg).c_str() , L"ERROR", MB_OK);\
 	exit(EXIT_FAILURE);\
 }0
 #endif // DIST

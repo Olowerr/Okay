@@ -131,7 +131,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(SolutionDir)OkayEngine\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,7 +149,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(SolutionDir)OkayEngine\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,7 +163,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
       <PreprocessorDefinitions>DIST;NDEBUG;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(SolutionDir)OkayEngine\deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <WarningLevel>Level3</WarningLevel>
@@ -185,6 +185,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application\Editor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OkayEngine\OkayEngine.vcxproj">
+      <Project>{91fbbf24-b198-4a6d-92fa-3ac4356a6d73}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
