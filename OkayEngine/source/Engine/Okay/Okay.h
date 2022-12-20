@@ -20,16 +20,3 @@ if (!(X))\
 
 #define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; }
 #define OKAY_VERIFY(X) if (!X) return false;
-
-using uint16 = unsigned short;
-using uint32 = unsigned int;
-using uint64 = unsigned long long;
-
-namespace Okay
-{
-
-	using Float2	= glm::vec2;
-	using Float3	= glm::vec3;
-	using Float4	= glm::vec4;
-	using Float4x4	= glm::mat4;
-}

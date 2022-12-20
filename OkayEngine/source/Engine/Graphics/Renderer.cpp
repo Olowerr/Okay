@@ -6,11 +6,11 @@ Renderer::Renderer()
 {
 	// Make sure Okay::Engine::Get() is never called here
 	
-	Okay::Float4x4 Identity4x4(1.f);
+	glm::mat4 Identity4x4(1.f);
 
 	//DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Okay::Material::GPUData), false);
 	//DX11::createConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
-	DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(Okay::Float4x4), false);
+	DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 	//DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 
 	createVertexShaders();
@@ -139,7 +139,7 @@ void Renderer::render()
 
 		//material->BindTextures();
 
-		DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(Okay::Float4x4));
+		DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(glm::mat4));
 		//DX11::updateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
 
@@ -192,10 +192,10 @@ void Renderer::expandPointLights()
 
 	lights.resize(numLights + Increase);
 
-	hr = DX11::createStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (uint32)lights.size(), false);
+	hr = DX11::createStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (uint32_t)lights.size(), false);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight structured buffer");
 
-	hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32)lights.size());
+	hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32_t)lights.size());
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight SRV");
 
 	pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);

@@ -2,7 +2,7 @@
 
 namespace Okay
 {
-	Texture::Texture(const unsigned char* pData, uint32 width, uint32 height, std::string_view name)
+	Texture::Texture(const unsigned char* pData, uint32_t width, uint32_t height, std::string_view name)
 		:name(name), width(width), height(height)
 	{
 		D3D11_TEXTURE2D_DESC desc = createDefaultDesc();

@@ -14,19 +14,19 @@ namespace Okay
 		{
 			std::string name;
 
-			std::vector<uint32> indices;
+			std::vector<uint32_t> indices;
 
-			std::vector<Okay::Float3> positions;
-			std::vector<Okay::Float2> uvs;
-			std::vector<Okay::Float3> normals;
+			std::vector<glm::vec3> positions;
+			std::vector<glm::vec2> uvs;
+			std::vector<glm::vec3> normals;
 			
-			//std::vector<Okay::Float3> tangents;
-			//std::vector<Okay::Float3> biTangents;
+			//std::vector<glm::vec3> tangents;
+			//std::vector<glm::vec3> biTangents;
 		};
 
-		static const uint32 NumBuffers = 3;
-		static const uint32 Stride[NumBuffers];
-		static const uint32 Offset[NumBuffers];
+		static const uint32_t NumBuffers = 3;
+		static const uint32_t Stride[NumBuffers];
+		static const uint32_t Offset[NumBuffers];
 
 		Mesh(const MeshInfo& data);
 		~Mesh();
@@ -46,6 +46,6 @@ namespace Okay
 		ID3D11Buffer* vertexBuffers[NumBuffers];
 		ID3D11Buffer* indexBuffer;
 
-		const uint32 numIndices;
+		const uint32_t numIndices;
 	};
 }

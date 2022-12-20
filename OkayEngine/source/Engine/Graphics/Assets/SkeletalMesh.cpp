@@ -4,7 +4,7 @@
 
 namespace Okay
 {
-	const UINT SkeletalMesh::Stride[] = { sizeof(Float3), sizeof(SkinnedVertex), sizeof(UVNormal)};
+	const UINT SkeletalMesh::Stride[] = { sizeof(glm::vec3), sizeof(SkinnedVertex), sizeof(UVNormal)};
 	const UINT SkeletalMesh::Offset[] = { 0,0,0 };
 
 	SkeletalMesh::SkeletalMesh()
@@ -24,7 +24,7 @@ namespace Okay
 	{
 		DX11& dx = DX11::Get();
 
-		dx.CreateVertexBuffer(&vertexBuffer[0], data.position.data(), UINT( data.position.size() * sizeof(Float3)));
+		dx.CreateVertexBuffer(&vertexBuffer[0], data.position.data(), UINT( data.position.size() * sizeof(glm::vec3)));
 		dx.CreateVertexBuffer(&vertexBuffer[1], data.weights.data(),  UINT(data.weights.size()	 * sizeof(SkinnedVertex)));
 		dx.CreateVertexBuffer(&vertexBuffer[2], data.uvNormal.data(), UINT( data.uvNormal.size() * sizeof(UVNormal)));
 		dx.CreateIndexBuffer(&indexBuffer,		data.indices.data(),  UINT(data.indices.size()	 * sizeof(UINT)));

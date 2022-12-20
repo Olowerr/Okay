@@ -10,8 +10,8 @@ namespace Okay
 
 		struct GPUData
 		{
-			Float2 uvTiling = { 1.f, 1.f };
-			Float2 uvOffset = { 0.f, 0.f };
+			glm::vec2 uvTiling = { 1.f, 1.f };
+			glm::vec2 uvOffset = { 0.f, 0.f };
 		};
 
 		struct Description

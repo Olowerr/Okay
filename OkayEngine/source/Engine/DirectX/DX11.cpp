@@ -6,8 +6,8 @@ DX11::DX11()
 	, pBackBuffer(), pBackBufferRTV(), pBackBufferSRV()
 	, pDepthBuffer(), pDepthBufferDSV()
 {
-	const uint32 Width = 0u;
-	const uint32 Height = 0u;
+	const uint32_t Width = 0u;
+	const uint32_t Height = 0u;
 
 	HRESULT hr{};
 	DXGI_SWAP_CHAIN_DESC desc{};
@@ -151,7 +151,7 @@ ID3D11DepthStencilView* const* DX11::getDepthBufferDSV()
 	return &pDepthBufferDSV;
 }
 
-bool DX11::resizeBackBuffer(uint32 width, uint32 height)
+bool DX11::resizeBackBuffer(uint32_t width, uint32_t height)
 {
 	DX11_RELEASE(pBackBuffer);
 	DX11_RELEASE(pBackBufferRTV);

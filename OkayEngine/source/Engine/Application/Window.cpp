@@ -1,6 +1,6 @@
 #include "Window.h"
 
-Window::Window(uint32 width, uint32 height)
+Window::Window(uint32_t width, uint32_t height)
 {
 	const wchar_t win_Class[] = L"WinClass";
 

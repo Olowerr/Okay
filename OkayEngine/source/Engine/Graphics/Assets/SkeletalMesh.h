@@ -9,9 +9,9 @@ namespace Okay
 			:scale(1.f, 1.f, 1.f), pos(), rot() { }
 
 		float time = 0.f;
-		Float3 pos;
-		Float4 rot;
-		Float3 scale;
+		glm::vec3 pos;
+		glm::vec4 rot;
+		glm::vec3 scale;
 	};
 
 	struct Joint
@@ -27,7 +27,7 @@ namespace Okay
 	
 	struct SkeletalVertexData
 	{
-		std::vector<Float3> position;
+		std::vector<glm::vec3> position;
 		std::vector<UVNormal> uvNormal;
 		std::vector<UINT> indices;
 		std::vector<SkinnedVertex> weights;

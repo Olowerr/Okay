@@ -31,22 +31,22 @@ namespace Okay
 
 		// Vertex Positions
 		outData.positions.resize(pMesh->mNumVertices);
-		memcpy(outData.positions.data(), pMesh->mVertices, sizeof(Float3) * pMesh->mNumVertices);
+		memcpy(outData.positions.data(), pMesh->mVertices, sizeof(glm::vec3) * pMesh->mNumVertices);
 
 		// Vertex UV
 		outData.uvs.resize(pMesh->mNumVertices);
-		memcpy(outData.uvs.data(), pMesh->mTextureCoords[0], sizeof(Float2) * pMesh->mNumVertices);
+		memcpy(outData.uvs.data(), pMesh->mTextureCoords[0], sizeof(glm::vec2) * pMesh->mNumVertices);
 
 		// Vertex Normal
 		outData.normals.resize(pMesh->mNumVertices);
-		memcpy(outData.normals.data(), pMesh->mNormals, sizeof(Float3) * pMesh->mNumVertices);
+		memcpy(outData.normals.data(), pMesh->mNormals, sizeof(glm::vec3) * pMesh->mNumVertices);
 
 		// Indices
-		uint32 counter = 0;
-		const uint32 NumIndices = pMesh->mNumFaces * 3;
+		uint32_t counter = 0;
+		const uint32_t NumIndices = pMesh->mNumFaces * 3;
 
 		outData.indices.resize(NumIndices);
-		for (uint32 i = 0; i < pMesh->mNumFaces; i++)
+		for (uint32_t i = 0; i < pMesh->mNumFaces; i++)
 		{
 			outData.indices[counter++] = pMesh->mFaces[i].mIndices[0];
 			outData.indices[counter++] = pMesh->mFaces[i].mIndices[1];
@@ -71,7 +71,7 @@ namespace Okay
 		{
 			// Vertex Positions
 			outData.position.resize(pMesh->mNumVertices);
-			memcpy(outData.position.data(), pMesh->mVertices, sizeof(Float3) * pMesh->mNumVertices);
+			memcpy(outData.position.data(), pMesh->mVertices, sizeof(glm::vec3) * pMesh->mNumVertices);
 
 
 			// Vertex UV & Normals
@@ -161,8 +161,8 @@ namespace Okay
 			{
 				joint.stamps[k].time = (float)channel->mPositionKeys[k].mTime;
 
-				memcpy(&joint.stamps[k].pos, &channel->mPositionKeys[k].mValue, sizeof(Float3));
-				memcpy(&joint.stamps[k].scale, &channel->mScalingKeys[k].mValue, sizeof(Float3));
+				memcpy(&joint.stamps[k].pos, &channel->mPositionKeys[k].mValue, sizeof(glm::vec3));
+				memcpy(&joint.stamps[k].scale, &channel->mScalingKeys[k].mValue, sizeof(glm::vec3));
 
 				// Assimp quaternion struct order (W, X, Y, Z) differs from Okay(X, Y, Z, W)
 				joint.stamps[k].rot.x = channel->mRotationKeys[k].mValue.x;
@@ -207,7 +207,7 @@ namespace Okay
 		info[1] = (UINT)vertexData.indices.size();
 
 		writer.write((const char*)info, sizeof(info));
-		writer.write((const char*)vertexData.position.data(), sizeof(Float3) * info[0]);
+		writer.write((const char*)vertexData.position.data(), sizeof(glm::vec3) * info[0]);
 		writer.write((const char*)vertexData.uvNormal.data(), sizeof(UVNormal) * info[0]);
 		writer.write((const char*)vertexData.indices.data(), sizeof(UINT) * info[1]);
 
@@ -229,7 +229,7 @@ namespace Okay
 		vertexData.uvNormal.resize(info[0]);
 		vertexData.indices.resize(info[1]);
 
-		reader.read((char*)vertexData.position.data(), sizeof(Float3) * info[0]);
+		reader.read((char*)vertexData.position.data(), sizeof(glm::vec3) * info[0]);
 		reader.read((char*)vertexData.uvNormal.data(), sizeof(UVNormal) * info[0]);
 		reader.read((char*)vertexData.indices.data(), sizeof(UINT) * info[1]);
 

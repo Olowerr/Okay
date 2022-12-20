@@ -5,7 +5,7 @@
 class Window
 {
 public:
-	Window(uint32 width, uint32 height);
+	Window(uint32_t width, uint32_t height);
 	~Window();
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;

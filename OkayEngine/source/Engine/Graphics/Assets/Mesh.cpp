@@ -3,18 +3,18 @@
 
 namespace Okay
 {
-	const uint32 Mesh::Stride[] = { sizeof(Float3), sizeof(Float2), sizeof(Float3) };
-	const uint32 Mesh::Offset[] = { 0u, 0u, 0u };
+	const uint32_t Mesh::Stride[] = { sizeof(glm::vec3), sizeof(glm::vec2), sizeof(glm::vec3) };
+	const uint32_t Mesh::Offset[] = { 0u, 0u, 0u };
 
 	Mesh::Mesh(const MeshInfo& data)
-		:numIndices((uint32)data.indices.size()), vertexBuffers{}, indexBuffer(), name(data.name)
+		:numIndices((uint32_t)data.indices.size()), vertexBuffers{}, indexBuffer(), name(data.name)
 	{
 		DX11& dx11 = DX11::getInstance();
-		dx11.createIndexBuffer(&indexBuffer, data.indices.data(), uint32(sizeof(uint32) * data.indices.size()));
+		dx11.createIndexBuffer(&indexBuffer, data.indices.data(), uint32_t(sizeof(uint32_t)* data.indices.size()));
 
-		dx11.createVertexBuffer(&vertexBuffers[0], data.positions.data(), uint32(sizeof(Float3) * data.positions.size()));
-		dx11.createVertexBuffer(&vertexBuffers[1], data.uvs.data(),		  uint32(sizeof(Float2) * data.uvs.size()));
-		dx11.createVertexBuffer(&vertexBuffers[1], data.normals.data(),	  uint32(sizeof(Float3) * data.normals.size()));
+		dx11.createVertexBuffer(&vertexBuffers[0], data.positions.data(), uint32_t(sizeof(glm::vec3)* data.positions.size()));
+		dx11.createVertexBuffer(&vertexBuffers[1], data.uvs.data(),		  uint32_t(sizeof(glm::vec2)* data.uvs.size()));
+		dx11.createVertexBuffer(&vertexBuffers[1], data.normals.data(),   uint32_t(sizeof(glm::vec3) * data.normals.size()));
 	}
 
 	Mesh::~Mesh()

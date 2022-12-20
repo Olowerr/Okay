@@ -8,7 +8,7 @@ namespace Okay
 	class Texture
 	{
 	public:
-		Texture(const unsigned char* pData, uint32 width, uint32 height, std::string_view name);
+		Texture(const unsigned char* pData, uint32_t width, uint32_t height, std::string_view name);
 
 		~Texture();
 		void shutdown();
@@ -16,8 +16,8 @@ namespace Okay
 		void setName(std::string_view name)	{ this->name = name; }
 		const std::string& getName() const	{ return name; }
 
-		uint32 getWidth() const				{ return width; }
-		uint32 getHeight() const			{ return height; }
+		uint32_t getWidth() const				{ return width; }
+		uint32_t getHeight() const			{ return height; }
 		float getAspectRatio() const		{ return float(width) / float(height); }
 
 		ID3D11Texture2D* const* getTexture() const			{ return &texture; }
@@ -25,7 +25,7 @@ namespace Okay
 
 	private:
 		std::string name;
-		uint32 width, height;
+		uint32_t width, height;
 
 		ID3D11Texture2D* texture;
 		ID3D11ShaderResourceView* srv;

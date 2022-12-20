@@ -47,7 +47,7 @@ private:
 
 	struct GPUPointLight
 	{
-		Okay::Float3 pos;
+		glm::vec3 pos;
 		//Okay::CompPointLight lightData;
 	};
 
