@@ -1,22 +1,12 @@
 #pragma once
+#include "../Mesh.h"
 
-#include <assimp/cimport.h>
-#include <assimp/importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
-#include "Engine/Graphics/Assets/Mesh.h"
-
-//#define SKELETAL
-//#define OKAY_ASSET
-
-// Private class with friend class acts like a private namespace
 namespace Okay
 {
 	class Importer
 	{
 	private:
-		friend class Content;
+		friend class ContentBrowser;
 
 		static bool Load(std::string_view filePath, Okay::Mesh::MeshInfo& outData, std::string* texPath, std::string& matName);
 #ifdef SKELETAL 

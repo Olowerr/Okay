@@ -206,7 +206,7 @@
     <ClInclude Include="source\Engine\Components\MeshComponent.h" />
     <ClInclude Include="source\Engine\Components\Transform.h" />
     <ClInclude Include="source\Engine\DirectX\DX11.h" />
-    <ClInclude Include="source\Engine\Graphics\Assets\Importing\Content.h">
+    <ClInclude Include="source\Engine\Graphics\ContentBrowser.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\Engine\Graphics\Assets\Importing\OkayImporter.h">
@@ -258,7 +258,7 @@
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />
     <ClCompile Include="source\Engine\DirectX\DX11.cpp" />
-    <ClCompile Include="source\Engine\Graphics\Assets\Importing\Content.cpp">
+    <ClCompile Include="source\Engine\Graphics\ContentBrowser.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\Engine\Graphics\Assets\Importing\OkayImporter.cpp">

@@ -3,19 +3,16 @@
 #include <unordered_map>
 #include <memory>
 
-#include "OkayImporter.h"
+#include "Assets/Importing/OkayImporter.h"
 
-//#define TEXTURE
-
-class DX11;
 
 namespace Okay
 {
-	class Content
+	class ContentBrowser
 	{
 	public:
-		Content();
-		~Content();
+		ContentBrowser();
+		~ContentBrowser();
 
 		bool importFile(std::string_view path);
 

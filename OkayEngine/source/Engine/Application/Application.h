@@ -1,7 +1,7 @@
 #pragma once
 #include "Window.h"
 #include "../Graphics/Renderer.h"
-#include "../Graphics/Assets/Importing/Content.h"
+#include "../Graphics/ContentBrowser.h"
 
 class Application
 {
@@ -13,6 +13,6 @@ public:
 
 protected:
 	Window window;
-	Renderer renderer;
-	Okay::Content content;
+	Okay::Renderer renderer;
+	Okay::ContentBrowser content;
 };

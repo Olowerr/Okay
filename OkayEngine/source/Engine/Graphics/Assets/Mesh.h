@@ -36,6 +36,7 @@ namespace Okay
 
 		ID3D11Buffer* const* getBuffers() const;
 		ID3D11Buffer* getIndexBuffer() const;
+		uint32_t getNumIndices() const;
 
 		const std::string& getName() const;
 		void setName(std::string_view name);

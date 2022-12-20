@@ -1,5 +1,13 @@
 #include "OkayImporter.h"
 
+#include <assimp/cimport.h>
+#include <assimp/importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include "Engine/Graphics/Assets/Mesh.h"
+
+
 namespace Okay
 {
 	bool Importer::Load(std::string_view filePath, Mesh::MeshInfo& outData, std::string* texPaths, std::string& matName)

@@ -1,16 +1,16 @@
-#include "Content.h"
+#include "ContentBrowser.h"
 
 namespace Okay
 {
-	Content::Content()
+	ContentBrowser::ContentBrowser()
 	{
 	}
 
-	Content::~Content()
+	ContentBrowser::~ContentBrowser()
 	{
 	}
 
-	bool Content::importFile(std::string_view path)
+	bool ContentBrowser::importFile(std::string_view path)
 	{
 		const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 		bool result = false;
@@ -26,7 +26,7 @@ namespace Okay
 		return false;
 	}
 
-	bool Content::loadMesh(std::string_view path)
+	bool ContentBrowser::loadMesh(std::string_view path)
 	{
 		std::string materialName;
 		std::string textures[3];

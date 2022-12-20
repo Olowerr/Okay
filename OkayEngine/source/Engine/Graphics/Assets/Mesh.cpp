@@ -41,6 +41,11 @@ namespace Okay
 		return indexBuffer;
 	}
 
+	uint32_t Mesh::getNumIndices() const
+	{
+		return numIndices;
+	}
+
 	const std::string& Mesh::getName() const
 	{
 		return name;
