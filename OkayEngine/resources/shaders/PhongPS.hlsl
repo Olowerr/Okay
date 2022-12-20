@@ -57,6 +57,6 @@ float4 main(TransformedVertex input) : SV_TARGET
 	//specular.Sample(simp, input.uv), ambient.Sample(simp, input.uv);
 	return baseColour.Sample(simp, input.uv * uvTiling + uvOffset) * float4(shading.rgb, 1.f);
 #else
-	return float4(0.2f, 0.5f, 0.8f, 0.f);
+	return float4(input.normal, 0.f);
 #endif
 }

@@ -14,7 +14,21 @@ namespace Okay
 
 		dx11.createVertexBuffer(&vertexBuffers[0], data.positions.data(), uint32_t(sizeof(glm::vec3)* data.positions.size()));
 		dx11.createVertexBuffer(&vertexBuffers[1], data.uvs.data(),		  uint32_t(sizeof(glm::vec2)* data.uvs.size()));
-		dx11.createVertexBuffer(&vertexBuffers[1], data.normals.data(),   uint32_t(sizeof(glm::vec3) * data.normals.size()));
+		dx11.createVertexBuffer(&vertexBuffers[2], data.normals.data(),   uint32_t(sizeof(glm::vec3) * data.normals.size()));
+	}
+
+	Mesh::Mesh(Mesh&& other) noexcept
+		:numIndices(other.numIndices), name(std::move(other.name))
+	{
+		for (uint32_t i = 0; i < NumBuffers; i++)
+		{
+			vertexBuffers[i] = other.vertexBuffers[i];
+			other.vertexBuffers[i] = nullptr;
+		}
+		indexBuffer = other.indexBuffer;
+		other.indexBuffer = nullptr;
+
+		const_cast<uint32_t&>(other.numIndices) = 0u;
 	}
 
 	Mesh::~Mesh()

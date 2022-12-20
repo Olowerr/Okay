@@ -29,8 +29,10 @@ namespace Okay
 		static const uint32_t Offset[NumBuffers];
 
 		Mesh(const MeshInfo& data);
+		Mesh(Mesh&& other) noexcept;
 		~Mesh();
-		Mesh& operator=(const Mesh&) = delete;
+		//Mesh& operator=(const Mesh&) = delete;
+		//Mesh(const Mesh&) = delete;
 
 		void shutdown();
 

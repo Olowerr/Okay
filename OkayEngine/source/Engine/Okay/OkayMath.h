@@ -6,10 +6,10 @@ namespace Okay
 	static glm::mat4 mat4Translation(const glm::vec3& translation)
 	{
 		return glm::mat4(
-			1.f, 0.f, 0.f, 0.f,
-			0.f, 1.f, 0.f, 0.f,
-			0.f, 0.f, 1.f, 0.f,
-			translation.x, translation.y, translation.z, 1.f);
+			1.f, 0.f, 0.f, translation.x,
+			0.f, 1.f, 0.f, translation.y,
+			0.f, 0.f, 1.f, translation.z,
+			0.f, 0.f, 0.f, 1.f);
 	}
 
 	static glm::mat4 mat4Scale(const glm::vec3& scale)

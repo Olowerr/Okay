@@ -2,6 +2,7 @@
 #include "Engine/Okay/Okay.h"
 #include "ContentBrowser.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include <DirectXMath.h>
 
 namespace Okay
 {
@@ -48,10 +49,9 @@ namespace Okay
 
 
 		// Temp ---
-		glm::mat4 viewMatrix = glm::lookAtLH(glm::vec3(10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 viewMatrix = glm::lookAtLH(glm::vec3(0.f, 10.f, -10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
 		glm::mat4 projMatrix = glm::perspectiveFovLH(3.14f * 0.5f, 1600.f, 900.f, 0.1f, 1000.f);
-		glm::mat4 viewProj = (projMatrix * viewMatrix);
-		//glm::mat4 viewProj = glm::transpose(projMatrix * viewMatrix);
+		glm::mat4 viewProj = glm::transpose(projMatrix * viewMatrix);
 		DX11::updateBuffer(pViewProjectBuffer, &viewProj, sizeof(glm::mat4));
 
 		viewport.TopLeftX = 0.f;
@@ -155,7 +155,10 @@ namespace Okay
 		for (i = 0; i < numActiveMeshes; i++)
 		{
 			const MeshComponent& cMesh = *meshesToRender.at(i).mesh;
-			const Transform& cTransform = *meshesToRender.at(i).transform;
+			Transform& cTransform = *meshesToRender.at(i).transform;
+
+			// Temp - make more robust system 
+			cTransform.calculateMatrix();
 
 			//material = cMesh.GetMaterial();
 
@@ -260,7 +263,7 @@ namespace Okay
 		D3D11_INPUT_ELEMENT_DESC desc[3] = {
 			{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"UV",			0, DXGI_FORMAT_R32G32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
 		result = Shader::readShader("MeshVS.cso", shaderData);
@@ -279,7 +282,7 @@ namespace Okay
 			{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"WEIGHTS",	 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"UV",		 0, DXGI_FORMAT_R32G32_FLOAT,		2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
 		result = Shader::readShader("SkeletalMeshVS.cso", shaderData);
