@@ -24,9 +24,9 @@ namespace Okay
         return entity;
     }
     
-    void Scene::destroyEntity(Entity&& entity)
+    void Scene::destroyEntity(Entity entity)
     {
-        registry.destroy(entity.getID());
+        registry.destroy(entity);
     }
     
     void Scene::start()
@@ -42,18 +42,18 @@ namespace Okay
     void Scene::submit()
     {
         const auto& meshView = registry.view<MeshComponent, Transform>();
-        for (auto& entity : meshView)
+        for (entt::entity entity : meshView)
             renderer.submit(&meshView.get<MeshComponent>(entity), &meshView.get<Transform>(entity));
     
 #if 0 // Animations
         const auto& skeletalView = registry.view<Okay::CompSkeletalMesh, Transform>();
-        for (auto& entity : skeletalView)
+        for (entt::entity entity : skeletalView)
             ren.SumbitSkeletal(&skeletalView.get<Okay::CompSkeletalMesh>(entity), &skeletalView.get<Transform>(entity));
 #endif
     
 #if 0 // Point lights
         const auto& lightView = registry.view<Okay::CompPointLight, Transform>();
-        for (auto& entity : lightView)
+        for (entt::entity entity : lightView)
             ren.SubmitLight(&lightView.get<Okay::CompPointLight>(entity), &lightView.get<Transform>(entity));
 #endif
     }

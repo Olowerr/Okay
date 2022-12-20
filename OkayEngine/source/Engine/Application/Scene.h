@@ -14,7 +14,7 @@ namespace Okay
 		~Scene();
 
 		Entity createEntity();
-		void destroyEntity(Entity&& entity);
+		void destroyEntity(Entity entity);
 
 		inline entt::registry& getRegistry();
 

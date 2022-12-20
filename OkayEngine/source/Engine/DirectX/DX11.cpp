@@ -95,6 +95,15 @@ void DX11::shutdown()
 	DX11_RELEASE(pDeviceContext);
 		
 	DX11_RELEASE(pSwapChain);
+
+
+#ifndef DIST
+	ID3D11Debug* debugger = nullptr;
+	pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debugger));
+	debugger->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	debugger->Release();
+#endif
+
 	DX11_RELEASE(pDevice);
 }
 

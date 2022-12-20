@@ -16,7 +16,6 @@ Editor::Editor(std::string_view startScene)
 	entity2.addComponent<Okay::MeshComponent>(1u);
 	Okay::Transform& tra2 = entity2.getComponent<Okay::Transform>();
 	tra2.position.y = 5.f;
-
 }
 
 Editor::~Editor()

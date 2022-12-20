@@ -38,7 +38,6 @@ namespace Okay
 			return pScene->getRegistry().remove<T>(entityId);
 		}
 
-
 		operator entt::entity() { return entityId; }
 		operator entt::entity() const { return entityId; }
 
@@ -46,7 +45,9 @@ namespace Okay
 		bool isValid() const { return entityId != entt::null; }
 
 	private:
-		entt::entity entityId;
 		Scene* pScene;
+		entt::entity entityId;
+		// Due to padding, another 4 bytes can fit here for free
+		// What to add thooo :thonk:
 	};
 }
