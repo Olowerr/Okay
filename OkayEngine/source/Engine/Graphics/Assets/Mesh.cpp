@@ -36,6 +36,11 @@ namespace Okay
 		return vertexBuffers;
 	}
 
+	ID3D11Buffer** Mesh::getBuffers()
+	{
+		return vertexBuffers;
+	}
+
 	ID3D11Buffer* Mesh::getIndexBuffer() const
 	{
 		return indexBuffer;

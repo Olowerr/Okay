@@ -1,18 +1,18 @@
 #include "Renderer.h"
 #include "Engine/Okay/Okay.h"
+#include "ContentBrowser.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace Okay
 {
 	Renderer::Renderer(ContentBrowser& content)
-		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), defaultPixelShader("PhongPS.cso")
-		,content(content)
+		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
+		defaultPixelShader("PhongPS.cso") ,content(content)
 	{
-		// Make sure Engine::Get() is never called here
-
 		glm::mat4 Identity4x4(1.f);
 
 		//DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
-		//DX11::createConstantBuffer(&pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4), false);
+		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		//DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 
@@ -36,7 +36,6 @@ namespace Okay
 			simp->Release();
 		}
 
-		bindNecessities();
 
 		meshesToRender.resize(10);
 		numActiveMeshes = 0;
@@ -45,6 +44,27 @@ namespace Okay
 		//numSkeletalActive = 0;
 		//
 		//numLights = 0;
+
+
+
+		// Temp ---
+		glm::mat4 viewMatrix = glm::lookAtLH(glm::vec3(10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+		glm::mat4 projMatrix = glm::perspectiveFovLH(3.14f * 0.5f, 1600.f, 900.f, 0.1f, 1000.f);
+		glm::mat4 viewProj = (projMatrix * viewMatrix);
+		//glm::mat4 viewProj = glm::transpose(projMatrix * viewMatrix);
+		DX11::updateBuffer(pViewProjectBuffer, &viewProj, sizeof(glm::mat4));
+
+		viewport.TopLeftX = 0.f;
+		viewport.TopLeftY = 0.f;
+		viewport.Width = 1600.f;
+		viewport.Height = 900.f;
+		viewport.MinDepth = 0.f;
+		viewport.MaxDepth = 1.f;
+
+		// --- Temp
+
+
+		bindNecessities();
 	}
 
 	Renderer::~Renderer()
@@ -111,11 +131,6 @@ namespace Okay
 
 	void Renderer::render()
 	{
-		using namespace Okay;
-
-		//shaderModel->Bind();
-		//mainCamera->Update();
-
 		// Update generic buffers
 		//DX11::updateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
 
@@ -133,6 +148,10 @@ namespace Okay
 		// Draw static meshes
 		bindMeshPipeline();
 
+		// Temp
+		pDevContext->OMSetRenderTargets(1u, DX11::getInstance().getBackBufferRTV(), *DX11::getInstance().getDepthBufferDSV());
+		defaultPixelShader.bind();
+
 		for (i = 0; i < numActiveMeshes; i++)
 		{
 			const MeshComponent& cMesh = *meshesToRender.at(i).mesh;
@@ -145,23 +164,23 @@ namespace Okay
 			DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(glm::mat4));
 			//DX11::updateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
 
+			Mesh& mesh = content.getMesh(cMesh.meshIdx);
+			
+			// IA
+			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
+			pDevContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
 
+			// VS
+			
+			// RS
+			
+			// PS
+			// Bind material...
 
-			/*
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
-				man
-				fix rendering, make scene submit the pairs, pls, make it work, i cri
+			// OM
 
-			*/
+			// Draw
+			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0u);
 
 		}
 
@@ -215,6 +234,8 @@ namespace Okay
 
 		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 		pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
+
+		pDevContext->RSSetViewports(1u, &viewport);
 	}
 
 	void Renderer::bindMeshPipeline()

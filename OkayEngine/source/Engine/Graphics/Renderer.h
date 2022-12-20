@@ -32,6 +32,7 @@ namespace Okay
 
 	private:
 		ContentBrowser& content;
+		ID3D11DeviceContext* pDevContext;
 
 		struct RenderMesh
 		{
@@ -41,8 +42,7 @@ namespace Okay
 		std::vector<RenderMesh> meshesToRender;
 		size_t numActiveMeshes;
 
-
-		struct RenderSkeleton
+		struct RenderSkeleton // Will change
 		{
 			Okay::MeshComponent* mesh;
 			Okay::Transform* transform;
@@ -52,15 +52,14 @@ namespace Okay
 
 		struct GPUPointLight
 		{
-			glm::vec3 pos;
 			//Okay::CompPointLight lightData;
+			glm::vec3 pos;
 		};
 
 		std::vector<GPUPointLight> lights;
 		size_t numLights;
 
 	private: // Buffers
-		ID3D11DeviceContext* pDevContext;
 
 		ID3D11Buffer* pViewProjectBuffer;
 		ID3D11Buffer* pWorldBuffer;
@@ -71,10 +70,12 @@ namespace Okay
 		ID3D11Buffer* pLightInfoBuffer;
 		void expandPointLights();
 
+		ID3D11RenderTargetView* bbRTV;
 
 	private: // Piplines
 		void bindNecessities();
 		Okay::Shader defaultPixelShader;
+		D3D11_VIEWPORT viewport;
 
 		// Static meshes
 		void bindMeshPipeline();

@@ -35,7 +35,8 @@ public:
 	ID3D11ShaderResourceView* getBackBufferSRV();
 
 	ID3D11Texture2D* getDepthBuffer();
-	ID3D11DepthStencilView* const* getDepthBufferDSV();
+	ID3D11DepthStencilView* const* getDepthBufferDSV() const;
+	ID3D11DepthStencilView** getDepthBufferDSV();
 
 	bool resizeBackBuffer(uint32_t width, uint32_t height);
 

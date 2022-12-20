@@ -2,26 +2,35 @@
 
 #include "Entt/entt.hpp"
 
-class Entity;
-class Scene
+namespace Okay
 {
-public:
-	Scene();
-	~Scene();
+	class Entity;
+	class Renderer;
 
-	Entity createEntity();
-	void destroyEntity(Entity entity);
+	class Scene
+	{
+	public:
+		Scene(Renderer& renderer);
+		~Scene();
 
-	entt::registry& getRegistry() { return registry; }
+		Entity createEntity();
+		void destroyEntity(Entity&& entity);
 
+		inline entt::registry& getRegistry();
 
-	void start();
-	void update();
-	void submit();
-	void end();
+		void start();
+		void update();
+		void submit();
+		void end();
 
+	private:
+		Renderer& renderer;
+		entt::registry registry;
+	};
 
-private:
-	
-	entt::registry registry;
-};
+	inline entt::registry& Scene::getRegistry()
+	{
+		return registry;
+	}
+
+}

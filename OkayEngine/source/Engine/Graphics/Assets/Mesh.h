@@ -35,6 +35,8 @@ namespace Okay
 		void shutdown();
 
 		ID3D11Buffer* const* getBuffers() const;
+		ID3D11Buffer** getBuffers();
+
 		ID3D11Buffer* getIndexBuffer() const;
 		uint32_t getNumIndices() const;
 

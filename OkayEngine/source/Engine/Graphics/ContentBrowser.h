@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "Assets/Importing/OkayImporter.h"
+#include "Engine/Okay/Okay.h"
 
 
 namespace Okay
@@ -16,6 +17,8 @@ namespace Okay
 
 		bool importFile(std::string_view path);
 
+		inline Mesh& getMesh(uint32_t index);
+
 	private:
 		std::vector<Mesh> meshes;
 
@@ -24,4 +27,10 @@ namespace Okay
 		bool loadTexture(std::string_view path);
 #endif
 	};
+
+	inline Mesh& ContentBrowser::getMesh(uint32_t index)
+	{
+		OKAY_ASSERT(index < (uint32_t)meshes.size(), "Invalid index");
+		return meshes[index];
+	}
 }

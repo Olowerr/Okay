@@ -146,7 +146,12 @@ ID3D11Texture2D* DX11::getDepthBuffer()
 	return pDepthBuffer;
 }
 
-ID3D11DepthStencilView* const* DX11::getDepthBufferDSV()
+ID3D11DepthStencilView* const* DX11::getDepthBufferDSV() const
+{
+	return &pDepthBufferDSV;
+}
+
+ID3D11DepthStencilView** DX11::getDepthBufferDSV()
 {
 	return &pDepthBufferDSV;
 }
