@@ -15,7 +15,7 @@ namespace Okay
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath.data(),
-			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+			aiProcess_Triangulate | /*aiProcess_ConvertToLeftHanded |*/ aiProcess_JoinIdenticalVertices);
 
 		OKAY_VERIFY(pScene);
 

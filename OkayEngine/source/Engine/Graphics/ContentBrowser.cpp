@@ -1,4 +1,5 @@
 #include "ContentBrowser.h"
+#include "Assets/Importing/stb_image.h"
 
 namespace Okay
 {
@@ -35,7 +36,6 @@ namespace Okay
 		Okay::Mesh::MeshInfo meshInfo;
 		OKAY_VERIFY(Importer::Load(path, meshInfo, textures, materialName));
 	
-#ifdef TEXTURES
 		if (textures[0].size())
 			loadTexture(textures[0]);
 
@@ -44,25 +44,28 @@ namespace Okay
 
 		if (textures[2].size())
 			loadTexture(textures[2]);
-#endif
 
 		meshes.emplace_back(meshInfo);
 		
 		return true;
 
-		/*
+	}
+
+	bool ContentBrowser::loadTexture(std::string_view path)
+	{
 		int x, y, c;
-		unsigned char* pData = stbi_load(path.c_str(), &x, &y, &c, 4);
+		unsigned char* pData = stbi_load(path.data(), &x, &y, &c, 4);
 
 		if (!pData)
 			return false;
 
-		width = (UINT)x;
-		height = (UINT)y;
-		*ppData = pData;
+		size_t pos = path.find_last_of('/');
+		pos = pos == -1ull ? path.find_last_of('\\') : pos;
+		
+		// TODO: Verify texName is correct (probably not atm)
+		const std::string_view texName = path.substr(pos);
 
-		return true;
-		*/
+		textures.emplace_back(pData, (uint32_t)x, (uint32_t)y, texName);
 
 	}
 }

@@ -16,6 +16,16 @@ namespace Okay
 		dx11.getDevice()->CreateShaderResourceView(texture, nullptr, &srv);
 	}
 
+	Texture::Texture(Texture&& other) noexcept
+		:width(other.width), height(other.height), name(std::move(other.name))
+	{
+		texture = other.texture;
+		other.texture = nullptr;
+
+		srv = other.srv;
+		other.srv = nullptr;
+	}
+
 	Texture::~Texture()
 	{
 		shutdown();

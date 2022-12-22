@@ -92,10 +92,9 @@ void DX11::shutdown()
 		
 	DX11_RELEASE(pDepthBuffer);
 	DX11_RELEASE(pDepthBufferDSV);
-	DX11_RELEASE(pDeviceContext);
 		
 	DX11_RELEASE(pSwapChain);
-
+	DX11_RELEASE(pDeviceContext);
 
 #ifndef DIST
 	ID3D11Debug* debugger = nullptr;

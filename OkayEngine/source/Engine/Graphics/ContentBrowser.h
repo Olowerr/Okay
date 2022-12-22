@@ -6,9 +6,10 @@
 #include "Assets/Importing/OkayImporter.h"
 #include "Engine/Okay/Okay.h"
 
-
 namespace Okay
 {
+	class Texture;
+
 	class ContentBrowser
 	{
 	public:
@@ -21,11 +22,10 @@ namespace Okay
 
 	private:
 		std::vector<Mesh> meshes;
+		std::vector<Texture> textures;
 
 		bool loadMesh(std::string_view path);
-#ifdef TEXTURE
 		bool loadTexture(std::string_view path);
-#endif
 	};
 
 	inline Mesh& ContentBrowser::getMesh(uint32_t index)
