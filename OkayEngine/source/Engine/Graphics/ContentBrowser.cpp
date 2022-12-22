@@ -16,11 +16,10 @@ namespace Okay
 		const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 		bool result = false;
 
-#ifdef TEXTURE
-		if (Okay::Texture::IsValid(path))
+		if (ContentBrowser::canLoadTexture(path.data()))
 			return loadTexture(path.data());
-#endif
 
+		// TODO: Find a more robust way of checking this. (Preferably ask Assimp if it can load the file)
 		if (fileEnding == ".fbx" || fileEnding == ".FBX" || fileEnding == ".obj" || fileEnding == ".OBJ")
 			return loadMesh(path);
 
@@ -55,17 +54,23 @@ namespace Okay
 	{
 		int x, y, c;
 		unsigned char* pData = stbi_load(path.data(), &x, &y, &c, 4);
-
-		if (!pData)
-			return false;
+		OKAY_VERIFY(pData);
 
 		size_t pos = path.find_last_of('/');
-		pos = pos == -1ull ? path.find_last_of('\\') : pos;
-		
-		// TODO: Verify texName is correct (probably not atm)
-		const std::string_view texName = path.substr(pos);
+		pos = pos == std::string_view::npos ? path.find_last_of('\\') : pos;
+		pos++;
+
+		// Texture name contains ex: .png, it is removed inside the Texture constructor
+		std::string_view texName = path.substr(pos);
 
 		textures.emplace_back(pData, (uint32_t)x, (uint32_t)y, texName);
 
+		return true;
+	}
+	
+	bool ContentBrowser::canLoadTexture(const char* path)
+	{
+		int x, y, c;
+		return stbi_info(path, &x, &y, &c);
 	}
 }

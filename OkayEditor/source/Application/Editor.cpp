@@ -6,6 +6,7 @@ Editor::Editor(std::string_view startScene)
 {
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/amogus.fbx");
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/axis.fbx");
+	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/quack.jpg");
 
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u);

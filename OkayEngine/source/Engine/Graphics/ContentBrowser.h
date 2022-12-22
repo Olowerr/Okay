@@ -3,13 +3,12 @@
 #include <unordered_map>
 #include <memory>
 
-#include "Assets/Importing/OkayImporter.h"
 #include "Engine/Okay/Okay.h"
+#include "Assets/Importing/OkayImporter.h"
+#include "Assets/Texture.h"
 
 namespace Okay
 {
-	class Texture;
-
 	class ContentBrowser
 	{
 	public:
@@ -20,12 +19,15 @@ namespace Okay
 
 		inline Mesh& getMesh(uint32_t index);
 
+		bool loadTexture(std::string_view path);
+
+		static bool canLoadTexture(const char* path);
 	private:
+
 		std::vector<Mesh> meshes;
 		std::vector<Texture> textures;
 
 		bool loadMesh(std::string_view path);
-		bool loadTexture(std::string_view path);
 	};
 
 	inline Mesh& ContentBrowser::getMesh(uint32_t index)

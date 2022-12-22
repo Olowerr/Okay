@@ -13,15 +13,15 @@ namespace Okay
 		~Texture();
 		void shutdown();
 
-		inline void setName(std::string_view name)	{ this->name = name; }
-		inline const std::string& getName() const	{ return name; }
+		inline void setName(std::string_view name);
+		inline const std::string& getName() const;
 
-		inline uint32_t getWidth() const		{ return width; }
-		inline uint32_t getHeight() const		{ return height; }
-		inline float getAspectRatio() const		{ return float(width) / float(height); }
+		inline uint32_t getWidth() const;
+		inline uint32_t getHeight() const;
+		inline float getAspectRatio() const;
 
-		inline ID3D11Texture2D* const* getTexture() const			{ return &texture; }
-		inline ID3D11ShaderResourceView* const* getSRV() const		{ return &srv; }
+		inline ID3D11Texture2D* const* getTexture() const;
+		inline ID3D11ShaderResourceView* const* getSRV() const;
 
 	private:
 		std::string name;

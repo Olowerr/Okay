@@ -12,6 +12,7 @@ namespace Okay
 {
 	bool Importer::Load(std::string_view filePath, Mesh::MeshInfo& outData, std::string* texPaths, std::string& matName)
 	{
+		
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath.data(),
