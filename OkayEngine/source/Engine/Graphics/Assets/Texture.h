@@ -20,8 +20,8 @@ namespace Okay
 		inline uint32_t getHeight() const;
 		inline float getAspectRatio() const;
 
-		inline ID3D11Texture2D* const* getTexture() const;
-		inline ID3D11ShaderResourceView* const* getSRV() const;
+		inline ID3D11Texture2D* getTexture() const;
+		inline ID3D11ShaderResourceView* getSRV() const;
 
 	private:
 		std::string name;
@@ -62,13 +62,13 @@ namespace Okay
 		return float(width) / float(height); 
 	}
 
-	inline ID3D11Texture2D* const* Texture::getTexture() const 
+	inline ID3D11Texture2D* Texture::getTexture() const 
 	{ 
-		return &texture; 
+		return texture; 
 	}
 
-	inline ID3D11ShaderResourceView* const* Texture::getSRV() const 
+	inline ID3D11ShaderResourceView* Texture::getSRV() const 
 	{ 
-		return &srv; 
+		return srv; 
 	}
 }

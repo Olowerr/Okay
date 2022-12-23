@@ -12,11 +12,11 @@ namespace Okay
 {
 	bool Importer::Load(std::string_view filePath, Mesh::MeshInfo& outData, std::string* texPaths, std::string& matName)
 	{
-		
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath.data(),
-			aiProcess_Triangulate | /*aiProcess_ConvertToLeftHanded |*/ aiProcess_JoinIdenticalVertices);
+			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
+			//aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
 		OKAY_VERIFY(pScene);
 
@@ -42,9 +42,13 @@ namespace Okay
 		outData.positions.resize(pMesh->mNumVertices);
 		memcpy(outData.positions.data(), pMesh->mVertices, sizeof(glm::vec3) * pMesh->mNumVertices);
 
-		// Vertex UV
+		// Vertex UV (Assimp structures them as float3...)
 		outData.uvs.resize(pMesh->mNumVertices);
-		memcpy(outData.uvs.data(), pMesh->mTextureCoords[0], sizeof(glm::vec2) * pMesh->mNumVertices);
+		for (uint32_t i = 0; i < pMesh->mNumVertices; i++)
+		{
+			outData.uvs[i].r = 1.f - pMesh->mTextureCoords[0][i].x;
+			outData.uvs[i].g = pMesh->mTextureCoords[0][i].y;
+		}
 
 		// Vertex Normal
 		outData.normals.resize(pMesh->mNumVertices);

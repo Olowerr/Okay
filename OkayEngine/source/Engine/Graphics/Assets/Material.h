@@ -7,6 +7,10 @@ namespace Okay
 	{
 	public:
 
+		static const uint32_t BASECOLOUR_INDEX = 0u;
+		static const uint32_t SPECULAR_INDEX = 1u;
+		static const uint32_t AMBIENT_INDEX = 2u; // Rmv ambient?
+
 		struct GPUData
 		{
 			glm::vec2 uvTiling = { 1.f, 1.f };

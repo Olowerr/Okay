@@ -1,22 +1,27 @@
 #include "Editor.h"
 
-
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay Editor"), scene(renderer)
 {
-	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/amogus.fbx");
+	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/texTest.fbx");
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/axis.fbx");
-	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/quack.jpg");
 
 	Okay::Entity entity = scene.createEntity();
-	entity.addComponent<Okay::MeshComponent>(0u);
+	entity.addComponent<Okay::MeshComponent>(0u, 0u);
 	Okay::Transform& tra = entity.getComponent<Okay::Transform>();
-	tra.scale *= 0.05f;
+	tra.scale *= 2.f;
 
 	Okay::Entity entity2 = scene.createEntity();
-	entity2.addComponent<Okay::MeshComponent>(1u);
+	entity2.addComponent<Okay::MeshComponent>(1u, 1u);
 	Okay::Transform& tra2 = entity2.getComponent<Okay::Transform>();
-	tra2.position.y = 5.f;
+	tra2.position.x = 5.f;
+
+	Okay::Entity camera = scene.createEntity();
+	camera.addComponent<Okay::Camera>();
+	camera.getComponent<Okay::Transform>().position = glm::vec3(0.f, 0.f, -10.f);
+	scene.setMainCamera(camera);
+	PRINT_VEC3(camera.getComponent<Okay::Transform>().position);
+	PRINT_VEC3(camera.getComponent<Okay::Transform>().forward());
 }
 
 Editor::~Editor()
@@ -40,7 +45,7 @@ void Editor::run()
 
 		// Submit & render
 		scene.submit();
-		renderer.render();
+		renderer.render(scene.getMainCamera());
 
 		// Present
 		dx11.present();

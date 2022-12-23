@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "../Graphics/Renderer.h"
 #include "../Graphics/ContentBrowser.h"
+#include "Engine/Components/Camera.h"
 
 class Application
 {

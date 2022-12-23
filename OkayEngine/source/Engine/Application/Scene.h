@@ -14,8 +14,11 @@ namespace Okay
 		~Scene();
 
 		Entity createEntity();
-		void destroyEntity(Entity entity);
+		void destroyEntity(const Entity& entity);
 
+		void setMainCamera(const Entity& entity);
+		Entity getMainCamera();
+		inline entt::entity getMainCameraID();
 		inline entt::registry& getRegistry();
 
 		void start();
@@ -24,13 +27,14 @@ namespace Okay
 		void end();
 
 	private:
+		entt::entity mainCamera;
 		Renderer& renderer;
 		entt::registry registry;
 	};
 
-	inline entt::registry& Scene::getRegistry()
-	{
-		return registry;
-	}
+
+	inline entt::entity Scene::getMainCameraID() { return mainCamera; }
+
+	inline entt::registry& Scene::getRegistry()	 { return registry; }
 
 }

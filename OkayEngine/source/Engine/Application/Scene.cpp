@@ -24,11 +24,21 @@ namespace Okay
         return entity;
     }
     
-    void Scene::destroyEntity(Entity entity)
+    void Scene::destroyEntity(const Entity& entity)
     {
         registry.destroy(entity);
     }
     
+    Entity Okay::Scene::getMainCamera()
+    {
+        return Entity(mainCamera, this);
+    }
+
+    void Scene::setMainCamera(const Entity& entity) 
+    {
+        mainCamera = entity.getID(); 
+    }
+
     void Scene::start()
     {
         

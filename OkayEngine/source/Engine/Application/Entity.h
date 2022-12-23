@@ -21,13 +21,19 @@ namespace Okay
 		}
 
 		template<typename... T>
-		bool hasComponent()
+		bool hasComponent() const
 		{
 			return pScene->getRegistry().all_of<T...>(entityId);
 		}
 
 		template<typename T>
 		T& getComponent()
+		{
+			return pScene->getRegistry().get<T>(entityId);
+		}
+
+		template<typename T>
+		const T& getComponent() const
 		{
 			return pScene->getRegistry().get<T>(entityId);
 		}

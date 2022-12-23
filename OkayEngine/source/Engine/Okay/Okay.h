@@ -16,6 +16,10 @@ if (!(condition))\
 	MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + L"\n\nDev message: " devMsg).c_str() , L"ERROR", MB_OK);\
 	exit(EXIT_FAILURE);\
 }0
+
+#define PRINT_VEC3_WNAME(vec) printf(#vec " - (%.3f, %.3f, %.3f)\n", vec.x, vec.y, vec.z);
+#define PRINT_VEC3(vec)		  printf("(%.3f, %.3f, %.3f)\n", vec.x, vec.y, vec.z);
+
 #endif // DIST
 
 #define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; }

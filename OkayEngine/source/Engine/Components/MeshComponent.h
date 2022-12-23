@@ -7,7 +7,7 @@ namespace Okay
 	{
 		MeshComponent() = default;
 
-		uint32_t meshIdx;
-
+		uint32_t meshIdx = 0u;
+		uint32_t materialIdx = 0u;
 	};
 }

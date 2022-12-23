@@ -10,6 +10,7 @@
 namespace Okay
 {
 	class ContentBrowser;
+	class Entity;
 
 	class Renderer
 	{
@@ -27,7 +28,7 @@ namespace Okay
 		void newFrame();
 
 		void shutdown();
-		void render();
+		void render(const Entity& cameraEntity);
 
 
 	private:

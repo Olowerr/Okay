@@ -72,6 +72,9 @@
     <ClInclude Include="source\Engine\Graphics\ContentBrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Engine\Components\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Engine\Application\Application.cpp">

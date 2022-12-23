@@ -2,6 +2,9 @@
 #include "Engine/Okay/Okay.h"
 #include "ContentBrowser.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "Engine/Components/Camera.h"
+#include "Engine/Application/Entity.h"
+
 #include <DirectXMath.h>
 
 namespace Okay
@@ -12,7 +15,7 @@ namespace Okay
 	{
 		glm::mat4 Identity4x4(1.f);
 
-		//DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
+		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
 		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		//DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
@@ -21,7 +24,7 @@ namespace Okay
 		createPixelShaders();
 		{
 			ID3D11SamplerState* simp;
-			D3D11_SAMPLER_DESC desc;
+			D3D11_SAMPLER_DESC desc{};
 			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -29,7 +32,7 @@ namespace Okay
 			desc.MinLOD = -FLT_MAX;
 			desc.MaxLOD = FLT_MAX;
 			desc.MipLODBias = 0.f;
-			desc.MaxAnisotropy = 1U;
+			desc.MaxAnisotropy = 1u;
 			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 			DX11::getInstance().getDevice()->CreateSamplerState(&desc, &simp);
 
@@ -49,10 +52,6 @@ namespace Okay
 
 
 		// Temp ---
-		glm::mat4 viewMatrix = glm::lookAtLH(glm::vec3(0.f, 10.f, -10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-		glm::mat4 projMatrix = glm::perspectiveFovLH(3.14f * 0.5f, 1600.f, 900.f, 0.1f, 1000.f);
-		glm::mat4 viewProj = glm::transpose(projMatrix * viewMatrix);
-		DX11::updateBuffer(pViewProjectBuffer, &viewProj, sizeof(glm::mat4));
 
 		viewport.TopLeftX = 0.f;
 		viewport.TopLeftY = 0.f;
@@ -129,7 +128,7 @@ namespace Okay
 		DX11_RELEASE(pAniIL);
 	}
 
-	void Renderer::render()
+	void Renderer::render(const Entity& cameraEntity)
 	{
 		// Update generic buffers
 		//DX11::updateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
@@ -142,32 +141,44 @@ namespace Okay
 
 
 		// Preperation
-		//std::shared_ptr<const Material> material;
+		ID3D11ShaderResourceView* textures[3] = {};
 		size_t i = 0;
+		
+		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
 
-		// Draw static meshes
+		const Camera& camera = cameraEntity.getComponent<Camera>();
+		const Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
+		auto tPos = camTransform.position + camTransform.forward();
+		glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
+			glm::lookAtLH(glm::vec3(0.f, 0.f, -10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f)));
+
+		DX11::updateBuffer(pViewProjectBuffer, &viewProjMatrix, sizeof(glm::mat4));
+
+		// Bind static mesh pipeline
 		bindMeshPipeline();
 
 		// Temp
 		pDevContext->OMSetRenderTargets(1u, DX11::getInstance().getBackBufferRTV(), *DX11::getInstance().getDepthBufferDSV());
 		defaultPixelShader.bind();
 
+		// Draw all statis meshes
 		for (i = 0; i < numActiveMeshes; i++)
 		{
 			const MeshComponent& cMesh = *meshesToRender.at(i).mesh;
+			Mesh& mesh = content.getMesh(cMesh.meshIdx);
 			Transform& cTransform = *meshesToRender.at(i).transform;
 
-			// Temp - make more robust system 
+			// Temp - make more robust system (Update only if entity has script?)
 			cTransform.calculateMatrix();
 
-			//material = cMesh.GetMaterial();
-
-			//material->BindTextures();
+			Material& material = content.getMaterial(cMesh.materialIdx);
+			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
+			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
+			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
 
 			DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(glm::mat4));
-			//DX11::updateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
+			DX11::updateBuffer(pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
 
-			Mesh& mesh = content.getMesh(cMesh.meshIdx);
 			
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
@@ -178,7 +189,7 @@ namespace Okay
 			// RS
 			
 			// PS
-			// Bind material...
+			pDevContext->PSSetShaderResources(0u, 3u, textures);
 
 			// OM
 
