@@ -18,10 +18,8 @@ Editor::Editor(std::string_view startScene)
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
-	camera.getComponent<Okay::Transform>().position = glm::vec3(0.f, 0.f, -10.f);
+	camera.getComponent<Okay::Transform>().position = glm::vec3(0.f, 0.f, 10.f);
 	scene.setMainCamera(camera);
-	PRINT_VEC3(camera.getComponent<Okay::Transform>().position);
-	PRINT_VEC3(camera.getComponent<Okay::Transform>().forward());
 }
 
 Editor::~Editor()
@@ -30,12 +28,19 @@ Editor::~Editor()
    
 void Editor::run()
 {
-	DX11& dx11 = DX11::getInstance();
 
+	DX11& dx11 = DX11::getInstance();
+	Okay::Transform& tra = scene.getMainCamera().getComponent<Okay::Transform>();
+	tra.rotation.x = glm::pi<float>() * 0.25f;
 	scene.start();
+
+	frameStart = std::chrono::system_clock::now();
 	while (window.isOpen())
 	{
 		// New frame
+		deltaTime = std::chrono::system_clock::now() - frameStart;
+		frameStart = std::chrono::system_clock::now();
+
 		dx11.clear();
 		renderer.newFrame();
 
@@ -43,6 +48,10 @@ void Editor::run()
 		window.update();
 		scene.update();
 
+		tra.rotation.y += deltaTime.count();
+		tra.calculateMatrix();
+		tra.position = tra.forward() * -5.f;
+		
 		// Submit & render
 		scene.submit();
 		renderer.render(scene.getMainCamera());

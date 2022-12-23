@@ -150,8 +150,8 @@ namespace Okay
 		const Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 		auto tPos = camTransform.position + camTransform.forward();
 		glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
-			glm::lookAtLH(glm::vec3(0.f, 0.f, -10.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f)));
-
+			glm::lookAtLH(camTransform.position, camTransform.position + camTransform.forward(), camTransform.up()));
+		
 		DX11::updateBuffer(pViewProjectBuffer, &viewProjMatrix, sizeof(glm::mat4));
 
 		// Bind static mesh pipeline
