@@ -1,6 +1,5 @@
 #pragma once
-#include "Texture.h"
-#include <memory>
+#include "Engine/Okay/Okay.h"
 
 namespace Okay
 {
@@ -12,47 +11,63 @@ namespace Okay
 		{
 			glm::vec2 uvTiling = { 1.f, 1.f };
 			glm::vec2 uvOffset = { 0.f, 0.f };
+			// Tint ?
 		};
 
 		struct Description
 		{
-			std::string name;
-			std::shared_ptr<Texture> baseColour;
-			std::shared_ptr<Texture> specular;
-			std::shared_ptr<Texture> ambient;
+			std::string_view name;
+			uint32_t baseColourTexIndex = 0u;
+			uint32_t specularTexIndex = 0u;
+			uint32_t ambientTexIndex = 0u;
 			GPUData gpuData;
 			bool twoSided = false;
 		};
 
 		Material(const Description& desc);
+		Material(Material&& other) noexcept;
 		~Material();
 
-		const std::string& getName() const;
-		void setName(std::string_view name) { this->name = name; }
+		inline const std::string& getName() const;
+		inline void setName(std::string_view name);
 
-		void setGPUData(const GPUData& data);
-		GPUData& getGPUData();
-		const GPUData& getGPUData() const;
+		inline void setGPUData(const GPUData& data);
+		inline GPUData& getGPUData();
+		inline const GPUData& getGPUData() const;
 
 		Description getDesc() const;
-		bool isValid() const;
+		//bool isValid() const;
 
-		std::shared_ptr<const Texture> getBaseColour() const { return textures[0].lock(); } 
-		std::shared_ptr<const Texture> getSpecular() const	 { return textures[1].lock(); } 
-		std::shared_ptr<const Texture> getAmbient() const	 { return textures[2].lock(); }
+		inline uint32_t getBaseColour() const;
+		inline uint32_t getSpecular() const	;
+		inline uint32_t getAmbient() const;
 
-		void setBaseColour(std::shared_ptr<const Texture> texture) { textures[0] = texture; }
-		void setSpecular(std::shared_ptr<const Texture> texture)   { textures[1] = texture; }
-		void setAmbient(std::shared_ptr<const Texture> texture)    { textures[2] = texture; }
+		inline void setBaseColour(uint32_t textureIdx);
+		inline void setSpecular(uint32_t textureIdx);
+		inline void setAmbient(uint32_t textureIdx);
 
 	private:
 		std::string name;
-		std::weak_ptr<const Texture> textures[3];
+		uint32_t textures[3];
 		GPUData data;
 		bool isTwoSided;
-
-		void CheckValid(int index = -1) const;
 	};
+
+
+	inline void Material::setName(std::string_view name) { this->name = name; }
+	inline const std::string& Material::getName() const  { return name; }
+
+	inline void Material::setGPUData(const Material::GPUData& data) { this->data = data; }
+	inline Material::GPUData& Material::getGPUData()				{ return data; }
+	inline const Material::GPUData& Material::getGPUData() const	{ return data; }
+
+	inline void Material::setBaseColour(uint32_t textureIdx) { textures[0] = textureIdx; }
+	inline void Material::setSpecular(uint32_t textureIdx)	 { textures[1] = textureIdx; }
+	inline void Material::setAmbient(uint32_t textureIdx)	 { textures[2] = textureIdx; }
+
+	inline uint32_t Material::getBaseColour() const { return textures[0]; }
+	inline uint32_t Material::getSpecular() const	{ return textures[1]; }
+	inline uint32_t Material::getAmbient() const	{ return textures[2]; }
 }
 
 

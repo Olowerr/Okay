@@ -18,8 +18,7 @@ namespace Okay
 		bool importFile(std::string_view path);
 
 		inline Mesh& getMesh(uint32_t index);
-
-		bool loadTexture(std::string_view path);
+		inline Texture& getTexture(uint32_t index);
 
 		static bool canLoadTexture(const char* path);
 	private:
@@ -28,11 +27,18 @@ namespace Okay
 		std::vector<Texture> textures;
 
 		bool loadMesh(std::string_view path);
+		bool loadTexture(std::string_view path);
 	};
 
 	inline Mesh& ContentBrowser::getMesh(uint32_t index)
 	{
 		OKAY_ASSERT(index < (uint32_t)meshes.size(), "Invalid index");
 		return meshes[index];
+	}
+
+	inline Texture& ContentBrowser::getTexture(uint32_t index)
+	{
+		OKAY_ASSERT(index < (uint32_t)textures.size(), "Invalid index");
+		return textures[index];
 	}
 }

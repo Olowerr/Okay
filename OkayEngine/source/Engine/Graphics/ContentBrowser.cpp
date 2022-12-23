@@ -16,6 +16,8 @@ namespace Okay
 		const std::string_view fileEnding = path.substr(path.find_last_of('.'));
 		bool result = false;
 
+		// TODO: Display warning if ANY importing fails
+
 		if (ContentBrowser::canLoadTexture(path.data()))
 			return loadTexture(path.data());
 
@@ -31,7 +33,6 @@ namespace Okay
 		std::string materialName;
 		std::string textures[3];
 
-		// Overrite old file / import new file
 		Okay::Mesh::MeshInfo meshInfo;
 		OKAY_VERIFY(Importer::Load(path, meshInfo, textures, materialName));
 	
