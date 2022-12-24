@@ -15,8 +15,7 @@ namespace Okay
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath.data(),
-			//aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
-			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+			aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_JoinIdenticalVertices);
 
 		OKAY_VERIFY(pScene);
 
@@ -25,7 +24,7 @@ namespace Okay
 
 		outData.name = pMesh->mName.C_Str();
 		matName = pMat->GetName().C_Str();
-
+		
 		// Textures
 		aiString aiStr;
 		pMat->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr);
@@ -42,11 +41,11 @@ namespace Okay
 		outData.positions.resize(pMesh->mNumVertices);
 		memcpy(outData.positions.data(), pMesh->mVertices, sizeof(glm::vec3) * pMesh->mNumVertices);
 
-		// Vertex UV (Assimp structures them as float3...)
+		// Vertex UV (Assimp structures UV as float3)
 		outData.uvs.resize(pMesh->mNumVertices);
 		for (uint32_t i = 0; i < pMesh->mNumVertices; i++)
 		{
-			outData.uvs[i].r = 1.f - pMesh->mTextureCoords[0][i].x;
+			outData.uvs[i].r = pMesh->mTextureCoords[0][i].x;
 			outData.uvs[i].g = pMesh->mTextureCoords[0][i].y;
 		}
 
@@ -56,7 +55,7 @@ namespace Okay
 
 		// Indices
 		uint32_t counter = 0;
-		const uint32_t NumIndices = pMesh->mNumFaces * 3;
+		const uint32_t NumIndices = pMesh->mNumFaces * 3u;
 
 		outData.indices.resize(NumIndices);
 		for (uint32_t i = 0; i < pMesh->mNumFaces; i++)

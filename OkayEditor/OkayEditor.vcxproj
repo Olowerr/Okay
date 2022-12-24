@@ -140,15 +140,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)OkayEngine\build\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)
-robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
-mkdir $(OutDir)
+      <Command>robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
 robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
-mkdir $(OutDir)resources
 robocopy $(ProjectDir)resources $(OutDir)resources /s
-mkdir $(OutDir)engine_resources
-robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
 SET ERRORLEVEL=0
 </Command>
     </PostBuildEvent>
@@ -173,15 +169,11 @@ SET ERRORLEVEL=0
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)
-robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
-mkdir $(OutDir)
+      <Command>robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
 robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
-mkdir $(OutDir)resources
 robocopy $(ProjectDir)resources $(OutDir)resources /s
-mkdir $(OutDir)engine_resources
-robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
 SET ERRORLEVEL=0
 </Command>
     </PostBuildEvent>
@@ -205,15 +197,11 @@ SET ERRORLEVEL=0
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)
-robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
-mkdir $(OutDir)
+      <Command>robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
 robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
-mkdir $(OutDir)resources
 robocopy $(ProjectDir)resources $(OutDir)resources /s
-mkdir $(OutDir)engine_resources
-robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
 SET ERRORLEVEL=0
 </Command>
     </PostBuildEvent>

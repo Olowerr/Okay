@@ -10,7 +10,7 @@
 #define OKAY_ASSERT(condition, devMsg)\
 if (!(condition))\
 {\
-	MessageBoxW(NULL, L"An internal error occoured.\nPlease try restarting.", L"ERROR", MB_OK);\
+	MessageBoxW(NULL, L"An internal error occoured. Please try again.\nMessage: " devMsg, L"ERROR", MB_OK);\
 	exit(1);\
 }0
 #else
