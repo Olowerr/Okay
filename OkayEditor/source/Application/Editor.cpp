@@ -1,5 +1,9 @@
 #include "Editor.h"
 
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Components/MeshComponent.h"
+
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay Editor"), scene(renderer)
 {
@@ -18,7 +22,7 @@ Editor::Editor(std::string_view startScene)
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
-	camera.getComponent<Okay::Transform>().position = glm::vec3(0.f, 0.f, 10.f);
+	camera.addComponent<Okay::PointLight>().intensnity = 3.f;
 	scene.setMainCamera(camera);
 }
 
@@ -31,9 +35,10 @@ void Editor::run()
 	DX11& dx11 = DX11::getInstance();
 	Okay::Transform& tra = scene.getMainCamera().getComponent<Okay::Transform>();
 	tra.rotation.x = glm::pi<float>() * 0.25f;
+	
 	scene.start();
-
 	Okay::Time::start();
+	float timer = 0.f;
 	while (window.isOpen())
 	{
 		// New frame
@@ -53,6 +58,12 @@ void Editor::run()
 		if (Okay::Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
 
+		//timer += Okay::Time::getApplicationDT();
+		//if (timer >= 0.5f)
+		//{
+		//	timer -= 0.5f;
+		//	printf("FPS: %.3f\n", 1.f / Okay::Time::getApplicationDT());
+		//}
 
 		// Submit & render
 		scene.submit();

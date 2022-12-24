@@ -12,10 +12,10 @@ cbuffer MatData : register(b3)
 
 struct PointLight
 {
-	float3 position;
-	float intensity;
 	float3 colour;
+	float intensity;
 	float2 attenuation;
+	float3 position;
 };
 
 StructuredBuffer<PointLight> pointLights : register(t3);
@@ -29,7 +29,7 @@ SamplerState simp : register(s0);
 
 float4 main(TransformedVertex input) : SV_TARGET
 {
-#if 0
+#if 1
 	PointLight poLight;
 
 	float distance;

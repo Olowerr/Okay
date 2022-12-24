@@ -1,10 +1,13 @@
 #include "Renderer.h"
 #include "Engine/Okay/Okay.h"
 #include "ContentBrowser.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "Engine/Components/Camera.h"
 #include "Engine/Application/Entity.h"
 
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/Transform.h"
+#include "Engine/Components/MeshComponent.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 #include <DirectXMath.h>
 
 namespace Okay
@@ -18,7 +21,7 @@ namespace Okay
 		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
 		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
-		//DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
+		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 
 		createVertexShaders();
 		createPixelShaders();
@@ -47,7 +50,7 @@ namespace Okay
 		//skeletalMeshes.resize(10);
 		//numSkeletalActive = 0;
 		//
-		//numLights = 0;
+		//numPointLights = 0;
 
 
 
@@ -71,13 +74,13 @@ namespace Okay
 		shutdown();
 	}
 
-	void Renderer::submit(MeshComponent* pMesh, Transform* pTransform)
+	void Renderer::submit(const MeshComponent* pMesh, const Transform* pTransform)
 	{
 		if (numActiveMeshes >= meshesToRender.size())
 			meshesToRender.resize(meshesToRender.size() + 10ull);
 
-		meshesToRender[numActiveMeshes].mesh = pMesh;
-		meshesToRender[numActiveMeshes].transform = pTransform;
+		meshesToRender[numActiveMeshes].pMesh = pMesh;
+		meshesToRender[numActiveMeshes].pTransform = pTransform;
 
 		++numActiveMeshes;
 	}
@@ -91,24 +94,24 @@ namespace Okay
 		skeletalMeshes[numSkeletalActive].second = pTransform;
 
 		++numSkeletalActive;
-	}
-
-	void Renderer::SubmitLight(CompPointLight* pLight, CompTransform* pTransform)
-	{
-		if (numLights >= lights.size())
-			ExpandPointLights();
-
-		lights[numLights].lightData = *pLight;
-		lights[numLights].pos = pTransform->position;
-
-		++numLights;
 	}*/
+
+	void Renderer::submitPointLight(const PointLight& pLight, const Transform& pTransform)
+	{
+		if (numPointLights >= lights.size())
+			expandPointLights();
+
+		lights[numPointLights].lightData = pLight;
+		lights[numPointLights].pos = pTransform.position;
+
+		++numPointLights;
+	}
 
 	void Renderer::newFrame()
 	{
 		numActiveMeshes = 0;
 		//numSkeletalActive = 0;
-		//numLights = 0;
+		numPointLights = 0;
 	}
 
 	void Renderer::shutdown()
@@ -130,25 +133,16 @@ namespace Okay
 
 	void Renderer::render(const Entity& cameraEntity)
 	{
-		// Update generic buffers
-		//DX11::updateBuffer(pViewProjectBuffer, &mainCamera->GetViewProjectMatrix(), sizeof(DirectX::XMFLOAT4X4));
-
-		/*if (numLights)
+		if (numPointLights)
 		{
-			DX11::UpdateBuffer(pPointLightBuffer, lights.data(), UINT(sizeof(GPUPointLight) * numLights));
-			DX11::UpdateBuffer(pLightInfoBuffer, &numLights, 4);
-		}*/
-
-
-		// Preperation
-		ID3D11ShaderResourceView* textures[3] = {};
-		size_t i = 0;
+			DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
+			DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
+		}
 		
+		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
-
 		const Camera& camera = cameraEntity.getComponent<Camera>();
 		const Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
-		auto tPos = camTransform.position + camTransform.forward();
 		glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
 			glm::lookAtLH(camTransform.position, camTransform.position + camTransform.forward(), camTransform.up()));
 		
@@ -160,16 +154,20 @@ namespace Okay
 		// Temp
 		pDevContext->OMSetRenderTargets(1u, DX11::getInstance().getBackBufferRTV(), *DX11::getInstance().getDepthBufferDSV());
 		defaultPixelShader.bind();
+		
+		// Preperation
+		ID3D11ShaderResourceView* textures[3] = {};
+		size_t i = 0;
 
 		// Draw all statis meshes
 		for (i = 0; i < numActiveMeshes; i++)
 		{
-			const MeshComponent& cMesh = *meshesToRender.at(i).mesh;
-			Mesh& mesh = content.getMesh(cMesh.meshIdx);
-			Transform& cTransform = *meshesToRender.at(i).transform;
+			const MeshComponent& cMesh = *meshesToRender.at(i).pMesh;
+			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
+			const Transform& cTransform = *meshesToRender.at(i).pTransform;
 
-			// Temp - make more robust system (Update only if entity has script?)
-			cTransform.calculateMatrix();
+			// Temp - make more robust system (Update only if entity has script?) // No.. can miss entities
+			const_cast<Transform&>(cTransform).calculateMatrix();
 
 			Material& material = content.getMaterial(cMesh.materialIdx);
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
@@ -227,7 +225,7 @@ namespace Okay
 		DX11_RELEASE(pPointLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
 
-		lights.resize(numLights + Increase);
+		lights.resize(numPointLights + Increase);
 
 		hr = DX11::createStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (uint32_t)lights.size(), false);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight structured buffer");

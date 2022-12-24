@@ -208,6 +208,7 @@
     <ClInclude Include="source\Engine\Application\Window.h" />
     <ClInclude Include="source\Engine\Components\Camera.h" />
     <ClInclude Include="source\Engine\Components\MeshComponent.h" />
+    <ClInclude Include="source\Engine\Components\PointLight.h" />
     <ClInclude Include="source\Engine\Components\Transform.h" />
     <ClInclude Include="source\Engine\DirectX\DX11.h" />
     <ClInclude Include="source\Engine\Graphics\ContentBrowser.h">

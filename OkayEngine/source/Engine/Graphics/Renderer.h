@@ -1,16 +1,16 @@
 #pragma once
 #include <vector>
 
-#include "Engine/Graphics/Shader.h"
-
-//#include "Graphics/SkeletalMesh.h"
-#include "Engine/Components/Transform.h"
-#include "Engine/Components/MeshComponent.h"
+#include "Shader.h"
+#include "Engine/Components/PointLight.h"
 
 namespace Okay
 {
 	class ContentBrowser;
 	class Entity;
+
+	struct MeshComponent;
+	struct Transform;
 
 	class Renderer
 	{
@@ -21,9 +21,9 @@ namespace Okay
 		Renderer(Renderer&&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
-		void submit(Okay::MeshComponent* pMesh, Okay::Transform* pTransform);
+		void submit(const MeshComponent* pMesh, const Transform* pTransform);
 		//void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::Transform* pTransform);
-		//void SubmitLight(Okay::CompPointLight* pLight, Okay::Transform* pTransform);
+		void submitPointLight(const PointLight& pLight, const Transform& pTransform);
 
 		void newFrame();
 
@@ -37,28 +37,28 @@ namespace Okay
 
 		struct RenderMesh
 		{
-			Okay::MeshComponent* mesh;
-			Okay::Transform* transform;
+			const MeshComponent* pMesh = nullptr;
+			const Transform* pTransform = nullptr;
 		};
 		std::vector<RenderMesh> meshesToRender;
 		size_t numActiveMeshes;
 
 		struct RenderSkeleton // Will change
 		{
-			Okay::MeshComponent* mesh;
-			Okay::Transform* transform;
+			const MeshComponent* pMesh = nullptr;
+			const Transform* pTransform = nullptr;
 		};
 		std::vector<RenderSkeleton> skeletonsToRender;
 		size_t numActiveSkeletons;
 
 		struct GPUPointLight
 		{
-			//Okay::CompPointLight lightData;
+			PointLight lightData;
 			glm::vec3 pos;
 		};
-
 		std::vector<GPUPointLight> lights;
-		size_t numLights;
+		size_t numPointLights;
+		void expandPointLights();
 
 	private: // Buffers
 
@@ -69,7 +69,6 @@ namespace Okay
 		ID3D11Buffer* pPointLightBuffer;
 		ID3D11ShaderResourceView* pPointLightSRV;
 		ID3D11Buffer* pLightInfoBuffer;
-		void expandPointLights();
 
 		ID3D11RenderTargetView* bbRTV;
 

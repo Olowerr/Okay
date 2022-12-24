@@ -61,11 +61,9 @@ namespace Okay
             ren.SumbitSkeletal(&skeletalView.get<Okay::CompSkeletalMesh>(entity), &skeletalView.get<Transform>(entity));
 #endif
     
-#if 0 // Point lights
-        const auto& lightView = registry.view<Okay::CompPointLight, Transform>();
+        const auto& lightView = registry.view<PointLight, Transform>();
         for (entt::entity entity : lightView)
-            ren.SubmitLight(&lightView.get<Okay::CompPointLight>(entity), &lightView.get<Transform>(entity));
-#endif
+            renderer.submitPointLight(lightView.get<PointLight>(entity), lightView.get<Transform>(entity));
     }
     
     void Scene::end()
