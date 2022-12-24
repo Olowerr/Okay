@@ -139,6 +139,10 @@
       <AdditionalDependencies>OkayEngine.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)OkayEngine\build\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
+xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -159,6 +163,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)OkayEngine\build\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
+xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
@@ -178,6 +186,10 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
+xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Application\Editor.cpp" />
