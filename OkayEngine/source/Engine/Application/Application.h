@@ -2,9 +2,9 @@
 #include "Window.h"
 #include "../Graphics/Renderer.h"
 #include "../Graphics/ContentBrowser.h"
-#include "Engine/Components/Camera.h"
+
 #include "Time.h"
-#include "Input.h"
+#include "Input/Input.h"
 
 class Application
 {
