@@ -13,3 +13,17 @@ Application::Application(std::wstring_view appName, uint32_t width, uint32_t hei
 Application::~Application()
 {
 }
+
+void Application::newFrame()
+{
+	window.update();
+	DX11::getInstance().clear();
+	renderer.newFrame();
+
+	Okay::Time::measure();
+}
+
+void Application::endFrame()
+{
+	DX11::getInstance().present();
+}

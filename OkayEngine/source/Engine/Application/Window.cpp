@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "Input.h"
 
 Window::Window(uint32_t width, uint32_t height)
 {
@@ -69,6 +70,8 @@ void Window::update()
 	}
 	if (msg.message == WM_QUIT)
 		open = false;
+
+	Okay::Input::update();
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -82,6 +85,15 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
+
+	case WM_KEYDOWN:
+		Okay::Input::setKeyDown((int)wParam);
+		break;
+
+	case WM_KEYUP:
+		Okay::Input::setKeyUp((int)wParam);
+		break;
+
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

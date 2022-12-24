@@ -34,30 +34,33 @@ void Editor::run()
 	tra.rotation.x = glm::pi<float>() * 0.25f;
 	scene.start();
 
-	frameStart = std::chrono::system_clock::now();
+	Okay::Time::start();
 	while (window.isOpen())
 	{
 		// New frame
-		deltaTime = std::chrono::system_clock::now() - frameStart;
-		frameStart = std::chrono::system_clock::now();
-
-		dx11.clear();
-		renderer.newFrame();
-
+		Application::newFrame();
+		
 		// Update
-		window.update();
 		scene.update();
-
-		tra.rotation.y += deltaTime.count();
+		Okay::Time::setTimeScale(1.f);
+		tra.rotation.y += Okay::Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
-		
+
+		//if (Okay::Input::isKeyDown(0x41))
+		//	printf("A DOWN\n");
+		if (Okay::Input::isKeyReleased(0x41))
+			printf("A RELEASED\n");
+		if (Okay::Input::isKeyPressed(0x41))
+			printf("A PRESSED\n");
+
+
 		// Submit & render
 		scene.submit();
 		renderer.render(scene.getMainCamera());
 
-		// Present
-		dx11.present();
+		// End frame
+		Application::endFrame();
 	} 
 	scene.end();
 }

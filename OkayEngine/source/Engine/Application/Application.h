@@ -3,8 +3,8 @@
 #include "../Graphics/Renderer.h"
 #include "../Graphics/ContentBrowser.h"
 #include "Engine/Components/Camera.h"
-
-#include <chrono>
+#include "Time.h"
+#include "Input.h"
 
 class Application
 {
@@ -14,12 +14,11 @@ public:
 
 	virtual void run() = 0;
 	
+	void newFrame();
+	void endFrame();
 
 protected:
 	Window window;
 	Okay::Renderer renderer;
 	Okay::ContentBrowser content;
-	
-	std::chrono::time_point<std::chrono::system_clock> frameStart;
-	std::chrono::duration<float> deltaTime;
 };
