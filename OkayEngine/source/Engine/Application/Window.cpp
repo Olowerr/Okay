@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "Input.h"
+#include "Input/Input.h"
 
 Window::Window(uint32_t width, uint32_t height)
 {

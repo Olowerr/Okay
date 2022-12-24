@@ -113,6 +113,8 @@ namespace Okay
 
 		textures.emplace_back(pData, (uint32_t)x, (uint32_t)y, texName);
 
+		stbi_image_free(pData);
+
 		return true;
 	}
 	
