@@ -63,6 +63,8 @@ HWND Window::getHWnd() const
 
 void Window::update()
 {
+	Okay::Input::update();
+
 	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
@@ -70,8 +72,6 @@ void Window::update()
 	}
 	if (msg.message == WM_QUIT)
 		open = false;
-
-	Okay::Input::update();
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -87,11 +87,11 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		return 0;
 
 	case WM_KEYDOWN:
-		Okay::Input::setKeyDown((int)wParam);
+		Okay::Input::setKeyDown((Keys)wParam);
 		break;
 
 	case WM_KEYUP:
-		Okay::Input::setKeyUp((int)wParam);
+		Okay::Input::setKeyUp((Keys)wParam);
 		break;
 
 	}

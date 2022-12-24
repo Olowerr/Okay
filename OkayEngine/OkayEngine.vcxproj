@@ -201,7 +201,8 @@
   <ItemGroup>
     <ClInclude Include="source\Engine\Application\Application.h" />
     <ClInclude Include="source\Engine\Application\Entity.h" />
-    <ClInclude Include="source\Engine\Application\Input.h" />
+    <ClInclude Include="source\Engine\Application\Input\Input.h" />
+    <ClInclude Include="source\Engine\Application\Input\Keys.h" />
     <ClInclude Include="source\Engine\Application\Scene.h" />
     <ClInclude Include="source\Engine\Application\Time.h" />
     <ClInclude Include="source\Engine\Application\Window.h" />

@@ -78,7 +78,10 @@
     <ClInclude Include="source\Engine\Application\Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Application\Input.h">
+    <ClInclude Include="source\Engine\Application\Input\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Application\Input\Keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -28,7 +28,6 @@ Editor::~Editor()
    
 void Editor::run()
 {
-
 	DX11& dx11 = DX11::getInstance();
 	Okay::Transform& tra = scene.getMainCamera().getComponent<Okay::Transform>();
 	tra.rotation.x = glm::pi<float>() * 0.25f;
@@ -47,12 +46,12 @@ void Editor::run()
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
 
-		//if (Okay::Input::isKeyDown(0x41))
-		//	printf("A DOWN\n");
-		if (Okay::Input::isKeyReleased(0x41))
-			printf("A RELEASED\n");
-		if (Okay::Input::isKeyPressed(0x41))
-			printf("A PRESSED\n");
+		if (Okay::Input::isKeyDown(Keys::A))
+			printf("A DOWN\n");
+		if (Okay::Input::isKeyReleased(Keys::N))
+			printf("N RELEASED\n");
+		if (Okay::Input::isKeyPressed(Keys::Z))
+			printf("Z PRESSED\n");
 
 
 		// Submit & render
