@@ -115,10 +115,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="resources\shaders\MeshVS.hlsl" />
-    <FxCompile Include="resources\shaders\PhongPS.hlsl" />
+    <FxCompile Include="engine_resources\shaders\MeshVS.hlsl" />
+    <FxCompile Include="engine_resources\shaders\PhongPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\ShaderInclude.hlsli" />
+    <None Include="engine_resources\shaders\ShaderInclude.hlsli" />
   </ItemGroup>
 </Project>

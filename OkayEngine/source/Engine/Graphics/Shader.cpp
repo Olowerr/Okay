@@ -5,7 +5,7 @@
 
 namespace Okay
 {
-	const std::string Shader::ShaderPath = "../OkayEngine/resources/shaders/bin/";
+	const std::string Shader::ShaderPath = "../OkayEngine/engine_resources/shaders/bin/";
 
 	bool Shader::readShader(std::string_view shaderName, std::string& output)
 	{

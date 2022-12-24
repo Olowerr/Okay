@@ -140,8 +140,17 @@
       <AdditionalLibraryDirectories>$(SolutionDir)OkayEngine\build\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
-xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+      <Command>mkdir $(OutDir)
+robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
+mkdir $(OutDir)
+robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
+
+mkdir $(OutDir)resources
+robocopy $(ProjectDir)resources $(OutDir)resources /s
+mkdir $(OutDir)engine_resources
+robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+SET ERRORLEVEL=0
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,8 +173,17 @@ xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
-xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+      <Command>mkdir $(OutDir)
+robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
+mkdir $(OutDir)
+robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
+
+mkdir $(OutDir)resources
+robocopy $(ProjectDir)resources $(OutDir)resources /s
+mkdir $(OutDir)engine_resources
+robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+SET ERRORLEVEL=0
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -187,8 +205,17 @@ xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\
-xcopy /y $(SolutionDir)OkayEngine\deps\lib\dll $(ProjectDir)build\$(Platform)\$(Configuration)\</Command>
+      <Command>mkdir $(OutDir)
+robocopy $(ProjectDir)deps\lib\dll $(OutDir) /s
+mkdir $(OutDir)
+robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
+
+mkdir $(OutDir)resources
+robocopy $(ProjectDir)resources $(OutDir)resources /s
+mkdir $(OutDir)engine_resources
+robocopy $(SolutionDir)OkayEngine\engine_resources $(OutDir)engine_resources /s
+SET ERRORLEVEL=0
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
