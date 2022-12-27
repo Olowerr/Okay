@@ -41,7 +41,6 @@ void Editor::run()
 	Time::start();
 	float timer = 0.f;
 
-	Window win2(500u, 500u, false);
 	while (window.isOpen())
 	{
 		// New frame
@@ -61,14 +60,10 @@ void Editor::run()
 		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
 
-		if (win2.isOpen())
-			win2.update();
-
 		if (Input::isKeyPressed(Keys::ONE))
-			win2.show();
+			window.createChild();
 		if (Input::isKeyPressed(Keys::TWO))
-			win2.close();
-
+			int i;
 
 		//timer += Time::getApplicationDT();
 		//if (timer >= 0.5f)

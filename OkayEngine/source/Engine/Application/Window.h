@@ -16,13 +16,16 @@ public:
 	bool isOpen() const;
 	void setName(std::wstring_view name);
 
+	void createChild();
+
 	HWND getHWnd() const;
 	void update();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	MSG msg;
 	HWND hWnd;
-
+	HWND child;
 	bool open;
 };
