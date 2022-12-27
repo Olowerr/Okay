@@ -32,13 +32,16 @@ Editor::~Editor()
    
 void Editor::run()
 {
+	using namespace Okay;
 	DX11& dx11 = DX11::getInstance();
-	Okay::Transform& tra = scene.getMainCamera().getComponent<Okay::Transform>();
+	Transform& tra = scene.getMainCamera().getComponent<Transform>();
 	tra.rotation.x = glm::pi<float>() * 0.25f;
 	
 	scene.start();
-	Okay::Time::start();
+	Time::start();
 	float timer = 0.f;
+
+	Window win2(500u, 500u, false);
 	while (window.isOpen())
 	{
 		// New frame
@@ -46,23 +49,32 @@ void Editor::run()
 		
 		// Update
 		scene.update();
-		Okay::Time::setTimeScale(1.f);
-		tra.rotation.y += Okay::Time::getDT();
+		Time::setTimeScale(1.f);
+		tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
 
-		if (Okay::Input::isKeyDown(Keys::A))
+		if (Input::isKeyDown(Keys::A))
 			printf("A DOWN\n");
-		if (Okay::Input::isKeyReleased(Keys::N))
+		if (Input::isKeyReleased(Keys::N))
 			printf("N RELEASED\n");
-		if (Okay::Input::isKeyPressed(Keys::Z))
+		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
 
-		//timer += Okay::Time::getApplicationDT();
+		if (win2.isOpen())
+			win2.update();
+
+		if (Input::isKeyPressed(Keys::ONE))
+			win2.show();
+		if (Input::isKeyPressed(Keys::TWO))
+			win2.close();
+
+
+		//timer += Time::getApplicationDT();
 		//if (timer >= 0.5f)
 		//{
 		//	timer -= 0.5f;
-		//	printf("FPS: %.3f\n", 1.f / Okay::Time::getApplicationDT());
+		//	printf("FPS: %.3f\n", 1.f / Time::getApplicationDT());
 		//}
 
 		// Submit & render

@@ -7,6 +7,7 @@ Application::Application(std::wstring_view appName, uint32_t width, uint32_t hei
 	// Make sure DX11 is set up, then set window name after DX11 has found it
 	DX11::getInstance();
 	window.setName(appName);
+	Okay::Input::setTargetWindow(window.getHWnd());
 }
 
 Application::~Application()

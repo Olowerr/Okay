@@ -1,7 +1,7 @@
 #include "Window.h"
 #include "Input/Input.h"
 
-Window::Window(uint32_t width, uint32_t height)
+Window::Window(uint32_t width, uint32_t height, bool open)
 {
 	const wchar_t win_Class[] = L"WinClass";
 
@@ -28,21 +28,25 @@ Window::Window(uint32_t width, uint32_t height)
 		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
 
 	OKAY_ASSERT(hWnd != nullptr, "Failed creating window");
-	open = true;
-	show();
+	
+	if (open)
+		show();
 }
 
 Window::~Window()
 {
+	CloseWindow(hWnd);
 }
 
 void Window::show()
 {
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
+	open = true;
 }
 
 void Window::close()
 {
+	CloseWindow(hWnd);
 	open = false;
 }
 
@@ -71,7 +75,10 @@ void Window::update()
 		DispatchMessage(&msg);
 	}
 	if (msg.message == WM_QUIT)
+	{
 		open = false;
+		CloseWindow(hWnd);
+	}
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -85,13 +92,15 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
-
+		
 	case WM_KEYDOWN:
-		Okay::Input::setKeyDown((Keys)wParam);
+		if (Okay::Input::targetHWnd == hWnd)
+			Okay::Input::setKeyDown((Keys)wParam);
 		break;
 
 	case WM_KEYUP:
-		Okay::Input::setKeyUp((Keys)wParam);
+		if (Okay::Input::targetHWnd == hWnd)
+			Okay::Input::setKeyUp((Keys)wParam);
 		break;
 
 	}
