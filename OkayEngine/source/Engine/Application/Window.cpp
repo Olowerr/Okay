@@ -1,15 +1,13 @@
 #include "Window.h"
 #include "Input/Input.h"
 
-Window::Window(uint32_t width, uint32_t height, bool open)
-	:child(nullptr)
+Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, bool defaultWinProc)
+	:open(false), msg()
 {
-	const wchar_t win_Class[] = L"WinClass";
-
 	WNDCLASS winClass = {};
-	winClass.lpfnWndProc = WindowProc;
+	winClass.lpfnWndProc = defaultWinProc ? DefWindowProcW : WindowProc;
 	winClass.hInstance = GetModuleHandle(NULL);
-	winClass.lpszClassName = win_Class;
+	winClass.lpszClassName = windowName;
 	winClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	winClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 
@@ -25,25 +23,18 @@ Window::Window(uint32_t width, uint32_t height, bool open)
 	LONG yDiff = desktop.bottom - rect.bottom;
 
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-	hWnd = CreateWindowEx(0, win_Class, L"Okay Engine", WS_OVERLAPPEDWINDOW,
+	hWnd = CreateWindowEx(0, windowName, windowName, WS_OVERLAPPEDWINDOW,
 		xDiff / 2, yDiff / 4, rect.right - rect.left, rect.bottom - rect.top, nullptr, nullptr, GetModuleHandle(NULL), nullptr);
 
 	OKAY_ASSERT(hWnd != nullptr, "Failed creating window");
 
-	if (open)
-		show();
+	show();
 }
 
 Window::~Window()
 {
 	DestroyWindow(hWnd);
 	UnregisterClass(L"WinClass", GetModuleHandle(NULL));
-
-	if (child)
-	{
-		DestroyWindow(child);
-		UnregisterClass(L"WinClass2", GetModuleHandle(NULL));
-	}
 }
 
 void Window::show()
@@ -63,33 +54,9 @@ bool Window::isOpen() const
 	return open;
 }
 
-void Window::setName(std::wstring_view name)
+void Window::setName(const wchar_t* name)
 {
-	SetWindowText(hWnd, name.data());
-}
-
-void Window::createChild()
-{
-	printf(__FUNCTION__ "%p\n", child);
-	if (child)
-		return;
-
-	const wchar_t win_Class[] = L"WinClass2";
-
-	WNDCLASS winClass = {};
-	winClass.lpfnWndProc = WindowProcChild;
-	winClass.hInstance = GetModuleHandle(NULL);
-	winClass.lpszClassName = win_Class;
-	winClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	winClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	RegisterClass(&winClass);
-
-	child = CreateWindowEx(0, win_Class, L"Okay Engine Child", WS_OVERLAPPEDWINDOW,0,0, 500, 500,
-		hWnd, nullptr, GetModuleHandle(NULL), nullptr);
-
-	OKAY_ASSERT(child != nullptr, "Failed creating child window");
-
-	ShowWindow(child, SW_SHOWDEFAULT);
+	SetWindowText(hWnd, name);
 }
 
 HWND Window::getHWnd() const
@@ -110,24 +77,6 @@ void Window::update()
 	{
 		open = false;
 		CloseWindow(hWnd);
-	}
-	return;
-
-	// Hmm
-	if (!child)
-		return;
-
-	if (PeekMessage(&msg, child, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	if (msg.message == WM_QUIT)
-	{
-		DestroyWindow(child);
-		UnregisterClass(L"WinClass2", GetModuleHandle(NULL));
-		child = nullptr;
-		printf(__FUNCTION__ "%p\n", child);
 	}
 }
 

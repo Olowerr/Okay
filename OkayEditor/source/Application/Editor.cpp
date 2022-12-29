@@ -5,7 +5,7 @@
 #include "Engine/Components/MeshComponent.h"
 
 Editor::Editor(std::string_view startScene)
-	:Application(L"Okay Editor"), scene(renderer)
+	:Application(L"Okay"), scene(renderer)
 {
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/texTest.fbx");
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/axis.fbx");
@@ -22,7 +22,7 @@ Editor::Editor(std::string_view startScene)
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
-	camera.addComponent<Okay::PointLight>().intensnity = 3.f;
+	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
 	scene.setMainCamera(camera);
 }
 
@@ -48,7 +48,7 @@ void Editor::run()
 		
 		// Update
 		scene.update();
-		Time::setTimeScale(1.f);
+
 		tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
@@ -59,18 +59,6 @@ void Editor::run()
 			printf("N RELEASED\n");
 		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
-
-		if (Input::isKeyPressed(Keys::ONE))
-			window.createChild();
-		if (Input::isKeyPressed(Keys::TWO))
-			int i;
-
-		//timer += Time::getApplicationDT();
-		//if (timer >= 0.5f)
-		//{
-		//	timer -= 0.5f;
-		//	printf("FPS: %.3f\n", 1.f / Time::getApplicationDT());
-		//}
 
 		// Submit & render
 		scene.submit();

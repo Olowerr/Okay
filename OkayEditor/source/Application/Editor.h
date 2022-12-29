@@ -15,4 +15,6 @@ public:
 
 private:
 	Okay::Scene scene;
+
+	void update();
 };

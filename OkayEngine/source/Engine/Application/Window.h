@@ -5,7 +5,7 @@
 class Window
 {
 public:
-	Window(uint32_t width, uint32_t height, bool open = true);
+	Window(uint32_t width, uint32_t height, const wchar_t* windowName, bool defaultWinProc = false);
 	~Window();
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;
@@ -14,9 +14,7 @@ public:
 	void show();
 	void close();
 	bool isOpen() const;
-	void setName(std::wstring_view name);
-
-	void createChild();
+	void setName(const wchar_t* name);
 
 	HWND getHWnd() const;
 	void update();
@@ -26,6 +24,6 @@ public:
 private:
 	MSG msg;
 	HWND hWnd;
-	HWND child;
+
 	bool open;
 };
