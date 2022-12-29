@@ -19,10 +19,13 @@ namespace Okay
 		static inline void start();
 
 	private:
-		static inline std::chrono::time_point<std::chrono::system_clock> frameStart;
-		static inline std::chrono::duration<float> dtApp;
-		static inline std::chrono::duration<float> upTimeApp;
-		static inline std::chrono::duration<float> upTime;
+		using Duration = std::chrono::duration<float>;
+		using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+
+		static inline TimePoint frameStart;
+		static inline Duration dtApp = Duration(0.f);
+		static inline Duration upTimeApp = Duration(0.f);
+		static inline Duration upTime = Duration(0.f);
 		static inline float timeScale = 1.f;
 	};
 
@@ -43,9 +46,7 @@ namespace Okay
 
 	inline void Time::start()
 	{
-		Time::dtApp = std::chrono::duration<float>(0.f);
-		Time::upTimeApp = std::chrono::duration<float>(0.f);
-		Time::upTime = std::chrono::duration<float>(0.f);
+		Time::dtApp = Duration(0.f);
 		Time::frameStart = std::chrono::system_clock::now();
 	}
 }
