@@ -53,6 +53,7 @@ void Editor::run()
 		// New frame
 		newFrame();
 
+		update();
 		// Update
 		scene.update();
 
@@ -104,4 +105,17 @@ void Editor::endFrame()
 	ImGui::RenderPlatformWindowsDefault();
 
 	Application::endFrame();
+}
+
+void Editor::update()
+{
+	static bool dockSpace = true;
+
+	//ImGuiWindowFlags_NoMove
+	//ImGuiWindowFlags_NoBackground
+	//ImGuiWindowFlags_NoTitleBar
+
+	if (dockSpace)
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
 }

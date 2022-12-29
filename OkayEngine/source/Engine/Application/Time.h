@@ -40,6 +40,7 @@ namespace Okay
 	{
 		Time::dtApp = std::chrono::system_clock::now() - Time::frameStart;
 		Time::frameStart = std::chrono::system_clock::now();
+
 		Time::upTime += Time::dtApp * Time::timeScale;
 		Time::upTimeApp += Time::dtApp;
 	}
