@@ -131,7 +131,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(ProjectDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -158,7 +158,7 @@ SET ERRORLEVEL=0
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(ProjectDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,7 +181,7 @@ SET ERRORLEVEL=0
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>
       <PreprocessorDefinitions>DIST;NDEBUG;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source;$(ProjectDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <WarningLevel>Level3</WarningLevel>
@@ -207,10 +207,25 @@ SET ERRORLEVEL=0
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="deps\include\imgui\imgui.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Application\Editor.cpp" />
     <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\include\imgui\imconfig.h" />
+    <ClInclude Include="deps\include\imgui\imgui.h" />
+    <ClInclude Include="deps\include\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="deps\include\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="deps\include\imgui\imgui_internal.h" />
+    <ClInclude Include="deps\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="deps\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="deps\include\imgui\imstb_truetype.h" />
     <ClInclude Include="source\Application\Editor.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "Engine/DirectX/DX11.h"
 
-Application::Application(std::wstring_view appName, uint32_t width, uint32_t height)
+Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
 	:window(width, height, L"Okay Engine"), renderer(content)
 {
 	// Make sure DX11 is set up, then set window name after DX11 has found it

@@ -24,10 +24,34 @@ Editor::Editor(std::string_view startScene)
 	camera.addComponent<Okay::Camera>();
 	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
 	scene.setMainCamera(camera);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+	ImGui::StyleColorsDark();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
+
+	
+	ImGui_ImplWin32_Init(window.getHWnd());
+	ImGui_ImplDX11_Init(DX11::getInstance().getDevice(), DX11::getInstance().getDeviceContext());
 }
 
 Editor::~Editor()
 {
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
    
 void Editor::run()
@@ -53,12 +77,30 @@ void Editor::run()
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
 
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
+		static bool open = true;
+		ImGui::Begin("Hello", &open);
+		ImGui::Text("Tax");
+		ImGui::End();
+
 		if (Input::isKeyDown(Keys::A))
 			printf("A DOWN\n");
 		if (Input::isKeyReleased(Keys::N))
 			printf("N RELEASED\n");
 		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
+
+
+		dx11.getDeviceContext()->OMSetRenderTargets(1, dx11.getBackBufferRTV(), nullptr);
+
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
 
 		// Submit & render
 		scene.submit();
