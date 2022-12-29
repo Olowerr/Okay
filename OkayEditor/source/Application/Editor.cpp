@@ -4,6 +4,10 @@
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/MeshComponent.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
+
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), scene(renderer)
 {
@@ -25,37 +29,17 @@ Editor::Editor(std::string_view startScene)
 	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
 	scene.setMainCamera(camera);
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-	ImGui::StyleColorsDark();
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-	}
-
-	
-	ImGui_ImplWin32_Init(window.getHWnd());
-	ImGui_ImplDX11_Init(DX11::getInstance().getDevice(), DX11::getInstance().getDeviceContext());
 }
 
 Editor::~Editor()
 {
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	
 }
    
 void Editor::run()
 {
+	Application::initImgui();
+
 	using namespace Okay;
 	DX11& dx11 = DX11::getInstance();
 	Transform& tra = scene.getMainCamera().getComponent<Transform>();
@@ -63,23 +47,18 @@ void Editor::run()
 	
 	scene.start();
 	Time::start();
-	float timer = 0.f;
 
 	while (window.isOpen())
 	{
 		// New frame
-		Application::newFrame();
-		
+		newFrame();
+
 		// Update
 		scene.update();
 
 		tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
-
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
 
 		static bool open = true;
 		ImGui::Begin("Hello", &open);
@@ -94,20 +73,35 @@ void Editor::run()
 			printf("Z PRESSED\n");
 
 
-		dx11.getDeviceContext()->OMSetRenderTargets(1, dx11.getBackBufferRTV(), nullptr);
-
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-
 		// Submit & render
 		scene.submit();
 		renderer.render(scene.getMainCamera());
 
 		// End frame
-		Application::endFrame();
+		endFrame();
 	} 
 	scene.end();
+
+	Application::destroyImgui();
+}
+
+void Editor::newFrame()
+{
+	Application::newFrame();
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+}
+
+void Editor::endFrame()
+{
+	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, DX11::getInstance().getBackBufferRTV(), nullptr);
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	ImGui::UpdatePlatformWindows();
+	ImGui::RenderPlatformWindowsDefault();
+
+	Application::endFrame();
 }

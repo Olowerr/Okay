@@ -1,5 +1,8 @@
 #include "Window.h"
 #include "Input/Input.h"
+#include "imgui/imgui_impl_win32.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, bool defaultWinProc)
 	:open(false), msg()
@@ -82,6 +85,9 @@ void Window::update()
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	switch (message)
 	{
 	case WM_DESTROY:

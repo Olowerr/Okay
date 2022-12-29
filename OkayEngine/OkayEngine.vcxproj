@@ -199,6 +199,14 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="deps\include\imgui\imconfig.h" />
+    <ClInclude Include="deps\include\imgui\imgui.h" />
+    <ClInclude Include="deps\include\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="deps\include\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="deps\include\imgui\imgui_internal.h" />
+    <ClInclude Include="deps\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="deps\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="deps\include\imgui\imstb_truetype.h" />
     <ClInclude Include="source\Engine\Application\Application.h" />
     <ClInclude Include="source\Engine\Application\Entity.h" />
     <ClInclude Include="source\Engine\Application\Input\Input.h" />
@@ -259,6 +267,13 @@
     <ClInclude Include="source\Engine\Okay\OkayString.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="deps\include\imgui\imgui.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="deps\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Engine\Application\Application.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />
