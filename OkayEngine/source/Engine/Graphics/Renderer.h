@@ -6,6 +6,7 @@
 
 namespace Okay
 {
+	class RenderTexture;
 	class ContentBrowser;
 	class Entity;
 
@@ -15,7 +16,7 @@ namespace Okay
 	class Renderer
 	{
 	public:
-		Renderer(ContentBrowser& content);
+		Renderer(const RenderTexture& target, ContentBrowser& content);
 		~Renderer();
 		Renderer(const Renderer&) = delete;
 		Renderer(Renderer&&) = delete;
@@ -32,6 +33,7 @@ namespace Okay
 
 
 	private:
+		const RenderTexture& target;
 		ContentBrowser& content;
 		ID3D11DeviceContext* pDevContext;
 

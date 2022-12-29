@@ -2,81 +2,23 @@
 #include "Engine/Application/Window.h"
 
 DX11::DX11()
-	:pDevice(), pDeviceContext(), pSwapChain()
-	, pBackBuffer(), pBackBufferRTV(), pBackBufferSRV()
-	, pDepthBuffer(), pDepthBufferDSV()
+	:pDevice(), pDeviceContext()
 {
 	const uint32_t Width = 0u;
 	const uint32_t Height = 0u;
 
 	HRESULT hr{};
-	DXGI_SWAP_CHAIN_DESC desc{};
-	{
-		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		desc.BufferCount = 1;
-		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-
-		desc.BufferDesc.Width = Width;
-		desc.BufferDesc.Height = Height;
-		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		desc.BufferDesc.RefreshRate.Numerator = 0U;
-		desc.BufferDesc.RefreshRate.Denominator = 1U;
-
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-
-		desc.OutputWindow = FindWindow(NULL, L"Okay Engine");
-		desc.Windowed = true;
-		desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	}
-
+	
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-	UINT flags = 0;
+	uint32_t flags = 0;
 #ifndef DIST
 	flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	// Device, DeviceContext, SwapChain
-	hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
-		&featureLevel, 1, D3D11_SDK_VERSION, &desc, &pSwapChain, &pDevice, nullptr, &pDeviceContext);
+	// Device and DeviceContext
+	hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
+		&featureLevel, 1u, D3D11_SDK_VERSION, &pDevice, nullptr, &pDeviceContext);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating instantiating DX11");
-
-	// BackBuffer
-	hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed getting backBuffer");
-
-	hr = pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating backBuffer RTV");
-
-	hr = pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating backBuffer SRV");
-
-	D3D11_TEXTURE2D_DESC backBufferDesc;
-	pBackBuffer->GetDesc(&backBufferDesc);
-
-	// DepthBuffer
-	D3D11_TEXTURE2D_DESC texDesc{};
-	{
-		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		texDesc.Usage = D3D11_USAGE_DEFAULT;
-		texDesc.CPUAccessFlags = 0;
-		texDesc.ArraySize = 1;
-		texDesc.MipLevels = 1;
-		texDesc.Width = backBufferDesc.Width;
-		texDesc.Height = backBufferDesc.Height;
-		texDesc.SampleDesc.Count = 1;
-		texDesc.SampleDesc.Quality = 0;
-		texDesc.MiscFlags = 0;
-	}
-
-	hr = pDevice->CreateTexture2D(&texDesc, nullptr, &pDepthBuffer);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating depthBuffer texture");
-
-	hr = pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating depthBuffer DSV");
 }
 
 DX11::~DX11()
@@ -86,14 +28,6 @@ DX11::~DX11()
 
 void DX11::shutdown()
 {
-	DX11_RELEASE(pBackBuffer);
-	DX11_RELEASE(pBackBufferRTV);
-	DX11_RELEASE(pBackBufferSRV);
-		
-	DX11_RELEASE(pDepthBuffer);
-	DX11_RELEASE(pDepthBufferDSV);
-		
-	DX11_RELEASE(pSwapChain);
 	DX11_RELEASE(pDeviceContext);
 
 #ifndef DIST
@@ -106,19 +40,6 @@ void DX11::shutdown()
 	DX11_RELEASE(pDevice);
 }
 
-void DX11::clear()
-{
-	static float clearColour[4] = { 0.6f, 0.2f, 0.8f, 1.f };
-
-	pDeviceContext->ClearRenderTargetView(pBackBufferRTV, clearColour);
-	pDeviceContext->ClearDepthStencilView(pDepthBufferDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
-}
-
-void DX11::present()
-{
-	pSwapChain->Present(0, 0);
-}
-
 ID3D11Device* DX11::getDevice()
 {
 	return pDevice;
@@ -128,84 +49,6 @@ ID3D11DeviceContext* DX11::getDeviceContext()
 {
 	return pDeviceContext;
 }
-
-IDXGISwapChain* DX11::getSwapChain()
-{
-	return pSwapChain;
-}
-
-ID3D11Texture2D* DX11::getBackBuffer()
-{
-	return pBackBuffer;
-}
-
-ID3D11RenderTargetView* const* DX11::getBackBufferRTV()
-{
-	return &pBackBufferRTV;
-}
-
-ID3D11ShaderResourceView* DX11::getBackBufferSRV()
-{
-	return pBackBufferSRV;
-}
-
-ID3D11Texture2D* DX11::getDepthBuffer()
-{
-	return pDepthBuffer;
-}
-
-ID3D11DepthStencilView* const* DX11::getDepthBufferDSV() const
-{
-	return &pDepthBufferDSV;
-}
-
-ID3D11DepthStencilView** DX11::getDepthBufferDSV()
-{
-	return &pDepthBufferDSV;
-}
-
-bool DX11::resizeBackBuffer(uint32_t width, uint32_t height)
-{
-	DX11_RELEASE(pBackBuffer);
-	DX11_RELEASE(pBackBufferRTV);
-	DX11_RELEASE(pBackBufferSRV);
-
-	pSwapChain->ResizeBuffers(1u, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
-
-	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
-	OKAY_VERIFY(pBackBuffer);
-
-	pDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pBackBufferRTV);
-	OKAY_VERIFY(pBackBufferRTV);
-
-	pDevice->CreateShaderResourceView(pBackBuffer, nullptr, &pBackBufferSRV);
-	OKAY_VERIFY(pBackBufferSRV);
-
-	OKAY_VERIFY(resizeDepthBuffer());
-
-	return true;
-}
-
-bool DX11::resizeDepthBuffer()
-{
-	D3D11_TEXTURE2D_DESC desc;
-	pBackBuffer->GetDesc(&desc);
-	desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-	DX11_RELEASE(pDepthBuffer);
-	DX11_RELEASE(pDepthBufferDSV);
-
-	pDevice->CreateTexture2D(&desc, nullptr, &pDepthBuffer);
-	OKAY_VERIFY(pDepthBuffer);
-
-	pDevice->CreateDepthStencilView(pDepthBuffer, nullptr, &pDepthBufferDSV);
-	OKAY_VERIFY(pDepthBufferDSV);
-
-	return true;
-}
-
-
 
 
 /* ------ HELPER FUNCTIONS ------ */

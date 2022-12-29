@@ -6,7 +6,8 @@
 #include "imgui/imgui_impl_win32.h"
 
 Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
-	:window(width, height, L"Okay Engine"), renderer(content)
+	:window(width, height, L"Okay Engine", Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH),
+	renderer(window.getRenderTexture(), content)
 {
 	// Make sure DX11 is set up, then set window name after DX11 has found it
 	DX11::getInstance();
@@ -50,7 +51,7 @@ void Application::destroyImgui()
 void Application::newFrame()
 {
 	window.update();
-	DX11::getInstance().clear();
+	window.clear();
 	renderer.newFrame();
 
 	Okay::Time::measure();
@@ -58,5 +59,5 @@ void Application::newFrame()
 
 void Application::endFrame()
 {
-	DX11::getInstance().present();
+	window.present();
 }

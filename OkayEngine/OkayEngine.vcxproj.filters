@@ -114,6 +114,9 @@
     <ClInclude Include="deps\include\imgui\imstb_truetype.h">
       <Filter>Imgui</Filter>
     </ClInclude>
+    <ClInclude Include="source\Engine\Graphics\RenderTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Engine\Application\Application.cpp">
@@ -172,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="deps\include\imgui\imgui_widgets.cpp">
       <Filter>Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine\Graphics\RenderTexture.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

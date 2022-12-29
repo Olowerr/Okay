@@ -29,3 +29,4 @@ if (!(condition))\
 
 #define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; }
 #define OKAY_VERIFY(X) if (!X) return false;
+#define CHECK_BIT(X, pos) ((X) & 1<<(pos))

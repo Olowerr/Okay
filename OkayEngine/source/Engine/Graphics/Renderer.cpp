@@ -1,8 +1,10 @@
 #include "Renderer.h"
 #include "Engine/Okay/Okay.h"
-#include "ContentBrowser.h"
-#include "Engine/Application/Entity.h"
 
+#include "ContentBrowser.h"
+#include "RenderTexture.h"
+
+#include "Engine/Application/Entity.h"
 #include "Engine/Components/Camera.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/MeshComponent.h"
@@ -12,9 +14,9 @@
 
 namespace Okay
 {
-	Renderer::Renderer(ContentBrowser& content)
+	Renderer::Renderer(const RenderTexture& target, ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
-		defaultPixelShader("PhongPS.cso") ,content(content)
+		defaultPixelShader("PhongPS.cso") ,content(content), target(target)
 	{
 		glm::mat4 Identity4x4(1.f);
 
@@ -151,8 +153,7 @@ namespace Okay
 		// Bind static mesh pipeline
 		bindMeshPipeline();
 
-		// Temp
-		pDevContext->OMSetRenderTargets(1u, DX11::getInstance().getBackBufferRTV(), *DX11::getInstance().getDepthBufferDSV());
+		pDevContext->OMSetRenderTargets(1u, target.getRTV(), *target.getDSV());
 		defaultPixelShader.bind();
 		
 		// Preperation

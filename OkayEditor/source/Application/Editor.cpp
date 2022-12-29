@@ -48,6 +48,7 @@ void Editor::run()
 	scene.start();
 	Time::start();
 
+	RenderTexture rt;
 	while (window.isOpen())
 	{
 		// New frame
@@ -73,6 +74,20 @@ void Editor::run()
 		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
 
+		static Window* window = nullptr;
+		if (Input::isKeyPressed(Keys::ONE))
+		{
+			window = new Window(300, 300, L"New window", RenderTexture::RENDER, true);
+			window->clear(glm::vec4(1.f, 0.f, 0.f, 0.f));
+			window->present();
+			printf("One\n");
+		}
+		if (Input::isKeyPressed(Keys::TWO))
+		{
+			delete window;
+			printf("Two\n");
+		}
+
 
 		// Submit & render
 		scene.submit();
@@ -96,7 +111,7 @@ void Editor::newFrame()
 
 void Editor::endFrame()
 {
-	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, DX11::getInstance().getBackBufferRTV(), nullptr);
+	//DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, window.getRenderTexture().getRTV(), nullptr);
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
