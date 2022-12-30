@@ -9,7 +9,8 @@
 #include "imgui/imgui_impl_win32.h"
 
 Editor::Editor(std::string_view startScene)
-	:Application(L"Okay"), scene(renderer)
+	:Application(L"Okay"), scene(renderer), 
+	gameTexture(160 * 5, 90 * 5, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ)
 {
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/texTest.fbx");
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/axis.fbx");
@@ -29,6 +30,7 @@ Editor::Editor(std::string_view startScene)
 	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
 	scene.setMainCamera(camera);
 
+	renderer.setRenderTexture(&gameTexture);
 }
 
 Editor::~Editor()
@@ -38,9 +40,10 @@ Editor::~Editor()
    
 void Editor::run()
 {
+	using namespace Okay;
+
 	Application::initImgui();
 
-	using namespace Okay;
 	DX11& dx11 = DX11::getInstance();
 	Transform& tra = scene.getMainCamera().getComponent<Transform>();
 	tra.rotation.x = glm::pi<float>() * 0.25f;
@@ -61,11 +64,6 @@ void Editor::run()
 		tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
-
-		static bool open = true;
-		ImGui::Begin("Hello", &open);
-		ImGui::Text("Tax");
-		ImGui::End();
 
 		if (Input::isKeyDown(Keys::A))
 			printf("A DOWN\n");
@@ -89,6 +87,8 @@ void Editor::run()
 void Editor::newFrame()
 {
 	Application::newFrame();
+	gameTexture.clear(glm::vec4(0.6f, 0.2f, 0.9f, 1.f));
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -96,7 +96,14 @@ void Editor::newFrame()
 
 void Editor::endFrame()
 {
-	//DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, window.getRenderTexture().getRTV(), nullptr);
+	static bool open = true;
+	static ImVec2 viewp = VEC2_GLM_TO_IMGUI(gameTexture.getDimensions());
+	ImGui::Begin("Viewport", &open);
+	ImGui::Image(gameTexture.getSRV(), viewp);
+	ImGui::End();
+
+	// ((const Window&)window) bruh
+	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, ((const Window&)window).getRenderTexture().getRTV(), nullptr);
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

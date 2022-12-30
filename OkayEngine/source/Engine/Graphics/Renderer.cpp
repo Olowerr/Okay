@@ -14,10 +14,12 @@
 
 namespace Okay
 {
-	Renderer::Renderer(const RenderTexture& target, ContentBrowser& content)
+	Renderer::Renderer(const RenderTexture* pRenderTarget, ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
-		defaultPixelShader("PhongPS.cso") ,content(content), target(target)
+		defaultPixelShader("PhongPS.cso") ,content(content), pRenderTarget(pRenderTarget)
 	{
+		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+
 		glm::mat4 Identity4x4(1.f);
 
 		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
@@ -54,7 +56,7 @@ namespace Okay
 		//
 		//numPointLights = 0;
 
-		const glm::ivec2 dims = target.getDimensions();
+		const glm::ivec2 dims = pRenderTarget->getDimensions();
 		viewport.TopLeftX = 0.f;
 		viewport.TopLeftY = 0.f;
 		viewport.Width = (float)dims.x;
@@ -104,6 +106,18 @@ namespace Okay
 		++numPointLights;
 	}
 
+	void Renderer::setRenderTexture(const RenderTexture* pRenderTexture)
+	{
+		OKAY_ASSERT(pRenderTexture, "RenderTarget was nullptr");
+		pRenderTarget = pRenderTexture;
+
+		const glm::ivec2 dims = pRenderTarget->getDimensions();
+		viewport.Width = (float)dims.x;
+		viewport.Height = (float)dims.y;
+
+		pDevContext->RSSetViewports(1u, &viewport);
+	}
+
 	void Renderer::newFrame()
 	{
 		numActiveMeshes = 0;
@@ -148,7 +162,7 @@ namespace Okay
 		// Bind static mesh pipeline
 		bindMeshPipeline();
 
-		pDevContext->OMSetRenderTargets(1u, target.getRTV(), *target.getDSV());
+		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
 		defaultPixelShader.bind();
 		
 		// Preperation
@@ -238,12 +252,13 @@ namespace Okay
 
 		pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
 		pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
-		pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
 
+		pDevContext->RSSetViewports(1u, &viewport);
+
+		pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
 		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 		pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
 
-		pDevContext->RSSetViewports(1u, &viewport);
 	}
 
 	void Renderer::bindMeshPipeline()

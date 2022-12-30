@@ -7,12 +7,7 @@
 #include "glm/glm.hpp"
 
 #ifdef DIST
-#define OKAY_ASSERT(condition, devMsg)\
-if (!(condition))\
-{\
-	MessageBoxW(NULL, L"An internal error occoured. Please try again.\nMessage: " devMsg, L"ERROR", MB_OK);\
-	exit(1);\
-}0
+#define OKAY_ASSERT(condition, devMsg) 
 #else
 #define OKAY_ASSERT(condition, devMsg)\
 if (!(condition))\
@@ -30,3 +25,5 @@ if (!(condition))\
 #define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; }
 #define OKAY_VERIFY(X) if (!X) return false;
 #define CHECK_BIT(X, pos) ((X) & 1<<(pos))
+
+#define VEC2_GLM_TO_IMGUI(vec) ImVec2((float)vec.x, (float)vec.y)

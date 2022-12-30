@@ -16,24 +16,25 @@ namespace Okay
 	class Renderer
 	{
 	public:
-		Renderer(const RenderTexture& target, ContentBrowser& content);
+		Renderer(const RenderTexture* target, ContentBrowser& content);
 		~Renderer();
 		Renderer(const Renderer&) = delete;
 		Renderer(Renderer&&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
+		void shutdown();
 
 		void submit(const MeshComponent* pMesh, const Transform* pTransform);
 		//void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::Transform* pTransform);
 		void submitPointLight(const PointLight& pLight, const Transform& pTransform);
 
-		void newFrame();
+		void setRenderTexture(const RenderTexture* pRenderTexture);
 
-		void shutdown();
+		void newFrame();
 		void render(const Entity& cameraEntity);
 
 
 	private:
-		const RenderTexture& target;
+		const RenderTexture* pRenderTarget;
 		ContentBrowser& content;
 		ID3D11DeviceContext* pDevContext;
 

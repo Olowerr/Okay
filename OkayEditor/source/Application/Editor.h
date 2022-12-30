@@ -15,6 +15,7 @@ public:
 
 private:
 	Okay::Scene scene;
+	Okay::RenderTexture gameTexture;
 
 	void newFrame();
 	void endFrame();

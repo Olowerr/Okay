@@ -67,9 +67,9 @@ namespace Okay
 		desc.Format = CHECK_BIT(flags, BitPos::B_BIT_32) ?
 			DXGI_FORMAT_R32G32B32A32_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BindFlags =
-			CHECK_BIT(flags, BitPos::B_RENDER) ? D3D11_BIND_RENDER_TARGET : 0u |
-			CHECK_BIT(flags, BitPos::B_SHADER_READ) ? D3D11_BIND_SHADER_RESOURCE : 0u |
-			CHECK_BIT(flags, BitPos::B_SHADER_WRITE) ? D3D11_BIND_UNORDERED_ACCESS : 0u;
+			(CHECK_BIT(flags, BitPos::B_RENDER) ? D3D11_BIND_RENDER_TARGET : 0u) |
+			(CHECK_BIT(flags, BitPos::B_SHADER_READ) ? D3D11_BIND_SHADER_RESOURCE : 0u) |
+			(CHECK_BIT(flags, BitPos::B_SHADER_WRITE) ? D3D11_BIND_UNORDERED_ACCESS : 0u);
 
 		pDevice->CreateTexture2D(&desc, nullptr, &buffer);
 		OKAY_ASSERT(buffer, "Failed creating RenderTexture");

@@ -7,7 +7,7 @@
 
 Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
 	:window(width, height, L"Okay Engine", Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH),
-	renderer(window.getRenderTexture(), content)
+	renderer(&window.getRenderTexture(), content)
 {
 	// Make sure DX11 is set up, then set window name after DX11 has found it
 	DX11::getInstance();
