@@ -80,6 +80,13 @@ HWND Window::getHWnd() const
 	return hWnd;
 }
 
+glm::ivec2 Window::getDimensions() const
+{
+	RECT rect{};
+	GetWindowRect(hWnd, &rect);
+	return glm::ivec2(int(rect.right - rect.left), int(rect.bottom - rect.top));
+}
+
 void Window::update()
 {
 	Okay::Input::update();

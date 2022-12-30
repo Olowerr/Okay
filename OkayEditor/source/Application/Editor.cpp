@@ -54,8 +54,8 @@ void Editor::run()
 		// New frame
 		newFrame();
 
-		update();
 		// Update
+		update();
 		scene.update();
 
 		tra.rotation.y += Time::getDT();
@@ -73,21 +73,6 @@ void Editor::run()
 			printf("N RELEASED\n");
 		if (Input::isKeyPressed(Keys::Z))
 			printf("Z PRESSED\n");
-
-		static Window* window = nullptr;
-		if (Input::isKeyPressed(Keys::ONE))
-		{
-			window = new Window(300, 300, L"New window", RenderTexture::RENDER, true);
-			window->clear(glm::vec4(1.f, 0.f, 0.f, 0.f));
-			window->present();
-			printf("One\n");
-		}
-		if (Input::isKeyPressed(Keys::TWO))
-		{
-			delete window;
-			printf("Two\n");
-		}
-
 
 		// Submit & render
 		scene.submit();

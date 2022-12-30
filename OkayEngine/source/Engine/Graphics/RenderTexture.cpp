@@ -103,6 +103,13 @@ namespace Okay
 
 	}
 
+	glm::ivec2 RenderTexture::getDimensions() const
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		buffer->GetDesc(&desc);
+		return glm::ivec2((int)desc.Width, (int)desc.Height);
+	}
+
 	void RenderTexture::readFlgs(uint32_t flags)
 	{
 		ID3D11Device* pDevice = DX11::getInstance().getDevice();

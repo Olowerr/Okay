@@ -54,18 +54,13 @@ namespace Okay
 		//
 		//numPointLights = 0;
 
-
-
-		// Temp ---
-
+		const glm::ivec2 dims = target.getDimensions();
 		viewport.TopLeftX = 0.f;
 		viewport.TopLeftY = 0.f;
-		viewport.Width = 1600.f;
-		viewport.Height = 900.f;
+		viewport.Width = (float)dims.x;
+		viewport.Height = (float)dims.y; 
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
-
-		// --- Temp
 
 
 		bindNecessities();

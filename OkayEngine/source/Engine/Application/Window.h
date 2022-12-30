@@ -23,6 +23,8 @@ public:
 	inline void clear(const glm::vec4& colour);
 	inline void present();
 
+	glm::ivec2 getDimensions() const;
+
 	void show();
 	void close();
 	inline bool isOpen() const;

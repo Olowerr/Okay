@@ -46,6 +46,8 @@ namespace Okay
 		void clear(float* colour);
 		void clear(const glm::vec4& colour);
 
+		glm::ivec2 getDimensions() const;
+
 		inline ID3D11Texture2D* getBuffer();
 
 		inline ID3D11RenderTargetView* getRTV();
