@@ -16,7 +16,7 @@ namespace Okay
 	class Renderer
 	{
 	public:
-		Renderer(const RenderTexture* target, ContentBrowser& content);
+		Renderer(const RenderTexture* target, const ContentBrowser& content);
 		~Renderer();
 		Renderer(const Renderer&) = delete;
 		Renderer(Renderer&&) = delete;
@@ -35,7 +35,7 @@ namespace Okay
 
 	private:
 		const RenderTexture* pRenderTarget;
-		ContentBrowser& content;
+		const ContentBrowser& content;
 		ID3D11DeviceContext* pDevContext;
 
 		struct RenderMesh

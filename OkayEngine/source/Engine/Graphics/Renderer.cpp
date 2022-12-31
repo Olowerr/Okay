@@ -14,7 +14,7 @@
 
 namespace Okay
 {
-	Renderer::Renderer(const RenderTexture* pRenderTarget, ContentBrowser& content)
+	Renderer::Renderer(const RenderTexture* pRenderTarget, const ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
 		defaultPixelShader("PhongPS.cso") ,content(content), pRenderTarget(pRenderTarget)
 	{
@@ -179,7 +179,7 @@ namespace Okay
 			// Temp - make more robust system (Update only if entity has script?) // No.. can miss entities
 			const_cast<Transform&>(cTransform).calculateMatrix();
 
-			Material& material = content.getMaterial(cMesh.materialIdx);
+			const Material& material = content.getMaterial(cMesh.materialIdx);
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
 			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
