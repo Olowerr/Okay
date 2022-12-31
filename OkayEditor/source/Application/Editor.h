@@ -18,6 +18,13 @@ private:
 	Okay::RenderTexture gameTexture;
 
 	void newFrame();
-	void endFrame();
 	void update();
+	void endFrame();
+
+	
+	void displayEntities();
+	Okay::Entity selectedEntity;
+
+	void displayInspector();
+	void displatContent();
 };

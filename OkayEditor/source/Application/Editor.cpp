@@ -125,4 +125,77 @@ void Editor::update()
 	if (dockSpace)
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
+
+	displayEntities();
+	displayInspector();
+	displatContent();
+}
+
+void Editor::displayEntities()
+{
+	static bool open = true;
+	ImGui::Begin("Entities", &open);
+
+	entt::registry& reg = scene.getRegistry();
+
+	if (ImGui::BeginListBox("##EntNoLabel", { ImGui::GetWindowSize().x, -1.f }))
+	{
+		auto entities = reg.view<Okay::Transform>();
+
+		for (auto entity : entities)
+		{
+			auto [transform] = entities.get(entity);
+
+			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == selectedEntity.getID()))
+			{
+				selectedEntity = Okay::Entity(entity, &scene);
+			}
+
+			//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
+			//{
+			//	currentEntity = Entity(entity, Engine::GetActiveScene());
+			//	UpdateSelection(AssetType::ENTITY);
+			//}
+			//
+			//if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+			//{
+			//	currentEntity = Entity(entity, Engine::GetActiveScene());
+			//	UpdateSelection(AssetType::ENTITY);
+			//
+			//	entityMenu = true;
+			//	listMenu = false;
+			//	menuPos = ImGui::GetMousePos();
+			//}
+		}
+
+		//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
+		//{
+		//	listMenu = true;
+		//	menuPos = ImGui::GetMousePos();
+		//}
+
+		ImGui::EndListBox();
+	}
+
+	ImGui::End();
+}
+
+void Editor::displayInspector()
+{
+	static bool open = true;
+	ImGui::Begin("Inspector", &open);
+
+	
+
+	ImGui::End();
+}
+
+void Editor::displatContent()
+{
+	static bool open = true;
+	ImGui::Begin("Content Browser", &open);
+
+
+
+	ImGui::End();
 }
