@@ -62,7 +62,9 @@ namespace Okay
 		entt::entity getID() const { return entityId; }
 		bool isValid() const 
 		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
+			if (!pScene)
+				return false;
+
 			return pScene->getRegistry().valid(entityId);
 		}
 
