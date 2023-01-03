@@ -168,23 +168,25 @@ namespace Okay
 		// Preperation
 		ID3D11ShaderResourceView* textures[3] = {};
 		size_t i = 0;
+		glm::mat4 worldMatrix{};
 
 		// Draw all statis meshes
 		for (i = 0; i < numActiveMeshes; i++)
 		{
 			const MeshComponent& cMesh = *meshesToRender.at(i).pMesh;
 			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
-			const Transform& cTransform = *meshesToRender.at(i).pTransform;
+			Transform& cTransform = const_cast<Transform&>(*meshesToRender.at(i).pTransform);
 
 			// Temp - make more robust system (Update only if entity has script?) // No.. can miss entities
-			const_cast<Transform&>(cTransform).calculateMatrix();
+			cTransform.calculateMatrix();
+			worldMatrix = glm::transpose(cTransform.matrix);
 
 			const Material& material = content.getMaterial(cMesh.materialIdx);
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
 			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
 
-			DX11::updateBuffer(pWorldBuffer, &cTransform.matrix, sizeof(glm::mat4));
+			DX11::updateBuffer(pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
 			DX11::updateBuffer(pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
 
 			
