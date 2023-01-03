@@ -208,6 +208,7 @@ SET ERRORLEVEL=0
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Application\Editor.cpp" />
+    <ClCompile Include="source\Application\EditorDisplayComponents.cpp" />
     <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>

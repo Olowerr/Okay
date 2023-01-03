@@ -10,20 +10,14 @@
 
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), scene(renderer), 
-	gameTexture(160 * 5, 90 * 5, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ)
+	gameTexture(160 * 7, 90 * 7, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ)
 {
 	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/texTest.fbx");
-	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/axis.fbx");
 
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u, 0u);
 	Okay::Transform& tra = entity.getComponent<Okay::Transform>();
 	tra.scale *= 2.f;
-
-	Okay::Entity entity2 = scene.createEntity();
-	entity2.addComponent<Okay::MeshComponent>(1u, 1u);
-	Okay::Transform& tra2 = entity2.getComponent<Okay::Transform>();
-	tra2.position.x = 5.f;
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
@@ -61,7 +55,7 @@ void Editor::run()
 		update();
 		scene.update();
 
-		tra.rotation.y += Time::getDT();
+		//tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
 
@@ -184,9 +178,14 @@ void Editor::displayInspector()
 {
 	static bool open = true;
 	ImGui::Begin("Inspector", &open);
+	ImGui::PushItemWidth(-15.f);
 
-	
+	if (selectedEntity.isValid())
+	{
+		displayComponents(selectedEntity);
+	}
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 }
 

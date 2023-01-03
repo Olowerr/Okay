@@ -26,5 +26,7 @@ private:
 	Okay::Entity selectedEntity;
 
 	void displayInspector();
+	void displayComponents(Okay::Entity entity);
+
 	void displatContent();
 };
