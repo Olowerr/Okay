@@ -122,7 +122,7 @@ void Editor::update()
 
 	displayEntities();
 	displayInspector();
-	displatContent();
+	displayContent();
 }
 
 void Editor::displayEntities()
@@ -189,12 +189,50 @@ void Editor::displayInspector()
 	ImGui::End();
 }
 
-void Editor::displatContent()
+void Editor::displayContent()
 {
 	static bool open = true;
-	ImGui::Begin("Content Browser", &open);
+	ImGui::Begin("Content Browser", &open, ImGuiWindowFlags_MenuBar);
+
+	ImGui::BeginMenuBar();
+	if (ImGui::BeginMenu("Options")) // Change ?
+	{
+		if (ImGui::MenuItem("Import"))
+			printf("hi");
+	
+		if (ImGui::MenuItem("weow"))
+			printf("weow");
+	
+		ImGui::EndMenu();
+	}
+	ImGui::EndMenuBar();
 
 
+	auto dispMesh = [&](Okay::Mesh& mesh)
+	{
+		ImGui::Text("%s	| ", mesh.getName().c_str());
+		ImGui::SameLine();
+	};
+	content.forEachMesh(dispMesh);
+	ImGui::Text("");
+
+
+	auto dispTexture = [&](Okay::Texture& texture)
+	{
+		ImGui::Text("%s	| ", texture.getName().c_str());
+		ImGui::SameLine();
+	};
+	content.forEachTexture(dispTexture);
+	ImGui::Text("");
+
+
+	auto dispMaterial = [&](Okay::Material& material)
+	{
+		ImGui::Text("%s	| ", material.getName().c_str());
+		ImGui::SameLine();
+	};
+	content.forEachMaterial(dispMaterial);
+	ImGui::Text("");
 
 	ImGui::End();
 }

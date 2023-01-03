@@ -28,5 +28,5 @@ private:
 	void displayInspector();
 	void displayComponents(Okay::Entity entity);
 
-	void displatContent();
+	void displayContent();
 };
