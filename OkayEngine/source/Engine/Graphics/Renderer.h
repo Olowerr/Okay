@@ -18,9 +18,6 @@ namespace Okay
 	public:
 		Renderer(const RenderTexture* target, const ContentBrowser& content);
 		~Renderer();
-		Renderer(const Renderer&) = delete;
-		Renderer(Renderer&&) = delete;
-		Renderer& operator=(const Renderer&) = delete;
 		void shutdown();
 
 		void submit(const MeshComponent* pMesh, const Transform* pTransform);

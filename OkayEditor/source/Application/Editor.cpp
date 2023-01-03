@@ -12,7 +12,7 @@ Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), scene(renderer), 
 	gameTexture(160 * 7, 90 * 7, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ)
 {
-	content.importFile("C:/Users/olive/source/repos/Okay/OkayEditor/resources/texTest.fbx");
+	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
 
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u, 0u);
