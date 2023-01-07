@@ -202,6 +202,9 @@ robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
 robocopy $(ProjectDir)resources $(OutDir)resources /s
 robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
+
+xcopy $(PojrectDir)imgui.ini $(OutDir) /y
+
 SET ERRORLEVEL=0
 </Command>
     </PostBuildEvent>
