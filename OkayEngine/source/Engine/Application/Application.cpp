@@ -6,12 +6,10 @@
 #include "imgui/imgui_impl_win32.h"
 
 Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
-	:window(width, height, L"Okay Engine", Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH),
+	:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH),
 	renderer(&window.getRenderTexture(), content)
 {
-	// Make sure DX11 is set up, then set window name after DX11 has found it
-	DX11::getInstance();
-	window.setName(appName);
+
 }
 
 Application::~Application()
@@ -30,9 +28,9 @@ void Application::initImgui()
 
 	ImGui::StyleColorsDark();
 
-	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
+		ImGuiStyle& style = ImGui::GetStyle();
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}

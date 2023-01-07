@@ -36,7 +36,7 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 
 	if (renderTexFlags != ~0u)
 	{
-		createRenderTexture_Internal(renderTexFlags);
+		createRenderTexture(renderTexFlags);
 	}
 }
 
@@ -50,13 +50,13 @@ Window::~Window()
 	DX11_RELEASE(swapChain);
 }
 
-void Window::createRenderTexture(uint32_t flags)
-{
-	createRenderTexture_Internal(flags);
-	RECT rect{};
-	GetWindowRect(hWnd, &rect);
-	renderTexture.create(uint32_t(rect.right - rect.left), uint32_t(rect.bottom - rect.top), flags);
-}
+//void Window::createRenderTexture(uint32_t flags)
+//{
+//	RECT rect{};
+//	GetWindowRect(hWnd, &rect);
+//	renderTexture.create(uint32_t(rect.right - rect.left), uint32_t(rect.bottom - rect.top), flags);
+//	createRenderTexture_Internal(flags);
+//}
 
 void Window::show()
 {
@@ -148,26 +148,20 @@ LRESULT Window::WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void Window::createRenderTexture_Internal(uint32_t flags)
+void Window::createRenderTexture(uint32_t flags)
 {
-	RECT rect{};
-	GetWindowRect(hWnd, &rect);
-
-	const uint32_t width = uint32_t(rect.right - rect.right);
-	const uint32_t height = uint32_t(rect.bottom - rect.bottom);
-
 	DXGI_SWAP_CHAIN_DESC desc{};
 	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	desc.BufferCount = 1;
 	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 
-	desc.BufferDesc.Width = width;
-	desc.BufferDesc.Height = height;
+	desc.BufferDesc.Width = 0u; // 0u defaults to window dimensions
+	desc.BufferDesc.Height = 0u;
 	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	desc.BufferDesc.RefreshRate.Numerator = 0U;
-	desc.BufferDesc.RefreshRate.Denominator = 1U;
+	desc.BufferDesc.RefreshRate.Numerator = 0u;
+	desc.BufferDesc.RefreshRate.Denominator = 1u;
 
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;

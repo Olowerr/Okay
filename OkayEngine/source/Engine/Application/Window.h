@@ -40,7 +40,6 @@ private:
 	HWND hWnd;
 	bool open;
 
-	void createRenderTexture_Internal(uint32_t flags);
 	ID3D11Texture2D* backBuffer;
 	IDXGISwapChain* swapChain;
 	Okay::RenderTexture renderTexture;
