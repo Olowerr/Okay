@@ -45,7 +45,6 @@ void Editor::run()
 	scene.start();
 	Time::start();
 
-	RenderTexture rt;
 	while (window.isOpen())
 	{
 		// New frame
@@ -198,7 +197,7 @@ void Editor::displayContent()
 	if (ImGui::BeginMenu("Options")) // Change ?
 	{
 		if (ImGui::MenuItem("Import"))
-			printf("hi");
+			openFileExplorer();
 	
 		if (ImGui::MenuItem("weow"))
 			printf("weow");
@@ -235,4 +234,28 @@ void Editor::displayContent()
 	ImGui::Text("");
 
 	ImGui::End();
+}
+
+void Editor::openFileExplorer()
+{
+	const size_t MaxFileLength = 512;
+	OPENFILENAME ofn{};
+
+	wchar_t fileName[MaxFileLength]{};
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = window.getHWnd();
+	ofn.lpstrFile = fileName;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = MaxFileLength;
+	ofn.lpstrFilter = L"All Files\0*.*";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_NOCHANGEDIR;
+
+	if (!GetOpenFileName(&ofn))
+		return;
+
+	char text[MaxFileLength]{};
+	wcstombs_s(nullptr, text, MaxFileLength, ofn.lpstrFile, MaxFileLength);
+	content.importFile(text);
 }

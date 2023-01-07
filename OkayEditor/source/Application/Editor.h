@@ -29,4 +29,5 @@ private:
 	void displayComponents(Okay::Entity entity);
 
 	void displayContent();
+	void openFileExplorer();
 };
