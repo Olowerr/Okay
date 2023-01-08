@@ -4,21 +4,18 @@
 DX11::DX11()
 	:pDevice(), pDeviceContext()
 {
-	const uint32_t Width = 0u;
-	const uint32_t Height = 0u;
-
 	HRESULT hr{};
 	
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	uint32_t flags = 0;
-#ifndef DIST
+#ifndef DIST	
 	flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 	// Device and DeviceContext
 	hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
 		&featureLevel, 1u, D3D11_SDK_VERSION, &pDevice, nullptr, &pDeviceContext);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating instantiating DX11");
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed initializing DirectX 11");
 }
 
 DX11::~DX11()

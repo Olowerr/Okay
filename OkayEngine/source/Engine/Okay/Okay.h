@@ -27,3 +27,8 @@ if (!(condition))\
 #define CHECK_BIT(X, pos) ((X) & 1<<(pos))
 
 #define VEC2_GLM_TO_IMGUI(vec) ImVec2((float)vec.x, (float)vec.y)
+
+namespace Okay
+{
+	constexpr uint32_t INVALID_UINT = ~0u;
+}
