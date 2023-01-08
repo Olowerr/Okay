@@ -144,11 +144,10 @@ namespace Okay
 
 	void Renderer::render(const Entity& cameraEntity)
 	{
-		if (numPointLights)
-		{
-			DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
-			DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
-		}
+		
+		DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
+		DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
+		
 		
 		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
