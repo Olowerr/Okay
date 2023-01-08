@@ -13,8 +13,8 @@
 if (!(condition))\
 {\
 	const std::wstring message(L"(" L#condition L") was false. Location: " __FILE__ ", Line: ");\
-	MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_OK);\
-	exit(1);\
+	if (MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_RETRYCANCEL) == IDCANCEL)\
+		exit(1);\
 }0
 
 #define PRINT_VEC3_WNAME(vec) printf(#vec " - (%.3f, %.3f, %.3f)\n", vec.x, vec.y, vec.z);

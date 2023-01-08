@@ -15,7 +15,7 @@ Editor::Editor(std::string_view startScene)
 {
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
 	content.importFile("resources/Textures/X-icon.png");
-	XIconID = content.getNumTextures() - 1; // change to getTexture() when more icons come
+	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u, 0u);
