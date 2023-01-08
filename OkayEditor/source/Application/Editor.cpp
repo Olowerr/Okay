@@ -10,9 +10,12 @@
 
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), scene(renderer), 
-	gameTexture(160 * 7, 90 * 7, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ)
+	gameTexture(160 * 7, 90 * 7, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
+	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
 {
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
+	content.importFile("resources/Textures/X-icon.png");
+	XIconID = content.getNumTextures() - 1; // change to getTexture() when more icons come
 
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u, 0u);
@@ -23,7 +26,7 @@ Editor::Editor(std::string_view startScene)
 	camera.addComponent<Okay::Camera>();
 	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
 	scene.setMainCamera(camera);
-
+	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
 }
 
@@ -131,20 +134,26 @@ void Editor::displayEntities()
 
 	entt::registry& reg = scene.getRegistry();
 
-	if (ImGui::BeginListBox("##EntNoLabel", { ImGui::GetWindowSize().x, -1.f }))
+	if (!ImGui::BeginListBox("##EntNoLabel", { ImGui::GetWindowSize().x, -1.f }))
 	{
-		auto entities = reg.view<Okay::Transform>();
+		ImGui::EndListBox();
+		ImGui::End();
+		return;
+	}
 
-		for (auto entity : entities)
+	auto entities = reg.view<Okay::Transform>();
+
+	for (auto entity : entities)
+	{
+		//auto [transform] = entities.get(entity);
+
+		if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == (entt::entity)selectionID && selectionType == SelectionType::Entity))
 		{
-			auto [transform] = entities.get(entity);
+			selectionID = (uint32_t)entity;
+			selectionType = SelectionType::Entity;
+		}
 
-			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == selectedEntity.getID()))
-			{
-				selectedEntity = Okay::Entity(entity, &scene);
-			}
-
-			//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
+		//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
 			//{
 			//	currentEntity = Entity(entity, Engine::GetActiveScene());
 			//	UpdateSelection(AssetType::ENTITY);
@@ -159,17 +168,15 @@ void Editor::displayEntities()
 			//	listMenu = false;
 			//	menuPos = ImGui::GetMousePos();
 			//}
-		}
-
-		//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
-		//{
-		//	listMenu = true;
-		//	menuPos = ImGui::GetMousePos();
-		//}
-
-		ImGui::EndListBox();
 	}
 
+	//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
+	//{
+	//	listMenu = true;
+	//	menuPos = ImGui::GetMousePos();
+	//}
+
+	ImGui::EndListBox();
 	ImGui::End();
 }
 
@@ -179,9 +186,28 @@ void Editor::displayInspector()
 	ImGui::Begin("Inspector", &open);
 	ImGui::PushItemWidth(-15.f);
 
-	if (selectedEntity.isValid())
+	switch (selectionType)
 	{
-		displayComponents(selectedEntity);
+	case Editor::SelectionType::None:
+		break;
+	case Editor::SelectionType::Entity:
+	{
+		Okay::Entity entity((entt::entity)selectionID, &scene);
+		displayComponents(entity);
+		addComponents(entity);
+	}
+		break;
+	case Editor::SelectionType::Mesh:
+		displayMesh(selectionID);
+		break;
+	case Editor::SelectionType::Material:
+		displayMaterial(selectionID);
+		break;
+	case Editor::SelectionType::Texture:
+		displayTexture(selectionID);
+		break;
+	default:
+		break;
 	}
 
 	ImGui::PopItemWidth();
@@ -194,7 +220,7 @@ void Editor::displayContent()
 	ImGui::Begin("Content Browser", &open, ImGuiWindowFlags_MenuBar);
 
 	ImGui::BeginMenuBar();
-	if (ImGui::BeginMenu("Options")) // Change ?
+	if (ImGui::BeginMenu("Options"))
 	{
 		if (ImGui::MenuItem("Import"))
 			openFileExplorer();
@@ -206,32 +232,7 @@ void Editor::displayContent()
 	}
 	ImGui::EndMenuBar();
 
-
-	auto dispMesh = [&](Okay::Mesh& mesh)
-	{
-		ImGui::Text("%s	| ", mesh.getName().c_str());
-		ImGui::SameLine();
-	};
-	content.forEachMesh(dispMesh);
-	ImGui::Text("");
-
-
-	auto dispTexture = [&](Okay::Texture& texture)
-	{
-		ImGui::Text("%s	| ", texture.getName().c_str());
-		ImGui::SameLine();
-	};
-	content.forEachTexture(dispTexture);
-	ImGui::Text("");
-
-
-	auto dispMaterial = [&](Okay::Material& material)
-	{
-		ImGui::Text("%s	| ", material.getName().c_str());
-		ImGui::SameLine();
-	};
-	content.forEachMaterial(dispMaterial);
-	ImGui::Text("");
+	displayAssetList();
 
 	ImGui::End();
 }
@@ -242,7 +243,6 @@ void Editor::openFileExplorer()
 	OPENFILENAME ofn{};
 
 	wchar_t fileName[MaxFileLength]{};
-
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = window.getHWnd();
 	ofn.lpstrFile = fileName;

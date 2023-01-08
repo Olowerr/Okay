@@ -4,6 +4,7 @@
 #include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
 
+
 class Editor : public Application
 {
 public:
@@ -21,13 +22,22 @@ private:
 	void update();
 	void endFrame();
 
-	
+	enum struct SelectionType { None, Entity, Mesh, Texture, Material};
+	SelectionType selectionType;
+	uint32_t selectionID;
+
 	void displayEntities();
-	Okay::Entity selectedEntity;
 
 	void displayInspector();
+	void addComponents(Okay::Entity entity);
 	void displayComponents(Okay::Entity entity);
+	uint32_t XIconID;
+
+	void displayMesh(uint32_t index);
+	void displayTexture(uint32_t index);
+	void displayMaterial(uint32_t index);
 
 	void displayContent();
+	void displayAssetList();
 	void openFileExplorer();
 };

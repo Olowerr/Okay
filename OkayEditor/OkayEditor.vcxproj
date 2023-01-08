@@ -145,8 +145,10 @@ robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
 robocopy $(ProjectDir)resources $(OutDir)resources /s
 robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
-SET ERRORLEVEL=0
-</Command>
+
+xcopy $(PojrectDir)imgui.ini $(OutDir) /y
+
+SET ERRORLEVEL=0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -174,8 +176,10 @@ robocopy $(SolutionDir)OkayEngine\deps\lib\dll $(OutDir) /s
 
 robocopy $(ProjectDir)resources $(OutDir)resources /s
 robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform)\OkayEngine\engine_resources /s
-SET ERRORLEVEL=0
-</Command>
+
+xcopy $(PojrectDir)imgui.ini $(OutDir) /y
+
+SET ERRORLEVEL=0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -205,17 +209,17 @@ robocopy $(SolutionDir)OkayEngine\engine_resources $(ProjectDir)build\$(Platform
 
 xcopy $(PojrectDir)imgui.ini $(OutDir) /y
 
-SET ERRORLEVEL=0
-</Command>
+SET ERRORLEVEL=0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Application\Editor.cpp" />
-    <ClCompile Include="source\Application\EditorDisplayComponents.cpp" />
+    <ClCompile Include="source\Application\EditorDisplay.cpp" />
     <ClCompile Include="source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application\Editor.h" />
+    <ClInclude Include="source\Application\EditorHelp.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OkayEngine\OkayEngine.vcxproj">

@@ -179,6 +179,9 @@
     <ClCompile Include="source\Engine\Graphics\RenderTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="engine_resources\shaders\MeshVS.hlsl" />
