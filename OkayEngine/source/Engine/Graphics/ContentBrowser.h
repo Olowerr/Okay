@@ -13,6 +13,9 @@ namespace Okay
 	class ContentBrowser
 	{
 	public:
+		static bool canLoadTexture(const char* path);
+
+
 		ContentBrowser();
 		~ContentBrowser();
 
@@ -21,28 +24,33 @@ namespace Okay
 		template<typename Func, typename... Args>
 		void forEachMesh(const Func& function, Args&&... args);
 
+		inline size_t getNumMeshes() const;
+		inline const std::vector<Mesh>& getMeshes() const;
 		inline Mesh& getMesh(uint32_t index);
 		inline const Mesh& getMesh(uint32_t index) const;
-		inline size_t getNumMeshes() const;
+		Mesh& getMesh(std::string_view meshName);
+		const Mesh& getMesh(std::string_view meshName) const;
 
 
 		template<typename Func, typename... Args>
 		void forEachTexture(const Func& function, Args&&... args);
 
+		inline size_t getNumTextures() const;
+		inline const std::vector<Texture>& getTextures() const;
 		inline Texture& getTexture(uint32_t index);
 		inline const Texture& getTexture(uint32_t index) const;
-		inline size_t getNumTextures() const;
-
+		Texture& getTexture(std::string_view textureName);
+		const Texture& getTexture(std::string_view textureName) const;
 
 		template<typename Func, typename... Args>
 		void forEachMaterial(const Func& function, Args&&... args);
 
+		inline size_t getNumMaterials() const;
+		inline const std::vector<Material>& getMaterials() const;
 		inline Material& getMaterial(uint32_t index);
 		inline const Material& getMaterial(uint32_t index) const;
-		inline size_t getNumMaterials() const;
-
-
-		static bool canLoadTexture(const char* path);
+		Material& getMaterial(std::string_view materialName);
+		const Material& getMaterial(std::string_view materialName) const;
 
 	private:
 
@@ -92,6 +100,11 @@ namespace Okay
 		return meshes.size();
 	}
 
+	inline const std::vector<Mesh>& ContentBrowser::getMeshes() const
+	{
+		return meshes;
+	}
+
 	inline Texture& ContentBrowser::getTexture(uint32_t index)
 	{
 		OKAY_ASSERT(index < (uint32_t)textures.size(), "Invalid index");
@@ -107,6 +120,11 @@ namespace Okay
 	inline size_t ContentBrowser::getNumTextures() const
 	{
 		return textures.size();
+	}
+
+	inline const std::vector<Texture>& ContentBrowser::getTextures() const
+	{
+		return textures;
 	}
 	
 	inline Material& ContentBrowser::getMaterial(uint32_t index)
@@ -124,6 +142,11 @@ namespace Okay
 	inline size_t ContentBrowser::getNumMaterials() const
 	{
 		return materials.size();
+	}
+
+	inline const std::vector<Material>& ContentBrowser::getMaterials() const
+	{
+		return materials;
 	}
 
 
