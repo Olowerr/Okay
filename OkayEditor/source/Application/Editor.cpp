@@ -134,6 +134,22 @@ void Editor::displayEntities()
 
 	entt::registry& reg = scene.getRegistry();
 
+	if (ImGui::Button("Create"))
+	{
+		selectionID = (uint32_t)scene.createEntity().getID();
+		selectionType = SelectionType::Entity;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Remove"))
+	{
+		if (selectionType == SelectionType::Entity)
+		{
+			scene.destroyEntity(entt::entity(selectionID));
+			selectionType = SelectionType::None;
+			selectionID = Okay::INVALID_UINT;
+		}
+	}
+
 	if (!ImGui::BeginListBox("##EntNoLabel", { ImGui::GetWindowSize().x, -1.f }))
 	{
 		ImGui::EndListBox();
@@ -145,8 +161,6 @@ void Editor::displayEntities()
 
 	for (auto entity : entities)
 	{
-		//auto [transform] = entities.get(entity);
-
 		if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == (entt::entity)selectionID && selectionType == SelectionType::Entity))
 		{
 			selectionID = (uint32_t)entity;

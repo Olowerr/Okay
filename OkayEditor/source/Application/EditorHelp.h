@@ -31,10 +31,15 @@ if (entity.hasComponent<Okay::comp>())\
 
 // Assets
 
-#define IMGUI_DISPLAY_ASSET_START(vector, assetType, label)\
+#define IMGUI_DISPLAY_ASSET_START(vector, assetType, label, creB, rmvB)\
 if (ImGui::BeginListBox("##NL" label, size))\
 {\
 	ImGui::Text(label ": ");\
+	ImGui::SameLine();\
+	bool create = false;\
+	if (creB) { ImGui::SameLine(); create = ImGui::Button("Create##" label); }\
+	bool remove = false;\
+	if (rmvB) { ImGui::SameLine(); remove = ImGui::Button("Remove##" label); }\
 	ImGui::Separator();\
 	for (size_t i = 0; i < vector.size(); i++)\
 	{\

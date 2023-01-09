@@ -28,6 +28,11 @@ namespace Okay
     {
         registry.destroy(entity);
     }
+
+    void Scene::destroyEntity(const entt::entity& entity)
+    {
+        registry.destroy(entity);
+    }
     
     Entity Okay::Scene::getMainCamera()
     {

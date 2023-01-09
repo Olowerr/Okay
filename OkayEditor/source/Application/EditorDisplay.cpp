@@ -86,15 +86,15 @@ void Editor::displayAssetList()
 	using namespace Okay;
 	static const ImVec2 size(250.f, 0.f);
 
-	IMGUI_DISPLAY_ASSET_START(content.getMeshes(), Mesh, "Meshes");
+	IMGUI_DISPLAY_ASSET_START(content.getMeshes(), Mesh, "Meshes", false, true);
 	IMGUI_DISPLAY_ASSET_END();
 
 
-	IMGUI_DISPLAY_ASSET_START(content.getTextures(), Texture, "Textures");
+	IMGUI_DISPLAY_ASSET_START(content.getTextures(), Texture, "Textures", false, true);
 	IMGUI_DISPLAY_ASSET_END();
 
 
-	IMGUI_DISPLAY_ASSET_START(content.getMaterials(), Material, "Materials");
+	IMGUI_DISPLAY_ASSET_START(content.getMaterials(), Material, "Materials", true, true);
 	IMGUI_DISPLAY_ASSET_END();
 }
 

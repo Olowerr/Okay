@@ -15,6 +15,7 @@ namespace Okay
 
 		Entity createEntity();
 		void destroyEntity(const Entity& entity);
+		void destroyEntity(const entt::entity& entity);
 
 		void setMainCamera(const Entity& entity);
 		Entity getMainCamera();
