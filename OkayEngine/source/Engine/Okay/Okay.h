@@ -22,11 +22,16 @@ if (!(condition))\
 
 #endif // DIST
 
-#define DX11_RELEASE(X) if (X) { X->Release(); X = nullptr; }
-#define OKAY_VERIFY(X) if (!X) return false;
-#define CHECK_BIT(X, pos) ((X) & 1<<(pos))
 
-#define VEC2_GLM_TO_IMGUI(vec) ImVec2((float)vec.x, (float)vec.y)
+#define DX11_RELEASE(X)		 if (X) { X->Release(); X = nullptr; }
+#define OKAY_DELETE(X)		 if (X) { delete X;		X = nullptr; }
+#define OKAY_DELETE_ARRAY(X) if (X) { delete[]X;	X = nullptr; }
+
+#define OKAY_VERIFY(X)		if (!X) return false;
+#define CHECK_BIT(X, pos)	((X) & 1<<(pos))
+
+#define VEC2_GLM_TO_IMGUI(vec)	ImVec2((float)vec.x, (float)vec.y)
+#define UNORM_TO_UCHAR(value)	unsigned char((value) * UCHAR_MAX)
 
 namespace Okay
 {

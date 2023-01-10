@@ -95,7 +95,7 @@ HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
-bool DX11::updateBuffer(ID3D11Buffer* pBuffer, const void* pData, UINT byteSize)
+bool DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize)
 {
 	D3D11_MAPPED_SUBRESOURCE sub;
 	OKAY_VERIFY(SUCCEEDED(getInstance().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)));

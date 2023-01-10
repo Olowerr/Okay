@@ -1,8 +1,9 @@
 #include "Editor.h"
 
-#include "Engine/Components/Camera.h"
-#include "Engine/Components/Transform.h"
-#include "Engine/Components/MeshComponent.h"
+#include <Engine/Components/Camera.h>
+#include <Engine/Components/Transform.h>
+#include <Engine/Components/MeshComponent.h>
+
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx11.h"
@@ -28,11 +29,16 @@ Editor::Editor(std::string_view startScene)
 	scene.setMainCamera(camera);
 	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
+
+	testTex = new Okay::RenderTexture(500u, 500u, Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ);
+	noiser = new Okay::PerlinNoise2D(testTex->getBuffer());
+	noiser->randomizeSeed();
 }
 
 Editor::~Editor()
 {
-	
+	delete testTex;
+	delete noiser;
 }
    
 void Editor::run()
@@ -70,6 +76,7 @@ void Editor::run()
 
 		// Submit & render
 		scene.submit();
+		DX11::getInstance().getDeviceContext()->VSSetShaderResources(5, 1, &noiser->seedBufferSRV);
 		renderer.render(scene.getMainCamera());
 
 		// End frame
@@ -125,6 +132,11 @@ void Editor::update()
 	displayEntities();
 	displayInspector();
 	displayContent();
+
+
+	ImGui::Begin("result", &dockSpace);
+	ImGui::Image(noiser->seedBufferSRV, ImVec2(500.f, 500.f));
+	ImGui::End();
 }
 
 void Editor::displayEntities()

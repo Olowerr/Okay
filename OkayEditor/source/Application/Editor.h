@@ -4,6 +4,7 @@
 #include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
 
+#include <Engine/Graphics/Noise/PerlinNoise.h>
 
 class Editor : public Application
 {
@@ -40,4 +41,7 @@ private:
 	void displayContent();
 	void displayAssetList();
 	void openFileExplorer();
+
+	Okay::RenderTexture* testTex;
+	Okay::PerlinNoise2D* noiser;
 };
