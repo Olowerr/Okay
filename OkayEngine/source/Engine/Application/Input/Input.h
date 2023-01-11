@@ -28,6 +28,6 @@ namespace Okay
 
 	inline void Input::update() { memcpy(Input::prevKeys, Input::keys, size_t(Keys::NUM_KEYS)); }
 
-	inline void Input::setKeyDown(Keys key) { keys[key] = true; }
-	inline void Input::setKeyUp(Keys key)   { keys[key] = false; }
+	inline void Input::setKeyDown(Keys key) { if (key >= Keys::NUM_KEYS) return; keys[key] = true; }
+	inline void Input::setKeyUp(Keys key)   { if (key >= Keys::NUM_KEYS) return; keys[key] = false; }
 }

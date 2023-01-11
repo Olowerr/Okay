@@ -47,7 +47,7 @@ if (ImGui::BeginListBox("##NL" label, size))\
 		{\
 			selectionID = (uint32_t)i;\
 			selectionType = SelectionType::assetType;\
-		}
+		}\
+	}
 
-
-#define IMGUI_DISPLAY_ASSET_END() } ImGui::EndListBox(); } ImGui::SameLine()
+#define IMGUI_DISPLAY_ASSET_END() ImGui::EndListBox(); } ImGui::SameLine()

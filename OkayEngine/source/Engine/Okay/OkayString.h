@@ -72,6 +72,11 @@ namespace Okay
 			memcpy(cStr, str.data(), length);
 		}
 
+		void clear()
+		{
+			memset(cStr, '\0', LENGTH);
+		}
+
 		size_t length() const
 		{
 			return strlen(cStr);

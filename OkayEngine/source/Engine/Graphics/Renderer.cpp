@@ -287,7 +287,7 @@ namespace Okay
 			{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
-		result = Shader::readShader("MeshVS.cso", shaderData);
+		result = Shader::readShader("MeshVS", shaderData);
 		OKAY_ASSERT(result, "Failed reading MeshVS.cso");
 
 		hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS);

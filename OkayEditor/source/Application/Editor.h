@@ -22,7 +22,7 @@ private:
 	void update();
 	void endFrame();
 
-	enum struct SelectionType { None, Entity, Mesh, Texture, Material};
+	enum struct SelectionType { None, Entity, Mesh, Texture, Material, Shader};
 	SelectionType selectionType;
 	uint32_t selectionID;
 
@@ -36,6 +36,7 @@ private:
 	void displayMesh(uint32_t index);
 	void displayTexture(uint32_t index);
 	void displayMaterial(uint32_t index);
+	void displayShader(uint32_t index);
 
 	void displayContent();
 	void displayAssetList();

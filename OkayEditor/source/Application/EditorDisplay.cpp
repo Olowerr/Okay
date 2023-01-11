@@ -4,6 +4,7 @@
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
+#include <Engine/Okay/OkayString.h>
 
 #include <imgui/imgui.h>
 
@@ -90,11 +91,20 @@ void Editor::displayAssetList()
 	IMGUI_DISPLAY_ASSET_END();
 
 
-	IMGUI_DISPLAY_ASSET_START(content.getTextures(), Texture, "Textures", false, true);
+	IMGUI_DISPLAY_ASSET_START(content.getTextures(), Texture, "Textures", true, true);
 	IMGUI_DISPLAY_ASSET_END();
 
 
 	IMGUI_DISPLAY_ASSET_START(content.getMaterials(), Material, "Materials", true, true);
+	IMGUI_DISPLAY_ASSET_END();
+
+	IMGUI_DISPLAY_ASSET_START(content.getShaders(), Shader, "Shaders", true, true);
+	if (create)
+	{
+		selectionID = (uint32_t)content.getShaders().size();
+		selectionType = SelectionType::Shader;
+		content.addShader("New shader");
+	}
 	IMGUI_DISPLAY_ASSET_END();
 }
 
@@ -192,4 +202,25 @@ void Editor::displayMaterial(uint32_t index)
 	ImGui::DragFloat2("##NoTileLabel", &mat.getGPUData().uvTiling.x, 0.002f);
 
 	ImGui::Separator();
+}
+
+void Editor::displayShader(uint32_t index)
+{
+	ImGui::Text("Shader");
+	ImGui::Separator();
+
+	Okay::Shader& shader = content.getShader(index);
+
+	ImGui::Text(shader.getName().c_str());
+
+	/*static Okay::String inputBufferPS{};
+	ImGui::Text("Pixel Shader: "); ImGui::SameLine();
+	if (ImGui::InputTextWithHint("##NLps", shader.getPSName().c_str(), inputBufferPS, Okay::String::LENGTH, ImGuiInputTextFlags_EnterReturnsTrue))
+	{
+		shader.setPixelShader(inputBufferPS.cStr);
+		inputBufferPS.clear();
+	}*/
+
+	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
+
 }

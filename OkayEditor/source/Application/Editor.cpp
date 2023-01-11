@@ -69,13 +69,6 @@ void Editor::run()
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
 
-		if (Input::isKeyDown(Keys::A))
-			printf("A DOWN\n");
-		if (Input::isKeyReleased(Keys::N))
-			printf("N RELEASED\n");
-		if (Input::isKeyPressed(Keys::Z))
-			printf("Z PRESSED\n");
-
 		// Submit & render
 		scene.submit();
 		renderer.render(scene.getMainCamera());
@@ -163,9 +156,8 @@ void Editor::update()
 		noiser->randomizeSeed();
 		noiser->generate(numOct, numSec, bias);
 	}
-	ImGui::SameLine();
-	ImGui::DragFloat("tiling", &tiling, 0.0f, 0.01f, 100.f, "%.4f");
-	ImGui::DragFloat2("offset", offsets, 0.0f, 0.01f, 100.f, "%.4f");
+	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.00f, 100.f, "%.4f");
+	ImGui::DragFloat2("offset", offsets, 0.01f, 0.00f, 100.f, "%.4f");
 		
 	ImGui::Image(testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
@@ -255,14 +247,17 @@ void Editor::displayInspector()
 		addComponents(entity);
 	}
 		break;
-	case Editor::SelectionType::Mesh:
+	case SelectionType::Mesh:
 		displayMesh(selectionID);
 		break;
-	case Editor::SelectionType::Material:
+	case SelectionType::Material:
 		displayMaterial(selectionID);
 		break;
-	case Editor::SelectionType::Texture:
+	case SelectionType::Texture:
 		displayTexture(selectionID);
+		break;
+	case SelectionType::Shader:
+		displayShader(selectionID);
 		break;
 	default:
 		break;

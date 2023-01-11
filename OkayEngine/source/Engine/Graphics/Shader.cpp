@@ -9,7 +9,7 @@ namespace Okay
 
 	bool Shader::readShader(std::string_view shaderName, std::string& output)
 	{
-		std::ifstream reader(ShaderPath + shaderName.data(), std::ios::binary);
+		std::ifstream reader(ShaderPath + shaderName.data() + ".cso", std::ios::binary);
 		OKAY_VERIFY(reader);
 
 		reader.seekg(0, std::ios::end);
@@ -21,15 +21,29 @@ namespace Okay
 		return true;
 	}
 
-	Shader::Shader(std::string_view path)
+	Shader::Shader()
+		:name("Default"), pPS(nullptr)
 	{
-		std::string shaderData;
-		bool foundShader = Shader::readShader(path, shaderData);
-		OKAY_ASSERT(foundShader, "Failed to read shader");
-	
-		DX11& dx11 = DX11::getInstance();
-		HRESULT hr = dx11.getDevice()->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pPixelShader);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating pixel shader");
+		setPixelShader("PhongPS");
+	}
+
+	Shader::Shader(std::string_view name)
+		:name(name), pPS(nullptr)
+	{
+		setPixelShader("PhongPS");
+	}
+
+	Shader::Shader(std::string_view psPath, std::string_view name)
+		:name(name), pPS(nullptr)
+	{
+		setPixelShader(psPath);
+	}
+
+	Shader::Shader(Shader&& other) noexcept
+		:name(std::move(other.name))
+	{
+		pPS = other.pPS;
+		other.pPS = nullptr;
 	}
 
 	Shader::~Shader()
@@ -39,18 +53,35 @@ namespace Okay
 
 	void Shader::shutdown()
 	{
-		DX11_RELEASE(pPixelShader);
+		DX11_RELEASE(pPS);
 	}
 
-	void Shader::bind()
+	void Shader::bind() const
 	{
 		ID3D11DeviceContext* pDevCon = DX11::getInstance().getDeviceContext();
-		pDevCon->PSSetShader(pPixelShader, nullptr, 0);
+
+		pDevCon->PSSetShader(pPS, nullptr, 0);
 	}
 
-	//void Shader::apply()
-	//{
-	//	// Post process for derived Shader Models
-	//}
+	void Shader::setPixelShader(std::string_view path)
+	{
+		DX11_RELEASE(pPS);
+
+		std::string shaderData;
+
+		bool foundShader = Shader::readShader(path, shaderData);
+		OKAY_ASSERT(foundShader, "Failed to read shader");
+
+		HRESULT hr = DX11::getInstance().getDevice()->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pPS);
+		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating pixel shader");
+
+
+		size_t pos1 = path.find_last_of('/');
+		pos1 = pos1 == std::string_view::npos ? path.find_last_of('\\') : pos1;
+		pos1 = pos1 == std::string_view::npos ? 0ull : pos1;
+
+		psName = path.substr(pos1);
+	}
+
 }
 

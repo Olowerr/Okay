@@ -11,16 +11,43 @@ namespace Okay
 		static const std::string ShaderPath;
 		static bool readShader(std::string_view shaderName, std::string& output);
 
-		Shader(std::string_view path);
+		Shader();
+		Shader(std::string_view name);
+		Shader(std::string_view psPath, std::string_view name);
+		Shader(Shader&& other) noexcept;
 		~Shader();
 		void shutdown();
 
-		void bind();
-		//void apply();
+		inline const std::string& getName() const;
+		inline void setName(std::string_view name);
 
-	protected:
-		ID3D11PixelShader* pPixelShader;
+		void setPixelShader(std::string_view path);
+		inline const std::string& getPSName() const;
+		
+		void bind() const;
+
+	private:
+		std::string name;
+
+		std::string psName;
+		ID3D11PixelShader* pPS;
+
 	};
+
+	const std::string& Okay::Shader::getName() const
+	{
+		return name;
+	}
+
+	inline void Shader::setName(std::string_view name)
+	{
+		this->name = name;
+	}
+
+	inline const std::string& Shader::getPSName() const
+	{
+		return psName;
+	}
 
 }
 

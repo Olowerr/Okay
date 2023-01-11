@@ -7,6 +7,7 @@
 #include "Assets/Importing/OkayImporter.h"
 #include "Assets/Texture.h"
 #include "Assets/Material.h"
+#include "Shader.h"
 
 namespace Okay
 {
@@ -42,6 +43,7 @@ namespace Okay
 		Texture& getTexture(std::string_view textureName);
 		const Texture& getTexture(std::string_view textureName) const;
 
+
 		template<typename Func, typename... Args>
 		void forEachMaterial(const Func& function, Args&&... args);
 
@@ -52,11 +54,18 @@ namespace Okay
 		Material& getMaterial(std::string_view materialName);
 		const Material& getMaterial(std::string_view materialName) const;
 
+		template<typename... Args>
+		void addShader(Args&&... args);
+		inline const std::vector<Shader>& getShaders() const;
+		inline const Shader& getShader(uint32_t index) const;
+		inline Shader& getShader(uint32_t index);
+
 	private:
 
 		std::vector<Mesh> meshes;
 		std::vector<Texture> textures;
 		std::vector<Material> materials;
+		std::vector<Shader> shaders;
 
 		bool loadMesh(std::string_view path);
 		bool loadTexture(std::string_view path);
@@ -81,6 +90,12 @@ namespace Okay
 	{
 		for (size_t i = 0; i < materials.size(); i++)
 			function(materials[i], args...);
+	}
+
+	template<typename ...Args>
+	inline void ContentBrowser::addShader(Args&&... args)
+	{
+		shaders.emplace_back(args...);
 	}
 
 	inline Mesh& ContentBrowser::getMesh(uint32_t index)
@@ -149,6 +164,21 @@ namespace Okay
 		return materials;
 	}
 
+	inline const std::vector<Shader>& Okay::ContentBrowser::getShaders() const
+	{
+		return shaders;
+	}
 
+	inline const Shader& ContentBrowser::getShader(uint32_t index) const
+	{
+		OKAY_ASSERT(index < (uint32_t)shaders.size(), "Invalid index");
+		return shaders[index];
+	}
+
+	inline Shader& ContentBrowser::getShader(uint32_t index)
+	{
+		OKAY_ASSERT(index < (uint32_t)shaders.size(), "Invalid index");
+		return shaders[index];
+	}
 
 }
