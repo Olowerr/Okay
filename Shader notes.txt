@@ -1,0 +1,12 @@
+? X = exposed to user
+* X = WIP
+
+shader now
+	always same VS
+	? height map
+	* custom PS 
+	
+shader future
+	tesselation
+	
+	
