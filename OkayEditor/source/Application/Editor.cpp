@@ -30,7 +30,7 @@ Editor::Editor(std::string_view startScene)
 	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
 
-	testTex = new Okay::RenderTexture(500u, 500u, 
+	testTex = new Okay::RenderTexture(512u, 512u, 
 		Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ, Okay::RenderTexture::F_8X1);
 	noiser = new Okay::PerlinNoise2D(testTex->getBuffer());
 	noiser->randomizeSeed();
@@ -163,11 +163,11 @@ void Editor::update()
 		noiser->randomizeSeed();
 		noiser->generate(numOct, numSec, bias);
 	}
-	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.01f, 100.f, "%.4f");
-	ImGui::DragFloat2("offset", offsets, 0.01f, 0.01f, 100.f, "%.4f");
+	ImGui::SameLine();
+	ImGui::DragFloat("tiling", &tiling, 0.0f, 0.01f, 100.f, "%.4f");
+	ImGui::DragFloat2("offset", offsets, 0.0f, 0.01f, 100.f, "%.4f");
 		
-
-	ImGui::Image(testTex->getSRV(), ImVec2(500.f, 500.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
+	ImGui::Image(testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
 }
 
@@ -276,12 +276,18 @@ void Editor::displayInspector()
 	ImGui::PushItemWidth(-15.f);
 
 	static float timer = 0.f;
+	static float avgDt = 0.f;
+	static int frameCount = 0;
 	static float dt = Okay::Time::getApplicationDT();
 
+	avgDt += Okay::Time::getApplicationDT();
+	frameCount++;
 	if ((timer += Okay::Time::getApplicationDT()) > 0.5f)
 	{
-		dt = Okay::Time::getApplicationDT();
+		dt = avgDt / frameCount;
 		timer = 0.f;
+		avgDt = 0.f;
+		frameCount = 0;
 	}
 
 	ImGui::Text("FPS: %.6f", 1.f / dt);
