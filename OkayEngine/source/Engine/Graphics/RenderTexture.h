@@ -10,8 +10,6 @@ namespace Okay
 	private:
 		enum BitPos : uint32_t
 		{
-			B_BIT_8			 = 0,
-			B_BIT_32		 = 1,
 			B_RENDER		 = 0,
 			B_SHADER_READ	 = 1,
 			B_SHADER_WRITE	 = 2,
@@ -21,8 +19,9 @@ namespace Okay
 
 		enum Format : uint32_t
 		{
-			BIT_8	= 1 << BitPos::B_BIT_8,
-			BIT_32	= 1 << BitPos::B_BIT_32,
+			F_8X1,
+			F_8X4,
+			F_32X4,
 		};
 
 		enum Flags : uint32_t
@@ -35,12 +34,12 @@ namespace Okay
 
 		RenderTexture();
 		RenderTexture(ID3D11Texture2D* texture, uint32_t flags);
-		RenderTexture(uint32_t width, uint32_t height, uint32_t flags);
+		RenderTexture(uint32_t width, uint32_t height, uint32_t flags, Format format = Format::F_8X4);
 		~RenderTexture();
 		void shutdown();
 
 		void create(ID3D11Texture2D* texture, uint32_t flags);
-		void create(uint32_t width, uint32_t height, uint32_t flags);
+		void create(uint32_t width, uint32_t height, uint32_t flags, Format format = Format::F_8X4);
 
 		void clear();
 		void clear(float* colour);

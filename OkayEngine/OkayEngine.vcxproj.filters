@@ -117,7 +117,7 @@
     <ClInclude Include="source\Engine\Graphics\RenderTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Graphics\Noise\PerlinNoise.h">
+    <ClInclude Include="source\Engine\Graphics\Noise\PerlinNoise2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -185,7 +185,7 @@
     <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\Noise\PerlinNoise.cpp">
+    <ClCompile Include="source\Engine\Graphics\Noise\PerlinNoise2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

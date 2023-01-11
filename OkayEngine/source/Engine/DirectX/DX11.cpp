@@ -95,15 +95,35 @@ HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
-bool DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize)
+void DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize)
 {
 	D3D11_MAPPED_SUBRESOURCE sub;
-	OKAY_VERIFY(SUCCEEDED(getInstance().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)));
+	if (FAILED(getInstance().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+		return;
 
 	memcpy(sub.pData, pData, byteSize);
 	getInstance().pDeviceContext->Unmap(pBuffer, 0);
+}
 
-	return true;
+void DX11::updateTexture(ID3D11Texture2D* pBuffer, const void* pData, uint32_t elementByteSize, uint32_t width, uint32_t height)
+{
+	D3D11_BOX box{};
+	box.left = 0u;
+	box.top = 0u;
+	box.front = 0u;
+	box.back = 1u;
+
+	if (!width || !height)
+	{
+		D3D11_TEXTURE2D_DESC desc{};
+		pBuffer->GetDesc(&desc);
+		width = width ? width : desc.Width;
+		height = height ? height : desc.Height;
+	}
+	box.right = width;
+	box.bottom = height;
+
+	getInstance().pDeviceContext->UpdateSubresource(pBuffer, 0, &box, pData, width * elementByteSize, 0u);
 }
 
 HRESULT DX11::createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable)

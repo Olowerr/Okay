@@ -30,9 +30,11 @@ Editor::Editor(std::string_view startScene)
 	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
 
-	testTex = new Okay::RenderTexture(500u, 500u, Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ);
+	testTex = new Okay::RenderTexture(500u, 500u, 
+		Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ, Okay::RenderTexture::F_8X1);
 	noiser = new Okay::PerlinNoise2D(testTex->getBuffer());
 	noiser->randomizeSeed();
+	noiser->generate(1, 255, 2.f);
 }
 
 Editor::~Editor()
@@ -76,7 +78,6 @@ void Editor::run()
 
 		// Submit & render
 		scene.submit();
-		DX11::getInstance().getDeviceContext()->VSSetShaderResources(5, 1, &noiser->seedBufferSRV);
 		renderer.render(scene.getMainCamera());
 
 		// End frame
@@ -135,7 +136,38 @@ void Editor::update()
 
 
 	ImGui::Begin("result", &dockSpace);
-	ImGui::Image(noiser->seedBufferSRV, ImVec2(500.f, 500.f));
+
+	static int numOct = 0;
+	static int numSec = 5;
+	static float bias = 2.f;
+	static float tiling = 1.f;
+	static float offsets[2]{};
+
+	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
+	{
+		numSec = glm::clamp(numSec, 1, 255);
+		noiser->generate(numOct, numSec, bias);
+	}
+
+	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
+	{
+		numOct = glm::clamp(numOct, 0, 100);
+		noiser->generate(numOct, numSec, bias);
+	}
+
+	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
+		noiser->generate(numOct, numSec, bias);
+
+	if (ImGui::Button("New seed"))
+	{
+		noiser->randomizeSeed();
+		noiser->generate(numOct, numSec, bias);
+	}
+	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.01f, 100.f, "%.4f");
+	ImGui::DragFloat2("offset", offsets, 0.01f, 0.01f, 100.f, "%.4f");
+		
+
+	ImGui::Image(testTex->getSRV(), ImVec2(500.f, 500.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
 }
 
@@ -235,6 +267,25 @@ void Editor::displayInspector()
 	default:
 		break;
 	}
+
+	ImGui::PopItemWidth();
+	ImGui::End();
+
+
+	ImGui::Begin("Other", &open);
+	ImGui::PushItemWidth(-15.f);
+
+	static float timer = 0.f;
+	static float dt = Okay::Time::getApplicationDT();
+
+	if ((timer += Okay::Time::getApplicationDT()) > 0.5f)
+	{
+		dt = Okay::Time::getApplicationDT();
+		timer = 0.f;
+	}
+
+	ImGui::Text("FPS: %.6f", 1.f / dt);
+	ImGui::Text("MS:  %.6f", dt);
 
 	ImGui::PopItemWidth();
 	ImGui::End();

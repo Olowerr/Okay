@@ -3,8 +3,7 @@
 #include <Engine/Application/Scene.h>
 #include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
-
-#include <Engine/Graphics/Noise/PerlinNoise.h>
+#include <Engine/Graphics/Noise/PerlinNoise2D.h>
 
 class Editor : public Application
 {

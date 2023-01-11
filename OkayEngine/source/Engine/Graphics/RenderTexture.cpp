@@ -16,11 +16,11 @@ namespace Okay
 		create(texture, flags);
 	}
 
-	RenderTexture::RenderTexture(uint32_t width, uint32_t height, uint32_t flags)
+	RenderTexture::RenderTexture(uint32_t width, uint32_t height, uint32_t flags, Format format)
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
 		depthBuffer(nullptr), dsv(nullptr)
 	{
-		create(width, height, flags);
+		create(width, height, flags, format);
 	}
 
 	RenderTexture::~RenderTexture()
@@ -47,7 +47,7 @@ namespace Okay
 		readFlgs(flags);
 	}
 
-	void RenderTexture::create(uint32_t width, uint32_t height, uint32_t flags)
+	void RenderTexture::create(uint32_t width, uint32_t height, uint32_t flags, Format format)
 	{
 		shutdown();
 
@@ -64,8 +64,10 @@ namespace Okay
 		desc.SampleDesc.Quality = 0u;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 
-		desc.Format = CHECK_BIT(flags, BitPos::B_BIT_32) ?
-			DXGI_FORMAT_R32G32B32A32_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
+		if		(format == Format::F_8X1)  desc.Format = DXGI_FORMAT_R8_UNORM;
+		else if (format == Format::F_8X4)  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		else if (format == Format::F_32X4) desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
 		desc.BindFlags =
 			(CHECK_BIT(flags, BitPos::B_RENDER) ? D3D11_BIND_RENDER_TARGET : 0u) |
 			(CHECK_BIT(flags, BitPos::B_SHADER_READ) ? D3D11_BIND_SHADER_RESOURCE : 0u) |
