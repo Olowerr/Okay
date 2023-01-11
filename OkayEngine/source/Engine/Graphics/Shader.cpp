@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include "Engine/DirectX/DX11.h"
+#include "ContentBrowser.h"
 
 #include <fstream>
 
@@ -21,29 +22,35 @@ namespace Okay
 		return true;
 	}
 
-	Shader::Shader()
-		:name("Default"), pPS(nullptr)
+	Shader::Shader(const ContentBrowser& content)
+		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
 	{
 		setPixelShader("PhongPS");
 	}
 
-	Shader::Shader(std::string_view name)
-		:name(name), pPS(nullptr)
+	Shader::Shader(const ContentBrowser& content, std::string_view name)
+		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
 	{
 		setPixelShader("PhongPS");
 	}
 
-	Shader::Shader(std::string_view psPath, std::string_view name)
-		:name(name), pPS(nullptr)
+	Shader::Shader(const ContentBrowser& content, std::string_view psPath, std::string_view name)
+		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
 	{
 		setPixelShader(psPath);
 	}
 
 	Shader::Shader(Shader&& other) noexcept
-		:name(std::move(other.name))
+		:name(std::move(other.name)), content(other.content)
 	{
 		pPS = other.pPS;
 		other.pPS = nullptr;
+
+		heightMapIdx = other.heightMapIdx;
+		other.heightMapIdx = Okay::INVALID_UINT;
+
+		pHeightMap = other.pHeightMap;
+		other.pHeightMap = nullptr;
 	}
 
 	Shader::~Shader()
@@ -54,13 +61,31 @@ namespace Okay
 	void Shader::shutdown()
 	{
 		DX11_RELEASE(pPS);
+		DX11_RELEASE(pHeightMap);
 	}
 
 	void Shader::bind() const
 	{
 		ID3D11DeviceContext* pDevCon = DX11::getInstance().getDeviceContext();
-
+		pDevCon->VSSetShaderResources(0, 1, &pHeightMap);
 		pDevCon->PSSetShader(pPS, nullptr, 0);
+	}
+
+	void Shader::setHeightMap(uint32_t index)
+	{
+		heightMapIdx = index;
+		DX11_RELEASE(pHeightMap);
+
+		if (index == Okay::INVALID_UINT)
+			return;
+		
+		pHeightMap = content.getTexture(index).getSRV();
+		pHeightMap->AddRef();
+	}
+
+	const Texture* Shader::getHeightMap() const
+	{
+		return pHeightMap ? &content.getTexture(heightMapIdx) : nullptr;
 	}
 
 	void Shader::setPixelShader(std::string_view path)

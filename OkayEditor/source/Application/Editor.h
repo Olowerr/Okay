@@ -5,6 +5,8 @@
 #include <Engine/Application/Entity.h>
 #include <Engine/Graphics/Noise/PerlinNoise2D.h>
 
+#include "imgui/imgui.h"
+
 class Editor : public Application
 {
 public:
@@ -44,4 +46,45 @@ private:
 
 	Okay::RenderTexture* testTex;
 	Okay::PerlinNoise2D* noiser;
+
+	// List label can be disabled by starting it with "##"
+	template<typename T, typename... Args>
+	bool selectTexture(T& instance, uint32_t selectedID, void (T::* function)(uint32_t), const char* listLabel);
 };
+
+
+template<typename T, typename... Args>
+bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunction)(uint32_t), const char* listLabel)
+{
+	bool pressed = false;
+	uint32_t idx = 0u;
+	static auto lambdaSelectTex = [&](const Okay::Texture& tex)
+	{
+		if (ImGui::Selectable(tex.getName().c_str(), idx == selectedTexID))
+		{
+			(instance.*pFunction)(idx);
+			pressed = true;
+		}
+		ImGui::SameLine();
+		ImGui::Image(tex.getSRV(), { ImVec2(15.f, 15.f) });
+		idx++;
+	};
+
+	ID3D11ShaderResourceView* previewImg = selectedTexID != Okay::INVALID_UINT ? content.getTexture(selectedTexID).getSRV() : nullptr;
+	ImGui::Image(previewImg, { ImVec2(15.f, 15.f) });
+	ImGui::SameLine();
+	if (ImGui::BeginCombo(listLabel, previewImg ? content.getTexture(selectedTexID).getName().c_str() : nullptr))
+	{
+		if (ImGui::Selectable("Reset"))
+		{
+			(instance.*pFunction)(Okay::INVALID_UINT);
+			pressed = true;
+		}
+		else
+			content.forEachTexture(lambdaSelectTex);
+
+		ImGui::EndCombo();
+	}
+
+	return pressed;
+}

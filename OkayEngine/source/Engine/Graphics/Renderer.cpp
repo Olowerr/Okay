@@ -16,7 +16,7 @@ namespace Okay
 {
 	Renderer::Renderer(const RenderTexture* pRenderTarget, const ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
-		defaultPixelShader("PhongPS.cso") ,content(content), pRenderTarget(pRenderTarget)
+		defaultPixelShader(content, "PhongPS.cso") ,content(content), pRenderTarget(pRenderTarget)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
 
@@ -44,6 +44,7 @@ namespace Okay
 			DX11::getInstance().getDevice()->CreateSamplerState(&desc, &simp);
 
 			pDevContext->PSSetSamplers(0, 1, &simp);
+			pDevContext->VSSetSamplers(0, 1, &simp);
 			simp->Release();
 		}
 

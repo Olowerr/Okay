@@ -103,7 +103,7 @@ void Editor::displayAssetList()
 	{
 		selectionID = (uint32_t)content.getShaders().size();
 		selectionType = SelectionType::Shader;
-		content.addShader("New shader");
+		content.addShader(content, "New shader");
 	}
 	IMGUI_DISPLAY_ASSET_END();
 }
@@ -112,10 +112,9 @@ void Editor::displayMesh(uint32_t index)
 {
 	const Okay::Mesh& mesh = content.getMesh(index);
 
-	ImGui::Text("Mesh");
+	ImGui::Text("Mesh - %s", mesh.getName().c_str());
 	ImGui::Separator();
 
-	ImGui::Text(mesh.getName().c_str());
 	ImGui::Text("Vertex count: %u", mesh.getNumIndices());
 	ImGui::Text("Triangle count: %u", mesh.getNumIndices() / 3u);
 
@@ -135,10 +134,9 @@ void Editor::displayTexture(uint32_t index)
 	imgSize.y = imgSize.x / aspectRatio;
 
 
-	ImGui::Text("Texture");
+	ImGui::Text("Texture - %s", texture.getName().c_str());
 	ImGui::Separator();
 
-	ImGui::Text(texture.getName().c_str());
 	ImGui::Text("Width: %u", width);
 	ImGui::Text("Height: %u", height);
 	ImGui::Text("Aspect ratio: %.3f", aspectRatio);
@@ -155,42 +153,28 @@ void Editor::displayMaterial(uint32_t index)
 	const uint32_t spec = mat.getSpecular();
 	const uint32_t ambi = mat.getAmbient();
 
-	ImGui::Text("Material");
+	ImGui::Text("Material - %s", mat.getName().c_str());
 	ImGui::Separator();
 
-	ImGui::Text(mat.getName().c_str());
-	
-	uint32_t idx = 0u;
-	static auto selectTexture = [&](const Okay::Texture& tex, uint32_t texIdx, void (Okay::Material::*func)(uint32_t))
-	{
-		if (ImGui::Selectable(tex.getName().c_str(), idx == texIdx))
-		{
-			(mat.*func)(idx);
-		}
-		ImGui::SameLine();
-		ImGui::Image(tex.getSRV(), { ImVec2(15.f, 15.f) });
-		idx++;
-	};
-
 	ImGui::Text("Base Colour:"); ImGui::SameLine();
-	if (ImGui::BeginCombo("##NLBase", content.getTexture(base).getName().c_str()))
+	if (selectTexture(mat, base, &Okay::Material::setBaseColour, "##NLBase"))
 	{
-		content.forEachTexture(selectTexture, base, &Okay::Material::setBaseColour);
-		ImGui::EndCombo();
+		if (mat.getBaseColour() == Okay::INVALID_UINT)
+			mat.setBaseColour(0u);
 	}
 	
 	ImGui::Text("Specular:   "); ImGui::SameLine();
-	if (ImGui::BeginCombo("##NLSpec", content.getTexture(spec).getName().c_str()))
+	if (selectTexture(mat, spec, &Okay::Material::setSpecular, "##NLSpec"))
 	{
-		content.forEachTexture(selectTexture, spec, &Okay::Material::setSpecular);
-		ImGui::EndCombo();
+		if (mat.getSpecular() == Okay::INVALID_UINT)
+			mat.setSpecular(0u);
 	}
-	
-	ImGui::Text("Ambient:	"); ImGui::SameLine();
-	if (ImGui::BeginCombo("##NLAmbi", content.getTexture(ambi).getName().c_str()))
+
+	ImGui::Text("Ambient:    "); ImGui::SameLine();
+	if (selectTexture(mat, ambi, &Okay::Material::setAmbient, "##NLAmbi"))
 	{
-		content.forEachTexture(selectTexture, ambi, &Okay::Material::setAmbient);
-		ImGui::EndCombo();
+		if (mat.getAmbient() == Okay::INVALID_UINT)
+			mat.setAmbient(0u);
 	}
 
 	ImGui::Text("");
@@ -206,12 +190,10 @@ void Editor::displayMaterial(uint32_t index)
 
 void Editor::displayShader(uint32_t index)
 {
-	ImGui::Text("Shader");
-	ImGui::Separator();
-
 	Okay::Shader& shader = content.getShader(index);
 
-	ImGui::Text(shader.getName().c_str());
+	ImGui::Text("Shader - %s", shader.getName().c_str());
+	ImGui::Separator();
 
 	/*static Okay::String inputBufferPS{};
 	ImGui::Text("Pixel Shader: "); ImGui::SameLine();
@@ -220,6 +202,11 @@ void Editor::displayShader(uint32_t index)
 		shader.setPixelShader(inputBufferPS.cStr);
 		inputBufferPS.clear();
 	}*/
+
+	const Okay::Texture* heightMap = shader.getHeightMap();
+
+	ImGui::Text("Height Map"); ImGui::SameLine();
+	selectTexture(shader, shader.getHeightMapID(), &Okay::Shader::setHeightMap, "##NLheight");
 
 	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
 

@@ -27,7 +27,7 @@ cbuffer Camera : register(b0)
 	float camPad1;*/
 };
 
-cbuffer Transform : register(b1) // will change with Instancing
+cbuffer Transform : register(b1)
 {
 	float4x4 worldMatrix;
 };
