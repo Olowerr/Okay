@@ -13,7 +13,8 @@
 if (!(condition))\
 {\
 	const std::wstring message(L"(" L#condition L") was false. Location: " __FILE__ ", Line: ");\
-	if (MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_RETRYCANCEL) == IDCANCEL)\
+	const std::wstring message2("\nFunction: " __FUNCTIONW__);\
+	if (MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + message2 + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_RETRYCANCEL) == IDCANCEL)\
 		exit(1);\
 }0
 

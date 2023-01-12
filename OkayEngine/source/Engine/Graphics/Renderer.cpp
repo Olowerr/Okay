@@ -14,11 +14,11 @@
 
 namespace Okay
 {
-	Renderer::Renderer(const RenderTexture* pRenderTarget, const ContentBrowser& content)
-		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), 
-		defaultPixelShader(content, "PhongPS.cso") ,content(content), pRenderTarget(pRenderTarget)
+	Renderer::Renderer(const RenderTexture* pRenderTarget, ContentBrowser& content)
+		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), content(content), pRenderTarget(pRenderTarget)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+		content.addShader(content, "Default");
 
 		glm::mat4 Identity4x4(1.f);
 
@@ -26,6 +26,7 @@ namespace Okay
 		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
+		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
 
 		createVertexShaders();
 		createPixelShaders();
@@ -131,6 +132,7 @@ namespace Okay
 		DX11_RELEASE(pViewProjectBuffer);
 		DX11_RELEASE(pWorldBuffer);
 		DX11_RELEASE(pMaterialBuffer);
+		DX11_RELEASE(pShaderDataBuffer);
 
 		DX11_RELEASE(pMeshIL);
 		DX11_RELEASE(pMeshVS);
@@ -145,10 +147,8 @@ namespace Okay
 
 	void Renderer::render(const Entity& cameraEntity)
 	{
-		
 		DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
 		DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
-		
 		
 		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
@@ -163,7 +163,6 @@ namespace Okay
 		bindMeshPipeline();
 
 		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
-		defaultPixelShader.bind();
 		
 		// Preperation
 		ID3D11ShaderResourceView* textures[3] = {};
@@ -175,20 +174,24 @@ namespace Okay
 		{
 			const MeshComponent& cMesh = *meshesToRender.at(i).pMesh;
 			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
+			const Material& material = content.getMaterial(cMesh.materialIdx);
+			const Shader& shader = content.getShader(cMesh.shaderIdx);
+
 			Transform& cTransform = const_cast<Transform&>(*meshesToRender.at(i).pTransform);
 
 			// Temp - make more robust system (Update only if entity has script?) // No.. can miss entities
 			cTransform.calculateMatrix();
 			worldMatrix = glm::transpose(cTransform.matrix);
 
-			const Material& material = content.getMaterial(cMesh.materialIdx);
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
 			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
 
 			DX11::updateBuffer(pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
 			DX11::updateBuffer(pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
+			DX11::updateBuffer(pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
 
+			shader.bind();
 			
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);

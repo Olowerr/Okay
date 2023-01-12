@@ -50,8 +50,22 @@ private:
 	// List label can be disabled by starting it with "##"
 	template<typename T, typename... Args>
 	bool selectTexture(T& instance, uint32_t selectedID, void (T::* function)(uint32_t), const char* listLabel);
-};
 
+#define SELECT 0
+
+#if SELECT
+	// List label can be disabled by starting it with "##"
+	template<typename T, typename... Args>
+	bool selectMesh(T& instance, uint32_t selectedID, void (T::* function)(uint32_t), const char* listLabel);
+
+	// List label can be disabled by starting it with "##"
+	template<typename T, typename... Args>
+	bool selectMaterial(T& instance, uint32_t selectedID, void (T::* function)(uint32_t), const char* listLabel);
+#endif
+
+	// List label can be disabled by starting it with "##"
+	bool selectShader(uint32_t selectedID, uint32_t& result, const char* listLabel);
+};
 
 template<typename T, typename... Args>
 bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunction)(uint32_t), const char* listLabel)
@@ -88,3 +102,68 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 
 	return pressed;
 }
+
+#if SELECT
+template<typename T, typename... Args>
+bool Editor::selectMesh(T& instance, uint32_t selectedMeshID, void (T::* pFunction)(uint32_t), const char* listLabel)
+{
+	bool pressed = false;
+	uint32_t idx = 0u;
+	static auto lambdaSelectTex = [&](const Okay::Texture& tex)
+	{
+		if (ImGui::Selectable(tex.getName().c_str(), idx == selectedMeshID))
+		{
+			(instance.*pFunction)(idx);
+			pressed = true;
+		}
+		idx++;
+	};
+
+	ImGui::SameLine();
+	if (ImGui::BeginCombo(listLabel, instance.))
+	{
+		if (ImGui::Selectable("Reset"))
+		{
+			(instance.*pFunction)(Okay::INVALID_UINT);
+			pressed = true;
+		}
+		else
+			content.forEachTexture(lambdaSelectTex);
+
+		ImGui::EndCombo();
+	}
+
+	return pressed;
+}
+
+template<typename T, typename... Args>
+bool Editor::selectMaterial(T& instance, uint32_t selectedMatID, void (T::* pFunction)(uint32_t), const char* listLabel)
+{
+	bool pressed = false;
+	uint32_t idx = 0u;
+	static auto lambdaSelectMat = [&](const Okay::Material& tex)
+	{
+		if (ImGui::Selectable(tex.getName().c_str(), idx == selectedMatID))
+		{
+			(instance.*pFunction)(idx);
+			pressed = true;
+		}
+		idx++;
+	};
+
+	if (ImGui::BeginCombo(listLabel, instance.getName().c_str()))
+	{
+		if (ImGui::Selectable("Reset"))
+		{
+			(instance.*pFunction)(Okay::INVALID_UINT);
+			pressed = true;
+		}
+		else
+			content.forEachMaterial(lambdaSelectMat);
+
+		ImGui::EndCombo();
+	}
+
+	return pressed;
+}
+#endif

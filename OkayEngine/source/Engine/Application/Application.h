@@ -22,6 +22,6 @@ public:
 
 protected:
 	Window window;
-	Okay::Renderer renderer;
 	Okay::ContentBrowser content;
+	Okay::Renderer renderer;
 };

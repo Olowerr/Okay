@@ -54,6 +54,10 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Mesh:	   %s", content.getMesh(meshC.meshIdx).getName().c_str());
 	ImGui::Text("Material: %s", content.getMaterial(meshC.materialIdx).getName().c_str());
 	
+	ImGui::Text("Shader:   %u", meshC.shaderIdx); ImGui::SameLine();
+	selectShader(meshC.shaderIdx, meshC.shaderIdx, "##NLshader");
+
+
 	IMGUI_DISPLAY_COMP_END();
 
 
@@ -210,4 +214,37 @@ void Editor::displayShader(uint32_t index)
 
 	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
 
+}
+
+bool Editor::selectShader(uint32_t selectedShaderID, uint32_t& result, const char* listLabel)
+{
+	bool pressed = false;
+	uint32_t idx = 0u;
+
+	static auto lambdaSelectShader = [&](const Okay::Shader& shader)
+	{
+		if (ImGui::Selectable(shader.getName().c_str(), idx == selectedShaderID))
+		{
+			result = idx;
+			pressed = true;
+		}
+
+		idx++;
+	};
+
+	if (ImGui::BeginCombo(listLabel, content.getShader(selectedShaderID).getName().c_str()))
+	{
+		if (ImGui::Selectable("Reset"))
+		{
+			result = 0u; 
+			pressed = true;
+		}
+
+		else
+			content.forEachShader(lambdaSelectShader);
+
+		ImGui::EndCombo();
+	}
+
+	return pressed;
 }

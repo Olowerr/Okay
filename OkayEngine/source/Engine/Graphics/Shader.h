@@ -11,6 +11,14 @@ namespace Okay
 	class Shader
 	{
 	public:
+
+		struct GPUData
+		{
+			BOOL hasHeightMap = FALSE; // BOOL is a typedef of int cuz normal bool is too small
+
+			int padding[3]{};
+		};
+
 		static const std::string ShaderPath;
 		static bool readShader(std::string_view shaderName, std::string& output);
 
@@ -32,16 +40,13 @@ namespace Okay
 		inline const std::string& getPSName() const;
 		
 		void bind() const;
+		inline const GPUData& getGPUData() const;
 
 	private:
 		const ContentBrowser& content;
-
-		struct GPUData
-		{
-			BOOL hasHeightMap = FALSE; // int but normal byte is too small
-		};
-
 		std::string name;
+
+		GPUData gpuData;
 
 		std::string psName;
 		ID3D11PixelShader* pPS;
@@ -50,7 +55,7 @@ namespace Okay
 		uint32_t heightMapIdx;
 	};
 
-	const std::string& Okay::Shader::getName() const
+	inline const std::string& Okay::Shader::getName() const
 	{
 		return name;
 	}
@@ -69,6 +74,12 @@ namespace Okay
 	{
 		return heightMapIdx;
 	}
+
+	inline const Shader::GPUData& Shader::getGPUData() const
+	{
+		return gpuData;
+	}
+
 }
 
 /*

@@ -54,8 +54,11 @@ namespace Okay
 		Material& getMaterial(std::string_view materialName);
 		const Material& getMaterial(std::string_view materialName) const;
 
+		template<typename Func, typename... Args>
+		void forEachShader(const Func& function, Args&&... args);
+
 		template<typename... Args>
-		void addShader(Args&&... args);
+		Shader& addShader(Args&&... args);
 		inline const std::vector<Shader>& getShaders() const;
 		inline const Shader& getShader(uint32_t index) const;
 		inline Shader& getShader(uint32_t index);
@@ -92,10 +95,17 @@ namespace Okay
 			function(materials[i], args...);
 	}
 
-	template<typename ...Args>
-	inline void ContentBrowser::addShader(Args&&... args)
+	template<typename Func, typename ...Args>
+	inline void ContentBrowser::forEachShader(const Func& function, Args && ...args)
 	{
-		shaders.emplace_back(args...);
+		for (size_t i = 0; i < shaders.size(); i++)
+			function(shaders[i], args...);
+	}
+
+	template<typename ...Args>
+	inline Shader& ContentBrowser::addShader(Args&&... args)
+	{
+		return shaders.emplace_back(args...);
 	}
 
 	inline Mesh& ContentBrowser::getMesh(uint32_t index)

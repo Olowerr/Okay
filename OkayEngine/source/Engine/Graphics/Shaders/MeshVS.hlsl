@@ -5,6 +5,7 @@ typedef int BOOL;
 cbuffer ShaderData : register(b2)
 {
 	BOOL heightMapBool;
+	int padding[3];
 };
 
 SamplerState simp : register(s0);

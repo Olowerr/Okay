@@ -41,7 +41,8 @@ namespace Okay
 	}
 
 	Shader::Shader(Shader&& other) noexcept
-		:name(std::move(other.name)), content(other.content)
+		:name(std::move(other.name)), content(other.content), psName(std::move(other.psName)),
+		gpuData(std::move(other.gpuData))
 	{
 		pPS = other.pPS;
 		other.pPS = nullptr;
@@ -62,6 +63,7 @@ namespace Okay
 	{
 		DX11_RELEASE(pPS);
 		DX11_RELEASE(pHeightMap);
+		heightMapIdx = Okay::INVALID_UINT;
 	}
 
 	void Shader::bind() const
@@ -77,8 +79,12 @@ namespace Okay
 		DX11_RELEASE(pHeightMap);
 
 		if (index == Okay::INVALID_UINT)
+		{
+			gpuData.hasHeightMap = false;
 			return;
+		}
 		
+		gpuData.hasHeightMap = true;
 		pHeightMap = content.getTexture(index).getSRV();
 		pHeightMap->AddRef();
 	}

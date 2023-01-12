@@ -16,7 +16,9 @@ namespace Okay
 	class Renderer
 	{
 	public:
-		Renderer(const RenderTexture* target, const ContentBrowser& content);
+		static const uint32_t DEFAULT_SHADER_IDX = 0u;
+
+		Renderer(const RenderTexture* target, ContentBrowser& content);
 		~Renderer();
 		void shutdown();
 
@@ -65,6 +67,7 @@ namespace Okay
 		ID3D11Buffer* pViewProjectBuffer;
 		ID3D11Buffer* pWorldBuffer;
 		ID3D11Buffer* pMaterialBuffer;
+		ID3D11Buffer* pShaderDataBuffer;
 
 		ID3D11Buffer* pPointLightBuffer;
 		ID3D11ShaderResourceView* pPointLightSRV;
@@ -74,7 +77,6 @@ namespace Okay
 
 	private: // Piplines
 		void bindNecessities();
-		Okay::Shader defaultPixelShader;
 		D3D11_VIEWPORT viewport;
 
 		// Static meshes
