@@ -23,7 +23,7 @@ namespace Okay
 		{
 			matrix = 
 				Okay::mat4Translation(position) * 
-				glm::eulerAngleZYX(rotation.z, rotation.y, rotation.x) * 
+				glm::eulerAngleZYX(rotation.z, rotation.y, rotation.x) * // TODO: Check rotation order
 				Okay::mat4Scale(scale);
 		}
 	};
