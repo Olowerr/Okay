@@ -12,12 +12,12 @@ namespace Okay
 		~PerlinNoise2D();
 		void shutdown();
 
-		void randomizeSeed(float scale = 1.f);
+		void setSeed(uint32_t seed);
 		void generate(uint32_t octaves, uint32_t sections, float bias);
 
 	private:
 		uint32_t width, height;
-		unsigned char* seed;
+		uint32_t seed;
 		unsigned char* result;
 		
 		ID3D11Texture2D* resultBuffer;
@@ -34,7 +34,23 @@ namespace Okay
 
 	inline float PerlinNoise2D::sampleSeed(uint32_t x, uint32_t y)
 	{
-		return (float)seed[width * y + x] / (float)UCHAR_MAX;
+		/* mix around the bits in x: */
+		x = x * 3266489917 + 374761393;
+		x = (x << 17) | (x >> 15);
+
+		/* mix around the bits in y and mix those into x: */
+		x += y * 3266489917;
+
+		/* Give x a good stir: */
+		x *= 668265263;
+		x ^= x >> 15;
+		x *= 2246822519;
+		x ^= x >> 13;
+		x *= 3266489917;
+		x ^= x >> 16;
+
+		/* trim the result and scale it to a float in [0,1): */
+		return (x & 0x00ffffff) * (1.0f / 0x1000000);
 	}
 
 	inline void PerlinNoise2D::writeResult(uint32_t x, uint32_t y, unsigned char value)

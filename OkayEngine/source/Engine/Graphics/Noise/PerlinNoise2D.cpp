@@ -3,7 +3,7 @@
 namespace Okay
 {
 	PerlinNoise2D::PerlinNoise2D(ID3D11Texture2D* output)
-		:seed(nullptr), uav(nullptr)
+		:seed(0u), uav(nullptr)
 		,width(0u), height(0u), output(output), result(nullptr), resultBuffer(nullptr)
 	{
 		OKAY_ASSERT(output, "Invalid output");
@@ -15,7 +15,6 @@ namespace Okay
 		OKAY_ASSERT(uav, "Error creating UAV, check DX11 error message");
 
 		createResources(output);
-		randomizeSeed();
 	}
 
 	PerlinNoise2D::~PerlinNoise2D()
@@ -26,17 +25,14 @@ namespace Okay
 	void PerlinNoise2D::shutdown()
 	{
 		DX11_RELEASE(uav);
-
 		DX11_RELEASE(resultBuffer);
 
-		OKAY_DELETE_ARRAY(seed);
 		OKAY_DELETE_ARRAY(result);
 	}
 
-	void PerlinNoise2D::randomizeSeed(float scale)
+	void PerlinNoise2D::setSeed(uint32_t seed)
 	{
-		for (uint32_t i = 0; i < width * height; i++)
-			seed[i] = UNORM_TO_UCHAR((float)rand() / (float)RAND_MAX);
+		this->seed = seed;
 	}
 	
 	void PerlinNoise2D::generate(uint32_t octaves, uint32_t sections, float bias)
@@ -108,8 +104,7 @@ namespace Okay
 		width = texDesc.Width;
 		height = texDesc.Height;
 
-		seed	= new unsigned char[(size_t)width * (size_t)height]{};
-		result	= new unsigned char[(size_t)width * (size_t)height]{};
+		result = new unsigned char[(size_t)width * (size_t)height]{};
 
 		D3D11_TEXTURE2D_DESC bufferDesc{};
 		bufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
