@@ -257,6 +257,7 @@ namespace Okay
 
 		pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
 		pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
+		pDevContext->VSSetConstantBuffers(2, 1, &pShaderDataBuffer);
 
 		pDevContext->RSSetViewports(1u, &viewport);
 

@@ -5,7 +5,8 @@ typedef int BOOL;
 cbuffer ShaderData : register(b2)
 {
 	BOOL heightMapBool;
-	int padding[3];
+	float heightMapScalar;
+	int padding[2];
 };
 
 SamplerState simp : register(s0);
@@ -17,7 +18,7 @@ TransformedVertex main(InputVertex input)
 
 	if (heightMapBool)
 	{
-		input.pos.y += heightMap.SampleLevel(simp, input.uv, 0.f).r;
+		input.pos.y += heightMap.SampleLevel(simp, input.uv, 0.f).r * heightMapScalar;
 	}
 
 	output.worldPos = mul(float4(input.pos, 1.f), worldMatrix).xyz;

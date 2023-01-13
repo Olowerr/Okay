@@ -84,14 +84,14 @@ namespace Okay
 			return;
 		}
 		
-		gpuData.hasHeightMap = true;
+		gpuData.hasHeightMap = TRUE;
 		pHeightMap = content.getTexture(index).getSRV();
 		pHeightMap->AddRef();
 	}
 
 	const Texture* Shader::getHeightMap() const
 	{
-		return pHeightMap ? &content.getTexture(heightMapIdx) : nullptr;
+		return heightMapIdx != Okay::INVALID_UINT ? &content.getTexture(heightMapIdx) : nullptr;
 	}
 
 	void Shader::setPixelShader(std::string_view path)

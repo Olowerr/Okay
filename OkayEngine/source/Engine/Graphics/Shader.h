@@ -15,8 +15,9 @@ namespace Okay
 		struct GPUData
 		{
 			BOOL hasHeightMap = FALSE; // BOOL is a typedef of int cuz normal bool is too small
+			float heightMapScalar = 1.f;
 
-			int padding[3]{};
+			int padding[2]{};
 		};
 
 		static const std::string ShaderPath;
@@ -35,6 +36,7 @@ namespace Okay
 		void setHeightMap(uint32_t index = Okay::INVALID_UINT);
 		inline uint32_t getHeightMapID() const;
 		const Texture* getHeightMap() const;
+		inline void setHeightMapScalar(float scalar);
 
 		void setPixelShader(std::string_view path);
 		inline const std::string& getPSName() const;
@@ -78,6 +80,11 @@ namespace Okay
 	inline const Shader::GPUData& Shader::getGPUData() const
 	{
 		return gpuData;
+	}
+
+	void Shader::setHeightMapScalar(float scalar)
+	{
+		gpuData.heightMapScalar = scalar;
 	}
 
 }
