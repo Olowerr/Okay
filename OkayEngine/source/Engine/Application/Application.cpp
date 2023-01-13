@@ -48,14 +48,34 @@ void Application::destroyImgui()
 
 void Application::newFrame()
 {
+	Okay::Time::measure();
+
 	window.update();
 	window.clear();
 	renderer.newFrame();
-
-	Okay::Time::measure();
 }
 
 void Application::endFrame()
 {
 	window.present();
+}
+
+void Application::newFrameImGui()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	newFrame();
+}
+
+void Application::endFrameImGui()
+{
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	ImGui::UpdatePlatformWindows();
+	ImGui::RenderPlatformWindowsDefault();
+
+	endFrame();
 }

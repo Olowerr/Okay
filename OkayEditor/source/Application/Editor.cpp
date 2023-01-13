@@ -5,7 +5,6 @@
 #include <Engine/Components/MeshComponent.h>
 
 
-#include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
@@ -34,7 +33,6 @@ Editor::Editor(std::string_view startScene)
 	testTex = new Okay::RenderTexture(512u, 512u, 
 		Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ, Okay::RenderTexture::F_8X1);
 	noiser = new Okay::PerlinNoise2D(testTex->getBuffer());
-	noiser->randomizeSeed();
 	noiser->generate(1, 255, 2.f);
 }
 
@@ -84,12 +82,8 @@ void Editor::run()
 
 void Editor::newFrame()
 {
-	Application::newFrame();
 	gameTexture.clear(glm::vec4(0.6f, 0.2f, 0.9f, 1.f));
-
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	Application::newFrameImGui();
 }
 
 void Editor::endFrame()
@@ -103,13 +97,7 @@ void Editor::endFrame()
 	// ((const Window&)window) bruh
 	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, ((const Window&)window).getRenderTexture().getRTV(), nullptr);
 
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	ImGui::UpdatePlatformWindows();
-	ImGui::RenderPlatformWindowsDefault();
-
-	Application::endFrame();
+	Application::endFrameImGui();
 }
 
 void Editor::update()
@@ -162,8 +150,8 @@ void Editor::update()
 
 	if (ImGui::Button("New seed"))
 	{
-		noiser->randomizeSeed();
-		noiser->generate(numOct, numSec, bias);
+		//noiser->randomizeSeed();
+		//noiser->generate(numOct, numSec, bias);
 	}
 	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.00f, 100.f, "%.4f");
 	ImGui::DragFloat2("offset", offsets, 0.01f, 0.00f, 100.f, "%.4f");

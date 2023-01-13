@@ -20,6 +20,11 @@ namespace Okay
 
 		struct Description
 		{
+			Description() = default;
+			Description(std::string_view name, uint32_t baseIdx, uint32_t specIdx, uint32_t ambiIdx, GPUData gpuData, bool twoSided = false)
+				:name(name), baseColourTexIndex(baseIdx), specularTexIndex(specIdx), ambientTexIndex(ambiIdx), gpuData(gpuData), twoSided(twoSided)
+			{ }
+
 			std::string_view name;
 			uint32_t baseColourTexIndex = 0u;
 			uint32_t specularTexIndex = 0u;

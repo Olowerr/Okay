@@ -16,9 +16,13 @@ namespace Okay
 {
 	Renderer::Renderer(const RenderTexture* pRenderTarget, ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), content(content), pRenderTarget(pRenderTarget)
+		, numPointLights(0)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
 		content.addShader(content, "Default");
+		content.importFile("../OkayEngine/engine_resources/DefaultTexture.png");
+		content.addMaterial(Material::Description()).setName("Default");
+
 
 		glm::mat4 Identity4x4(1.f);
 
@@ -27,6 +31,7 @@ namespace Okay
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
+		expandPointLights();
 
 		createVertexShaders();
 		createPixelShaders();

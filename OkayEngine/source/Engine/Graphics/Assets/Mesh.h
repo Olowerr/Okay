@@ -28,11 +28,14 @@ namespace Okay
 		static const uint32_t Stride[NumBuffers];
 		static const uint32_t Offset[NumBuffers];
 
+		Mesh();
 		Mesh(const MeshInfo& data);
 		Mesh(Mesh&& other) noexcept;
 		~Mesh();
 		//Mesh& operator=(const Mesh&) = delete;
 		//Mesh(const Mesh&) = delete;
+
+		void create(const MeshInfo& data);
 
 		void shutdown();
 
@@ -51,6 +54,6 @@ namespace Okay
 		ID3D11Buffer* vertexBuffers[NumBuffers];
 		ID3D11Buffer* indexBuffer;
 
-		const uint32_t numIndices;
+		uint32_t numIndices;
 	};
 }

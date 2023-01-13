@@ -3,6 +3,9 @@
 #include "Scene.h"
 #include "Engine/Okay/Okay.h"
 
+// TODO: Change Scene* pScene to entt::registry* pReg
+// So that Scene.h can include Entity.h and keep an (Okay::Entity) of the main camera instead
+
 namespace Okay
 {
 	class Entity
@@ -22,7 +25,7 @@ namespace Okay
 		T& addComponent(Args&&... args)
 		{
 			OKAY_ASSERT(pScene, "pScene was nullptr");
-			// Assert if has or just repace? or just return it ? // don't just return it
+			// Assert if has or just replace? or just return it ? // don't just return it
 			return pScene->getRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
 		}
 

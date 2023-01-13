@@ -12,6 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OkayEditor", "OkayEditor\Ok
 		{91FBBF24-B198-4A6D-92FA-3AC4356A6D73} = {91FBBF24-B198-4A6D-92FA-3AC4356A6D73}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OkayTerrain", "OkayTerrain\OkayTerrain.vcxproj", "{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}"
+	ProjectSection(ProjectDependencies) = postProject
+		{91FBBF24-B198-4A6D-92FA-3AC4356A6D73} = {91FBBF24-B198-4A6D-92FA-3AC4356A6D73}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,6 +59,18 @@ Global
 		{E7E56653-530E-4FCB-87F4-84C303966C26}.Release|x64.Build.0 = Release|x64
 		{E7E56653-530E-4FCB-87F4-84C303966C26}.Release|x86.ActiveCfg = Release|Win32
 		{E7E56653-530E-4FCB-87F4-84C303966C26}.Release|x86.Build.0 = Release|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Debug|x64.ActiveCfg = Debug|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Debug|x64.Build.0 = Debug|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Debug|x86.ActiveCfg = Debug|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Debug|x86.Build.0 = Debug|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Dist|x64.ActiveCfg = Dist|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Dist|x64.Build.0 = Dist|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Dist|x86.ActiveCfg = Debug|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Dist|x86.Build.0 = Debug|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Release|x64.ActiveCfg = Release|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Release|x64.Build.0 = Release|x64
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Release|x86.ActiveCfg = Release|Win32
+		{71BD2C54-61C0-42D1-A9ED-1987BCFD6643}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

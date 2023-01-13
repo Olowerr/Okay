@@ -8,7 +8,7 @@ namespace Okay
 {
 
     Scene::Scene(Renderer& renderer)
-        :renderer(renderer)
+        :renderer(renderer), mainCamera(entt::null)
     {
     }
     

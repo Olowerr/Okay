@@ -30,6 +30,7 @@ if (!(condition))\
 
 #define OKAY_VERIFY(X)		if (!X) return false;
 #define CHECK_BIT(X, pos)	((X) & 1<<(pos))
+#define ARRAY_SIZE(X)		(sizeof(X) / sizeof(X[0]))
 
 #define VEC2_GLM_TO_IMGUI(vec)	ImVec2((float)vec.x, (float)vec.y)
 #define UNORM_TO_UCHAR(value)	unsigned char((value) * UCHAR_MAX)

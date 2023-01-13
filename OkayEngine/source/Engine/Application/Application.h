@@ -20,6 +20,9 @@ public:
 	void newFrame();
 	void endFrame();
 
+	void newFrameImGui();
+	void endFrameImGui();
+
 protected:
 	Window window;
 	Okay::ContentBrowser content;

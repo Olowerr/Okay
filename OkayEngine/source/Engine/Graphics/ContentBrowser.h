@@ -16,7 +16,6 @@ namespace Okay
 	public:
 		static bool canLoadTexture(const char* path);
 
-
 		ContentBrowser();
 		~ContentBrowser();
 
@@ -24,6 +23,9 @@ namespace Okay
 
 		template<typename Func, typename... Args>
 		void forEachMesh(const Func& function, Args&&... args);
+
+		template<typename... Args>
+		inline Mesh& addMesh(Args&&... args);
 
 		inline size_t getNumMeshes() const;
 		inline const std::vector<Mesh>& getMeshes() const;
@@ -46,6 +48,9 @@ namespace Okay
 
 		template<typename Func, typename... Args>
 		void forEachMaterial(const Func& function, Args&&... args);
+
+		template<typename... Args>
+		inline Material& addMaterial(Args&&... args);
 
 		inline size_t getNumMaterials() const;
 		inline const std::vector<Material>& getMaterials() const;
@@ -80,12 +85,18 @@ namespace Okay
 		for (size_t i = 0; i < meshes.size(); i++)
 			function(meshes[i], args...);
 	}
+
+	template<typename ...Args>
+	inline Mesh& ContentBrowser::addMesh(Args && ...args)
+	{
+		return meshes.emplace_back(args...);
+	}
 	
 	template<typename Func, typename... Args>
 	inline void ContentBrowser::forEachTexture(const Func& function, Args&&... args)
 	{
 		for (size_t i = 0; i < textures.size(); i++)
-			function(textures[i], args...);
+				function(textures[i], args...);
 	}
 	
 	template<typename Func, typename... Args>
@@ -93,6 +104,12 @@ namespace Okay
 	{
 		for (size_t i = 0; i < materials.size(); i++)
 			function(materials[i], args...);
+	}
+
+	template<typename ...Args>
+	inline Material& ContentBrowser::addMaterial(Args && ...args)
+	{
+		return materials.emplace_back(args...);
 	}
 
 	template<typename Func, typename ...Args>
