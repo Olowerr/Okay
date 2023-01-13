@@ -51,11 +51,14 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	MeshComponent& meshC = entity.getComponent<MeshComponent>();
 	
-	ImGui::Text("Mesh:	   %s", content.getMesh(meshC.meshIdx).getName().c_str());
+	ImGui::Text("Mesh: %s", content.getMesh(meshC.meshIdx).getName().c_str());
+	selectAsset(meshC.meshIdx, meshC.meshIdx, content.getMeshes(), "##NLMesh");
+
 	ImGui::Text("Material: %s", content.getMaterial(meshC.materialIdx).getName().c_str());
+	selectAsset(meshC.materialIdx, meshC.materialIdx, content.getMaterials(), "##NLMat");
 	
-	ImGui::Text("Shader:   %u", meshC.shaderIdx); ImGui::SameLine();
-	selectShader(meshC.shaderIdx, meshC.shaderIdx, "##NLshader");
+	ImGui::Text("Shader: %s", content.getShader(meshC.shaderIdx).getName().c_str());
+	selectAsset(meshC.shaderIdx, meshC.shaderIdx, content.getShaders(), "##NLSha");
 
 
 	IMGUI_DISPLAY_COMP_END();
@@ -195,56 +198,18 @@ void Editor::displayMaterial(uint32_t index)
 void Editor::displayShader(uint32_t index)
 {
 	Okay::Shader& shader = content.getShader(index);
+	const Okay::Texture* heightMap = shader.getHeightMap();
+	static float heightMapScalar = 1.f;
 
 	ImGui::Text("Shader - %s", shader.getName().c_str());
 	ImGui::Separator();
 
-	/*static Okay::String inputBufferPS{};
-	ImGui::Text("Pixel Shader: "); ImGui::SameLine();
-	if (ImGui::InputTextWithHint("##NLps", shader.getPSName().c_str(), inputBufferPS, Okay::String::LENGTH, ImGuiInputTextFlags_EnterReturnsTrue))
-	{
-		shader.setPixelShader(inputBufferPS.cStr);
-		inputBufferPS.clear();
-	}*/
-
-	const Okay::Texture* heightMap = shader.getHeightMap();
-
 	ImGui::Text("Height Map"); ImGui::SameLine();
 	selectTexture(shader, shader.getHeightMapID(), &Okay::Shader::setHeightMap, "##NLheight");
+	ImGui::Text("Height map scale: "); ImGui::SameLine();
+	if (ImGui::DragFloat("##NLhms", &heightMapScalar, 0.01f))
+		shader.setHeightMapScalar(heightMapScalar);
 
 	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
 
-}
-
-bool Editor::selectShader(uint32_t selectedShaderID, uint32_t& result, const char* listLabel)
-{
-	bool pressed = false;
-	uint32_t idx = 0u;
-
-	static auto lambdaSelectShader = [&](const Okay::Shader& shader)
-	{
-		if (ImGui::Selectable(shader.getName().c_str(), idx == selectedShaderID))
-		{
-			result = idx;
-			pressed = true;
-		}
-
-		idx++;
-	};
-
-	if (ImGui::BeginCombo(listLabel, content.getShader(selectedShaderID).getName().c_str()))
-	{
-		if (ImGui::Selectable("Reset"))
-		{
-			result = 0u; 
-			pressed = true;
-		}
-
-		else
-			content.forEachShader(lambdaSelectShader);
-
-		ImGui::EndCombo();
-	}
-
-	return pressed;
 }

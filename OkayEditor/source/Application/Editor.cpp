@@ -15,6 +15,7 @@ Editor::Editor(std::string_view startScene)
 	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
 {
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
+	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
@@ -128,6 +129,14 @@ void Editor::update()
 	displayContent();
 
 
+	if (Okay::Input::isKeyDown(Keys::SPACE) && Okay::Input::isKeyReleased(Keys::E))
+	{
+		Okay::Shader& shader = content.getShader(Okay::Entity((entt::entity)selectionID, &scene).getComponent<Okay::MeshComponent>().shaderIdx);
+		//shader.pHeightMap = testTex->getSRV();
+		//shader.gpuData.hasHeightMap = TRUE;
+	}
+
+
 	ImGui::Begin("result", &dockSpace);
 
 	static int numOct = 0;
@@ -161,6 +170,8 @@ void Editor::update()
 		
 	ImGui::Image(testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
+
+
 }
 
 void Editor::displayEntities()
