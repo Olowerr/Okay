@@ -42,12 +42,12 @@ namespace Okay
 
 	inline float PerlinNoise2D::toon(float value, uint32_t sections)
 	{
-		return (value / (1.f / sections)) * (1.f / sections);
+		return value - std::fmod(value, (1.f / (float)sections));
 	}
 
 	inline float PerlinNoise2D::sample(int x, int y)
 	{
-		return UCHAR_TO_UNORM(sample_Internal(x, y, startOctWidth, startOctWidth));
+		return sample_Internal(x, y, startOctWidth, startOctWidth);
 	}
 
 	inline void PerlinNoise2D::setBias(float bias)

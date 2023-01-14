@@ -5,6 +5,7 @@ namespace Okay
 	PerlinNoise2D::PerlinNoise2D(uint32_t octaves, uint32_t sections, float bias, uint32_t startOctWidth)
 		:seed(0u), octaves(octaves), sections(sections), bias(bias), startOctWidth(startOctWidth)
 	{
+
 	}
 
 	PerlinNoise2D::~PerlinNoise2D()
@@ -101,6 +102,7 @@ namespace Okay
 		}
 
 		return toon(noise / scaleAcc, sections);
+
 	}
 
 	float PerlinNoise2D::sampleSeed(int x, int y)

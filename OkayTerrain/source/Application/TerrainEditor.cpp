@@ -27,6 +27,7 @@ TerrainEditor::TerrainEditor()
 	content.addMesh();
 	content.addMesh();
 
+	noiser.setSeed(123);
 	createTerrainMesh(200, 2048.f, 500.f);
 	createTerrainMesh(1, 1.f, 0.f, 1u);
 
@@ -165,17 +166,15 @@ void TerrainEditor::update()
 		createTerrainMesh(numSubDivs, scale, scaleY);
 	}
 
-
-
 	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
 	{
 		noiser.setBias(bias);
 		createTerrainMesh(numSubDivs, scale, scaleY);
 	}
 
-
 	if (ImGui::InputInt("Sub Divs", &numSubDivs, 1, 10))
 	{
+		if (numSubDivs <= 0) numSubDivs = 1;
 		createTerrainMesh(numSubDivs, scale, scaleY);
 	}
 
@@ -237,7 +236,16 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs);
 
 			pos *= scale;
+#if 0
 			pos.y += noiser.sample((int)pos.x, (int)pos.z) * scaleY;
+#else
+			float sampleX1 = noiser.sample((int)pos.x, (int)pos.z) * scaleY;
+			float sampleX2 = noiser.sample((int)pos.x + 1, (int)pos.z + 1) * scaleY;
+			float lerpT = std::abs(std::fmod(pos.x, 1.f));
+
+			pos.y += glm::mix(sampleX1, sampleX2, lerpT);
+#endif
+
 			data.positions.emplace_back(pos);
 
 			data.uvs.emplace_back(pos.x + 0.5f, (pos.z - 0.5f) * -1.f);
