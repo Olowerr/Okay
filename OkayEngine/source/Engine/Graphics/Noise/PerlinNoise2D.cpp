@@ -9,12 +9,6 @@ namespace Okay
 
 	PerlinNoise2D::~PerlinNoise2D()
 	{
-		shutdown();
-	}
-
-	void PerlinNoise2D::shutdown()
-	{
-		
 	}
 
 	void PerlinNoise2D::generateTexture(ID3D11Texture2D* output)
@@ -29,7 +23,7 @@ namespace Okay
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = sample_Internal(x, y, width, height);
+				result[width * y + x] = UNORM_TO_UCHAR(sample_Internal(x, y, width, height));
 			}
 		}
 
@@ -40,7 +34,7 @@ namespace Okay
 		OKAY_DELETE_ARRAY(result);
 	}
 	
-	unsigned char PerlinNoise2D::sample_Internal(int x, int y, int width, int height)
+	float PerlinNoise2D::sample_Internal(int x, int y, int width, int height)
 	{
 		float noise = 0;
 		float scale = 1.f;
@@ -54,14 +48,30 @@ namespace Okay
 			if (!pitchX) pitchX = 1u;
 			if (!pitchY) pitchY = 1u;
 
-			const int sampleX1 = (x / pitchX) * pitchX;
-			const int sampleY1 = (y / pitchY) * pitchY;
-				  
+			// Gave incorrect with negative inputs
+			//const int sampleX1 = (x / pitchX) * pitchX;
+			//const int sampleY1 = (y / pitchY) * pitchY;
+			
+			// Works but remove ternary operator
+			const int sampleX1 = x < 0 ? x - (pitchX + x % pitchX) : (x / pitchX) * pitchX;
+			const int sampleY1 = y < 0 ? y - (pitchY + y % pitchY) : (y / pitchY) * pitchY;
+
+			// Works but looks kinda ugly
+			//int sampleX1 = (x / pitchX) * pitchX;
+			//int sampleY1 = (y / pitchY) * pitchY;
+			//if (x < 0) sampleX1 -= pitchX;
+			//if (y < 0) sampleY1 -= pitchY;
+
 			const int sampleX2 = (sampleX1 + pitchX);
 			const int sampleY2 = (sampleY1 + pitchY);
 
-			const float lerpTX = (float)(x % pitchX) / (float)pitchX;
-			const float lerpTY = (float)(y % pitchY) / (float)pitchY;
+			// Gave incorrect results with negative inputs
+			//const float lerpTX = (float)(x % pitchX) / (float)pitchX;
+			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
+
+			// OneLoneCoder/Javidx9's blend math
+			const float lerpTX = (float)(x - sampleX1) / (float)pitchX;
+			const float lerpTY = (float)(y - sampleY1) / (float)pitchY;
 
 			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
 			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
@@ -90,16 +100,16 @@ namespace Okay
 #endif
 		}
 
-		return toon(UNORM_TO_UCHAR(noise / scaleAcc), sections);
+		return toon(noise / scaleAcc, sections);
 	}
 
 	float PerlinNoise2D::sampleSeed(int x, int y)
 	{
-		x = std::abs(x);
-		y = std::abs(y);
+		x += seed;
+
+		// https://github.com/Cyan4973/xxHash
 
 		/* mix around the bits in x: */
-		x += seed;
 		x = x * 3266489917 + 374761393;
 		x = (x << 17) | (x >> 15);
 

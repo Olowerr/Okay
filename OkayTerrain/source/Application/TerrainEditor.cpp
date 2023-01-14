@@ -108,8 +108,8 @@ void TerrainEditor::update()
 
 	Transform& waTra = water.getComponent<Transform>();
 	Transform& taTra = terrain.getComponent<Transform>();
-	taTra.position.x = scale * -0.5f;
-	taTra.position.z = scale * -0.5f;
+	//taTra.position.x = scale * -0.5f;
+	//taTra.position.z = scale * -0.5f;
 	waTra.position.x = taTra.position.x;
 	waTra.position.z = taTra.position.z;
 	waTra.scale.x = scale;
@@ -223,17 +223,6 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 		baseVerts[i].z += 0.5f - std::abs(baseVerts[i].z);
 	}
 
-
-	/*std::vector<float> res(100 * 100);
-	int c = 0;
-	for (uint32_t x = 0; x < 100; x++)
-	{
-		for (uint32_t y = 0; y < 100; y++)
-		{
-			res[c++] = noise.sample(x, y);
-		}
-	}*/
-
 	size_t numPoints = (size_t)subDivs * (size_t)subDivs * NUM_VERTS;
 
 	data.positions.reserve(numPoints);
@@ -247,14 +236,8 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs);
 
-			pos.x += 0.5f;
-			pos.z += 0.5f;
-
 			pos *= scale;
 			pos.y += noiser.sample((int)pos.x, (int)pos.z) * scaleY;
-			//pos.x -= scale * 0.5f;
-			//pos.z -= scale * 0.5f;
-
 			data.positions.emplace_back(pos);
 
 			data.uvs.emplace_back(pos.x + 0.5f, (pos.z - 0.5f) * -1.f);
@@ -263,7 +246,7 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 		}
 	}
 
-	for (size_t i = 0; i < data.positions.size(); i+=3)
+	for (size_t i = 0; i < numPoints; i+=3)
 	{
 		glm::vec3 v1, v2, result;
 		v1 = data.positions[i + 1] - data.positions[i];

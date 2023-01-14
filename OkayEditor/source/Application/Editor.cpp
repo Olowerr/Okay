@@ -19,7 +19,7 @@ Editor::Editor(std::string_view startScene)
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
 	Okay::Entity entity = scene.createEntity();
-	entity.addComponent<Okay::MeshComponent>(0u, 0u);
+	entity.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
 	Okay::Transform& tra = entity.getComponent<Okay::Transform>();
 	tra.scale *= 2.f;
 
@@ -124,7 +124,7 @@ void Editor::update()
 		//shader.gpuData.hasHeightMap = TRUE;
 	}
 
-	return;
+	//return;
 	ImGui::Begin("result", &dockSpace);
 
 	static int numOct = 0;
