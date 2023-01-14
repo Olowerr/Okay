@@ -8,58 +8,66 @@ namespace Okay
 	class PerlinNoise2D
 	{
 	public:
-		PerlinNoise2D(ID3D11Texture2D* output);
+		PerlinNoise2D(uint32_t octaves, uint32_t sections = 255u, float bias = 2.f, uint32_t startOctWidth = 512);
 		~PerlinNoise2D();
 		void shutdown();
 
-		void setSeed(uint32_t seed);
-		void generate(uint32_t octaves, uint32_t sections, float bias);
+		inline void setSeed(int seed);
+		inline void setOctaves(uint32_t octaves);
+		inline void setSections(uint32_t sections);
+		inline void setBias(float bias);
+		inline void setOctWidth(uint32_t octWidth);
+		void generateTexture(ID3D11Texture2D* output);
+
+		float sample(int x, int y);
 
 	private:
-		uint32_t width, height;
-		uint32_t seed;
-		unsigned char* result;
+		uint32_t octaves;
+		uint32_t sections;
+		uint32_t startOctWidth;
+		float bias;
+
+		int seed;
 		
-		ID3D11Texture2D* resultBuffer;
-
-		ID3D11Texture2D* output;
-		ID3D11UnorderedAccessView* uav;
-
-		void createResources(ID3D11Texture2D* output);
-		inline float sampleSeed(uint32_t x, uint32_t y);
-		inline void writeResult(uint32_t x, uint32_t y, unsigned char value);
+		void createResources(ID3D11Texture2D* output, ID3D11Texture2D** resultBuffer, uint32_t* width, uint32_t* height);
+		inline float sampleSeed(int x, int y);
+		unsigned char sample_Internal(int x, int y, int width, int height);
 
 		static inline unsigned char toon(unsigned char value, uint32_t sections);
 	};
 
-	inline float PerlinNoise2D::sampleSeed(uint32_t x, uint32_t y)
+	inline void PerlinNoise2D::setSeed(int seed)
 	{
-		/* mix around the bits in x: */
-		x = x * 3266489917 + 374761393;
-		x = (x << 17) | (x >> 15);
-
-		/* mix around the bits in y and mix those into x: */
-		x += y * 3266489917;
-
-		/* Give x a good stir: */
-		x *= 668265263;
-		x ^= x >> 15;
-		x *= 2246822519;
-		x ^= x >> 13;
-		x *= 3266489917;
-		x ^= x >> 16;
-
-		/* trim the result and scale it to a float in [0,1): */
-		return (x & 0x00ffffff) * (1.0f / 0x1000000);
+		this->seed = seed;
 	}
 
-	inline void PerlinNoise2D::writeResult(uint32_t x, uint32_t y, unsigned char value)
-	{
-		result[width * y + x] = value;
-	}
-
-	unsigned char PerlinNoise2D::toon(unsigned char value, uint32_t sections)
+	inline unsigned char PerlinNoise2D::toon(unsigned char value, uint32_t sections)
 	{
 		return (value / (UCHAR_MAX / sections)) * (UCHAR_MAX / sections);
+	}
+
+	inline float PerlinNoise2D::sample(int x, int y)
+	{
+		return UCHAR_TO_UNORM(sample_Internal(x, y, startOctWidth, startOctWidth));
+	}
+
+	inline void Okay::PerlinNoise2D::setBias(float bias)
+	{
+		this->bias = bias;
+	}
+
+	inline void PerlinNoise2D::setSections(uint32_t sections)
+	{
+		this->sections = sections;
+	}
+
+	inline void Okay::PerlinNoise2D::setOctaves(uint32_t octaves)
+	{
+		this->octaves = octaves;
+	}
+
+	inline void Okay::PerlinNoise2D::setOctWidth(uint32_t octWidth)
+	{
+		startOctWidth = octWidth;
 	}
 }

@@ -34,6 +34,7 @@ if (!(condition))\
 
 #define VEC2_GLM_TO_IMGUI(vec)	ImVec2((float)vec.x, (float)vec.y)
 #define UNORM_TO_UCHAR(value)	unsigned char((value) * UCHAR_MAX)
+#define UCHAR_TO_UNORM(value)	float((value) / (float)UCHAR_MAX)
 
 namespace Okay
 {

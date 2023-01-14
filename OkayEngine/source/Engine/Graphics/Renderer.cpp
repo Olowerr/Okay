@@ -150,7 +150,7 @@ namespace Okay
 		DX11_RELEASE(pAniIL);
 	}
 
-	void Renderer::render(const Entity& cameraEntity)
+	void Renderer::render(Entity cameraEntity)
 	{
 		DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
 		DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
@@ -158,7 +158,9 @@ namespace Okay
 		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
 		const Camera& camera = cameraEntity.getComponent<Camera>();
-		const Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
+		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
+		camTransform.calculateMatrix();
+
 		glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
 			glm::lookAtLH(camTransform.position, camTransform.position + camTransform.forward(), camTransform.up()));
 		

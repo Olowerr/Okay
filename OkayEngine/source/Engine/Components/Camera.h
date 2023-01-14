@@ -19,7 +19,7 @@ namespace Okay
 
 		Camera()
 		{
-			calculateProjMatrix(90.f, 16.f, 9.f, 0.1f, 1000.f);
+			calculateProjMatrix(90.f, 16.f, 9.f, 0.1f, 10000.f);
 		}
 
 		void calculateProjMatrix(float fov, float width, float height, float nearZ, float farZ)

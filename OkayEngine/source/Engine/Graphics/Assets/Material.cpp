@@ -2,6 +2,14 @@
 
 namespace Okay
 {
+	Material::Material()
+		:name("Material"), data(), isTwoSided(false)
+	{
+		textures[0] = 0u;
+		textures[1] = 0u;
+		textures[2] = 0u;
+	}
+
 	Material::Material(const Description& desc)
 		:name(desc.name), data(desc.gpuData), isTwoSided(desc.twoSided)
 	{

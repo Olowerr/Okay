@@ -32,8 +32,8 @@ Editor::Editor(std::string_view startScene)
 
 	testTex = new Okay::RenderTexture(512u, 512u, 
 		Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ, Okay::RenderTexture::F_8X1);
-	noiser = new Okay::PerlinNoise2D(testTex->getBuffer());
-	noiser->generate(1, 255, 2.f);
+	noiser = new Okay::PerlinNoise2D(4);
+	noiser->generateTexture(testTex->getBuffer());
 }
 
 Editor::~Editor()
@@ -124,7 +124,7 @@ void Editor::update()
 		//shader.gpuData.hasHeightMap = TRUE;
 	}
 
-
+	return;
 	ImGui::Begin("result", &dockSpace);
 
 	static int numOct = 0;
@@ -136,18 +136,23 @@ void Editor::update()
 	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
 	{
 		numSec = glm::clamp(numSec, 1, 255);
-		noiser->generate(numOct, numSec, bias);
+		noiser->setSections(numSec);
+		noiser->generateTexture(testTex->getBuffer());
 	}
-
+	
 	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
 	{
 		numOct = glm::clamp(numOct, 0, 100);
-		noiser->generate(numOct, numSec, bias);
+		noiser->setOctaves(numOct);
+		noiser->generateTexture(testTex->getBuffer());
 	}
-
+	
 	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
-		noiser->generate(numOct, numSec, bias);
-
+	{
+		noiser->setBias(bias);
+		noiser->generateTexture(testTex->getBuffer());
+	}
+	
 	if (ImGui::Button("New seed"))
 	{
 		//noiser->randomizeSeed();

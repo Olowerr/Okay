@@ -33,6 +33,7 @@ namespace Okay
 			bool twoSided = false;
 		};
 
+		Material();
 		Material(const Description& desc);
 		Material(Material&& other) noexcept;
 		~Material();

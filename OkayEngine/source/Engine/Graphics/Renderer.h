@@ -29,7 +29,7 @@ namespace Okay
 		void setRenderTexture(const RenderTexture* pRenderTexture);
 
 		void newFrame();
-		void render(const Entity& cameraEntity);
+		void render(Entity cameraEntity);
 
 
 	private:

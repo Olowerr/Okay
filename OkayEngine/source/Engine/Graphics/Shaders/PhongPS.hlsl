@@ -27,9 +27,11 @@ cbuffer lightInfo : register(b4)
 
 SamplerState simp : register(s0);
 
+static float3 SUN_DIR = normalize(float3(1.f, -1.f, 1.f));
+
 float4 main(TransformedVertex input) : SV_TARGET
 {
-#if 1
+#if 0
 	PointLight poLight;
 
 	float distance;
@@ -54,9 +56,28 @@ float4 main(TransformedVertex input) : SV_TARGET
 		shading += finalIntensity * poLight.colour;
 	}
 
-	//specular.Sample(simp, input.uv), ambient.Sample(simp, input.uv);
 	return baseColour.Sample(simp, input.uv * uvTiling + uvOffset) * float4(shading.rgb, 1.f);
-#else
+
+#elif 0
 	return float4(baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb, 1.f);
+
+#elif 0
+	float3 colour = input.worldPos.y <= 250.f ? float3(0.f, 0.f, 1.f) : float3(0.f, 1.f, 0.f);
+	return float4(colour, 1.f);
+
+
+#elif 0
+	float3 colour = float3(1.f, 0.f, 0.f);// baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb;
+	return float4(max(dot(-input.normal, SUN_DIR), 0.f) * colour, 1.f);
+
+
+#elif 1
+
+	float3 colour = baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb;
+	return float4(max(dot(-input.normal, SUN_DIR), 0.f) * colour, 1.f);
+
+
+#else
+	return float4(float3(1.f * input.worldPos.y, 0.f, 0.f), 1.f);
 #endif
 }
