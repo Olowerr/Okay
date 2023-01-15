@@ -212,6 +212,9 @@
     <ClInclude Include="source\Engine\Application\Input\Input.h" />
     <ClInclude Include="source\Engine\Application\Input\Keys.h" />
     <ClInclude Include="source\Engine\Application\Scene.h" />
+    <ClInclude Include="source\Engine\Application\Script\ScriptComponent.h" />
+    <ClInclude Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.h" />
+    <ClInclude Include="source\Engine\Application\Script\ScriptBehaviour.h" />
     <ClInclude Include="source\Engine\Application\Time.h" />
     <ClInclude Include="source\Engine\Application\Window.h" />
     <ClInclude Include="source\Engine\Components\Camera.h" />
@@ -278,6 +281,8 @@
     <ClCompile Include="deps\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Engine\Application\Application.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
+    <ClCompile Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.cpp" />
+    <ClCompile Include="source\Engine\Application\Script\ScriptComponent.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />
     <ClCompile Include="source\Engine\DirectX\DX11.cpp" />
     <ClCompile Include="source\Engine\Graphics\ContentBrowser.cpp">

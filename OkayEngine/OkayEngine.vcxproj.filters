@@ -120,6 +120,15 @@
     <ClInclude Include="source\Engine\Graphics\Noise\PerlinNoise2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Engine\Application\Script\ScriptBehaviour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Application\Script\ScriptComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Engine\Application\Application.cpp">
@@ -186,6 +195,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Engine\Graphics\Noise\PerlinNoise2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine\Application\Script\ScriptComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include "Engine/Okay/Okay.h"
+#include "Script/ScriptComponent.h"
 
 // TODO: Change Scene* pScene to entt::registry* pReg
 // So that Scene.h can include Entity.h and keep an (Okay::Entity) of the main camera instead
@@ -58,6 +59,22 @@ namespace Okay
 			OKAY_ASSERT(pScene, "pScene was nullptr");
 			return pScene->getRegistry().remove<T>(entityId);
 		}
+
+		template<typename T, typename... Args>
+		T& addScript(Args&&... args)
+		{
+			if (!hasComponent<ScriptComponent>())
+				addComponent<ScriptComponent>();
+
+			return getComponent<ScriptComponent>().addScript<T>(*this, args...);
+		}
+
+		template<typename T>
+		T& getScript()
+		{
+			return getComponent<ScriptComponent>().getScript<T>();
+		}
+
 
 		operator entt::entity()		  { return entityId; }
 		operator entt::entity() const { return entityId; }

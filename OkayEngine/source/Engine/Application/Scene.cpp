@@ -46,12 +46,18 @@ namespace Okay
 
     void Scene::start()
     {
-        
+        registry.view<ScriptComponent>().each([](ScriptComponent& script)
+        {
+            script.start();
+        });
     }
     
     void Scene::update()
     {
-    
+        registry.view<ScriptComponent>().each([](ScriptComponent& script)
+        {
+            script.update();
+        });
     }
     
     void Scene::submit()
@@ -73,6 +79,9 @@ namespace Okay
     
     void Scene::end()
     {
-    
+        registry.view<ScriptComponent>().each([](ScriptComponent& script)
+        {
+            script.destroy();
+        });
     }
 }
