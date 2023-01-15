@@ -3,6 +3,7 @@
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
+#include <Engine/Application/Script/DefaultScripts/FreeLookMovement.h>
 
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
@@ -10,16 +11,21 @@
 TerrainEditor::TerrainEditor()
 	:Application(L"Okay Terrain"), scene(renderer), noiser(8u, 255u, 2.f, 2048u)
 {
-	Application::initImgui();
-
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
 	camera.addComponent<Okay::PointLight>().intensity = 3.f;
-	Okay::Transform& camTra = camera.getComponent<Okay::Transform>();
-	camTra.rotation.x = glm::pi<float>() * 0.5f;
-	camTra.position.y = 1000.f;
+	camera.addScript<Okay::FreeLookMovement>(500.f);
 
 	scene.setMainCamera(camera);
+
+	content.addMaterial().setBaseColour(1u);
+	terrain = scene.createEntity();
+	terrain.addComponent<Okay::MeshComponent>(0u, 1u, 0u);
+
+	content.addMaterial().setBaseColour(2u);
+	water = scene.createEntity();
+	water.addComponent<Okay::MeshComponent>(1u, 2u, 0u);
+	water.getComponent<Okay::Transform>().position.y = 250.f;
 
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/ground.png");
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/water.png");
@@ -30,16 +36,6 @@ TerrainEditor::TerrainEditor()
 	noiser.setSeed(123);
 	createTerrainMesh(200, 2048.f, 500.f);
 	createTerrainMesh(1, 1.f, 0.f, 1u);
-
-
-	content.addMaterial().setBaseColour(1u);
-	terrain = scene.createEntity();
-	terrain.addComponent<Okay::MeshComponent>(0u, 1u, 0u);
-
-	content.addMaterial().setBaseColour(2u);
-	water = scene.createEntity();
-	water.addComponent<Okay::MeshComponent>(1u, 2u, 0u);
-	water.getComponent<Okay::Transform>().position.y = 250.f;
 }
 
 TerrainEditor::~TerrainEditor()
@@ -49,6 +45,7 @@ TerrainEditor::~TerrainEditor()
 void TerrainEditor::run()
 {
 	using namespace Okay;
+	Application::initImgui();
 
 	scene.start();
 	Time::start();
@@ -56,8 +53,6 @@ void TerrainEditor::run()
 	while (window.isOpen())
 	{
 		Application::newFrameImGui();
-
-		
 
 		update();
 		scene.update();
@@ -87,39 +82,19 @@ void TerrainEditor::update()
 	static float bias = 2.f;
 	static float scale = 2048.f;
 	static float scaleY = 500.f;
-	static float camSpeed = 300.f;
+	static float camSpeed = scene.getMainCamera().getScript<FreeLookMovement>().getSpeed();
 	static float waterHeight = 250.f;
 	static bool lockOctWidth = true;
 
-	Transform& camTra = scene.getMainCamera().getComponent<Transform>();
-	const float frameSpeed = camSpeed * Time::getDT();
-
-	if (Input::isKeyDown(Keys::A))
-		camTra.position.x -= frameSpeed;
-	if (Input::isKeyDown(Keys::D))
-		camTra.position.x += frameSpeed;
-	if (Input::isKeyDown(Keys::W))
-		camTra.position.z += frameSpeed;
-	if (Input::isKeyDown(Keys::S))
-		camTra.position.z -= frameSpeed;
-	if (Input::isKeyDown(Keys::E))
-		camTra.position.y += frameSpeed;
-	if (Input::isKeyDown(Keys::Q))
-		camTra.position.y -= frameSpeed;
-
 	Transform& waTra = water.getComponent<Transform>();
-	Transform& taTra = terrain.getComponent<Transform>();
-	//taTra.position.x = scale * -0.5f;
-	//taTra.position.z = scale * -0.5f;
-	waTra.position.x = taTra.position.x;
-	waTra.position.z = taTra.position.z;
-	waTra.scale.x = scale;
-	waTra.scale.z = scale;
 
-	//ImGui::DragFloat("qweqd", &camTra.rotation.x, 0.1f);
-	ImGui::DragFloat("cam speed", &camSpeed, 0.1f);
+	if (ImGui::DragFloat("cam speed", &camSpeed, 0.1f))
+	{
+		FreeLookMovement& movement = scene.getMainCamera().getScript<FreeLookMovement>();
+		movement.setSpeed(camSpeed);
+	}
+
 	ImGui::DragFloat("water height", &waTra.position.y, 0.1f);
-
 
 	if (ImGui::InputInt("Seed", &seed, 1, 10))
 	{
@@ -269,4 +244,11 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 	}
 
 	content.getMesh(meshIdx).create(data);
+
+	Transform& waTra = water.getComponent<Transform>();
+	const Transform& taTra = terrain.getComponent<Transform>();
+	waTra.position.x = taTra.position.x;
+	waTra.position.z = taTra.position.z;
+	waTra.scale.x = scale;
+	waTra.scale.z = scale;
 }
