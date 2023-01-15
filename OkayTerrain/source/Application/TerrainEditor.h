@@ -25,7 +25,7 @@ private:
 	Okay::Entity terrain;
 
 	void update();
-	void createTerrainMesh(uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx = 0u);
+	void createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx = 0u);
 
 	glm::vec3 findPos(glm::vec3 pos, uint32_t idx, uint32_t subDivs)
 	{

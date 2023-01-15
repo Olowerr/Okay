@@ -9,13 +9,13 @@
 #include "imgui/imgui_impl_win32.h"
 
 TerrainEditor::TerrainEditor()
-	:Application(L"Okay Terrain"), scene(renderer), noiser(8u, 255u, 2.f, 2048u)
+	:Application(L"Okay Terrain"), scene(renderer), noiser(8u, 255u, 2.f, 512u)
 {
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
 	camera.addComponent<Okay::PointLight>().intensity = 3.f;
 	camera.addScript<Okay::FreeLookMovement>(500.f);
-
+	camera.getComponent<Okay::Transform>().position.y = 300.f;
 	scene.setMainCamera(camera);
 
 	content.addMaterial().setBaseColour(1u);
@@ -34,8 +34,16 @@ TerrainEditor::TerrainEditor()
 	content.addMesh();
 
 	noiser.setSeed(123);
-	createTerrainMesh(200, 2048.f, 500.f);
-	createTerrainMesh(1, 1.f, 0.f, 1u);
+	createTerrainMesh(false, 100, 2048.f, 500.f);
+	createTerrainMesh(false, 1, 1.f, 0.f, 1u);
+
+
+	Okay::Transform& waTra = water.getComponent<Okay::Transform>();
+	const Okay::Transform& taTra = terrain.getComponent<Okay::Transform>();
+	waTra.position.x = taTra.position.x;
+	waTra.position.z = taTra.position.z;
+	waTra.scale.x = 2048.f;
+	waTra.scale.z = 2048.f;
 }
 
 TerrainEditor::~TerrainEditor()
@@ -66,6 +74,7 @@ void TerrainEditor::run()
 	Application::destroyImgui();
 }
 
+#define CREATE_TERRAIN() createTerrainMesh(smoothShading, numSubDivs, scale, scaleY)
 void TerrainEditor::update()
 {
 	using namespace Okay;
@@ -74,10 +83,11 @@ void TerrainEditor::update()
 	ImGui::Begin("Settings", &open);
 	ImGui::PushItemWidth(-100.f);
 
-	static int numSubDivs = 200;
+	static bool smoothShading = false;
+	static int numSubDivs = 100;
 	static int numOct = 8;
 	static int numSec = 255;
-	static int octWidth = 2048;
+	static int octWidth = 512;
 	static int seed = 123;
 	static float bias = 2.f;
 	static float scale = 2048.f;
@@ -88,6 +98,10 @@ void TerrainEditor::update()
 
 	Transform& waTra = water.getComponent<Transform>();
 
+	if (ImGui::Checkbox("Smooth shading (slow)", &smoothShading))
+	{
+		CREATE_TERRAIN();
+	}
 	if (ImGui::DragFloat("cam speed", &camSpeed, 0.1f))
 	{
 		FreeLookMovement& movement = scene.getMainCamera().getScript<FreeLookMovement>();
@@ -99,77 +113,70 @@ void TerrainEditor::update()
 	if (ImGui::InputInt("Seed", &seed, 1, 10))
 	{
 		noiser.setSeed(seed);
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
 	{
 		numSec = glm::clamp(numSec, 1, 255);
 		noiser.setSections(numSec);
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
 	{
 		numOct = glm::clamp(numOct, 0, 100);
 		noiser.setOctaves(numOct);
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	
-	if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
-	{
-		noiser.setOctWidth(octWidth);
-		createTerrainMesh(numSubDivs, scale, scaleY);
-	}
+	//if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
+	//{
+	//	noiser.setOctWidth(octWidth);
+	//	createTerrainMesh(numSubDivs, scale, scaleY);
+	//}
 
-	if (lockOctWidth)
-		octWidth = (int)scale;
+	//if (lockOctWidth)
+	//	octWidth = (int)scale;
 
-	ImGui::BeginDisabled(lockOctWidth);
+	//ImGui::BeginDisabled(lockOctWidth);
 	if (ImGui::InputInt("octave width", &octWidth, 1, 10))
 	{
 		if (octWidth <= 0) octWidth = 1;
 
 		noiser.setOctWidth(octWidth);
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
-	ImGui::EndDisabled();
+	//ImGui::EndDisabled();
 	
 	if (ImGui::DragFloat("Mesh scale", &scale, 1.f, 1.f))
 	{
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
 	{
 		noiser.setBias(bias);
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	if (ImGui::InputInt("Sub Divs", &numSubDivs, 1, 10))
 	{
 		if (numSubDivs <= 0) numSubDivs = 1;
-		createTerrainMesh(numSubDivs, scale, scaleY);
+		CREATE_TERRAIN();
 	}
 
 	if (ImGui::DragFloat("Scale Y", &scaleY, 0.1f))
 	{
-		createTerrainMesh(numSubDivs, scale, scaleY);
-	}
-
-
-	if (ImGui::Button("New seed"))
-	{
-		//noiser->randomizeSeed();
-		//noiser->generate(numOct, numSec, bias);
+		CREATE_TERRAIN();
 	}
 
 	ImGui::PopItemWidth();
 	ImGui::End();
 }
 
-void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx)
+void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx)
 {
 	using namespace Okay;
 
@@ -204,6 +211,7 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 	data.normals.reserve(numPoints);
 	data.indices.reserve(numPoints);
 
+	float minY = 1000000000000.f;
 	for (uint32_t i = 0; i < subDivs * subDivs; i++)
 	{
 		for (size_t v = 0; v < NUM_VERTS; v++)
@@ -211,7 +219,7 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs);
 
 			pos *= scale;
-#if 0
+#if 1
 			pos.y += noiser.sample((int)pos.x, (int)pos.z) * scaleY;
 #else
 			float sampleX1 = noiser.sample((int)pos.x, (int)pos.z) * scaleY;
@@ -221,26 +229,144 @@ void TerrainEditor::createTerrainMesh(uint32_t subDivs, float scale, float scale
 			pos.y += glm::mix(sampleX1, sampleX2, lerpT);
 #endif
 
+			if (pos.y < minY)
+				minY = pos.y;
+
 			data.positions.emplace_back(pos);
 
-			data.uvs.emplace_back(pos.x + 0.5f, (pos.z - 0.5f) * -1.f);
+			data.uvs.emplace_back(pos.x / scale, pos.z / scale);
 
 			data.indices.emplace_back((uint32_t)data.indices.size());
 		}
 	}
 
-	for (size_t i = 0; i < numPoints; i+=3)
+	for (size_t i = 0; i < numPoints; i++)
+		data.positions[i].y -= minY;
+	
+
+	if (smoothShading)
 	{
-		glm::vec3 v1, v2, result;
-		v1 = data.positions[i + 1] - data.positions[i];
-		v2 = data.positions[i + 2] - data.positions[i];
 
-		result = glm::normalize(glm::cross(v1, v2));
-		// hmm
+		std::vector<glm::vec3> faceNormals(numPoints / 3);
+		size_t counter = 0;
+		for (size_t i = 0; i < numPoints; i += 3)
+		{
+			glm::vec3 v1, v2, result;
+			v1 = data.positions[i + 1] - data.positions[i];
+			v2 = data.positions[i + 2] - data.positions[i];
 
-		data.normals.emplace_back(result);
-		data.normals.emplace_back(result);
-		data.normals.emplace_back(result);
+			result = glm::cross(v1, v2);
+
+			faceNormals[counter++] = result;
+		}
+
+		glm::vec3 sum(0.f);
+		for (size_t i = 0; i < numPoints; i++)
+		{
+			const size_t faceIdx = i / 3;
+			sum = faceNormals[faceIdx];
+
+			if (i == 1202)
+			{
+				int q = 0;
+			}
+
+			/*int span = (int)subDivs * 7;
+			int startIdx = (int)i - span;
+
+			for (int j = startIdx; j < i + span; j++)
+			{
+				if (j < 0 || j >= numPoints || j == i)
+					continue;
+
+				if (glm::vec3 delta = data.positions[i] - data.positions[j]; glm::dot(delta, delta) > 0.5f * 0.5f)
+					continue;
+
+				sum += faceNormals[j / 3];
+			}*/
+
+
+			{
+				int idx = (int)faceIdx - (subDivs * 2 - 1) - 4;
+				if (idx >= 0 && idx < numPoints / 3)
+				{
+					for (int j = 0; j < NUM_VERTS * 10; j++)
+					{
+						int vert = idx * 3 + j;
+						if (vert < 0 || vert >= numPoints || vert == i)
+							continue;
+
+						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
+							continue;
+
+						sum += faceNormals[vert / 3];
+					}
+				}
+			}
+			
+			{
+				int idx = (int)faceIdx - 4;
+				if (idx >= 0 && idx < numPoints / 3)
+				{
+					for (int j = 0; j < NUM_VERTS * 10; j++)
+					{
+						int vert = idx * 3 + j;
+						if (vert < 0 || vert >= numPoints || vert == i)
+							continue;
+
+						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
+							continue;
+
+						sum += faceNormals[vert / 3];
+					}
+				}
+			}
+			
+			{
+				int idx = (int)faceIdx + (subDivs * 2) - 4;
+				if (idx >= 0 && idx < numPoints / 3)
+				{
+					for (int j = 0; j < NUM_VERTS * 10; j++)
+					{
+						int vert = idx * 3 + j;
+						if (vert < 0 || vert >= numPoints || vert == i)
+							continue;
+
+						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
+							continue;
+
+						sum += faceNormals[vert / 3];
+					}
+				}
+			}
+
+			/*for (size_t j = 0; j < numPoints; j++)
+			{
+				if (i == j)
+					continue;
+
+				if (glm::vec3 delta = data.positions[i] - data.positions[j]; glm::dot(delta, delta) > 0.5f * 0.5f)
+					continue;
+
+				sum += faceNormals[j / 3];
+			}*/
+			data.normals.emplace_back(glm::normalize(sum));
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < numPoints; i += 3)
+		{
+			glm::vec3 v1, v2, result;
+			v1 = data.positions[i + 1] - data.positions[i];
+			v2 = data.positions[i + 2] - data.positions[i];
+
+			result = glm::normalize(glm::cross(v1, v2));
+
+			data.normals.emplace_back(result);
+			data.normals.emplace_back(result);
+			data.normals.emplace_back(result);
+		}
 	}
 
 	content.getMesh(meshIdx).create(data);

@@ -74,10 +74,9 @@ float4 main(TransformedVertex input) : SV_TARGET
 #elif 1
 
 	float3 colour = baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb;
-	return float4(max(dot(-input.normal, SUN_DIR), 0.f) * colour, 1.f);
-
+	return float4(max(dot(-input.normal, SUN_DIR), 0.f) * colour + colour * 0.2f, 1.f);
 
 #else
-	return float4(float3(1.f * input.worldPos.y, 0.f, 0.f), 1.f);
+	return float4(input.normal, 1.f);
 #endif
 }
