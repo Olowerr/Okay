@@ -98,7 +98,7 @@ void TerrainEditor::update()
 
 	Transform& waTra = water.getComponent<Transform>();
 
-	if (ImGui::Checkbox("Smooth shading (slow)", &smoothShading))
+	if (ImGui::Checkbox("Smooth shading (slower)", &smoothShading))
 	{
 		CREATE_TERRAIN();
 	}
@@ -131,16 +131,16 @@ void TerrainEditor::update()
 	}
 
 	
-	//if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
-	//{
-	//	noiser.setOctWidth(octWidth);
-	//	createTerrainMesh(numSubDivs, scale, scaleY);
-	//}
+	if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
+	{
+		noiser.setOctWidth(octWidth);
+		CREATE_TERRAIN();
+	}
 
-	//if (lockOctWidth)
-	//	octWidth = (int)scale;
+	if (lockOctWidth)
+		octWidth = (int)scale;
 
-	//ImGui::BeginDisabled(lockOctWidth);
+	ImGui::BeginDisabled(lockOctWidth);
 	if (ImGui::InputInt("octave width", &octWidth, 1, 10))
 	{
 		if (octWidth <= 0) octWidth = 1;
@@ -148,7 +148,7 @@ void TerrainEditor::update()
 		noiser.setOctWidth(octWidth);
 		CREATE_TERRAIN();
 	}
-	//ImGui::EndDisabled();
+	ImGui::EndDisabled();
 	
 	if (ImGui::DragFloat("Mesh scale", &scale, 1.f, 1.f))
 	{
@@ -260,6 +260,24 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			faceNormals[counter++] = result;
 		}
 
+		auto searchQuads = [&](int startIdx, size_t curIdx, int numQuads, glm::vec3& sum)
+		{
+			if (startIdx < 0 || startIdx >= numPoints / 3)
+				return;
+
+			for (int j = 0; j < NUM_VERTS * 10; j++)
+			{
+				int vert = startIdx * 3 + j;
+				if (vert < 0 || vert >= numPoints || vert == curIdx)
+					continue;
+
+				if (glm::vec3 delta = data.positions[curIdx] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
+					continue;
+
+				sum += faceNormals[vert / 3];
+			}
+		};
+
 		glm::vec3 sum(0.f);
 		for (size_t i = 0; i < numPoints; i++)
 		{
@@ -285,60 +303,15 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 				sum += faceNormals[j / 3];
 			}*/
 
-
-			{
-				int idx = (int)faceIdx - (subDivs * 2 - 1) - 4;
-				if (idx >= 0 && idx < numPoints / 3)
-				{
-					for (int j = 0; j < NUM_VERTS * 10; j++)
-					{
-						int vert = idx * 3 + j;
-						if (vert < 0 || vert >= numPoints || vert == i)
-							continue;
-
-						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
-							continue;
-
-						sum += faceNormals[vert / 3];
-					}
-				}
-			}
+			int idx1 = (int)faceIdx - (subDivs * 2 - 1) - 4;
+			searchQuads(idx1, i, 6, sum);
 			
-			{
-				int idx = (int)faceIdx - 4;
-				if (idx >= 0 && idx < numPoints / 3)
-				{
-					for (int j = 0; j < NUM_VERTS * 10; j++)
-					{
-						int vert = idx * 3 + j;
-						if (vert < 0 || vert >= numPoints || vert == i)
-							continue;
-
-						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
-							continue;
-
-						sum += faceNormals[vert / 3];
-					}
-				}
-			}
+			int idx2 = (int)faceIdx - 4;
+			searchQuads(idx2, i, 6, sum);
 			
-			{
-				int idx = (int)faceIdx + (subDivs * 2) - 4;
-				if (idx >= 0 && idx < numPoints / 3)
-				{
-					for (int j = 0; j < NUM_VERTS * 10; j++)
-					{
-						int vert = idx * 3 + j;
-						if (vert < 0 || vert >= numPoints || vert == i)
-							continue;
-
-						if (glm::vec3 delta = data.positions[i] - data.positions[vert]; glm::dot(delta, delta) > 0.5f * 0.5f)
-							continue;
-
-						sum += faceNormals[vert / 3];
-					}
-				}
-			}
+			int idx3 = (int)faceIdx + (subDivs * 2) - 4;
+			searchQuads(idx3, i, 6, sum);
+			
 
 			/*for (size_t j = 0; j < numPoints; j++)
 			{
