@@ -2,10 +2,9 @@
 
 namespace Okay
 {
-	PerlinNoise2D::PerlinNoise2D(uint32_t octaves, uint32_t sections, float bias, uint32_t startOctWidth)
+	PerlinNoise2D::PerlinNoise2D(uint32_t octaves, float bias, uint32_t startOctWidth, uint32_t sections)
 		:seed(0u), octaves(octaves), sections(sections), bias(bias), startOctWidth(startOctWidth)
 	{
-
 	}
 
 	PerlinNoise2D::~PerlinNoise2D()
@@ -24,7 +23,7 @@ namespace Okay
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = UNORM_TO_UCHAR(sample_Internal(x, y, width, height));
+				result[width * y + x] = UNORM_TO_UCHAR(sample_Internal((float)x, (float)y, width, height));
 			}
 		}
 
@@ -35,7 +34,7 @@ namespace Okay
 		OKAY_DELETE_ARRAY(result);
 	}
 	
-	float PerlinNoise2D::sample_Internal(int x, int y, int width, int height)
+	float PerlinNoise2D::sample_Internal(float x, float y, int width, int height)
 	{
 		float noise = 0;
 		float scale = 1.f;
@@ -49,19 +48,16 @@ namespace Okay
 			if (!pitchX) pitchX = 1u;
 			if (!pitchY) pitchY = 1u;
 
-			// Gave incorrect with negative inputs
+			const int intx = (int)x;
+			const int inty = (int)y;
+
+			// Gave incorrect results with negative inputs
 			//const int sampleX1 = (x / pitchX) * pitchX;
 			//const int sampleY1 = (y / pitchY) * pitchY;
 			
 			// Works but remove ternary operator
-			const int sampleX1 = x < 0 ? x - (pitchX + x % pitchX) : (x / pitchX) * pitchX;
-			const int sampleY1 = y < 0 ? y - (pitchY + y % pitchY) : (y / pitchY) * pitchY;
-
-			// Works but looks kinda ugly
-			//int sampleX1 = (x / pitchX) * pitchX;
-			//int sampleY1 = (y / pitchY) * pitchY;
-			//if (x < 0) sampleX1 -= pitchX;
-			//if (y < 0) sampleY1 -= pitchY;
+			const int sampleX1 = intx < 0 ? intx - (pitchX + intx % pitchX) : (intx / pitchX) * pitchX;
+			const int sampleY1 = inty < 0 ? inty - (pitchY + inty % pitchY) : (inty / pitchY) * pitchY;
 
 			const int sampleX2 = (sampleX1 + pitchX);
 			const int sampleY2 = (sampleY1 + pitchY);
@@ -71,8 +67,8 @@ namespace Okay
 			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
 
 			// OneLoneCoder/Javidx9's blend math
-			const float lerpTX = (float)(x - sampleX1) / (float)pitchX;
-			const float lerpTY = (float)(y - sampleY1) / (float)pitchY;
+			const float lerpTX = (float)(x - (float)sampleX1) / (float)pitchX;
+			const float lerpTY = (float)(y - (float)sampleY1) / (float)pitchY;
 
 			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
 			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
@@ -101,7 +97,7 @@ namespace Okay
 #endif
 		}
 
-		return toon(noise / scaleAcc, sections);
+		return sections == Okay::INVALID_UINT ? noise / scaleAcc : toon(noise / scaleAcc, sections);
 
 	}
 

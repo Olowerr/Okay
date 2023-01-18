@@ -8,7 +8,7 @@ namespace Okay
 	class PerlinNoise2D
 	{
 	public:
-		PerlinNoise2D(uint32_t octaves, uint32_t sections = 255u, float bias = 2.f, uint32_t startOctWidth = 512);
+		PerlinNoise2D(uint32_t octaves = 8u, float bias = 2.f, uint32_t startOctWidth = 512u, uint32_t sections = Okay::INVALID_UINT);
 		~PerlinNoise2D();
 
 		inline void setSeed(int seed);
@@ -17,7 +17,7 @@ namespace Okay
 		inline void setBias(float bias);
 		inline void setOctWidth(uint32_t octWidth);
 
-		float sample(int x, int y);
+		float sample(float x, float y);
 		void generateTexture(ID3D11Texture2D* output);
 
 	private:
@@ -30,7 +30,7 @@ namespace Okay
 		
 		void createResources(ID3D11Texture2D* output, ID3D11Texture2D** resultBuffer, uint32_t* width, uint32_t* height);
 		float sampleSeed(int x, int y);
-		float sample_Internal(int x, int y, int width, int height);
+		float sample_Internal(float x, float y, int width, int height);
 
 		static inline float toon(float value, uint32_t sections);
 	};
@@ -45,7 +45,7 @@ namespace Okay
 		return value - std::fmod(value, (1.f / (float)sections));
 	}
 
-	inline float PerlinNoise2D::sample(int x, int y)
+	inline float PerlinNoise2D::sample(float x, float y)
 	{
 		return sample_Internal(x, y, startOctWidth, startOctWidth);
 	}
