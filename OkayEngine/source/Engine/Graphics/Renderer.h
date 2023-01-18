@@ -30,6 +30,7 @@ namespace Okay
 
 		void newFrame();
 		void render(Entity cameraEntity);
+		void setWireframe(bool wireFrame);
 
 
 	private:
@@ -78,6 +79,7 @@ namespace Okay
 	private: // Piplines
 		void bindNecessities();
 		D3D11_VIEWPORT viewport;
+		ID3D11RasterizerState* pRSWireFrame;
 
 		// Static meshes
 		void bindMeshPipeline();

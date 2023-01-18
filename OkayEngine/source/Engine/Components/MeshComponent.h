@@ -6,6 +6,10 @@ namespace Okay
 	struct MeshComponent
 	{
 		MeshComponent() = default;
+		MeshComponent(uint32_t meshIdx)
+			:meshIdx(meshIdx)
+		{
+		}
 		MeshComponent(uint32_t meshIdx, uint32_t materialIdx, uint32_t shaderIdx)
 			:meshIdx(meshIdx), materialIdx(materialIdx), shaderIdx(shaderIdx)
 		{

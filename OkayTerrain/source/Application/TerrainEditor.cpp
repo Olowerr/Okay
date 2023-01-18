@@ -9,7 +9,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 TerrainEditor::TerrainEditor()
-	:Application(L"Okay Terrain"), scene(renderer), noiser(8u, 255u, 2.f, 512u)
+	:Application(L"Okay Terrain"), scene(renderer), noiser(8u)
 {
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
@@ -44,6 +44,12 @@ TerrainEditor::TerrainEditor()
 	waTra.position.z = taTra.position.z;
 	waTra.scale.x = 2048.f;
 	waTra.scale.z = 2048.f;
+	
+	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
+	cube = scene.createEntity();
+	cube.addComponent<Okay::MeshComponent>(2u);
+	Okay::Transform& tra = cube.getComponent<Okay::Transform>(); 
+	tra.scale *= 0.5f;
 }
 
 TerrainEditor::~TerrainEditor()
@@ -74,34 +80,56 @@ void TerrainEditor::run()
 	Application::destroyImgui();
 }
 
-#define CREATE_TERRAIN() createTerrainMesh(smoothShading, numSubDivs, scale, scaleY)
 void TerrainEditor::update()
 {
 	using namespace Okay;
 	static bool open = true;
 
 	ImGui::Begin("Settings", &open);
-	ImGui::PushItemWidth(-100.f);
 
-	static bool smoothShading = false;
-	static int numSubDivs = 100;
-	static int numOct = 8;
-	static int numSec = 255;
-	static int octWidth = 512;
-	static int seed = 123;
-	static float bias = 2.f;
-	static float scale = 2048.f;
-	static float scaleY = 500.f;
 	static float camSpeed = scene.getMainCamera().getScript<FreeLookMovement>().getSpeed();
-	static float waterHeight = 250.f;
-	static bool lockOctWidth = true;
+	
 
 	Transform& waTra = water.getComponent<Transform>();
+	Transform& cubeTra = cube.getComponent<Transform>();
+
+	//ImGui::PushItemWidth(-20.f);
+	//ImGui::Text("Cube");
+	//ImGui::Text("Position:"); ImGui::SameLine();
+	//ImGui::DragFloat3("##TraposNL", &cubeTra.position.x, 0.01f);
+	//ImGui::Text("Scale:"); ImGui::SameLine();
+	//ImGui::DragFloat3("##TrascaNL", &cubeTra.scale.x, 0.01f);
+	//ImGui::Separator();
+	//ImGui::PopItemWidth();
+
+	ImGui::PushItemWidth(-100.f);
+
+	static bool lockFreq = true;
+	if (ImGui::Checkbox("Lock Y Frequency", &lockFreq))
+	{
+		if (lockFreq)
+			frequency.y = frequency.x;
+
+		createTerrainMesh();
+	}
+
+	if (ImGui::DragFloat2("Frequency", &frequency.x, 0.01f))
+	{
+		if (lockFreq)
+			frequency.y = frequency.x;
+
+		createTerrainMesh();
+	}
+	
+	if (ImGui::DragFloat2("Scroll", &scroll.x, 1.f))
+		createTerrainMesh();
+
+	if (ImGui::Checkbox("Wireframe", &wireFrame))
+		renderer.setWireframe(wireFrame);
 
 	if (ImGui::Checkbox("Smooth shading (slower)", &smoothShading))
-	{
-		CREATE_TERRAIN();
-	}
+		createTerrainMesh();
+
 	if (ImGui::DragFloat("cam speed", &camSpeed, 0.1f))
 	{
 		FreeLookMovement& movement = scene.getMainCamera().getScript<FreeLookMovement>();
@@ -113,28 +141,36 @@ void TerrainEditor::update()
 	if (ImGui::InputInt("Seed", &seed, 1, 10))
 	{
 		noiser.setSeed(seed);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
+	static bool useSections = false;
+	if (ImGui::Checkbox("Use sections", &useSections))
+	{
+		if (!useSections)
+			noiser.setSections(Okay::INVALID_UINT);
+	}
+	ImGui::BeginDisabled(!useSections);
 	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
 	{
 		numSec = glm::clamp(numSec, 1, 255);
 		noiser.setSections(numSec);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
+	ImGui::EndDisabled();
 
 	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
 	{
 		numOct = glm::clamp(numOct, 0, 100);
 		noiser.setOctaves(numOct);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	
 	if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
 	{
 		noiser.setOctWidth(octWidth);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	if (lockOctWidth)
@@ -146,30 +182,30 @@ void TerrainEditor::update()
 		if (octWidth <= 0) octWidth = 1;
 
 		noiser.setOctWidth(octWidth);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 	ImGui::EndDisabled();
 	
 	if (ImGui::DragFloat("Mesh scale", &scale, 1.f, 1.f))
 	{
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
 	{
 		noiser.setBias(bias);
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	if (ImGui::InputInt("Sub Divs", &numSubDivs, 1, 10))
 	{
 		if (numSubDivs <= 0) numSubDivs = 1;
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	if (ImGui::DragFloat("Scale Y", &scaleY, 0.1f))
 	{
-		CREATE_TERRAIN();
+		createTerrainMesh();
 	}
 
 	ImGui::PopItemWidth();
@@ -219,23 +255,13 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs);
 
 			pos *= scale;
-#if 1
-			pos.y += noiser.sample((int)pos.x, (int)pos.z) * scaleY;
-#else
-			float sampleX1 = noiser.sample((int)pos.x, (int)pos.z) * scaleY;
-			float sampleX2 = noiser.sample((int)pos.x + 1, (int)pos.z + 1) * scaleY;
-			float lerpT = std::abs(std::fmod(pos.x, 1.f));
-
-			pos.y += glm::mix(sampleX1, sampleX2, lerpT);
-#endif
+			pos.y += noiser.sample((pos.x + scroll.x) * frequency.x, (pos.z + scroll.y) * frequency.y) * scaleY;
 
 			if (pos.y < minY)
 				minY = pos.y;
 
 			data.positions.emplace_back(pos);
-
-			data.uvs.emplace_back(pos.x / scale, pos.z / scale);
-
+			data.uvs.emplace_back(pos.x / scale + 0.5f, pos.z / -scale + 0.5f);
 			data.indices.emplace_back((uint32_t)data.indices.size());
 		}
 	}

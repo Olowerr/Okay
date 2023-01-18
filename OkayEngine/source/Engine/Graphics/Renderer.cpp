@@ -31,10 +31,12 @@ namespace Okay
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
-		expandPointLights();
 
+		expandPointLights();
 		createVertexShaders();
 		createPixelShaders();
+
+		// Sampler
 		{
 			ID3D11SamplerState* simp;
 			D3D11_SAMPLER_DESC desc{};
@@ -62,6 +64,21 @@ namespace Okay
 		//numSkeletalActive = 0;
 		//
 		//numPointLights = 0;
+
+		D3D11_RASTERIZER_DESC rsDesc{};
+		rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+		rsDesc.CullMode = D3D11_CULL_NONE;
+		rsDesc.FrontCounterClockwise = FALSE;
+		rsDesc.DepthBias = 0;
+		rsDesc.SlopeScaledDepthBias = 0.0f;
+		rsDesc.DepthBiasClamp = 0.0f;
+		rsDesc.DepthClipEnable = TRUE;
+		rsDesc.ScissorEnable = FALSE;
+		rsDesc.MultisampleEnable = FALSE;
+		rsDesc.AntialiasedLineEnable = FALSE;
+
+		DX11::getInstance().getDevice()->CreateRasterizerState(&rsDesc, &pRSWireFrame);
+		OKAY_ASSERT(pRSWireFrame, "Failed to create wireframe RS");
 
 		const glm::ivec2 dims = pRenderTarget->getDimensions();
 		viewport.TopLeftX = 0.f;
@@ -141,6 +158,7 @@ namespace Okay
 
 		DX11_RELEASE(pMeshIL);
 		DX11_RELEASE(pMeshVS);
+		DX11_RELEASE(pRSWireFrame);
 
 		DX11_RELEASE(pPointLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
@@ -237,6 +255,11 @@ namespace Okay
 			cMesh.GetMesh()->Draw();
 
 		}*/
+	}
+
+	void Renderer::setWireframe(bool wireFrame)
+	{
+		pDevContext->RSSetState(wireFrame ? pRSWireFrame : nullptr);
 	}
 
 	void Renderer::expandPointLights()
