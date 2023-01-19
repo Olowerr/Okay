@@ -75,6 +75,13 @@ namespace Okay
 			return getComponent<ScriptComponent>().getScript<T>();
 		}
 
+		template<typename T>
+		inline void removeScript()
+		{
+			if (hasComponent<ScriptComponent>())
+				getComponent<ScriptComponent>().removeScript<T>();
+		}
+
 
 		operator entt::entity()		  { return entityId; }
 		operator entt::entity() const { return entityId; }

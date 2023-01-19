@@ -20,6 +20,9 @@ namespace Okay
 		template<typename T>
 		inline T& getScript();
 
+		template<typename T>
+		inline void removeScript();
+
 		void start();
 		void update();
 		void destroy();
@@ -46,6 +49,20 @@ namespace Okay
 				return *(T*)pScripts[i];
 		}
 
-		OKAY_ASSERT(false, "The entity doesn't have the given component");
+		OKAY_ASSERT(false, "The entity doesn't have the given script");
+	}
+
+	template<typename T>
+	inline void ScriptComponent::removeScript()
+	{
+		for (uint32_t i = 0; i < numScripts; i++)
+		{
+			if (dynamic_cast<T*>(pScripts[i]))
+			{
+				OKAY_DELETE(pScripts[i]);
+				std::swap(pScripts[i], pScripts[--numScripts]);
+				return;
+			}
+		}
 	}
 }
