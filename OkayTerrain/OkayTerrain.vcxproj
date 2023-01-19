@@ -215,6 +215,7 @@ SET ERRORLEVEL=0</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application\TerrainEditor.h" />
+    <ClInclude Include="source\Movement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

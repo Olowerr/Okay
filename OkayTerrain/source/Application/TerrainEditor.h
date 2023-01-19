@@ -23,14 +23,14 @@ private:
 	Okay::PerlinNoise2D noiser;
 	Okay::Entity water;
 	Okay::Entity terrain;
-	Okay::Entity cube;
+	Okay::Entity obj;
 
 	void update();
 	void createTerrainMesh(uint32_t meshIdx = 0u)
 	{
-		createTerrainMesh(smoothShading, numSubDivs, scale, scaleY, meshIdx);
+		createTerrainMesh(smoothShading, numSubDivs, scale, amplitude, meshIdx);
 	}
-	void createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx = 0u);
+	void createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx = 0u);
 
 
 	bool smoothShading = false;
@@ -41,12 +41,12 @@ private:
 	int seed = 123;
 	float bias = 2.f;
 	float scale = 2048.f;
-	float scaleY = 500.f;
-	float waterHeight = 250.f;
+	float waterHeight = 0.f;
 	bool lockOctWidth = true;
 	bool wireFrame = false;
 	glm::vec2 scroll = glm::vec2(0.f);
 	glm::vec2 frequency = glm::vec2(1.f);
+	float amplitude = 200.f;
 
 
 	glm::vec3 findPos(glm::vec3 pos, uint32_t idx, uint32_t subDivs)

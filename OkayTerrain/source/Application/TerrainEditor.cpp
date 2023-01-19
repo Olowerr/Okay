@@ -1,5 +1,7 @@
 #include "TerrainEditor.h"
 
+#include "../Movement.h"
+
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
@@ -25,7 +27,8 @@ TerrainEditor::TerrainEditor()
 	content.addMaterial().setBaseColour(2u);
 	water = scene.createEntity();
 	water.addComponent<Okay::MeshComponent>(1u, 2u, 0u);
-	water.getComponent<Okay::Transform>().position.y = 250.f;
+	water.getComponent<Okay::Transform>().position.y = waterHeight;
+	
 
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/ground.png");
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/water.png");
@@ -34,22 +37,19 @@ TerrainEditor::TerrainEditor()
 	content.addMesh();
 
 	noiser.setSeed(123);
-	createTerrainMesh(false, 100, 2048.f, 500.f);
+	createTerrainMesh();
 	createTerrainMesh(false, 1, 1.f, 0.f, 1u);
-
 
 	Okay::Transform& waTra = water.getComponent<Okay::Transform>();
 	const Okay::Transform& taTra = terrain.getComponent<Okay::Transform>();
 	waTra.position.x = taTra.position.x;
 	waTra.position.z = taTra.position.z;
-	waTra.scale.x = 2048.f;
-	waTra.scale.z = 2048.f;
+	waTra.scale.x = scale;
+	waTra.scale.z = scale;
 	
-	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
-	cube = scene.createEntity();
-	cube.addComponent<Okay::MeshComponent>(2u);
-	Okay::Transform& tra = cube.getComponent<Okay::Transform>(); 
-	tra.scale *= 0.5f;
+	content.importFile("C:/Users/Oliver/source/repos/Okay/OkayEditor/resources/Meshes/gob.obj");
+	obj = scene.createEntity();
+	obj.addComponent<Okay::MeshComponent>(2u);
 }
 
 TerrainEditor::~TerrainEditor()
@@ -68,8 +68,8 @@ void TerrainEditor::run()
 	{
 		Application::newFrameImGui();
 
-		update();
 		scene.update();
+		update();
 
 		scene.submit();
 		renderer.render(scene.getMainCamera());
@@ -88,21 +88,47 @@ void TerrainEditor::update()
 	ImGui::Begin("Settings", &open);
 
 	static float camSpeed = scene.getMainCamera().getScript<FreeLookMovement>().getSpeed();
-	
+	static bool ctrlPlayer = false;
 
 	Transform& waTra = water.getComponent<Transform>();
-	Transform& cubeTra = cube.getComponent<Transform>();
+	Transform& plaTra = obj.getComponent<Transform>();
 
-	//ImGui::PushItemWidth(-20.f);
-	//ImGui::Text("Cube");
-	//ImGui::Text("Position:"); ImGui::SameLine();
-	//ImGui::DragFloat3("##TraposNL", &cubeTra.position.x, 0.01f);
-	//ImGui::Text("Scale:"); ImGui::SameLine();
-	//ImGui::DragFloat3("##TrascaNL", &cubeTra.scale.x, 0.01f);
-	//ImGui::Separator();
-	//ImGui::PopItemWidth();
+	ImGui::PushItemWidth(-20.f);
+	ImGui::Text("Player");
+	if (ImGui::Checkbox("Control", &ctrlPlayer))
+	{
+		if (ctrlPlayer)
+		{
+			Okay::Entity cam = scene.getMainCamera();
+			cam.removeScript<Okay::FreeLookMovement>();
+			obj.addScript<ThirdPersonMovement>(cam);
+		}
+		else
+		{
+			obj.removeScript<ThirdPersonMovement>();
+			scene.getMainCamera().addScript<Okay::FreeLookMovement>();
+		}
+	}
+
+	ImGui::BeginDisabled(ctrlPlayer);
+	ImGui::Text("Position:"); ImGui::SameLine();
+	ImGui::DragFloat3("##TraposNL", &plaTra.position.x, 0.01f);
+	ImGui::EndDisabled();
+
+	ImGui::Text("Scale:   "); ImGui::SameLine();
+	ImGui::DragFloat("##TrascaNL", &plaTra.scale.x, 0.01f);
+	plaTra.scale.y = plaTra.scale.z = plaTra.scale.x;
+
+	ImGui::Separator();
+	ImGui::PopItemWidth();
 
 	ImGui::PushItemWidth(-100.f);
+
+	if (ctrlPlayer)
+	{
+		plaTra.position.y = noiser.sample(plaTra.position.x * frequency.x + scroll.x, plaTra.position.z * frequency.y + scroll.y) * 2.f - 1.f;
+		plaTra.position.y *= amplitude;
+	}
 
 	static bool lockFreq = true;
 	if (ImGui::Checkbox("Lock Y Frequency", &lockFreq))
@@ -113,7 +139,7 @@ void TerrainEditor::update()
 		createTerrainMesh();
 	}
 
-	if (ImGui::DragFloat2("Frequency", &frequency.x, 0.01f))
+	if (ImGui::DragFloat2("Frequency", &frequency.x, 0.005f))
 	{
 		if (lockFreq)
 			frequency.y = frequency.x;
@@ -121,6 +147,10 @@ void TerrainEditor::update()
 		createTerrainMesh();
 	}
 	
+	if (ImGui::DragFloat("Amplitude", &amplitude, 0.1f))
+		createTerrainMesh();
+	
+
 	if (ImGui::DragFloat2("Scroll", &scroll.x, 1.f))
 		createTerrainMesh();
 
@@ -203,16 +233,11 @@ void TerrainEditor::update()
 		createTerrainMesh();
 	}
 
-	if (ImGui::DragFloat("Scale Y", &scaleY, 0.1f))
-	{
-		createTerrainMesh();
-	}
-
 	ImGui::PopItemWidth();
 	ImGui::End();
 }
 
-void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float scaleY, uint32_t meshIdx)
+void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx)
 {
 	using namespace Okay;
 
@@ -252,10 +277,10 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	{
 		for (size_t v = 0; v < NUM_VERTS; v++)
 		{
-			glm::vec3 pos = findPos(baseVerts[v], i, subDivs);
-
-			pos *= scale;
-			pos.y += noiser.sample((pos.x + scroll.x) * frequency.x, (pos.z + scroll.y) * frequency.y) * scaleY;
+			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
+			
+			pos.y += noiser.sample(pos.x * frequency.x + scroll.x, pos.z * frequency.y + scroll.y) * 2.f - 1.f;
+			pos.y *= amplitude;
 
 			if (pos.y < minY)
 				minY = pos.y;
@@ -266,13 +291,12 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		}
 	}
 
-	for (size_t i = 0; i < numPoints; i++)
-		data.positions[i].y -= minY;
+	//for (size_t i = 0; i < numPoints; i++)
+	//	data.positions[i].y -= minY;
 	
 
 	if (smoothShading)
 	{
-
 		std::vector<glm::vec3> faceNormals(numPoints / 3);
 		size_t counter = 0;
 		for (size_t i = 0; i < numPoints; i += 3)

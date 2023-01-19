@@ -26,5 +26,8 @@
     <ClInclude Include="source\Application\TerrainEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Movement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
