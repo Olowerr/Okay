@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Engine/Application/Script/ScriptBehaviour.h>
+#include <Engine/Script/ScriptBehaviour.h>
 
 #include <Engine/Components/Transform.h>
 #include <Engine/Application/Input/Input.h>

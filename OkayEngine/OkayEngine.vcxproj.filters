@@ -117,16 +117,19 @@
     <ClInclude Include="source\Engine\Graphics\RenderTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Graphics\Noise\PerlinNoise2D.h">
+    <ClInclude Include="source\Engine\Algorithms\Noise\PerlinNoise2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Application\Script\ScriptBehaviour.h">
+    <ClInclude Include="source\Engine\Script\ScriptBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Application\Script\ScriptComponent.h">
+    <ClInclude Include="source\Engine\Script\ScriptComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.h">
+    <ClInclude Include="source\Engine\Script\DefaultScripts\FreeLookMovement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine\Algorithms\Interpolation\LerpList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -194,13 +197,16 @@
     <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\Noise\PerlinNoise2D.cpp">
+    <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Application\Script\ScriptComponent.cpp">
+    <ClCompile Include="source\Engine\Script\ScriptComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.cpp">
+    <ClCompile Include="source\Engine\Script\DefaultScripts\FreeLookMovement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine\Algorithms\Interpolation\LerpList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

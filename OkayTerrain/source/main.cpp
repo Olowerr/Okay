@@ -5,6 +5,7 @@ int main(int argc, char* args[])
 #ifndef DIST
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif // !DIST
+	srand((unsigned)(0u));
 
 	TerrainEditor editor;
 	editor.run();

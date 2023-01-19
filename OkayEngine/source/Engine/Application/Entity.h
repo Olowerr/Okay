@@ -2,7 +2,7 @@
 
 #include "Scene.h"
 #include "Engine/Okay/Okay.h"
-#include "Script/ScriptComponent.h"
+#include "Engine/Script/ScriptComponent.h"
 
 // TODO: Change Scene* pScene to entt::registry* pReg
 // So that Scene.h can include Entity.h and keep an (Okay::Entity) of the main camera instead

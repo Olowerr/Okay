@@ -207,14 +207,15 @@
     <ClInclude Include="deps\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="deps\include\imgui\imstb_textedit.h" />
     <ClInclude Include="deps\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="source\Engine\Algorithms\Interpolation\LerpList.h" />
     <ClInclude Include="source\Engine\Application\Application.h" />
     <ClInclude Include="source\Engine\Application\Entity.h" />
     <ClInclude Include="source\Engine\Application\Input\Input.h" />
     <ClInclude Include="source\Engine\Application\Input\Keys.h" />
     <ClInclude Include="source\Engine\Application\Scene.h" />
-    <ClInclude Include="source\Engine\Application\Script\ScriptComponent.h" />
-    <ClInclude Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.h" />
-    <ClInclude Include="source\Engine\Application\Script\ScriptBehaviour.h" />
+    <ClInclude Include="source\Engine\Script\ScriptComponent.h" />
+    <ClInclude Include="source\Engine\Script\DefaultScripts\FreeLookMovement.h" />
+    <ClInclude Include="source\Engine\Script\ScriptBehaviour.h" />
     <ClInclude Include="source\Engine\Application\Time.h" />
     <ClInclude Include="source\Engine\Application\Window.h" />
     <ClInclude Include="source\Engine\Components\Camera.h" />
@@ -255,7 +256,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="source\Engine\Graphics\Noise\PerlinNoise2D.h" />
+    <ClInclude Include="source\Engine\Algorithms\Noise\PerlinNoise2D.h" />
     <ClInclude Include="source\Engine\Graphics\Renderer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
@@ -279,10 +280,11 @@
     <ClCompile Include="deps\include\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="deps\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="deps\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="source\Engine\Algorithms\Interpolation\LerpList.cpp" />
     <ClCompile Include="source\Engine\Application\Application.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
-    <ClCompile Include="source\Engine\Application\Script\DefaultScripts\FreeLookMovement.cpp" />
-    <ClCompile Include="source\Engine\Application\Script\ScriptComponent.cpp" />
+    <ClCompile Include="source\Engine\Script\DefaultScripts\FreeLookMovement.cpp" />
+    <ClCompile Include="source\Engine\Script\ScriptComponent.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />
     <ClCompile Include="source\Engine\DirectX\DX11.cpp" />
     <ClCompile Include="source\Engine\Graphics\ContentBrowser.cpp">
@@ -314,7 +316,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp" />
-    <ClCompile Include="source\Engine\Graphics\Noise\PerlinNoise2D.cpp" />
+    <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D.cpp" />
     <ClCompile Include="source\Engine\Graphics\Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>

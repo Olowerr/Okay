@@ -5,7 +5,7 @@
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
-#include <Engine/Application/Script/DefaultScripts/FreeLookMovement.h>
+#include <Engine/Script/DefaultScripts/FreeLookMovement.h>
 
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"

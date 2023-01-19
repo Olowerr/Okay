@@ -3,7 +3,7 @@
 #include <Engine/Application/Scene.h>
 #include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
-#include <Engine/Graphics/Noise/PerlinNoise2D.h>
+#include <Engine/Algorithms/Noise/PerlinNoise2D.h>
 #include <Engine/Okay/Okay.h>
 
 #include "imgui/imgui.h"
