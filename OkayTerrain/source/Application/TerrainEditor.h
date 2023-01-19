@@ -41,6 +41,7 @@ private:
 	int seed = 123;
 	float bias = 2.f;
 	float scale = 2048.f;
+	float exponent = 1.f;
 	float waterHeight = 0.f;
 	bool lockOctWidth = true;
 	bool wireFrame = false;

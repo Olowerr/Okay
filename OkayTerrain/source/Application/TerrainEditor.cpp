@@ -126,7 +126,8 @@ void TerrainEditor::update()
 
 	if (ctrlPlayer)
 	{
-		plaTra.position.y = noiser.sample(plaTra.position.x * frequency.x + scroll.x, plaTra.position.z * frequency.y + scroll.y) * 2.f - 1.f;
+		plaTra.position.y = noiser.sample(plaTra.position.x * frequency.x + scroll.x, plaTra.position.z * frequency.y + scroll.y);
+		plaTra.position.y = std::pow(plaTra.position.y, exponent) * 2.f - 1.f;
 		plaTra.position.y *= amplitude;
 	}
 
@@ -164,6 +165,11 @@ void TerrainEditor::update()
 	{
 		FreeLookMovement& movement = scene.getMainCamera().getScript<FreeLookMovement>();
 		movement.setSpeed(camSpeed);
+	}
+
+	if (ImGui::DragFloat("Expo", &exponent, 0.01f))
+	{
+		createTerrainMesh();
 	}
 
 	ImGui::DragFloat("water height", &waTra.position.y, 0.1f);
@@ -279,7 +285,9 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
 			
-			pos.y += noiser.sample(pos.x * frequency.x + scroll.x, pos.z * frequency.y + scroll.y) * 2.f - 1.f;
+			float noise = noiser.sample(pos.x * frequency.x + scroll.x, pos.z * frequency.y + scroll.y);
+			noise = std::pow(noise, exponent);
+			pos.y += noise * 2.f - 1.f;
 			pos.y *= amplitude;
 
 			if (pos.y < minY)
