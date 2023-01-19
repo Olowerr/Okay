@@ -4,6 +4,7 @@
 #include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
 #include <Engine/Algorithms/Noise/PerlinNoise2D.h>
+#include <Engine/Algorithms/Interpolation/LerpList.h>
 #include <Engine/Okay/Okay.h>
 
 #include "imgui/imgui.h"
@@ -21,6 +22,8 @@ public:
 private:
 	Okay::Scene scene;
 	Okay::PerlinNoise2D noiser;
+	Okay::LerpList lerpPoints;
+
 	Okay::Entity water;
 	Okay::Entity terrain;
 	Okay::Entity obj;

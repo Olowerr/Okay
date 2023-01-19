@@ -36,6 +36,12 @@ TerrainEditor::TerrainEditor()
 	content.addMesh();
 	content.addMesh();
 
+	lerpPoints.addPoint(0.f, 0.f);
+	lerpPoints.addPoint(0.6f, 0.f);
+	lerpPoints.addPoint(0.7f, 0.7f);
+	lerpPoints.addPoint(1.f, 0.7f);
+
+
 	noiser.setSeed(123);
 	createTerrainMesh();
 	createTerrainMesh(false, 1, 1.f, 0.f, 1u);
@@ -50,6 +56,9 @@ TerrainEditor::TerrainEditor()
 	content.importFile("C:/Users/Oliver/source/repos/Okay/OkayEditor/resources/Meshes/gob.obj");
 	obj = scene.createEntity();
 	obj.addComponent<Okay::MeshComponent>(2u);
+
+
+
 }
 
 TerrainEditor::~TerrainEditor()
@@ -287,7 +296,8 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			
 			float noise = noiser.sample(pos.x * frequency.x + scroll.x, pos.z * frequency.y + scroll.y);
 			noise = std::pow(noise, exponent);
-			pos.y += noise * 2.f - 1.f;
+			noise = lerpPoints.sample(noise);
+			pos.y += noise;// *2.f - 1.f;
 			pos.y *= amplitude;
 
 			if (pos.y < minY)
