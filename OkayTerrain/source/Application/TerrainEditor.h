@@ -35,9 +35,10 @@ private:
 	}
 	void createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx = 0u);
 
+	bool modifyLerpList();
 
 	bool smoothShading = false;
-	int numSubDivs = 100;
+	int numSubDivs = 200;
 	int numOct = 8;
 	int numSec = 255;
 	int octWidth = 512;
@@ -49,7 +50,7 @@ private:
 	bool lockOctWidth = true;
 	bool wireFrame = false;
 	glm::vec2 scroll = glm::vec2(0.f);
-	glm::vec2 frequency = glm::vec2(1.f);
+	glm::vec2 frequency = glm::vec2(0.25f);
 	float amplitude = 200.f;
 
 

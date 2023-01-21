@@ -36,11 +36,24 @@ TerrainEditor::TerrainEditor()
 	content.addMesh();
 	content.addMesh();
 
-	lerpPoints.addPoint(0.f, 0.f);
-	lerpPoints.addPoint(0.6f, 0.f);
-	lerpPoints.addPoint(0.7f, 0.7f);
-	lerpPoints.addPoint(1.f, 0.7f);
-
+#if 0
+	lerpPoints.addPoint(0.0f, -0.1f);
+	lerpPoints.addPoint(0.1f, -0.1f);
+	lerpPoints.addPoint(0.2f, -0.1f);
+	lerpPoints.addPoint(0.4f, -0.1f);
+	lerpPoints.addPoint(0.6f, 0.33f);
+	lerpPoints.addPoint(0.8f, 2.244f);
+	lerpPoints.addPoint(1.0f, 3.640f);
+#else
+	lerpPoints.addPoint(0.0f, 1.1f);
+	lerpPoints.addPoint(0.42f, 0.2f);
+	lerpPoints.addPoint(0.49f, -0.19f);
+	lerpPoints.addPoint(0.51f, -0.17f);
+	lerpPoints.addPoint(0.53f, 0.27f);
+	lerpPoints.addPoint(0.56f, 0.6f);
+	lerpPoints.addPoint(0.87f, 3.05f);
+	lerpPoints.addPoint(1.f, 3.630);
+#endif
 
 	noiser.setSeed(123);
 	createTerrainMesh();
@@ -92,8 +105,11 @@ void TerrainEditor::run()
 void TerrainEditor::update()
 {
 	using namespace Okay;
-	static bool open = true;
 
+	if (modifyLerpList())
+		createTerrainMesh();
+
+	static bool open = true;
 	ImGui::Begin("Settings", &open);
 
 	static float camSpeed = scene.getMainCamera().getScript<FreeLookMovement>().getSpeed();
@@ -115,7 +131,7 @@ void TerrainEditor::update()
 		else
 		{
 			obj.removeScript<ThirdPersonMovement>();
-			scene.getMainCamera().addScript<Okay::FreeLookMovement>();
+			scene.getMainCamera().addScript<Okay::FreeLookMovement>(camSpeed);
 		}
 	}
 
@@ -136,7 +152,9 @@ void TerrainEditor::update()
 	if (ctrlPlayer)
 	{
 		plaTra.position.y = noiser.sample(plaTra.position.x * frequency.x + scroll.x, plaTra.position.z * frequency.y + scroll.y);
-		plaTra.position.y = std::pow(plaTra.position.y, exponent) * 2.f - 1.f;
+		plaTra.position.y = std::pow(plaTra.position.y, exponent);
+		plaTra.position.y = lerpPoints.sample(plaTra.position.y);
+		//plaTra.position.y *= 2.f - 1.f;
 		plaTra.position.y *= amplitude;
 	}
 
@@ -219,7 +237,7 @@ void TerrainEditor::update()
 	}
 
 	if (lockOctWidth)
-		octWidth = (int)scale;
+		octWidth = 512;
 
 	ImGui::BeginDisabled(lockOctWidth);
 	if (ImGui::InputInt("octave width", &octWidth, 1, 10))
@@ -418,4 +436,68 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	waTra.position.z = taTra.position.z;
 	waTra.scale.x = scale;
 	waTra.scale.z = scale;
+}
+
+bool TerrainEditor::modifyLerpList()
+{
+	if (!ImGui::Begin("Terrain Height points"))
+	{
+		ImGui::End();
+		return false;
+	}
+
+	bool pressed = false;
+	static glm::vec2 point{};
+	static uint32_t selIdx = Okay::INVALID_UINT;
+
+	ImGui::PushItemWidth(-15.f);
+
+	ImGui::Text("Values");
+	ImGui::SameLine();
+	ImGui::DragFloat2("##NewPoint", &point.x, 0.01f);
+
+	if (ImGui::Button("Add"))
+	{
+		lerpPoints.addPoint(point.x, point.y);
+		point.x = point.y = 0.f;
+		pressed = true;
+	}
+	
+	ImGui::SameLine();
+	if (ImGui::Button("Remove"))
+	{
+		lerpPoints.removePoint(selIdx);
+		pressed = true;
+	}
+	
+	ImGui::SameLine();
+	if (ImGui::Button("Modify"))
+	{
+		lerpPoints.removePoint(selIdx);
+		lerpPoints.addPoint(point.x, point.y);
+		pressed = true;
+	}
+
+
+	ImGui::Separator();
+	const std::vector<glm::vec2>& points = lerpPoints.getPoints();
+	if (ImGui::TreeNode("Points"))
+	{
+		for (uint32_t i = 0; i < (uint32_t)points.size(); i++)
+		{
+			char textBuffer[64]{};
+			sprintf_s(textBuffer, "Point %u: %.3f | %.3f", i, points[i].x, points[i].y);
+			if (ImGui::Selectable(textBuffer, i == selIdx))
+			{
+				point = points[i];
+				selIdx = i;
+			}
+
+		}
+		ImGui::TreePop();
+	}
+
+	ImGui::PopItemWidth();
+	ImGui::End();
+	return pressed;
 }
