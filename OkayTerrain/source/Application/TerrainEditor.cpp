@@ -52,7 +52,7 @@ TerrainEditor::TerrainEditor()
 	lerpPoints.addPoint(0.53f, 0.27f);
 	lerpPoints.addPoint(0.56f, 0.6f);
 	lerpPoints.addPoint(0.87f, 3.05f);
-	lerpPoints.addPoint(1.f, 3.630);
+	lerpPoints.addPoint(1.f, 3.630f);
 #endif
 
 	noiser.setSeed(123);
@@ -106,7 +106,7 @@ void TerrainEditor::update()
 {
 	using namespace Okay;
 
-	if (modifyLerpList())
+	if (lerpPoints.imgui("Terrain height"))
 		createTerrainMesh();
 
 	static bool open = true;
@@ -370,25 +370,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			const size_t faceIdx = i / 3;
 			sum = faceNormals[faceIdx];
 
-			if (i == 1202)
-			{
-				int q = 0;
-			}
-
-			/*int span = (int)subDivs * 7;
-			int startIdx = (int)i - span;
-
-			for (int j = startIdx; j < i + span; j++)
-			{
-				if (j < 0 || j >= numPoints || j == i)
-					continue;
-
-				if (glm::vec3 delta = data.positions[i] - data.positions[j]; glm::dot(delta, delta) > 0.5f * 0.5f)
-					continue;
-
-				sum += faceNormals[j / 3];
-			}*/
-
 			int idx1 = (int)faceIdx - (subDivs * 2 - 1) - 4;
 			searchQuads(idx1, i, 6, sum);
 			
@@ -436,68 +417,4 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	waTra.position.z = taTra.position.z;
 	waTra.scale.x = scale;
 	waTra.scale.z = scale;
-}
-
-bool TerrainEditor::modifyLerpList()
-{
-	if (!ImGui::Begin("Terrain Height points"))
-	{
-		ImGui::End();
-		return false;
-	}
-
-	bool pressed = false;
-	static glm::vec2 point{};
-	static uint32_t selIdx = Okay::INVALID_UINT;
-
-	ImGui::PushItemWidth(-15.f);
-
-	ImGui::Text("Values");
-	ImGui::SameLine();
-	ImGui::DragFloat2("##NewPoint", &point.x, 0.01f);
-
-	if (ImGui::Button("Add"))
-	{
-		lerpPoints.addPoint(point.x, point.y);
-		point.x = point.y = 0.f;
-		pressed = true;
-	}
-	
-	ImGui::SameLine();
-	if (ImGui::Button("Remove"))
-	{
-		lerpPoints.removePoint(selIdx);
-		pressed = true;
-	}
-	
-	ImGui::SameLine();
-	if (ImGui::Button("Modify"))
-	{
-		lerpPoints.removePoint(selIdx);
-		lerpPoints.addPoint(point.x, point.y);
-		pressed = true;
-	}
-
-
-	ImGui::Separator();
-	const std::vector<glm::vec2>& points = lerpPoints.getPoints();
-	if (ImGui::TreeNode("Points"))
-	{
-		for (uint32_t i = 0; i < (uint32_t)points.size(); i++)
-		{
-			char textBuffer[64]{};
-			sprintf_s(textBuffer, "Point %u: %.3f | %.3f", i, points[i].x, points[i].y);
-			if (ImGui::Selectable(textBuffer, i == selIdx))
-			{
-				point = points[i];
-				selIdx = i;
-			}
-
-		}
-		ImGui::TreePop();
-	}
-
-	ImGui::PopItemWidth();
-	ImGui::End();
-	return pressed;
 }

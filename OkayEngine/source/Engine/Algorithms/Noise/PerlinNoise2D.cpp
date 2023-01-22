@@ -39,7 +39,7 @@ namespace Okay
 		float noise = 0;
 		float scale = 1.f;
 		float scaleAcc = 0.f;
-
+		
 		for (uint32_t o = 0; o < octaves; o++)
 		{
 #if 1 // My version
@@ -67,11 +67,11 @@ namespace Okay
 			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
 
 			// OneLoneCoder/Javidx9's blend math
-			const float lerpTX = (float)(x - (float)sampleX1) / (float)pitchX;
-			const float lerpTY = (float)(y - (float)sampleY1) / (float)pitchY;
+			const float lerpTX = (x - (float)sampleX1) / (float)pitchX;
+			const float lerpTY = (y - (float)sampleY1) / (float)pitchY;
 
-			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
-			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
+			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1, (int)o), sampleSeed(sampleX2, sampleY1, (int)o), lerpTX);
+			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2, (int)o), sampleSeed(sampleX2, sampleY2, (int)o), lerpTX);
 
 			scaleAcc += scale;
 			noise += glm::mix(blendX1, blendX2, lerpTY) * scale;
@@ -101,9 +101,9 @@ namespace Okay
 
 	}
 
-	float PerlinNoise2D::sampleSeed(int x, int y)
+	float PerlinNoise2D::sampleSeed(int x, int y, int octave)
 	{
-		x += seed;
+		x += seed * (octave + 1);
 
 		// https://github.com/Cyan4973/xxHash
 

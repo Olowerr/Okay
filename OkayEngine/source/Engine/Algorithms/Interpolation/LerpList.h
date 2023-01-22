@@ -6,12 +6,6 @@
 
 namespace Okay
 {
-	/*
-		LerpList helps with linear interpolation on a set of points.
-		Each point has a corresponding position and value.
-		All positions are between 0.0f - 1.0f.
-		Values are independent and can be anything.
-	*/
 	class LerpList
 	{
 	public:
@@ -27,9 +21,13 @@ namespace Okay
 
 		inline const std::vector<glm::vec2>& getPoints() const;
 
+		bool imgui(const char* label);
 
 	private:
 		std::vector<glm::vec2> points;
+
+		glm::vec2 guiPoint;
+		uint32_t guiSelIdx;
 	};
 
 	inline void LerpList::removePoint(uint32_t index)
