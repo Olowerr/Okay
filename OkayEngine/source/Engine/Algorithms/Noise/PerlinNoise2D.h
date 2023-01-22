@@ -32,7 +32,7 @@ namespace Okay
 		float sampleSeed(int x, int y);
 		float sample_Internal(float x, float y, int width, int height);
 
-		static inline float toon(float value, uint32_t sections);
+		inline float toon(float value);
 	};
 
 	inline void PerlinNoise2D::setSeed(int seed)
@@ -40,7 +40,7 @@ namespace Okay
 		this->seed = seed;
 	}
 
-	inline float PerlinNoise2D::toon(float value, uint32_t sections)
+	inline float PerlinNoise2D::toon(float value)
 	{
 		return value - std::fmod(value, (1.f / (float)sections));
 	}

@@ -104,7 +104,7 @@ namespace Okay
 #endif
 		}
 
-		return sections == Okay::INVALID_UINT ? noise / scaleAcc : toon(noise / scaleAcc, sections);
+		return sections == Okay::INVALID_UINT ? noise / scaleAcc : toon(noise / scaleAcc);
 
 	}
 
