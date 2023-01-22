@@ -39,17 +39,24 @@ namespace Okay
 		float noise = 0;
 		float scale = 1.f;
 		float scaleAcc = 0.f;
-		
+
 		for (uint32_t o = 0; o < octaves; o++)
 		{
+			//float oX = x * (o + 1);
+			//float oY = y * (o + 1);
+			//float oX = x * std::pow(2.f, (float)o);
+			//float oY = y * std::pow(2.f, (float)o);
+			float oX = x;
+			float oY = y;
+
 #if 1 // My version
 			int pitchX = width >> o;
 			int pitchY = height >> o;
 			if (!pitchX) pitchX = 1u;
 			if (!pitchY) pitchY = 1u;
 
-			const int intx = (int)x;
-			const int inty = (int)y;
+			const int intx = (int)oX;
+			const int inty = (int)oY;
 
 			// Gave incorrect results with negative inputs
 			//const int sampleX1 = (x / pitchX) * pitchX;
@@ -67,11 +74,11 @@ namespace Okay
 			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
 
 			// OneLoneCoder/Javidx9's blend math
-			const float lerpTX = (x - (float)sampleX1) / (float)pitchX;
-			const float lerpTY = (y - (float)sampleY1) / (float)pitchY;
+			const float lerpTX = (oX - (float)sampleX1) / (float)pitchX;
+			const float lerpTY = (oY - (float)sampleY1) / (float)pitchY;
 
-			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1, (int)o), sampleSeed(sampleX2, sampleY1, (int)o), lerpTX);
-			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2, (int)o), sampleSeed(sampleX2, sampleY2, (int)o), lerpTX);
+			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
+			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
 
 			scaleAcc += scale;
 			noise += glm::mix(blendX1, blendX2, lerpTY) * scale;
@@ -101,9 +108,9 @@ namespace Okay
 
 	}
 
-	float PerlinNoise2D::sampleSeed(int x, int y, int octave)
+	float PerlinNoise2D::sampleSeed(int x, int y)
 	{
-		x += seed * (octave + 1);
+		x += seed;
 
 		// https://github.com/Cyan4973/xxHash
 

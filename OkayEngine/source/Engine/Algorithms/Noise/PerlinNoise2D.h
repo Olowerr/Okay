@@ -29,7 +29,7 @@ namespace Okay
 		int seed;
 		
 		void createResources(ID3D11Texture2D* output, ID3D11Texture2D** resultBuffer, uint32_t* width, uint32_t* height);
-		float sampleSeed(int x, int y, int octave);
+		float sampleSeed(int x, int y);
 		float sample_Internal(float x, float y, int width, int height);
 
 		static inline float toon(float value, uint32_t sections);
