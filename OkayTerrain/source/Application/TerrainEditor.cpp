@@ -10,6 +10,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
+#include <execution>
+
 TerrainEditor::TerrainEditor()
 	:Application(L"Okay Terrain"), scene(renderer), noiser(8u)
 {
@@ -188,6 +190,12 @@ void TerrainEditor::update()
 	if (ImGui::Checkbox("Smooth shading (slower)", &smoothShading))
 		createTerrainMesh();
 
+	if (ImGui::DragInt("Smooth dist", &smoothDist, 0.5f))
+	{
+		if (smoothShading)
+			createTerrainMesh();
+	}
+
 	if (ImGui::DragFloat("cam speed", &camSpeed, 0.1f))
 	{
 		FreeLookMovement& movement = scene.getMainCamera().getScript<FreeLookMovement>();
@@ -270,6 +278,15 @@ void TerrainEditor::update()
 	ImGui::End();
 }
 
+namespace Okay
+{
+	inline float lengthSqrd(const glm::vec3& a)
+	{
+		return a.x * a.x + a.z * a.z;
+	}
+
+}
+
 void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx)
 {
 	using namespace Okay;
@@ -333,6 +350,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 
 	if (smoothShading)
 	{
+
 		std::vector<glm::vec3> faceNormals(numPoints / 3);
 		size_t counter = 0;
 		for (size_t i = 0; i < numPoints; i += 3)
@@ -363,12 +381,77 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 				sum += faceNormals[vert / 3];
 			}
 		};
+		
 
-		glm::vec3 sum(0.f);
+		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+#if 0
+		const float searchDistSqrd = smoothDist * ((0.5f * scale) / (float)subDivs) * smoothDist * ((0.5f * scale) / (float)subDivs);
+		auto searchQuads2 = [&](int faceStartIdx, size_t curIdx, glm::vec3& sum)
+		{
+			if (faceStartIdx >= ((int)numPoints / 3))
+				return;
+
+			for (int j = 0; j < (int)NUM_VERTS * smoothDist * 2; j++)
+			{
+				int vert = faceStartIdx * 3 + j;
+				if (vert < 0 || vert >= numPoints || vert == curIdx)
+					continue;
+
+				if (glm::vec3 delta = data.positions[curIdx] - data.positions[vert]; glm::dot(delta, delta) > searchDistSqrd)
+					continue;
+
+				sum += faceNormals[vert / 3];
+			}
+		};
+		
+		std::vector<size_t> points(numPoints);
+		for (size_t i = 0; i < numPoints; i++)
+			points[i] = i;
+
+		const float sDist2 = (float)smoothDist * (float)smoothDist;
+		data.normals.resize(numPoints);
+		std::for_each(std::execution::par, points.begin(), points.end(), [&](size_t i) 
+		{
+			const size_t faceIdx = i / 3ull;
+			glm::vec3 sum = faceNormals[faceIdx];
+			const glm::vec3& iPos = data.positions[i];
+
+#if 1
+			for (size_t j = 0; j < numPoints; j++)
+			{
+				if (i == j || j / 3 == faceIdx)
+					continue;
+
+				const glm::vec3 delta = iPos - data.positions[j];
+				const float res = Okay::lengthSqrd(delta);
+				if (res > sDist2)
+					continue;
+
+				//const glm::vec3 delta = iPos - data.positions[j];
+				//const float res = glm::dot(delta, delta);
+				//if (res > sDist2)
+				//	continue;
+
+				sum += faceNormals[j / 3];
+			}
+#else
+			int idx1 = (int)faceIdx - subDivs * 2 * smoothDist - (int)NUM_VERTS * smoothDist;
+			searchQuads2(idx1, i, sum);
+
+			int idx2 = (int)faceIdx - NUM_VERTS * smoothDist;
+			searchQuads2(idx2, i, sum);
+
+			int idx3 = (int)faceIdx + subDivs * 2 * smoothDist - (int)NUM_VERTS * smoothDist;
+			searchQuads2(idx3, i, sum);
+#endif
+
+			data.normals[i] = glm::normalize(sum);
+		});
+#else
 		for (size_t i = 0; i < numPoints; i++)
 		{
 			const size_t faceIdx = i / 3;
-			sum = faceNormals[faceIdx];
+			glm::vec3 sum = faceNormals[faceIdx];
 
 			int idx1 = (int)faceIdx - (subDivs * 2 - 1) - 4;
 			searchQuads(idx1, i, 6, sum);
@@ -392,6 +475,10 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			}*/
 			data.normals.emplace_back(glm::normalize(sum));
 		}
+#endif
+		std::chrono::duration<float> dt = std::chrono::system_clock::now() - start;
+		//printf("Duration: %.7f\n", dt.count());
+
 	}
 	else
 	{
@@ -417,4 +504,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	waTra.position.z = taTra.position.z;
 	waTra.scale.x = scale;
 	waTra.scale.z = scale;
+
+
 }

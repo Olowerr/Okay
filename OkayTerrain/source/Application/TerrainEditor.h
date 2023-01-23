@@ -36,6 +36,7 @@ private:
 	void createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx = 0u);
 
 	bool smoothShading = false;
+	int smoothDist = 2;
 	int numSubDivs = 200;
 	int numOct = 8;
 	int numSec = 255;
