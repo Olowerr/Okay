@@ -127,44 +127,17 @@ void Editor::update()
 	//return;
 	ImGui::Begin("result", &dockSpace);
 
-	static int numOct = 0;
-	static int numSec = 5;
-	static float bias = 2.f;
 	static float tiling = 1.f;
 	static float offsets[2]{};
 
-	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
-	{
-		numSec = glm::clamp(numSec, 1, 255);
-		noiser->setSections(numSec);
-		noiser->generateTexture(testTex->getBuffer());
-	}
-	
-	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
-	{
-		numOct = glm::clamp(numOct, 0, 100);
-		noiser->setOctaves(numOct);
-		noiser->generateTexture(testTex->getBuffer());
-	}
-	
-	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
-	{
-		noiser->setBias(bias);
-		noiser->generateTexture(testTex->getBuffer());
-	}
-	
-	if (ImGui::Button("New seed"))
-	{
-		//noiser->randomizeSeed();
-		//noiser->generate(numOct, numSec, bias);
-	}
 	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.00f, 100.f, "%.4f");
 	ImGui::DragFloat2("offset", offsets, 0.01f, 0.00f, 100.f, "%.4f");
 		
 	ImGui::Image(testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
 
-
+	if (noiser->imgui("Perlin"))
+		noiser->generateTexture(testTex->getBuffer());
 }
 
 void Editor::displayEntities()

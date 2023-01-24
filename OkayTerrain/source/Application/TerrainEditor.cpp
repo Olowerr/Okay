@@ -13,7 +13,7 @@
 #include <execution>
 
 TerrainEditor::TerrainEditor()
-	:Application(L"Okay Terrain"), scene(renderer), noiser(8u)
+	:Application(L"Okay Terrain"), scene(renderer), noiser(123u)
 {
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();

@@ -1,9 +1,11 @@
 #include "PerlinNoise2D.h"
+#include "imgui/imgui.h"
 
 namespace Okay
 {
-	PerlinNoise2D::PerlinNoise2D(uint32_t octaves, float bias, uint32_t startOctWidth, uint32_t sections)
-		:seed(0u), octaves(octaves), sections(sections), bias(bias), startOctWidth(startOctWidth)
+	PerlinNoise2D::PerlinNoise2D(uint32_t seed)
+		:seed(seed), octaves(8u), sections(INVALID_UINT), startOctWidth(512u), 
+		bias(2.f), frequency(1.f), guiLockFreqRatio(true)
 	{
 	}
 
@@ -23,7 +25,7 @@ namespace Okay
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = UNORM_TO_UCHAR(sample_Internal((float)x, (float)y, width, height));
+				result[width * y + x] = UNORM_TO_UCHAR(sample((float)x * frequency.x, (float)y * frequency.y));
 			}
 		}
 
@@ -34,11 +36,14 @@ namespace Okay
 		OKAY_DELETE_ARRAY(result);
 	}
 	
-	float PerlinNoise2D::sample_Internal(float x, float y, int width, int height)
+	float PerlinNoise2D::sample(float x, float y)
 	{
 		float noise = 0;
 		float scale = 1.f;
 		float scaleAcc = 0.f;
+
+		x *= frequency.x;
+		y *= frequency.y;
 
 		for (uint32_t o = 0; o < octaves; o++)
 		{
@@ -50,10 +55,8 @@ namespace Okay
 			float oY = y;
 
 #if 1 // My version
-			int pitchX = width >> o;
-			int pitchY = height >> o;
-			if (!pitchX) pitchX = 1u;
-			if (!pitchY) pitchY = 1u;
+			int pitch = startOctWidth >> o;
+			if (!pitch) pitch = 1u;
 
 			const int intx = (int)oX;
 			const int inty = (int)oY;
@@ -63,19 +66,19 @@ namespace Okay
 			//const int sampleY1 = (y / pitchY) * pitchY;
 			
 			// Works but remove ternary operator
-			const int sampleX1 = intx < 0 ? intx - (pitchX + intx % pitchX) : (intx / pitchX) * pitchX;
-			const int sampleY1 = inty < 0 ? inty - (pitchY + inty % pitchY) : (inty / pitchY) * pitchY;
+			const int sampleX1 = intx < 0 ? intx - (pitch + intx % pitch) : (intx / pitch) * pitch;
+			const int sampleY1 = inty < 0 ? inty - (pitch + inty % pitch) : (inty / pitch) * pitch;
 
-			const int sampleX2 = (sampleX1 + pitchX);
-			const int sampleY2 = (sampleY1 + pitchY);
+			const int sampleX2 = (sampleX1 + pitch);
+			const int sampleY2 = (sampleY1 + pitch);
 
 			// Gave incorrect results with negative inputs
 			//const float lerpTX = (float)(x % pitchX) / (float)pitchX;
 			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
 
 			// OneLoneCoder/Javidx9's blend math
-			const float lerpTX = (oX - (float)sampleX1) / (float)pitchX;
-			const float lerpTY = (oY - (float)sampleY1) / (float)pitchY;
+			const float lerpTX = (oX - (float)sampleX1) / (float)pitch;
+			const float lerpTY = (oY - (float)sampleY1) / (float)pitch;
 
 			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
 			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
@@ -151,5 +154,71 @@ namespace Okay
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 
 		DX11::getInstance().getDevice()->CreateTexture2D(&texDesc, nullptr, resultBuffer);
+	}
+
+	bool PerlinNoise2D::imgui(const char* label)
+	{
+		if (!ImGui::Begin(label))
+		{
+			ImGui::End();
+			return false;
+		}
+		bool pressed = false;
+		
+		ImGui::PushItemWidth(-1.f);
+
+		ImGui::Text("Seed:");
+		if (ImGui::InputInt("##NLSeed", (int*)&seed))
+		{
+			seed = seed == Okay::INVALID_UINT ? 0u : seed;
+			pressed = true;
+		}
+
+		ImGui::Text("Octaves:");
+		if (ImGui::InputInt("##NLOct", (int*)&octaves, 1, 0))
+		{
+			octaves = octaves == Okay::INVALID_UINT ? 0u : octaves;
+			pressed = true;
+		}
+
+		ImGui::Text("Sections:");
+		ImGui::SameLine();
+		if (ImGui::Button("Toggle"))
+		{
+			sections = sections == Okay::INVALID_UINT ? 8u : Okay::INVALID_UINT;
+			pressed = true;
+		}
+		ImGui::BeginDisabled(sections == Okay::INVALID_UINT);
+		if (ImGui::InputInt("##NLSec", (int*)&sections))
+			pressed = true;
+		ImGui::EndDisabled();
+
+		ImGui::Text("Octave width:");
+		if (ImGui::InputInt("##NLOctW", (int*)&startOctWidth, 1, 0))
+		{
+			startOctWidth = octaves == Okay::INVALID_UINT ? 0u : startOctWidth;
+			pressed = true;
+		}
+
+		ImGui::Text("Bias:");
+		if (ImGui::DragFloat("##NLbias", &bias, 0.01f))
+			pressed = true;
+
+		ImGui::Text("Frequency:");
+		if (ImGui::Checkbox("Lock Y frequency", &guiLockFreqRatio))
+		{
+			frequency.y = guiLockFreqRatio ? frequency.x : frequency.y;
+			pressed = true;
+		}
+		if (ImGui::DragFloat2("##NLfreq", &frequency.x, 0.01f))
+		{
+			frequency.y = guiLockFreqRatio ? frequency.x : frequency.y;
+			pressed = true;
+		}
+
+
+		ImGui::PopItemWidth();
+		ImGui::End();
+		return pressed;
 	}
 }
