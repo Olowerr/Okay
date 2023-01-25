@@ -50,7 +50,7 @@ private:
 	bool wireFrame = false;
 	glm::vec2 scroll = glm::vec2(0.f);
 	glm::vec2 frequency = glm::vec2(0.25f);
-	float amplitude = 200.f;
+	float amplitude = 50.f;
 
 
 	glm::vec3 findPos(glm::vec3 pos, uint32_t idx, uint32_t subDivs)

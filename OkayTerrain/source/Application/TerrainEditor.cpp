@@ -153,28 +153,11 @@ void TerrainEditor::update()
 
 	if (ctrlPlayer)
 	{
-		plaTra.position.y = noiser.sample(plaTra.position.x * frequency.x + scroll.x, plaTra.position.z * frequency.y + scroll.y);
+		plaTra.position.y = noiser.sample(plaTra.position.x + scroll.x, plaTra.position.z + scroll.y);
 		plaTra.position.y = std::pow(plaTra.position.y, exponent);
 		plaTra.position.y = lerpPoints.sample(plaTra.position.y);
-		//plaTra.position.y *= 2.f - 1.f;
 		plaTra.position.y *= amplitude;
-	}
 
-	static bool lockFreq = true;
-	if (ImGui::Checkbox("Lock Y Frequency", &lockFreq))
-	{
-		if (lockFreq)
-			frequency.y = frequency.x;
-
-		createTerrainMesh();
-	}
-
-	if (ImGui::DragFloat2("Frequency", &frequency.x, 0.005f))
-	{
-		if (lockFreq)
-			frequency.y = frequency.x;
-
-		createTerrainMesh();
 	}
 	
 	if (ImGui::DragFloat("Amplitude", &amplitude, 0.1f))
@@ -209,62 +192,9 @@ void TerrainEditor::update()
 
 	ImGui::DragFloat("water height", &waTra.position.y, 0.1f);
 
-	if (ImGui::InputInt("Seed", &seed, 1, 10))
-	{
-		noiser.setSeed(seed);
-		createTerrainMesh();
-	}
-
-	static bool useSections = false;
-	if (ImGui::Checkbox("Use sections", &useSections))
-	{
-		if (!useSections)
-			noiser.setSections(Okay::INVALID_UINT);
-	}
-	ImGui::BeginDisabled(!useSections);
-	if (ImGui::InputInt("Num sections", &numSec, 1, 10))
-	{
-		numSec = glm::clamp(numSec, 1, 255);
-		noiser.setSections(numSec);
-		createTerrainMesh();
-	}
-	ImGui::EndDisabled();
-
-	if (ImGui::InputInt("Num octaves", &numOct, 1, 10))
-	{
-		numOct = glm::clamp(numOct, 0, 100);
-		noiser.setOctaves(numOct);
-		createTerrainMesh();
-	}
-
-	
-	if (ImGui::Checkbox("Lock Octave width", &lockOctWidth))
-	{
-		noiser.setOctWidth(octWidth);
-		createTerrainMesh();
-	}
-
-	if (lockOctWidth)
-		octWidth = 512;
-
-	ImGui::BeginDisabled(lockOctWidth);
-	if (ImGui::InputInt("octave width", &octWidth, 1, 10))
-	{
-		if (octWidth <= 0) octWidth = 1;
-
-		noiser.setOctWidth(octWidth);
-		createTerrainMesh();
-	}
-	ImGui::EndDisabled();
 	
 	if (ImGui::DragFloat("Mesh scale", &scale, 1.f, 1.f))
 	{
-		createTerrainMesh();
-	}
-
-	if (ImGui::DragFloat("Bias", &bias, 0.01f, 0.01f, 100.f, "%.4f"))
-	{
-		noiser.setBias(bias);
 		createTerrainMesh();
 	}
 
@@ -276,16 +206,17 @@ void TerrainEditor::update()
 
 	ImGui::PopItemWidth();
 	ImGui::End();
+
+	if (noiser.imgui("Noise"))
+		createTerrainMesh();
 }
 
-namespace Okay
+inline float lengthSqrd(const glm::vec3& a)
 {
-	inline float lengthSqrd(const glm::vec3& a)
-	{
-		return a.x * a.x + a.z * a.z;
-	}
-
+	return a.x * a.x + a.z * a.z;
 }
+
+
 
 void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx)
 {
@@ -329,7 +260,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
 			
-			float noise = noiser.sample(pos.x * frequency.x + scroll.x, pos.z * frequency.y + scroll.y);
+			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);
 			noise = lerpPoints.sample(noise);
 			pos.y += noise;// *2.f - 1.f;
@@ -423,7 +354,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 					continue;
 
 				const glm::vec3 delta = iPos - data.positions[j];
-				const float res = Okay::lengthSqrd(delta);
+				const float res = lengthSqrd(delta);
 				if (res > sDist2)
 					continue;
 
