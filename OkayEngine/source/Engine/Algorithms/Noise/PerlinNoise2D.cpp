@@ -183,11 +183,13 @@ namespace Okay
 		const int sampleY1 = (int)y;
 
 		const int sampleX2 = sampleX1 + 1;
-		const int sampleY2 = sampleY1 + 1;
+		const int sampleY2 = psampleY1 + 1;
 
 		const float lerpTX = glm::fract(x);
 		const float lerpTY = glm::fract(y);
 #else
+		// Multiply gradient funcs with startOctWidth ?
+
 		const int intx = (int)x;
 		const int inty = (int)y;
 
