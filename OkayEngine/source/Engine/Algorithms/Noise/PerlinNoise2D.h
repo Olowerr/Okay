@@ -19,6 +19,7 @@ namespace Okay
 		inline void setBias(float bias);
 
 		float sample(float x, float y);
+		float sample2(float x, float y);
 		void generateTexture(ID3D11Texture2D* output);
 
 		bool imgui(const char* label);

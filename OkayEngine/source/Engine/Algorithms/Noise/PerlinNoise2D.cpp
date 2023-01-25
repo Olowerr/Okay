@@ -21,13 +21,22 @@ namespace Okay
 
 		unsigned char* result = new unsigned char[(size_t)width * (size_t)height]{};
 
+		float min = 100000000.f;
+		float max = -100000000.f;
+
 		for (uint32_t x = 0; x < width; x++)
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = UNORM_TO_UCHAR(sample((float)x * frequency.x, (float)y * frequency.y));
+				float res = sample2((float)(x + 0.5f) * frequency.x, (float)(y + 0.5f) * frequency.y);
+				if (res < min) min = res;
+				if (res > max) max = res;
+
+				result[width * y + x] = UNORM_TO_UCHAR(res);
 			}
 		}
+
+		printf("Min: %.7f, Max: %.7f\n", min, max);
 
 		DX11::updateTexture(resultBuffer, result, 1u, width, height);
 		DX11::getInstance().getDeviceContext()->CopyResource(output, resultBuffer);
@@ -36,6 +45,56 @@ namespace Okay
 		OKAY_DELETE_ARRAY(result);
 	}
 	
+	float hash(int value)
+	{
+		/* mix around the bits in x: */
+		value = value * 3266489917 + 374761393;
+		value = (value << 17) | (value >> 15);
+
+		/* Give value a good stir: */
+		value *= 668265263;
+		value ^= value >> 15;
+		value *= 2246822519;
+		value ^= value >> 13;
+		value *= 3266489917;
+		value ^= value >> 16;
+
+		/* trim the result and scale it to a float in [0,1): */
+		return (value & 0x00ffffff) * (1.0f / 0x1000000);
+	}
+
+	glm::vec2 randomGradient2(int ix, int iy) {
+		// No precomputed gradients mean this works for any number of grid coordinates
+		const unsigned w = 8 * sizeof(unsigned);
+		const unsigned s = w / 2; // rotation width
+		unsigned a = ix, b = iy;
+		a *= 3284157443; b ^= a << s | a >> w - s;
+		b *= 1911520717; a ^= b << s | b >> w - s;
+		a *= 2048419325;
+		float random = a * (3.14159265f / ~(~0u >> 1)); // in [0, 2*Pi]
+		glm::vec2 v;
+		v.x = cos(random); v.y = sin(random);
+		return v;
+	}
+
+	glm::vec2 randomGradient(int x, int y) 
+	{
+		return glm::vec2(hash(x), hash(y));
+	}
+
+	// Computes the dot product of the distance and gradient vectors.
+	float dotGridGradient(int ix, int iy, float x, float y) {
+		// Get gradient from integer coordinates
+		glm::vec2 gradient = randomGradient2(ix, iy);
+
+		// Compute the distance vector
+		float dx = x - (float)ix;
+		float dy = y - (float)iy;
+
+		// Compute the dot-product
+		return (dx * gradient.x + dy * gradient.y);
+	}
+
 	float PerlinNoise2D::sample(float x, float y)
 	{
 		float noise = 0;
@@ -109,6 +168,48 @@ namespace Okay
 
 		return sections == Okay::INVALID_UINT ? noise / scaleAcc : toon(noise / scaleAcc);
 
+	}
+
+	float PerlinNoise2D::sample2(float x, float y)
+	{
+		x *= frequency.x * 0.01f;
+		y *= frequency.y * 0.01f;
+
+		x = std::abs(x);
+		y = std::abs(y);
+
+#if 0
+		const int sampleX1 = (int)x;
+		const int sampleY1 = (int)y;
+
+		const int sampleX2 = sampleX1 + 1;
+		const int sampleY2 = sampleY1 + 1;
+
+		const float lerpTX = glm::fract(x);
+		const float lerpTY = glm::fract(y);
+#else
+		const int intx = (int)x;
+		const int inty = (int)y;
+
+		const int sampleX1 = (intx / startOctWidth) * startOctWidth;
+		const int sampleY1 = (inty / startOctWidth) * startOctWidth;
+
+		const int sampleX2 = sampleX1 + startOctWidth; 
+		const int sampleY2 = sampleY1 + startOctWidth; 
+
+		const float lerpTX = (x - (float)sampleX1) / (float)startOctWidth;
+		const float lerpTY = (y - (float)sampleY1) / (float)startOctWidth;
+#endif
+
+		const float blendX1 = dotGridGradient(sampleX1, sampleY1, x, y);
+		const float blendX2 = dotGridGradient(sampleX2, sampleY1, x, y);
+		const float res1 = glm::mix(blendX1, blendX2, lerpTX);
+
+		const float blendX3 = dotGridGradient(sampleX1, sampleY2, x, y);
+		const float blendX4 = dotGridGradient(sampleX2, sampleY2, x, y);
+		const float res2 = glm::mix(blendX3, blendX4, lerpTX);
+
+		return glm::mix(res1, res2, lerpTY) * 0.5f + 0.5f;
 	}
 
 	float PerlinNoise2D::sampleSeed(int x, int y)

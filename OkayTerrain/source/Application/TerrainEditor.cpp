@@ -46,7 +46,7 @@ TerrainEditor::TerrainEditor()
 	lerpPoints.addPoint(0.6f, 0.33f);
 	lerpPoints.addPoint(0.8f, 2.244f);
 	lerpPoints.addPoint(1.0f, 3.640f);
-#else
+#elif 0
 	lerpPoints.addPoint(0.0f, 1.1f);
 	lerpPoints.addPoint(0.42f, 0.2f);
 	lerpPoints.addPoint(0.49f, -0.19f);
@@ -55,6 +55,9 @@ TerrainEditor::TerrainEditor()
 	lerpPoints.addPoint(0.56f, 0.6f);
 	lerpPoints.addPoint(0.87f, 3.05f);
 	lerpPoints.addPoint(1.f, 3.630f);
+#else
+	lerpPoints.addPoint(0.0f, 0.f);
+	lerpPoints.addPoint(1.0f, 1.f);
 #endif
 
 	noiser.setSeed(123);
@@ -259,8 +262,10 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		for (size_t v = 0; v < NUM_VERTS; v++)
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
-			
-			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
+			pos.x += scale * 0.5f;
+			pos.z += scale * 0.5f;
+
+			float noise = noiser.sample2(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);
 			noise = lerpPoints.sample(noise);
 			pos.y += noise;// *2.f - 1.f;
