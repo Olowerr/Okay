@@ -265,7 +265,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			pos.x += scale * 0.5f;
 			pos.z += scale * 0.5f;
 
-			float noise = noiser.sample2(pos.x + scroll.x, pos.z + scroll.y);
+			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);
 			noise = lerpPoints.sample(noise);
 			pos.y += noise;// *2.f - 1.f;

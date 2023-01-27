@@ -14,6 +14,7 @@ namespace Okay
 		:seed(seed), octaves(8u), sections(INVALID_UINT), startOctWidth(512u), 
 		bias(2.f), frequency(1.f), guiLockFreqRatio(true)
 	{
+		setSeed(seed);
 		return;
 
 		const size_t num = 50;
@@ -69,7 +70,7 @@ namespace Okay
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = UNORM_TO_UCHAR(sample3(x + 0.5f, y + 0.5f));
+				result[width * y + x] = UNORM_TO_UCHAR(sample(x / (float)width, y / (float)height));
 			}
 		}
 
@@ -91,19 +92,13 @@ namespace Okay
 
 		for (uint32_t o = 0; o < octaves; o++)
 		{
-			//float oX = x * (o + 1);
-			//float oY = y * (o + 1);
-			//float oX = x * std::pow(2.f, (float)o);
-			//float oY = y * std::pow(2.f, (float)o);
-			float oX = x;
-			float oY = y;
 
-#if 1 // My version
+#if 0 // My version
 			int pitch = startOctWidth >> o;
 			if (!pitch) pitch = 1u;
 
-			const int intx = (int)oX;
-			const int inty = (int)oY;
+			const int intx = (int)x;
+			const int inty = (int)y;
 
 			// Gave incorrect results with negative inputs
 			//const int sampleX1 = (x / pitchX) * pitchX;
@@ -121,8 +116,8 @@ namespace Okay
 			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
 
 			// OneLoneCoder/Javidx9's blend math
-			const float lerpTX = (oX - (float)sampleX1) / (float)pitch;
-			const float lerpTY = (oY - (float)sampleY1) / (float)pitch;
+			const float lerpTX = (x - (float)sampleX1) / (float)pitch;
+			const float lerpTY = (y - (float)sampleY1) / (float)pitch;
 
 			const float blendX1 = glm::mix(sampleSeed(sampleX1, sampleY1), sampleSeed(sampleX2, sampleY1), lerpTX);
 			const float blendX2 = glm::mix(sampleSeed(sampleX1, sampleY2), sampleSeed(sampleX2, sampleY2), lerpTX);
@@ -131,6 +126,30 @@ namespace Okay
 			noise += glm::mix(blendX1, blendX2, lerpTY) * scale;
 			scale /= bias;
 
+#elif 1
+			// Hmm
+			const int sampleX1 = ((int)x)		% 4;
+			const int sampleX2 = ((int)x + 1)	% 4;
+			const int sampleY1 = ((int)y)		% 4;
+			const int sampleY2 = ((int)y + 1)	% 4;
+
+			const glm::vec2 fraction(glm::fract(x), glm::fract(y));
+			const glm::vec2 d1 = fraction - glm::vec2(0.f, 0.f);
+			const glm::vec2 d2 = fraction - glm::vec2(1.f, 0.f);
+			const glm::vec2 d3 = fraction - glm::vec2(0.f, 1.f);
+			const glm::vec2 d4 = fraction - glm::vec2(1.f, 1.f);
+
+			const float blendX1 = glm::dot(glm::normalize(randomGradient(sampleX1, sampleY1)), d1);
+			const float blendX2 = glm::dot(glm::normalize(randomGradient(sampleX2, sampleY1)), d2);
+			const float blendY1 = glm::dot(glm::normalize(randomGradient(sampleX1, sampleY2)), d3);
+			const float blendY2 = glm::dot(glm::normalize(randomGradient(sampleX2, sampleY2)), d4);
+
+			float xRes1 = glm::mix(blendX1, blendX2, fraction.x);
+			float xRes2 = glm::mix(blendY1, blendY2, fraction.x);
+
+			noise += glm::mix(xRes1, xRes2, fraction.y) * scale;
+			scaleAcc += scale;
+			scale /= bias;
 #else // OneLoneCoder/Javidx9's version
 			int nPitch = startWidth >> o;
 			int nSampleX1 = (x / nPitch) * nPitch;

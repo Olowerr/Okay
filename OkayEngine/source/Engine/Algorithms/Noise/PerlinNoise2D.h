@@ -37,15 +37,44 @@ namespace Okay
 		
 		bool guiLockFreqRatio;
 
+		glm::vec2 seedVec[4];
+
 		void createResources(ID3D11Texture2D* output, ID3D11Texture2D** resultBuffer, uint32_t* width, uint32_t* height);
 		float sampleSeed(int x, int y);
-
 		inline float toon(float value);
+
+		int hash(int value)
+		{
+			/* mix around the bits in value: */
+			value = value * 3266489917 + 374761393;
+			value = (value << 17) | (value >> 15);
+
+			/* Give value a good stir: */
+			value *= 668265263;
+			value ^= value >> 15;
+			value *= 2246822519;
+			value ^= value >> 13;
+			value *= 3266489917;
+			value ^= value >> 16;
+
+			return value;
+		}
+		glm::vec2 randomGradient(int ix, int iy);
+		float dotGridGradient(int ix, int iy, float x, float y);
+
+
 	};
 
 	inline void PerlinNoise2D::setSeed(uint32_t seed)
 	{
 		this->seed = seed;
+
+		// temp
+		srand(seed);
+		seedVec[0] = glm::normalize(glm::vec2((rand() / (float)RAND_MAX) * 2.f - 1.f, (rand() / (float)RAND_MAX) * 2.f - 1.f));
+		seedVec[1] = glm::normalize(glm::vec2((rand() / (float)RAND_MAX) * 2.f - 1.f, (rand() / (float)RAND_MAX) * 2.f - 1.f));
+		seedVec[2] = glm::normalize(glm::vec2((rand() / (float)RAND_MAX) * 2.f - 1.f, (rand() / (float)RAND_MAX) * 2.f - 1.f));
+		seedVec[3] = glm::normalize(glm::vec2((rand() / (float)RAND_MAX) * 2.f - 1.f, (rand() / (float)RAND_MAX) * 2.f - 1.f));
 	}
 
 	inline float PerlinNoise2D::toon(float value)

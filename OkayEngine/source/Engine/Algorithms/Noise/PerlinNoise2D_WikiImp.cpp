@@ -3,7 +3,7 @@
 namespace Okay
 {
 
-	glm::vec2 randomGradient(int ix, int iy) {
+	glm::vec2 PerlinNoise2D::randomGradient(int ix, int iy) {
 		const unsigned w = 8 * sizeof(unsigned);
 		const unsigned s = w / 2;
 		unsigned a = ix, b = iy;
@@ -17,7 +17,7 @@ namespace Okay
 	}
 
 
-	float dotGridGradient(int ix, int iy, float x, float y) {
+	float PerlinNoise2D::dotGridGradient(int ix, int iy, float x, float y) {
 		glm::vec2 gradient = randomGradient(ix, iy);
 
 		float dx = x - (float)ix;
