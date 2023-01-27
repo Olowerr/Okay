@@ -47,14 +47,14 @@ TerrainEditor::TerrainEditor()
 	lerpPoints.addPoint(0.8f, 2.244f);
 	lerpPoints.addPoint(1.0f, 3.640f);
 #elif 0
-	lerpPoints.addPoint(0.0f, 1.1f);
-	lerpPoints.addPoint(0.42f, 0.2f);
-	lerpPoints.addPoint(0.49f, -0.19f);
-	lerpPoints.addPoint(0.51f, -0.17f);
-	lerpPoints.addPoint(0.53f, 0.27f);
-	lerpPoints.addPoint(0.56f, 0.6f);
-	lerpPoints.addPoint(0.87f, 3.05f);
-	lerpPoints.addPoint(1.f, 3.630f);
+	lerpPoints.addPoint(0.0f, 0.5f);
+	lerpPoints.addPoint(0.42f, 0.08f);
+	lerpPoints.addPoint(0.49f, -0.095f);
+	lerpPoints.addPoint(0.51f, -0.146f);
+	lerpPoints.addPoint(0.53f, 0.002f);
+	lerpPoints.addPoint(0.56f, 0.091f);
+	lerpPoints.addPoint(0.87f, 1.09f);
+	lerpPoints.addPoint(1.f, 1.55f);
 #else
 	lerpPoints.addPoint(0.0f, 0.f);
 	lerpPoints.addPoint(1.0f, 1.f);

@@ -20,4 +20,9 @@ namespace Okay
 			0.f, 0.f, scale.z, 0.f,
 			0.f, 0.f, 0.f, 1.f);
 	}
+
+	static float smoothStep(float x)
+	{
+		return x * x * x * (x * (6 * x - 15) + 10);
+	}
 }
