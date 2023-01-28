@@ -50,6 +50,7 @@ namespace Okay
 		}
 
 		OKAY_ASSERT(false, "The entity doesn't have the given script");
+		return *(T*)pScripts[0]; // Remove warning
 	}
 
 	template<typename T>

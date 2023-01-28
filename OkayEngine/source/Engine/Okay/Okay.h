@@ -16,6 +16,7 @@ if (!(condition))\
 	const std::wstring message2("\nFunction: " __FUNCTIONW__);\
 	if (MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + message2 + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_RETRYCANCEL) == IDCANCEL)\
 		exit(1);\
+	assert(false);\
 }0
 
 #define PRINT_VEC3_WNAME(vec) printf(#vec " - (%.3f, %.3f, %.3f)\n", vec.x, vec.y, vec.z);

@@ -3,54 +3,13 @@
 
 #include "imgui/imgui.h"
 
-#include <vector>
-#include <algorithm>
-#include <execution>
-
 
 namespace Okay
 {
 	PerlinNoise2D::PerlinNoise2D(uint32_t seed)
 		:seed(seed), octaves(8u), sections(INVALID_UINT), startOctWidth(512u), 
-		bias(2.f), frequency(1.f), guiLockFreqRatio(true)
+		bias(2.f), frequency(1.f), guiLockFreqRatio(true), dist(-1.f, 1.f)
 	{
-		setSeed(seed);
-		return;
-
-		const size_t num = 50;
-		
-		std::vector<size_t> is(num);
-		for (size_t i = 0; i < num; i++)
-			is[i] = i;
-
-		std::vector<glm::vec2> its(num);
-
-		std::for_each(std::execution::par, is.begin(), is.end(), [&](size_t i)
-		{
-			glm::vec2& value = its[i];
-			value.x = 10000000.f;
-			value.y = -10000000.f;
-
-			const float xEnd = 1.f + (float)i;
-			const float yEnd = 1.f + (float)i;
-
-			for (float x = (float)i; x < xEnd; x += 0.001f)
-			{
-				for (float y = (float)i; y < yEnd; y += 0.001f)
-				{
-					float res = sample3(x, y);
-					if (res < value.x) value.x = res;
-					if (res > value.y) value.y = res;
-
-				}
-			}
-		});
-
-		for (const glm::vec2& par : its)
-		{
-			printf("min: %.4f, max: %.4f\n", par.x, par.y);
-
-		}
 		
 	}
 
@@ -70,7 +29,7 @@ namespace Okay
 		{
 			for (uint32_t y = 0; y < height; y++)
 			{
-				result[width * y + x] = UNORM_TO_UCHAR(sample(x / (float)width, y / (float)height));
+				result[width * y + x] = UNORM_TO_UCHAR(sample((float)x, (float)y));
 			}
 		}
 
@@ -87,23 +46,19 @@ namespace Okay
 		float scale = 1.f;
 		float scaleAcc = 0.f;
 
-		x *= frequency.x;
-		y *= frequency.y;
+		// The unmodified version of gradient noise requires (for this project) low frequency
+		x *= frequency.x * 0.002f;
+		y *= frequency.y * 0.002f;
 
 		for (uint32_t o = 0; o < octaves; o++)
 		{
-
-#if 0 // My version
+#if 0 // Value Noise - Based on OneLoneCoder/Javidx9s example
 			int pitch = startOctWidth >> o;
 			if (!pitch) pitch = 1u;
 
 			const int intx = (int)x;
 			const int inty = (int)y;
 
-			// Gave incorrect results with negative inputs
-			//const int sampleX1 = (x / pitchX) * pitchX;
-			//const int sampleY1 = (y / pitchY) * pitchY;
-			
 			// Works but remove ternary operator
 			const int sampleX1 = intx < 0 ? intx - (pitch + intx % pitch) : (intx / pitch) * pitch;
 			const int sampleY1 = inty < 0 ? inty - (pitch + inty % pitch) : (inty / pitch) * pitch;
@@ -111,11 +66,6 @@ namespace Okay
 			const int sampleX2 = (sampleX1 + pitch);
 			const int sampleY2 = (sampleY1 + pitch);
 
-			// Gave incorrect results with negative inputs
-			//const float lerpTX = (float)(x % pitchX) / (float)pitchX;
-			//const float lerpTY = (float)(y % pitchY) / (float)pitchY;
-
-			// OneLoneCoder/Javidx9's blend math
 			const float lerpTX = (x - (float)sampleX1) / (float)pitch;
 			const float lerpTY = (y - (float)sampleY1) / (float)pitch;
 
@@ -126,59 +76,64 @@ namespace Okay
 			noise += glm::mix(blendX1, blendX2, lerpTY) * scale;
 			scale /= bias;
 
-#elif 1
-			// Hmm
-			const int sampleX1 = ((int)x)		% 4;
-			const int sampleX2 = ((int)x + 1)	% 4;
-			const int sampleY1 = ((int)y)		% 4;
-			const int sampleY2 = ((int)y + 1)	% 4;
+#else // Gradient Noise - Based on the wiki, ronja-tutorials and Javidx9
 
-			const glm::vec2 fraction(glm::fract(x), glm::fract(y));
-			const glm::vec2 d1 = fraction - glm::vec2(0.f, 0.f);
-			const glm::vec2 d2 = fraction - glm::vec2(1.f, 0.f);
-			const glm::vec2 d3 = fraction - glm::vec2(0.f, 1.f);
-			const glm::vec2 d4 = fraction - glm::vec2(1.f, 1.f);
+			// Offset based on octave and half double the frequency
+			const float oX = (x + o * 100.f) * (1 << o);
+			const float oY = (y + o * 100.f) * (1 << o);
 
-			const float blendX1 = glm::dot(glm::normalize(randomGradient(sampleX1, sampleY1)), d1);
-			const float blendX2 = glm::dot(glm::normalize(randomGradient(sampleX2, sampleY1)), d2);
-			const float blendY1 = glm::dot(glm::normalize(randomGradient(sampleX1, sampleY2)), d3);
-			const float blendY2 = glm::dot(glm::normalize(randomGradient(sampleX2, sampleY2)), d4);
+			const int sampleX1 = (int)oX;
+			const int sampleX2 = (int)oX + 1;
+			const int sampleY1 = (int)oY;
+			const int sampleY2 = (int)oY + 1;
 
-			float xRes1 = glm::mix(blendX1, blendX2, fraction.x);
-			float xRes2 = glm::mix(blendY1, blendY2, fraction.x);
+			// The position relative to the "octave square" | 12.0 - - 0.2 - - - - - - 13.0
+			const glm::vec2 relPos(glm::fract(oX), glm::fract(oY));
 
-			noise += glm::mix(xRes1, xRes2, fraction.y) * scale;
+			const float blendX1 = glm::dot(sampleSeed2(sampleX1, sampleY1), relPos - glm::vec2(0.f, 0.f));
+			const float blendX2 = glm::dot(sampleSeed2(sampleX2, sampleY1), relPos - glm::vec2(1.f, 0.f));
+			const float blendX3 = glm::dot(sampleSeed2(sampleX1, sampleY2), relPos - glm::vec2(0.f, 1.f));
+			const float blendX4 = glm::dot(sampleSeed2(sampleX2, sampleY2), relPos - glm::vec2(1.f, 1.f));
+
+			const float res1 = glm::mix(blendX1, blendX2, relPos.x);
+			const float res2 = glm::mix(blendX3, blendX4, relPos.x);
+
+			noise += glm::mix(res1, res2, relPos.y) * scale;
 			scaleAcc += scale;
 			scale /= bias;
-#else // OneLoneCoder/Javidx9's version
-			int nPitch = startWidth >> o;
-			int nSampleX1 = (x / nPitch) * nPitch;
-			int nSampleY1 = (y / nPitch) * nPitch;
-
-			int nSampleX2 = (nSampleX1 + nPitch) % width;
-			int nSampleY2 = (nSampleY1 + nPitch) % width;
-
-			float fBlendX = (float)(x - nSampleX1) / (float)nPitch;
-			float fBlendY = (float)(y - nSampleY1) / (float)nPitch;
-
-			float fSampleT = (1.0f - fBlendX) * sampleSeed(nSampleX1, nSampleY1) + fBlendX * sampleSeed(nSampleX2, nSampleY1);
-			float fSampleB = (1.0f - fBlendX) * sampleSeed(nSampleX1, nSampleY2) + fBlendX * sampleSeed(nSampleX2, nSampleY2);
-
-			scaleAcc += scale;
-			noise += (fBlendY * (fSampleB - fSampleT) + fSampleT) * scale;
-			scale = scale / bias;
 #endif
 		}
 
-		return sections == Okay::INVALID_UINT ? Okay::smoothStep(noise / scaleAcc) : toon(noise / scaleAcc);
+		//return sections == Okay::INVALID_UINT ? (noise / scaleAcc) * 0.5f + 0.5f : toon(noise / scaleAcc);
+		//return sections == Okay::INVALID_UINT ? Okay::smoothStep((noise / scaleAcc) * 0.5f + 0.5f) : toon(noise / scaleAcc);
+		return sections == Okay::INVALID_UINT ? glm::smoothstep(0.f, 1.f, (noise / scaleAcc) * 0.5f + 0.5f) : toon(noise / scaleAcc);
 
+	}
+
+	glm::vec2 PerlinNoise2D::sampleSeed2(int x, int y)
+	{
+		// Source: wikipedia, slightly modified :]
+
+		static const uint32_t w = 32u;
+		static const uint32_t s = w / 2;
+		uint32_t a = x + seed * x, b = y + seed * y * 13;
+
+		a *= 3284157443;
+		b ^= a << s | a >> (w - s);
+		b *= 1911520717;
+
+		a ^= b << s | b >> (w - s);
+		a *= 2048419325;
+
+		const float random = a * (3.14159265f / ~(~0u >> 1));
+		return glm::vec2(glm::cos(random), glm::sin(random));
 	}
 
 	float PerlinNoise2D::sampleSeed(int x, int y)
 	{
 		x += seed;
 
-		// https://github.com/Cyan4973/xxHash
+		// Source https://github.com/Cyan4973/xxHash
 
 		/* mix around the bits in x: */
 		x = x * 3266489917 + 374761393;

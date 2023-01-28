@@ -46,7 +46,7 @@ TerrainEditor::TerrainEditor()
 	lerpPoints.addPoint(0.6f, 0.33f);
 	lerpPoints.addPoint(0.8f, 2.244f);
 	lerpPoints.addPoint(1.0f, 3.640f);
-#elif 0
+#elif 1
 	lerpPoints.addPoint(0.0f, 0.5f);
 	lerpPoints.addPoint(0.42f, 0.08f);
 	lerpPoints.addPoint(0.49f, -0.095f);
@@ -256,7 +256,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	data.normals.reserve(numPoints);
 	data.indices.reserve(numPoints);
 
-	float minY = 1000000000000.f;
 	for (uint32_t i = 0; i < subDivs * subDivs; i++)
 	{
 		for (size_t v = 0; v < NUM_VERTS; v++)
@@ -271,18 +270,11 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			pos.y += noise;// *2.f - 1.f;
 			pos.y *= amplitude;
 
-			if (pos.y < minY)
-				minY = pos.y;
-
 			data.positions.emplace_back(pos);
 			data.uvs.emplace_back(pos.x / scale + 0.5f, pos.z / -scale + 0.5f);
 			data.indices.emplace_back((uint32_t)data.indices.size());
 		}
 	}
-
-	//for (size_t i = 0; i < numPoints; i++)
-	//	data.positions[i].y -= minY;
-	
 
 	if (smoothShading)
 	{

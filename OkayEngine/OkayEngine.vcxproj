@@ -281,8 +281,6 @@
     <ClCompile Include="deps\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="deps\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="source\Engine\Algorithms\Interpolation\LerpList.cpp" />
-    <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D_RonjaImp.cpp" />
-    <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D_WikiImp.cpp" />
     <ClCompile Include="source\Engine\Application\Application.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
     <ClCompile Include="source\Engine\Script\DefaultScripts\FreeLookMovement.cpp" />
