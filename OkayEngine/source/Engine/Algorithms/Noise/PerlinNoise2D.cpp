@@ -82,10 +82,10 @@ namespace Okay
 			const float oX = (x + o * 100.f) * (1 << o);
 			const float oY = (y + o * 100.f) * (1 << o);
 
-			const int sampleX1 = (int)oX;
-			const int sampleX2 = (int)oX + 1;
-			const int sampleY1 = (int)oY;
-			const int sampleY2 = (int)oY + 1;
+			const int sampleX1 = (int)glm::floor(oX);
+			const int sampleX2 = sampleX1 + 1;
+			const int sampleY1 = (int)glm::floor(oY);
+			const int sampleY2 = sampleY1 + 1;
 
 			// The position relative to the "octave square" | 12.0 - - 0.2 - - - - - - 13.0
 			const glm::vec2 relPos(glm::fract(oX), glm::fract(oY));
