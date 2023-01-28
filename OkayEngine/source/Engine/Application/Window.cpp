@@ -103,49 +103,28 @@ void Window::update()
 	}
 }
 
-LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+bool Window::openFileExplorer(char* pOutput, size_t bufferSize)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
+	if (!pOutput || !bufferSize)
+		return false;
 
-	switch (message)
-	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
+	OPENFILENAME ofn{};
 
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		return 0;
-		
-	case WM_KEYDOWN:
-		Okay::Input::setKeyDown((Keys)wParam);
-		break;
+	wchar_t fileName[MAX_FILENAME_LENGTH]{};
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFile = fileName;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = MAX_FILENAME_LENGTH;
+	ofn.lpstrFilter = L"All Files\0*.*";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_NOCHANGEDIR;
 
-	case WM_KEYUP:
-		Okay::Input::setKeyUp((Keys)wParam);
-		break;
+	if (!GetOpenFileName(&ofn))
+		return false;
 
-	}
-
-	return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-LRESULT Window::WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	//switch (message)
-	//{
-	//case WM_DESTROY:
-	//	PostQuitMessage(0);
-	//	return 0;
-	//
-	//case WM_CLOSE:
-	//	PostQuitMessage(0);
-	//	return 0;
-	//
-	//}
-
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	wcstombs_s(nullptr, pOutput, bufferSize, ofn.lpstrFile, bufferSize);
+	return true;
 }
 
 void Window::createRenderTexture(uint32_t flags)
@@ -190,4 +169,49 @@ void Window::createRenderTexture(uint32_t flags)
 	OKAY_ASSERT(swapChain, "Failed creating backBuffer");
 
 	renderTexture.create(backBuffer, flags);
+}
+
+LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
+	switch (message)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		return 0;
+
+	case WM_KEYDOWN:
+		Okay::Input::setKeyDown((Keys)wParam);
+		break;
+
+	case WM_KEYUP:
+		Okay::Input::setKeyUp((Keys)wParam);
+		break;
+
+	}
+
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+LRESULT Window::WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	//switch (message)
+	//{
+	//case WM_DESTROY:
+	//	PostQuitMessage(0);
+	//	return 0;
+	//
+	//case WM_CLOSE:
+	//	PostQuitMessage(0);
+	//	return 0;
+	//
+	//}
+
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }

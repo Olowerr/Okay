@@ -8,7 +8,7 @@ namespace Okay
 {
 	PerlinNoise2D::PerlinNoise2D(uint32_t seed)
 		:seed(seed), octaves(8u), sections(INVALID_UINT), startOctWidth(512u), 
-		bias(2.f), frequency(1.f), guiLockFreqRatio(true), dist(-1.f, 1.f)
+		bias(2.f), frequency(1.f), guiLockFreqRatio(true)
 	{
 		
 	}

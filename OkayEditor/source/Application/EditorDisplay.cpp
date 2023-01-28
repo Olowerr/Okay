@@ -206,10 +206,21 @@ void Editor::displayShader(uint32_t index)
 
 	ImGui::Text("Height Map"); ImGui::SameLine();
 	selectTexture(shader, shader.getHeightMapID(), &Okay::Shader::setHeightMap, "##NLheight");
+
 	ImGui::Text("Height map scale: "); ImGui::SameLine();
 	if (ImGui::DragFloat("##NLhms", &heightMapScalar, 0.01f))
 		shader.setHeightMapScalar(heightMapScalar);
 
 	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
 
+	if (ImGui::Button("Select"))
+	{
+		char output[Window::MAX_FILENAME_LENGTH]{};
+		if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+			shader.compilePixelShader(output);
+	}
+	ImGui::SameLine();
+
+	if (ImGui::Button("Reload"))
+		shader.reloadShader();
 }

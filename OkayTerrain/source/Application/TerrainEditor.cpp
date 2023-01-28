@@ -24,13 +24,15 @@ TerrainEditor::TerrainEditor()
 
 	content.addMaterial().setBaseColour(1u);
 	terrain = scene.createEntity();
-	terrain.addComponent<Okay::MeshComponent>(0u, 1u, 0u);
+	terrain.addComponent<Okay::MeshComponent>(0u, 1u, 1u);
 
 	content.addMaterial().setBaseColour(2u);
 	water = scene.createEntity();
 	water.addComponent<Okay::MeshComponent>(1u, 2u, 0u);
 	water.getComponent<Okay::Transform>().position.y = waterHeight;
 	
+	content.addShader(content).compilePixelShader("resources/Shaders/terrainShader.txt");
+	terrainShaderId = 1u;
 
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/ground.png");
 	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/water.png");
@@ -212,14 +214,23 @@ void TerrainEditor::update()
 
 	if (noiser.imgui("Noise"))
 		createTerrainMesh();
+
+	ImGui::Begin("Terrain shader", &open);
+	Shader& shader = content.getShader(terrainShaderId);
+
+	if (ImGui::Button("Select"))
+	{
+		char output[Window::MAX_FILENAME_LENGTH]{};
+		if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+			shader.compilePixelShader(output);
+	}
+	ImGui::SameLine();
+
+	if (ImGui::Button("Reload"))
+		shader.reloadShader();
+
+	ImGui::End();
 }
-
-inline float lengthSqrd(const glm::vec3& a)
-{
-	return a.x * a.x + a.z * a.z;
-}
-
-
 
 void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, float scale, float amplitude, uint32_t meshIdx)
 {
@@ -251,9 +262,10 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 
 	size_t numPoints = (size_t)subDivs * (size_t)subDivs * NUM_VERTS;
 
+#if 0
 	data.positions.reserve(numPoints);
 	data.uvs.reserve(numPoints);
-	data.normals.reserve(numPoints);
+	
 	data.indices.reserve(numPoints);
 
 	for (uint32_t i = 0; i < subDivs * subDivs; i++)
@@ -275,7 +287,39 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			data.indices.emplace_back((uint32_t)data.indices.size());
 		}
 	}
+#else
+	data.positions.resize(numPoints);
+	data.uvs.resize(numPoints);
+	data.normals.resize(numPoints);
+	data.indices.resize(numPoints);
 
+	std::vector<size_t> quadIdx((size_t)subDivs * subDivs);
+	for (size_t i = 0; i < (size_t)subDivs * subDivs; i++)
+		quadIdx[i] = i;
+
+	std::for_each(std::execution::par, quadIdx.begin(), quadIdx.end(), [&](size_t i)
+	{
+		for (size_t v = 0; v < NUM_VERTS; v++)
+		{
+			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
+			pos.x += scale * 0.5f;
+			pos.z += scale * 0.5f;
+
+			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
+			noise = std::pow(noise, exponent);
+			noise = lerpPoints.sample(noise);
+			pos.y += noise;// *2.f - 1.f;
+			pos.y *= amplitude;
+
+			data.positions[i * NUM_VERTS + v] = pos;
+			data.uvs[i * NUM_VERTS + v] = glm::vec2(pos.x / scale + 0.5f, pos.z / -scale + 0.5f);
+			data.indices[i * NUM_VERTS + v] = uint32_t(i * NUM_VERTS + v);
+		}
+	});
+	
+#endif
+
+	data.normals.resize(numPoints);
 	if (smoothShading)
 	{
 
@@ -351,7 +395,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 					continue;
 
 				const glm::vec3 delta = iPos - data.positions[j];
-				const float res = lengthSqrd(delta);
+				const float res = delta.x * delta.x + delta.z * delta.z;
 				if (res > sDist2)
 					continue;
 
@@ -401,7 +445,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 
 				sum += faceNormals[j / 3];
 			}*/
-			data.normals.emplace_back(glm::normalize(sum));
+			data.normals[i] = glm::normalize(sum);
 		}
 #endif
 		std::chrono::duration<float> dt = std::chrono::system_clock::now() - start;
@@ -418,9 +462,9 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 
 			result = glm::normalize(glm::cross(v1, v2));
 
-			data.normals.emplace_back(result);
-			data.normals.emplace_back(result);
-			data.normals.emplace_back(result);
+			data.normals[i] = result;
+			data.normals[i + 1] = result;
+			data.normals[i + 2] = result;
 		}
 	}
 

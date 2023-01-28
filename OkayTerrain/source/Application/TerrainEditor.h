@@ -28,6 +28,8 @@ private:
 	Okay::Entity terrain;
 	Okay::Entity obj;
 
+	uint32_t terrainShaderId;
+
 	void update();
 	void createTerrainMesh(uint32_t meshIdx = 0u)
 	{

@@ -39,6 +39,8 @@ namespace Okay
 		inline void setHeightMapScalar(float scalar);
 
 		void setPixelShader(std::string_view path);
+		void compilePixelShader(std::string_view path);
+		void reloadShader();
 		inline const std::string& getPSName() const;
 		
 		void bind() const;
@@ -57,7 +59,7 @@ namespace Okay
 		uint32_t heightMapIdx;
 	};
 
-	inline const std::string& Okay::Shader::getName() const
+	inline const std::string& Shader::getName() const
 	{
 		return name;
 	}

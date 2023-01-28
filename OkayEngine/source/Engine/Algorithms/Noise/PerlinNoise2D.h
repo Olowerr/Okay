@@ -9,7 +9,7 @@ namespace Okay
 	class PerlinNoise2D
 	{
 	public:
-		PerlinNoise2D(uint32_t seed = 0);
+		PerlinNoise2D(uint32_t seed = 123u);
 		~PerlinNoise2D();
 
 		inline void setSeed(uint32_t seed);
@@ -25,8 +25,6 @@ namespace Okay
 		bool imgui(const char* label);
 
 	private:
-		std::uniform_real_distribution<float> dist;
-		std::mt19937 rng;
 		uint32_t seed;
 
 		uint32_t octaves;

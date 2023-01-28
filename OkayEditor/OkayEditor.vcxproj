@@ -181,6 +181,9 @@ xcopy $(PojrectDir)imgui.ini $(OutDir) /y
 
 SET ERRORLEVEL=0</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)OkayEngine\source\Engine\Graphics\Shaders\</AdditionalIncludeDirectories>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <ClCompile>

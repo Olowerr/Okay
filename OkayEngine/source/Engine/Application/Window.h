@@ -9,6 +9,8 @@
 class Window
 {
 public:
+	static const size_t MAX_FILENAME_LENGTH = 256ull;
+
 	Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint32_t renderTexFlags = ~0u, bool defaultWinProc = false);
 	~Window();
 	Window(const Window&) = delete;
@@ -32,6 +34,8 @@ public:
 
 	HWND getHWnd() const;
 	void update();
+	bool openFileExplorer(char* pOutput, size_t bufferSize);
+
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

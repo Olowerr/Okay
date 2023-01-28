@@ -42,7 +42,6 @@ private:
 
 	void displayContent();
 	void displayAssetList();
-	void openFileExplorer();
 
 	Okay::RenderTexture* testTex;
 	Okay::PerlinNoise2D* noiser;

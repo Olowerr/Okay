@@ -278,7 +278,11 @@ void Editor::displayContent()
 	if (ImGui::BeginMenu("Options"))
 	{
 		if (ImGui::MenuItem("Import"))
-			openFileExplorer();
+		{
+			char output[Window::MAX_FILENAME_LENGTH]{};
+			if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+				content.importFile(output);
+		}
 	
 		if (ImGui::MenuItem("weow"))
 			printf("weow");
@@ -290,27 +294,4 @@ void Editor::displayContent()
 	displayAssetList();
 
 	ImGui::End();
-}
-
-void Editor::openFileExplorer()
-{
-	const size_t MaxFileLength = 512;
-	OPENFILENAME ofn{};
-
-	wchar_t fileName[MaxFileLength]{};
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = window.getHWnd();
-	ofn.lpstrFile = fileName;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = MaxFileLength;
-	ofn.lpstrFilter = L"All Files\0*.*";
-	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_NOCHANGEDIR;
-
-	if (!GetOpenFileName(&ofn))
-		return;
-
-	char text[MaxFileLength]{};
-	wcstombs_s(nullptr, text, MaxFileLength, ofn.lpstrFile, MaxFileLength);
-	content.importFile(text);
 }

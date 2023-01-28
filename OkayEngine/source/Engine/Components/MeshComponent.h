@@ -1,5 +1,4 @@
 #pragma once
-#include "Engine/Graphics/Assets/Mesh.h"
 
 namespace Okay
 {
