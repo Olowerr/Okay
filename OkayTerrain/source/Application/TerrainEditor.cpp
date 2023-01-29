@@ -262,6 +262,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 
 	size_t numPoints = (size_t)subDivs * (size_t)subDivs * NUM_VERTS;
 
+	std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 #if 0
 	data.positions.reserve(numPoints);
 	data.uvs.reserve(numPoints);
@@ -273,8 +274,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		for (size_t v = 0; v < NUM_VERTS; v++)
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
-			pos.x += scale * 0.5f;
-			pos.z += scale * 0.5f;
 
 			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);
@@ -287,6 +286,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			data.indices.emplace_back((uint32_t)data.indices.size());
 		}
 	}
+
 #else
 	data.positions.resize(numPoints);
 	data.uvs.resize(numPoints);
@@ -302,8 +302,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		for (size_t v = 0; v < NUM_VERTS; v++)
 		{
 			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
-			pos.x += scale * 0.5f;
-			pos.z += scale * 0.5f;
 
 			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);
@@ -318,6 +316,8 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	});
 	
 #endif
+	std::chrono::duration<float> dt = std::chrono::system_clock::now() - start;
+	printf("Duration: %.7f\n", dt.count());
 
 	data.normals.resize(numPoints);
 	if (smoothShading)
@@ -355,7 +355,6 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 		};
 		
 
-		std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 #if 0
 		const float searchDistSqrd = smoothDist * ((0.5f * scale) / (float)subDivs) * smoothDist * ((0.5f * scale) / (float)subDivs);
 		auto searchQuads2 = [&](int faceStartIdx, size_t curIdx, glm::vec3& sum)
@@ -448,8 +447,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 			data.normals[i] = glm::normalize(sum);
 		}
 #endif
-		std::chrono::duration<float> dt = std::chrono::system_clock::now() - start;
-		//printf("Duration: %.7f\n", dt.count());
+		
 
 	}
 	else

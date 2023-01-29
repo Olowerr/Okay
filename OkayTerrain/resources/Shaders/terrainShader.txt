@@ -40,12 +40,12 @@ static float3 SUN_DIR = -normalize(float3(1.f, -1.f, 1.f));
 
 float4 main(TransformedVertex input) : SV_TARGET
 {
-	float green = input.worldPos.y / 10.f;
-	green = green * green * (3.f - 2.f * green);
+	float green = input.worldPos.y / 70.f;
+	//green = green * green * (3.f - 2.f * green);
 	float3 colour = lerp(float3(0.f, 1.f, 0.f), float3(2.f, 2.f, 2.f), green) * 0.5f;
 
 #if 1
-	return float4(max(dot(input.normal, SUN_DIR), 0.1f) * colour, 1.f); 
+	return float4(clamp(dot(input.normal, SUN_DIR), 0.5f, 1.f) * colour, 1.f); 
 #else
 	return float4(colour, 1.f); 
 
