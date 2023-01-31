@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "EditorHelp.h"
 
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
@@ -266,6 +267,64 @@ void Editor::displayInspector()
 	ImGui::Text("MS:  %.6f", dispDt);
 
 	ImGui::PopItemWidth();
+	ImGui::End();
+
+	if (ImGui::Begin("Styling"))
+	{
+		ImGui::PushItemWidth(-150.f);
+		ImGuiStyle& style = ImGui::GetStyle();
+		IMGUI_DISPLAY_STYLE_COLOUR(Text);
+		IMGUI_DISPLAY_STYLE_COLOUR(TextDisabled);
+		IMGUI_DISPLAY_STYLE_COLOUR(WindowBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(ChildBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(PopupBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(Border);
+		IMGUI_DISPLAY_STYLE_COLOUR(BorderShadow);
+		IMGUI_DISPLAY_STYLE_COLOUR(FrameBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(FrameBgHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(FrameBgActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(TitleBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(TitleBgActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(TitleBgCollapsed);
+		IMGUI_DISPLAY_STYLE_COLOUR(MenuBarBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(ScrollbarBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(ScrollbarGrab);
+		IMGUI_DISPLAY_STYLE_COLOUR(ScrollbarGrabHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(ScrollbarGrabActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(CheckMark);
+		IMGUI_DISPLAY_STYLE_COLOUR(SliderGrab);
+		IMGUI_DISPLAY_STYLE_COLOUR(SliderGrabActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(Button);
+		IMGUI_DISPLAY_STYLE_COLOUR(ButtonHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(ButtonActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(Header);
+		IMGUI_DISPLAY_STYLE_COLOUR(HeaderHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(HeaderActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(SeparatorHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(SeparatorActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(ResizeGrip);
+		IMGUI_DISPLAY_STYLE_COLOUR(ResizeGripHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(ResizeGripActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(Tab);
+		IMGUI_DISPLAY_STYLE_COLOUR(TabHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(TabActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(TabUnfocused);
+		IMGUI_DISPLAY_STYLE_COLOUR(TabUnfocusedActive);
+		IMGUI_DISPLAY_STYLE_COLOUR(DockingPreview);
+		IMGUI_DISPLAY_STYLE_COLOUR(DockingEmptyBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(PlotLines);
+		IMGUI_DISPLAY_STYLE_COLOUR(PlotLinesHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(PlotHistogram);
+		IMGUI_DISPLAY_STYLE_COLOUR(PlotHistogramHovered);
+		IMGUI_DISPLAY_STYLE_COLOUR(TextSelectedBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(DragDropTarget);
+		IMGUI_DISPLAY_STYLE_COLOUR(NavHighlight);
+		IMGUI_DISPLAY_STYLE_COLOUR(NavWindowingHighlight);
+		IMGUI_DISPLAY_STYLE_COLOUR(NavWindowingDimBg);
+		IMGUI_DISPLAY_STYLE_COLOUR(ModalWindowDimBg);
+
+		ImGui::PopItemWidth();
+	}
 	ImGui::End();
 }
 

@@ -31,7 +31,7 @@ static float3 SUN_DIR = normalize(float3(1.f, -1.f, 1.f));
 
 float4 main(TransformedVertex input) : SV_TARGET
 {
-#if 0
+#if 1
 	PointLight poLight;
 
 	float distance;
@@ -71,7 +71,7 @@ float4 main(TransformedVertex input) : SV_TARGET
 	return float4(max(dot(-input.normal, SUN_DIR), 0.f) * colour, 1.f);
 
 
-#elif 1
+#elif 0
 
 	float3 colour = baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb;
 	return float4(max(dot(-input.normal, SUN_DIR), 0.2f) * colour, 1.f);

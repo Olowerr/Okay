@@ -51,3 +51,6 @@ if (ImGui::BeginListBox("##NL" label, size))\
 	}
 
 #define IMGUI_DISPLAY_ASSET_END() ImGui::EndListBox(); } ImGui::SameLine()
+
+
+#define IMGUI_DISPLAY_STYLE_COLOUR(idx) ImGui::ColorEdit4(#idx, &style.Colors[ImGuiCol_##idx].x)
