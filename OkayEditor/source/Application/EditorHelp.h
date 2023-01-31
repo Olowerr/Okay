@@ -53,4 +53,7 @@ if (ImGui::BeginListBox("##NL" label, size))\
 #define IMGUI_DISPLAY_ASSET_END() ImGui::EndListBox(); } ImGui::SameLine()
 
 
-#define IMGUI_DISPLAY_STYLE_COLOUR(idx) ImGui::ColorEdit4(#idx, &style.Colors[ImGuiCol_##idx].x)
+#define IMGUI_DISPLAY_STYLE_COLOUR(idx)\
+ImGui::ColorEdit4(#idx, &style.Colors[ImGuiCol_##idx].x); ImGui::SameLine(ImGui::GetWindowWidth() - buttonWidth - buttonOffset);\
+if (ImGui::Button("Print: "#idx, ImVec2(buttonWidth, 20.f))) printf("style.Colors[ImGuiCol_"#idx "] = ImVec4(%.2ff, %.2ff, %.2ff, %.2ff);\n",\
+style.Colors[ImGuiCol_##idx].x, style.Colors[ImGuiCol_##idx].y, style.Colors[ImGuiCol_##idx].z, style.Colors[ImGuiCol_##idx].w);
