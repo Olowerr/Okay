@@ -4,7 +4,7 @@
 
 #include <Windows.h>
 #include <d3d11.h>
-
+#include <unordered_map>
 
 class Window
 {
@@ -47,6 +47,10 @@ private:
 	ID3D11Texture2D* backBuffer;
 	IDXGISwapChain* swapChain;
 	Okay::RenderTexture renderTexture;
+
+private: // Window handling through HWND
+	static std::unordered_map<HWND, Window*> windows;
+	static void onResize(HWND hWnd, WPARAM wParam);
 };
 
 inline bool Window::isOpen() const

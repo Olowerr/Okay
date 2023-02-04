@@ -56,6 +56,8 @@ void Editor::run()
 	scene.start();
 	Time::start();
 
+//	gameTexture.addCallback(&Renderer::resize, renderer, 11, 12);
+
 	while (window.isOpen())
 	{
 		// New frame
@@ -90,9 +92,19 @@ void Editor::newFrame()
 void Editor::endFrame()
 {
 	static bool open = true;
-	static ImVec2 viewp = VEC2_GLM_TO_IMGUI(gameTexture.getDimensions());
+	static ImVec2 texSize = VEC2_GLM_TO_IMGUI(gameTexture.getDimensions());
+	
 	ImGui::Begin("Viewport", &open);
-	ImGui::Image(gameTexture.getSRV(), viewp);
+
+	const ImVec2 winSize = ImGui::GetWindowSize();
+	if (winSize.x != texSize.x || winSize.y != texSize.y)
+	{
+		texSize = winSize;
+		gameTexture.resize((uint32_t)winSize.x, (uint32_t)winSize.y);
+	}
+
+	ImGui::Image(gameTexture.getSRV(), texSize);
+
 	ImGui::End();
 
 	// ((const Window&)window) bruh

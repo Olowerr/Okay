@@ -1,0 +1,5 @@
+fix window scaling
+skybox
+editor camera movement
+start game
+fix text-item alignment

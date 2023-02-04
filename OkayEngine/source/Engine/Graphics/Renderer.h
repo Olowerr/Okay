@@ -27,6 +27,7 @@ namespace Okay
 		void submitPointLight(const PointLight& pLight, const Transform& pTransform);
 
 		void setRenderTexture(const RenderTexture* pRenderTexture);
+		void resize(uint32_t width, uint32_t height);
 
 		void newFrame();
 		void render(Entity cameraEntity);

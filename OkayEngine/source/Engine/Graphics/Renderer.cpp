@@ -142,6 +142,11 @@ namespace Okay
 		pDevContext->RSSetViewports(1u, &viewport);
 	}
 
+	void Renderer::resize(uint32_t width, uint32_t height)
+	{
+		printf("%p, %u, %u\n", pRenderTarget, width, height);
+	}
+
 	void Renderer::newFrame()
 	{
 		numActiveMeshes = 0;

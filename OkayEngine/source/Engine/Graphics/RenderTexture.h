@@ -2,6 +2,7 @@
 #include "Engine/Okay/Okay.h"
 
 #include <d3d11.h>
+#include <functional>
 
 namespace Okay
 {
@@ -19,6 +20,7 @@ namespace Okay
 
 		enum Format : uint32_t
 		{
+			INVALID,
 			F_8X1,
 			F_8X4,
 			F_32X4,
@@ -45,8 +47,19 @@ namespace Okay
 		void clear(float* colour);
 		void clear(const glm::vec4& colour);
 
+		template<typename Func, typename... Args>
+		void addCallback(Func&& func, Args&&... args)
+		{
+			callbacks.emplace_back(std::bind(func, args...));
+		}
+
+		void resize(ID3D11Texture2D* texture);
+		void resize(uint32_t width, uint32_t height);
 		glm::ivec2 getDimensions() const;
 
+		inline uint32_t getFlags() const;
+
+		inline bool valid() const;
 		inline ID3D11Texture2D* getBuffer();
 
 		inline ID3D11RenderTargetView* getRTV();
@@ -57,14 +70,18 @@ namespace Okay
 		
 		inline ID3D11UnorderedAccessView* getUAV();
 		inline ID3D11UnorderedAccessView* const* getUAV() const;
-		
 
 		inline ID3D11Texture2D* getDepthBuffer();
-
 		inline ID3D11DepthStencilView* getDSV();
 		inline ID3D11DepthStencilView* const* getDSV() const;
 
 	private:
+		std::vector<std::function<void()>> callbacks;
+
+		bool isOwner;
+		uint32_t flags;
+		Format format;
+
 		ID3D11Texture2D* buffer;
 		ID3D11RenderTargetView* rtv;
 		ID3D11ShaderResourceView* srv;
@@ -75,6 +92,12 @@ namespace Okay
 
 		void readFlgs(uint32_t flags);
 	};
+
+	inline uint32_t RenderTexture::getFlags() const
+		{ return flags; }
+
+	inline bool RenderTexture::valid() const
+		{ return buffer; }
 
 	inline ID3D11Texture2D* RenderTexture::getBuffer()
 		{ return buffer; }

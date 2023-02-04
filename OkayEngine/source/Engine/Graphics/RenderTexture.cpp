@@ -5,20 +5,20 @@ namespace Okay
 {
 	RenderTexture::RenderTexture()
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr)
+		depthBuffer(nullptr), dsv(nullptr), isOwner(false), flags(0u), format(Format::INVALID)
 	{
 	}
 
 	RenderTexture::RenderTexture(ID3D11Texture2D* texture, uint32_t flags)
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr)
+		depthBuffer(nullptr), dsv(nullptr), isOwner(false)
 	{
 		create(texture, flags);
 	}
 
 	RenderTexture::RenderTexture(uint32_t width, uint32_t height, uint32_t flags, Format format)
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr)
+		depthBuffer(nullptr), dsv(nullptr), isOwner(true)
 	{
 		create(width, height, flags, format);
 	}
@@ -37,13 +37,39 @@ namespace Okay
 
 		DX11_RELEASE(depthBuffer);
 		DX11_RELEASE(dsv);
+
+		flags = 0u;
+		format = Format::INVALID;
 	}
 	
 	void RenderTexture::create(ID3D11Texture2D* texture, uint32_t flags)
 	{
+		OKAY_ASSERT(texture, "Texture was null");
+
+		shutdown();
 		texture->AddRef();
 		buffer = texture;
 
+		D3D11_TEXTURE2D_DESC desc{};
+		buffer->GetDesc(&desc);
+
+		// TODO: Add format safety
+		switch (desc.Format)
+		{
+		default:
+			break;
+		case DXGI_FORMAT_R8_UNORM:
+			format = Format::F_8X1;
+			break;
+		case DXGI_FORMAT_R8G8B8A8_UNORM:
+			format = Format::F_8X4;
+			break;
+		case DXGI_FORMAT_R32G32B32A32_FLOAT:
+			format = Format::F_32X4;
+			break;
+		}
+
+		isOwner = false;
 		readFlgs(flags);
 	}
 
@@ -64,6 +90,7 @@ namespace Okay
 		desc.SampleDesc.Quality = 0u;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 
+		this->format = format;
 		if		(format == Format::F_8X1)  desc.Format = DXGI_FORMAT_R8_UNORM;
 		else if (format == Format::F_8X4)  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		else if (format == Format::F_32X4) desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -76,6 +103,7 @@ namespace Okay
 		pDevice->CreateTexture2D(&desc, nullptr, &buffer);
 		OKAY_ASSERT(buffer, "Failed creating RenderTexture");
 
+		isOwner = true;
 		readFlgs(flags);
 	}
 
@@ -105,6 +133,22 @@ namespace Okay
 
 	}
 
+	void RenderTexture::resize(ID3D11Texture2D* texture)
+	{
+		callbacks[0]();
+	}
+
+	void RenderTexture::resize(uint32_t width, uint32_t height)
+	{
+		if (!isOwner)
+			return;
+
+		if (callbacks.size()) int q = 0;
+			//callbacks[0]();
+
+		create(width, height, flags, format);
+	}
+
 	glm::ivec2 RenderTexture::getDimensions() const
 	{
 		D3D11_TEXTURE2D_DESC desc;
@@ -114,6 +158,7 @@ namespace Okay
 
 	void RenderTexture::readFlgs(uint32_t flags)
 	{
+		this->flags = flags;
 		ID3D11Device* pDevice = DX11::getInstance().getDevice();
 
 		if (CHECK_BIT(flags, BitPos::B_RENDER))
@@ -145,5 +190,6 @@ namespace Okay
 			pDevice->CreateDepthStencilView(depthBuffer, nullptr, &dsv);
 			OKAY_ASSERT(dsv, "Failed creating DSV");
 		}
+
 	}
 }

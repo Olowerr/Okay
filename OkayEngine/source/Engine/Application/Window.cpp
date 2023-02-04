@@ -5,11 +5,13 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+std::unordered_map<HWND, Window*> Window::windows;
+
 Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint32_t renderTexFlags, bool defaultWinProc)
 	:open(false), msg(), swapChain(nullptr), backBuffer(nullptr)
 {
 	WNDCLASS winClass = {};
-	winClass.lpfnWndProc = defaultWinProc ? DefWindowProcW : WindowProc;
+	winClass.lpfnWndProc = defaultWinProc ? DefWindowProc : WindowProc;
 	winClass.hInstance = GetModuleHandle(NULL);
 	winClass.lpszClassName = windowName;
 	winClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
@@ -32,6 +34,8 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 
 	OKAY_ASSERT(hWnd != nullptr, "Failed creating window");
 
+	windows.insert({ hWnd, this });
+
 	show();
 
 	if (renderTexFlags != ~0u)
@@ -43,6 +47,8 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 Window::~Window()
 {
 	DestroyWindow(hWnd);
+	windows.erase(hWnd);
+
 	UnregisterClass(L"WinClass", GetModuleHandle(NULL));
 
 	renderTexture.shutdown();
@@ -194,6 +200,9 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		Okay::Input::setKeyUp((Keys)wParam);
 		break;
 
+	case WM_SIZE:
+		Window::onResize(hWnd, wParam);
+		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -214,4 +223,29 @@ LRESULT Window::WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	//}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void Window::onResize(HWND hWnd, WPARAM wParam)
+{
+	if (wParam == SIZE_MINIMIZED)
+		return;
+
+	auto it = windows.find(hWnd);
+	OKAY_ASSERT(it != windows.end(), "Resized invalid window??");
+
+	Window& window = *it->second;
+	if (!window.swapChain)
+		return;
+
+	// Release all external references to the backBuffer before resizing it
+	const uint32_t flags = window.renderTexture.getFlags();
+	window.renderTexture.shutdown();
+	DX11_RELEASE(window.backBuffer);
+
+	window.swapChain->ResizeBuffers(0u, 0u, 0u, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+	window.swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&window.backBuffer);
+	OKAY_ASSERT(window.backBuffer, "Failed to recreate backbuffer");
+	
+	// Recreate all views
+	window.renderTexture.create(window.backBuffer, flags);
 }

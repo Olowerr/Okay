@@ -13,7 +13,7 @@ public:
 	virtual ~Application();
 
 	virtual void run() = 0;
-	
+
 	void initImgui();
 	void destroyImgui();
 
