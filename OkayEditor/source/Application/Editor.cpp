@@ -56,8 +56,6 @@ void Editor::run()
 	scene.start();
 	Time::start();
 
-//	gameTexture.addCallback(&Renderer::resize, renderer, 11, 12);
-
 	while (window.isOpen())
 	{
 		// New frame
@@ -91,39 +89,32 @@ void Editor::newFrame()
 
 void Editor::endFrame()
 {
-	static bool open = true;
 	static ImVec2 texSize = VEC2_GLM_TO_IMGUI(gameTexture.getDimensions());
 	
-	ImGui::Begin("Viewport", &open);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
+	ImGui::Begin("Viewport", nullptr);
 
-	const ImVec2 winSize = ImGui::GetWindowSize();
+	const ImVec2 winSize = ImGui::GetContentRegionMax();
 	if (winSize.x != texSize.x || winSize.y != texSize.y)
 	{
 		texSize = winSize;
 		gameTexture.resize((uint32_t)winSize.x, (uint32_t)winSize.y);
+		scene.getMainCamera().getComponent<Okay::Camera>().onTargetResize(winSize.x, winSize.y);
 	}
 
-	ImGui::Image(gameTexture.getSRV(), texSize);
+	ImGui::Image(*gameTexture.getSRV(), texSize);
 
 	ImGui::End();
+	ImGui::PopStyleVar();
 
 	// ((const Window&)window) bruh
 	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, ((const Window&)window).getRenderTexture().getRTV(), nullptr);
-
 	Application::endFrameImGui();
 }
 
 void Editor::update()
 {
-	static bool dockSpace = true;
-
-	//ImGuiWindowFlags_NoMove
-	//ImGuiWindowFlags_NoBackground
-	//ImGuiWindowFlags_NoTitleBar
-
-	if (dockSpace)
-		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 	displayEntities();
 	displayInspector();
@@ -138,7 +129,7 @@ void Editor::update()
 	}
 
 	//return;
-	ImGui::Begin("result", &dockSpace);
+	ImGui::Begin("result", nullptr);
 
 	static float tiling = 1.f;
 	static float offsets[2]{};
@@ -146,7 +137,7 @@ void Editor::update()
 	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.00f, 100.f, "%.4f");
 	ImGui::DragFloat2("offset", offsets, 0.01f, 0.00f, 100.f, "%.4f");
 		
-	ImGui::Image(testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
+	ImGui::Image(*testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
 	ImGui::End();
 
 	if (noiser->imgui("Perlin"))
@@ -155,8 +146,7 @@ void Editor::update()
 
 void Editor::displayEntities()
 {
-	static bool open = true;
-	ImGui::Begin("Entities", &open);
+	ImGui::Begin("Entities", nullptr);
 
 	entt::registry& reg = scene.getRegistry();
 
@@ -222,8 +212,7 @@ void Editor::displayEntities()
 
 void Editor::displayInspector()
 {
-	static bool open = true;
-	ImGui::Begin("Inspector", &open);
+	ImGui::Begin("Inspector", nullptr);
 	ImGui::PushItemWidth(-15.f);
 
 	switch (selectionType)
@@ -257,7 +246,7 @@ void Editor::displayInspector()
 	ImGui::End();
 
 
-	ImGui::Begin("Other", &open);
+	ImGui::Begin("Other", nullptr);
 	ImGui::PushItemWidth(-15.f);
 
 	static float timer = 0.f;
@@ -284,8 +273,7 @@ void Editor::displayInspector()
 
 void Editor::displayContent()
 {
-	static bool open = true;
-	ImGui::Begin("Content Browser", &open, ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Content Browser", nullptr, ImGuiWindowFlags_MenuBar);
 
 	ImGui::BeginMenuBar();
 	if (ImGui::BeginMenu("Options"))

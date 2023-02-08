@@ -19,7 +19,6 @@ namespace Okay
 
 		void setMainCamera(const Entity& entity);
 		Entity getMainCamera();
-		inline entt::entity getMainCameraID();
 		inline entt::registry& getRegistry();
 
 		void start();
@@ -33,9 +32,5 @@ namespace Okay
 		entt::registry registry;
 	};
 
-
-	inline entt::entity Scene::getMainCameraID() { return mainCamera; }
-
 	inline entt::registry& Scene::getRegistry()	 { return registry; }
-
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Okay/Okay.h"
+#include "glm/glm.hpp"
 
 namespace Okay
 {

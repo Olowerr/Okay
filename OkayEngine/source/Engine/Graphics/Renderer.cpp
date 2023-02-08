@@ -14,7 +14,7 @@
 
 namespace Okay
 {
-	Renderer::Renderer(const RenderTexture* pRenderTarget, ContentBrowser& content)
+	Renderer::Renderer(RenderTexture* pRenderTarget, ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), content(content), pRenderTarget(pRenderTarget)
 		, numPointLights(0)
 	{
@@ -22,7 +22,6 @@ namespace Okay
 		content.addShader(content, "Default");
 		content.importFile("../OkayEngine/engine_resources/DefaultTexture.png");
 		content.addMaterial(Material::Description()).setName("Default");
-
 
 		glm::mat4 Identity4x4(1.f);
 
@@ -80,14 +79,11 @@ namespace Okay
 		DX11::getInstance().getDevice()->CreateRasterizerState(&rsDesc, &pRSWireFrame);
 		OKAY_ASSERT(pRSWireFrame, "Failed to create wireframe RS");
 
-		const glm::ivec2 dims = pRenderTarget->getDimensions();
 		viewport.TopLeftX = 0.f;
 		viewport.TopLeftY = 0.f;
-		viewport.Width = (float)dims.x;
-		viewport.Height = (float)dims.y; 
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
-
+		onTargetResize();
 
 		bindNecessities();
 	}
@@ -130,21 +126,24 @@ namespace Okay
 		++numPointLights;
 	}
 
-	void Renderer::setRenderTexture(const RenderTexture* pRenderTexture)
+	void Renderer::setRenderTexture(RenderTexture* pRenderTexture)
 	{
 		OKAY_ASSERT(pRenderTexture, "RenderTarget was nullptr");
-		pRenderTarget = pRenderTexture;
 
+		pRenderTarget->removeOnResizeCallback(&Renderer::onTargetResize, this);
+		pRenderTarget = pRenderTexture;
+		pRenderTarget->addOnResizeCallback(&Renderer::onTargetResize, this);
+
+		onTargetResize();
+	}
+
+	void Renderer::onTargetResize()
+	{
 		const glm::ivec2 dims = pRenderTarget->getDimensions();
 		viewport.Width = (float)dims.x;
 		viewport.Height = (float)dims.y;
 
 		pDevContext->RSSetViewports(1u, &viewport);
-	}
-
-	void Renderer::resize(uint32_t width, uint32_t height)
-	{
-		printf("%p, %u, %u\n", pRenderTarget, width, height);
 	}
 
 	void Renderer::newFrame()

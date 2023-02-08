@@ -1,11 +1,12 @@
 #include "OkayImporter.h"
-
-#include <assimp/cimport.h>
-#include <assimp/importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
 #include "Engine/Graphics/Assets/Mesh.h"
+#include "glm/glm.hpp"
+
+#include "assimp/cimport.h"
+#include "assimp/importer.hpp"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+
 
 
 namespace Okay

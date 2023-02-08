@@ -18,7 +18,7 @@ namespace Okay
 	public:
 		static const uint32_t DEFAULT_SHADER_IDX = 0u;
 
-		Renderer(const RenderTexture* target, ContentBrowser& content);
+		Renderer(RenderTexture* target, ContentBrowser& content);
 		~Renderer();
 		void shutdown();
 
@@ -26,8 +26,7 @@ namespace Okay
 		//void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::Transform* pTransform);
 		void submitPointLight(const PointLight& pLight, const Transform& pTransform);
 
-		void setRenderTexture(const RenderTexture* pRenderTexture);
-		void resize(uint32_t width, uint32_t height);
+		void setRenderTexture(RenderTexture* pRenderTexture);
 
 		void newFrame();
 		void render(Entity cameraEntity);
@@ -35,7 +34,9 @@ namespace Okay
 
 
 	private:
-		const RenderTexture* pRenderTarget;
+		RenderTexture* pRenderTarget;
+		void onTargetResize();
+
 		const ContentBrowser& content;
 		ID3D11DeviceContext* pDevContext;
 

@@ -44,7 +44,7 @@ namespace Okay
 	
 	void RenderTexture::create(ID3D11Texture2D* texture, uint32_t flags)
 	{
-		OKAY_ASSERT(texture, "Texture was null");
+		OKAY_ASSERT(texture, "Texture was nullptr");
 
 		shutdown();
 		texture->AddRef();
@@ -133,20 +133,15 @@ namespace Okay
 
 	}
 
-	void RenderTexture::resize(ID3D11Texture2D* texture)
-	{
-		callbacks[0]();
-	}
-
 	void RenderTexture::resize(uint32_t width, uint32_t height)
 	{
 		if (!isOwner)
 			return;
 
-		if (callbacks.size()) int q = 0;
-			//callbacks[0]();
-
 		create(width, height, flags, format);
+
+		for (auto& callback : callbacks)
+			callback();
 	}
 
 	glm::ivec2 RenderTexture::getDimensions() const

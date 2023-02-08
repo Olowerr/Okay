@@ -38,6 +38,6 @@ SamplerState simp : register(s0);
 
 float4 main(TransformedVertex input) : SV_TARGET
 {
-	//return float4(0.f, 0.1f, 0.f, 1.f); 
+	return float4(1.0f, 0.3f, 0.f, 1.f); 
 	return baseColour.Sample(simp, input.uv * uvTiling + uvOffset);
 }

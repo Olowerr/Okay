@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Okay/Okay.h"
+#include "glm/glm.hpp"
 
 #include <d3d11.h>
 #include <functional>
@@ -48,31 +49,24 @@ namespace Okay
 		void clear(const glm::vec4& colour);
 
 		template<typename Func, typename... Args>
-		void addCallback(Func&& func, Args&&... args)
-		{
-			callbacks.emplace_back(std::bind(func, args...));
-		}
+		inline void addOnResizeCallback(Func&& func, Args&&... args);
 
-		void resize(ID3D11Texture2D* texture);
+		template<typename Func>
+		inline void removeOnResizeCallback(Func&& func, void* pOwner);
+
 		void resize(uint32_t width, uint32_t height);
 		glm::ivec2 getDimensions() const;
 
 		inline uint32_t getFlags() const;
 
 		inline bool valid() const;
-		inline ID3D11Texture2D* getBuffer();
 
-		inline ID3D11RenderTargetView* getRTV();
+		inline ID3D11Texture2D* getBuffer();
 		inline ID3D11RenderTargetView* const* getRTV() const;
-		
-		inline ID3D11ShaderResourceView* getSRV();
 		inline ID3D11ShaderResourceView* const* getSRV() const;
-		
-		inline ID3D11UnorderedAccessView* getUAV();
 		inline ID3D11UnorderedAccessView* const* getUAV() const;
 
 		inline ID3D11Texture2D* getDepthBuffer();
-		inline ID3D11DepthStencilView* getDSV();
 		inline ID3D11DepthStencilView* const* getDSV() const;
 
 	private:
@@ -93,40 +87,39 @@ namespace Okay
 		void readFlgs(uint32_t flags);
 	};
 
-	inline uint32_t RenderTexture::getFlags() const
-		{ return flags; }
+	template<typename Func, typename... Args>
+	inline void RenderTexture::addOnResizeCallback(Func&& func, Args&&... args)
+	{
+		callbacks.emplace_back(std::bind(func, args...));
+	}
 
-	inline bool RenderTexture::valid() const
-		{ return buffer; }
+	template<typename Func>
+	inline void RenderTexture::removeOnResizeCallback(Func&& func, void* pOwner)
+	{
+		for (auto it = callbacks.begin(); it != callbacks.end(); ++it)
+		{
+			if ((void*)it->target<void*>() == pOwner)
+			{
+				callbacks.erase(it);
+				return;
+			}
+		}
+	}
 
-	inline ID3D11Texture2D* RenderTexture::getBuffer()
-		{ return buffer; }
+	inline uint32_t RenderTexture::getFlags() const { return flags; }
 
-	inline ID3D11RenderTargetView* RenderTexture::getRTV()
-		{ return rtv; }
+	inline bool RenderTexture::valid() const { return buffer; }
 
-	inline ID3D11RenderTargetView* const* RenderTexture::getRTV() const
-		{ return &rtv; }
+	inline ID3D11Texture2D* RenderTexture::getBuffer() { return buffer; }
 
-	inline ID3D11ShaderResourceView* RenderTexture::getSRV()
-		{ return srv; }
+	inline ID3D11RenderTargetView* const* RenderTexture::getRTV() const { return &rtv; }
 
-	inline ID3D11ShaderResourceView* const* RenderTexture::getSRV() const
-		{ return &srv; }
+	inline ID3D11ShaderResourceView* const* RenderTexture::getSRV() const { return &srv; }
 
-	inline ID3D11UnorderedAccessView* RenderTexture::getUAV()
-		{ return uav; }
+	inline ID3D11UnorderedAccessView* const* RenderTexture::getUAV() const { return &uav; }
 
-	inline ID3D11UnorderedAccessView* const* RenderTexture::getUAV() const
-		{ return &uav; }
+	inline ID3D11Texture2D* RenderTexture::getDepthBuffer() { return depthBuffer; }
 
-	inline ID3D11Texture2D* RenderTexture::getDepthBuffer()
-		{ return depthBuffer; }
-
-	inline ID3D11DepthStencilView* RenderTexture::getDSV()
-		{ return dsv; }
-
-	inline ID3D11DepthStencilView* const* RenderTexture::getDSV() const
-		{ return &dsv; }
+	inline ID3D11DepthStencilView* const* RenderTexture::getDSV() const { return &dsv; }
 
 } // Okay

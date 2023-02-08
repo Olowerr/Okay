@@ -1,3 +1,4 @@
+
 #include "Shader.h"
 #include "Engine/DirectX/DX11.h"
 #include "ContentBrowser.h"
@@ -83,6 +84,7 @@ namespace Okay
 		if (index == Okay::INVALID_UINT)
 		{
 			gpuData.hasHeightMap = false;
+			gpuData.heightMapScalar = 1.f;	
 			return;
 		}
 		
