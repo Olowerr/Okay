@@ -200,6 +200,27 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		Okay::Input::setKeyUp((Key)wParam);
 		break;
 
+	case WM_MOUSEMOVE:
+		Okay::Input::mouseXPos = LOWORD(lParam);
+		Okay::Input::mouseYPos = HIWORD(lParam);
+		break;
+
+	case WM_LBUTTONDOWN:
+		Okay::Input::mouseLeft = true;
+		break;
+
+	case WM_LBUTTONUP:
+		Okay::Input::mouseLeft = false;
+		break;
+
+	case WM_RBUTTONDOWN:
+		Okay::Input::mouseRight = true;
+		break;
+
+	case WM_RBUTTONUP:
+		Okay::Input::mouseRight = false;
+		break;
+
 	case WM_SIZE:
 		Window::onResize(hWnd, wParam);
 		break;

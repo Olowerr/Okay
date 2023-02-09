@@ -19,9 +19,9 @@ Editor::Editor(std::string_view startScene)
 	content.importFile("resources/Textures/X-icon.png");
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
-	Okay::Entity entity = scene.createEntity();
-	entity.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
-	Okay::Transform& tra = entity.getComponent<Okay::Transform>();
+	spin = scene.createEntity();
+	spin.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
+	Okay::Transform& tra = spin.getComponent<Okay::Transform>();
 	tra.scale *= 2.f;
 
 	Okay::Entity camera = scene.createEntity();
@@ -53,6 +53,8 @@ void Editor::run()
 	Transform& tra = scene.getMainCamera().getComponent<Transform>();
 	tra.rotation.x = glm::pi<float>() * 0.25f;
 	
+	Transform& spinTra = spin.getComponent<Transform>();
+
 	scene.start();
 	Time::start();
 
@@ -68,6 +70,25 @@ void Editor::run()
 		//tra.rotation.y += Time::getDT();
 		tra.calculateMatrix();
 		tra.position = tra.forward() * -5.f;
+
+		//if (Input::leftMouseDown())
+			//printf("Left down\n");
+		if (Input::leftMouseClicked())
+			printf("Left cli\n");
+		if (Input::leftMouseReleased())
+			printf("Left Rel\n");
+
+		//if (Input::rightMouseDown())
+		//	printf("Right down\n");
+		if (Input::rightMouseClicked())
+			printf("Right cli\n");
+		if (Input::rightMouseReleased())
+			printf("Right Rel\n");
+
+		//printf("%.3f, %.3f\n", Input::mouseXDelta, Input::mouseYDelta);
+
+		spinTra.rotation.y += Input::getMouseXDelta() * 0.01f;
+		spinTra.rotation.x += Input::getMouseYDelta() * 0.01f;
 
 		// Submit & render
 		scene.submit();
@@ -121,7 +142,7 @@ void Editor::update()
 	displayContent();
 	displayStyling();
 
-	if (Okay::Input::isKeyDown(Keys::SPACE) && Okay::Input::isKeyReleased(Keys::E))
+	if (Okay::Input::isKeyDown(Key::SPACE) && Okay::Input::isKeyReleased(Key::E))
 	{
 		Okay::Shader& shader = content.getShader(Okay::Entity((entt::entity)selectionID, &scene).getComponent<Okay::MeshComponent>().shaderIdx);
 		//shader.pHeightMap = testTex->getSRV();

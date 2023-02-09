@@ -19,7 +19,7 @@ public:
 private:
 	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;
-
+	Okay::Entity spin;
 	void newFrame();
 	void update();
 	void endFrame();
