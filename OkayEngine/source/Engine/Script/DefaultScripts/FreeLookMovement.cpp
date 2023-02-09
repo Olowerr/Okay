@@ -30,13 +30,13 @@ namespace Okay
 
 	void FreeLookMovement::update()
 	{
-		const float frameSpeed = Time::getDT() * baseSpeed * (Input::isKeyDown(Keys::L_SHIFT) ? 10.f : 1.f);
+		const float frameSpeed = Time::getDT() * baseSpeed * (Input::isKeyDown(Key::L_SHIFT) ? 10.f : 1.f);
 
-		const float xInput = (float)Input::isKeyDown(Keys::D) - (float)Input::isKeyDown(Keys::A); 
-		const float yInput = (float)Input::isKeyDown(Keys::SPACE) - (float)Input::isKeyDown(Keys::L_CTRL);
-		const float zInput = (float)Input::isKeyDown(Keys::W) - (float)Input::isKeyDown(Keys::S);
-		const float xRot = (float)Input::isKeyDown(Keys::DOWN) - (float)Input::isKeyDown(Keys::UP);
-		const float yRot = (float)Input::isKeyDown(Keys::RIGHT) - (float)Input::isKeyDown(Keys::LEFT);
+		const float xInput = (float)Input::isKeyDown(Key::D) - (float)Input::isKeyDown(Key::A); 
+		const float yInput = (float)Input::isKeyDown(Key::SPACE) - (float)Input::isKeyDown(Key::L_CTRL);
+		const float zInput = (float)Input::isKeyDown(Key::W) - (float)Input::isKeyDown(Key::S);
+		const float xRot = (float)Input::isKeyDown(Key::DOWN) - (float)Input::isKeyDown(Key::UP);
+		const float yRot = (float)Input::isKeyDown(Key::RIGHT) - (float)Input::isKeyDown(Key::LEFT);
 
 		Transform& tra = getComponent<Transform>();
 		const glm::vec3 fwd = tra.forward();

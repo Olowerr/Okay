@@ -193,11 +193,11 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		return 0;
 
 	case WM_KEYDOWN:
-		Okay::Input::setKeyDown((Keys)wParam);
+		Okay::Input::setKeyDown((Key)wParam);
 		break;
 
 	case WM_KEYUP:
-		Okay::Input::setKeyUp((Keys)wParam);
+		Okay::Input::setKeyUp((Key)wParam);
 		break;
 
 	case WM_SIZE:

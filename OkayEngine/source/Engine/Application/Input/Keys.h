@@ -1,6 +1,6 @@
 #pragma once
 
-enum Keys : unsigned char
+enum Key : unsigned char
 {	
 	//NUL		=	0,
 	//SOH		=	1,
