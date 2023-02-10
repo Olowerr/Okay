@@ -67,7 +67,7 @@ void EditorCamera::update()
 
 	tra.position = targetPos - fwd * targetDist;
 
-	// Move back mouse if moved outside window border
+	// Loop around mouse if moved outside window
 	Window* pWindow = Window::getActiveWindow();
 	if (!pWindow)
 		return;

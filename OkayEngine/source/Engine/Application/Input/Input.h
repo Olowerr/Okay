@@ -27,14 +27,16 @@ namespace Okay
 		static float getMouseXPos();
 		static float getMouseYPos();
 		static glm::vec2 getMousePos();
+		
+		static void setMouseXPos(float xPos);
+		static void setMouseYPos(float yPos);
+
+		static float getDesktopMouseXPos();
+		static float getDesktopMouseYPos();
+		static glm::vec2 getDesktopMousePos();
 
 		static void setDesktopMouseXPos(float xPos);
 		static void setDesktopMouseYPos(float yPos);
-		static float getDesktopMouseXPos();
-		static float getDesktopMouseYPos();
-
-		static void setMouseXPos(float xPos);
-		static void setMouseYPos(float yPos);
 
 		static inline float getMouseXDelta();
 		static inline float getMouseYDelta();

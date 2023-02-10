@@ -3,6 +3,8 @@
 #include "imgui/imgui_impl_win32.h"
 #include "Engine/DirectX/DX11.h"
 
+#include <windowsx.h>
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 std::unordered_map<HWND, Window*> Window::windows;
@@ -212,8 +214,8 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		return 0;
 
 	case WM_MOUSEMOVE:
-		Okay::Input::mouseXPos = LOWORD(lParam);
-		Okay::Input::mouseYPos = HIWORD(lParam);
+		Okay::Input::mouseXPos = (float)GET_X_LPARAM(lParam);
+		Okay::Input::mouseYPos = (float)GET_Y_LPARAM(lParam);
 		return 0;
 
 	case WM_LBUTTONDOWN:

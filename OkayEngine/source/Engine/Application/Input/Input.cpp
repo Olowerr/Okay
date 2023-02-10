@@ -5,16 +5,23 @@ namespace Okay
 {
 	float Input::getDesktopMouseXPos()
 	{
-		POINT p{};
-		GetCursorPos(&p);
-		return (float)p.x;
+		POINT pos{};
+		GetCursorPos(&pos);
+		return (float)pos.x;
 	}
 
 	float Input::getDesktopMouseYPos()
 	{
-		POINT p{};
-		GetCursorPos(&p);
-		return (float)p.y;
+		POINT pos{};
+		GetCursorPos(&pos);
+		return (float)pos.y;
+	}
+
+	glm::vec2 Input::getDesktopMousePos()
+	{
+		POINT pos{};
+		GetCursorPos(&pos);
+		return glm::vec2((float)pos.x, (float)pos.y);
 	}
 
 	void Input::setDesktopMouseXPos(float xPos) 
