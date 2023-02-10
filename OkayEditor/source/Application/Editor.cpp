@@ -1,10 +1,10 @@
 #include "Editor.h"
 #include "EditorHelp.h"
+#include "../Scripts/EditorCameraMovement.h"
 
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
-
 
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
@@ -19,14 +19,20 @@ Editor::Editor(std::string_view startScene)
 	content.importFile("resources/Textures/X-icon.png");
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
-	spin = scene.createEntity();
-	spin.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
-	Okay::Transform& tra = spin.getComponent<Okay::Transform>();
-	tra.scale *= 2.f;
+	Okay::Entity entity = scene.createEntity();
+	entity.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
+	entity.getComponent<Okay::Transform>().scale *= 2.f;
+
+	Okay::Entity floor = scene.createEntity();
+	floor.addComponent<Okay::MeshComponent>(1u);
+	floor.getComponent<Okay::Transform>().scale *= 5.f;
+	floor.getComponent<Okay::Transform>().position.y = -5.f;
+
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
-	camera.addComponent<Okay::PointLight>().colour = glm::vec3(1.f, 0.5f, 0.8f) * 3.f;
+	camera.addComponent<Okay::PointLight>().intensity = 10.f;
+	camera.addScript<EditorCamera>();
 	scene.setMainCamera(camera);
 	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
@@ -49,52 +55,19 @@ void Editor::run()
 
 	Application::initImgui();
 
-	DX11& dx11 = DX11::getInstance();
-	Transform& tra = scene.getMainCamera().getComponent<Transform>();
-	tra.rotation.x = glm::pi<float>() * 0.25f;
-	
-	Transform& spinTra = spin.getComponent<Transform>();
-
 	scene.start();
 	Time::start();
 
 	while (window.isOpen())
 	{
-		// New frame
 		newFrame();
 
-		// Update
 		update();
 		scene.update();
 
-		//tra.rotation.y += Time::getDT();
-		tra.calculateMatrix();
-		tra.position = tra.forward() * -5.f;
-
-		//if (Input::leftMouseDown())
-			//printf("Left down\n");
-		if (Input::leftMouseClicked())
-			printf("Left cli\n");
-		if (Input::leftMouseReleased())
-			printf("Left Rel\n");
-
-		//if (Input::rightMouseDown())
-		//	printf("Right down\n");
-		if (Input::rightMouseClicked())
-			printf("Right cli\n");
-		if (Input::rightMouseReleased())
-			printf("Right Rel\n");
-
-		//printf("%.3f, %.3f\n", Input::mouseXDelta, Input::mouseYDelta);
-
-		spinTra.rotation.y += Input::getMouseXDelta() * 0.01f;
-		spinTra.rotation.x += Input::getMouseYDelta() * 0.01f;
-
-		// Submit & render
 		scene.submit();
 		renderer.render(scene.getMainCamera());
 
-		// End frame
 		endFrame();
 	} 
 	scene.end();
@@ -280,13 +253,13 @@ void Editor::displayInspector()
 	if ((timer += Okay::Time::getApplicationDT()) > 0.5f)
 	{
 		dispDt = dtSum / frameCount;
-		timer = 0.f;
+		timer -= 0.5f;
 		dtSum = 0.f;
 		frameCount = 0;
 	}
 
 	ImGui::Text("FPS: %.6f", 1.f / dispDt);
-	ImGui::Text("MS:  %.6f", dispDt);
+	ImGui::Text("MS:  %.6f", dispDt * 1000.f);
 
 	ImGui::PopItemWidth();
 	ImGui::End();

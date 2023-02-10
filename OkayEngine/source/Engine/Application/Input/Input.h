@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Keys.h"
+#include "glm/glm.hpp"
+
+class Window;
 
 namespace Okay
 {
@@ -21,14 +24,23 @@ namespace Okay
 		static inline bool rightMouseClicked();
 		static inline bool rightMouseReleased();
 
-		static inline float getMouseXPos();
-		static inline float getMouseYPos();
+		static float getMouseXPos();
+		static float getMouseYPos();
+		static glm::vec2 getMousePos();
+
+		static void setDesktopMouseXPos(float xPos);
+		static void setDesktopMouseYPos(float yPos);
+		static float getDesktopMouseXPos();
+		static float getDesktopMouseYPos();
+
+		static void setMouseXPos(float xPos);
+		static void setMouseYPos(float yPos);
 
 		static inline float getMouseXDelta();
 		static inline float getMouseYDelta();
 
 	private:
-		static inline void update();
+		static void update();
 		static inline void setKeyDown(Key key);
 		static inline void setKeyUp(Key key);
 
@@ -47,32 +59,18 @@ namespace Okay
 	inline bool Input::isKeyPressed(Key key)  { return Input::keys[key] && !Input::prevKeys[key]; }
 	inline bool Input::isKeyReleased(Key key) { return !Input::keys[key] && Input::prevKeys[key]; }
 
-	inline bool Input::leftMouseDown()		{ return Input::mouseLeft; }
-	inline bool Input::leftMouseClicked()	{ return Input::mouseLeft && !Input::prevMouseLeft; }
-	inline bool Input::leftMouseReleased()	{ return !Input::mouseLeft && Input::prevMouseLeft; }
+	inline void Input::setKeyDown(Key key)	  { if (key >= Key::NUM_KEYS) return; keys[key] = true;  }
+	inline void Input::setKeyUp(Key key)	  { if (key >= Key::NUM_KEYS) return; keys[key] = false; }
+											  
+	inline bool Input::leftMouseDown()		  { return Input::mouseLeft; }
+	inline bool Input::leftMouseClicked()	  { return Input::mouseLeft && !Input::prevMouseLeft; }
+	inline bool Input::leftMouseReleased()	  { return !Input::mouseLeft && Input::prevMouseLeft; }
+											  
+	inline bool Input::rightMouseDown()		  { return Input::mouseRight; }
+	inline bool Input::rightMouseClicked()	  { return Input::mouseRight && !Input::prevMouseRight; }
+	inline bool Input::rightMouseReleased()	  { return !Input::mouseRight && Input::prevMouseRight; }
 
-	inline bool Input::rightMouseDown()		{ return Input::mouseRight; }
-	inline bool Input::rightMouseClicked()	{ return Input::mouseRight && !Input::prevMouseRight; }
-	inline bool Input::rightMouseReleased() { return !Input::mouseRight && Input::prevMouseRight; }
-
-	inline float Input::getMouseXPos() { return Input::mouseXPos; }
-	inline float Input::getMouseYPos() { return Input::mouseYPos; }
-
-	inline float Input::getMouseXDelta() { return Input::mouseXDelta; }
-	inline float Input::getMouseYDelta() { return Input::mouseYDelta; }
-
-	inline void Input::setKeyDown(Key key) { if (key >= Key::NUM_KEYS) return; keys[key] = true;  }
-	inline void Input::setKeyUp(Key key)   { if (key >= Key::NUM_KEYS) return; keys[key] = false; }
-
-	inline void Input::update()
-	{
-		memcpy(Input::prevKeys, Input::keys, size_t(Key::NUM_KEYS));
-		Input::prevMouseLeft = Input::mouseLeft;
-		Input::prevMouseRight =	Input::mouseRight;
-
-		Input::mouseXDelta = Input::mouseXPos - Input::mousePrevXPos;
-		Input::mouseYDelta = Input::mouseYPos - Input::mousePrevYPos;
-		Input::mousePrevXPos = Input::mouseXPos;
-		Input::mousePrevYPos = Input::mouseYPos;
-	}
+	inline float Input::getMouseXDelta()	  { return Input::mouseXDelta; }
+	inline float Input::getMouseYDelta()	  { return Input::mouseYDelta; }
+	
 }

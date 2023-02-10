@@ -31,16 +31,19 @@ void Editor::displayComponents(Okay::Entity entity)
 	IMGUI_DISPLAY_COMP_START(Transform, "Transform", false);
 
 	Transform& tra = entity.getComponent<Transform>();
+	glm::vec3 degRot = glm::degrees(tra.rotation);
 
 	// Make macro?
 	ImGui::Text("Position:"); ImGui::SameLine();
-	ImGui::DragFloat3("##TraposNL", &tra.position.x, 0.01f);
+	ImGui::DragFloat3("##TraposNL", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Rotation:"); ImGui::SameLine();
-	ImGui::DragFloat3("##TrarotNL", &tra.rotation.x, 0.01f);
+	ImGui::DragFloat3("##TrarotNL", &degRot.x, 0.5f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Scale:   "); ImGui::SameLine();
-	ImGui::DragFloat3("##TrascaNL", &tra.scale.x, 0.01f);
+	ImGui::DragFloat3("##TrascaNL", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
+
+	tra.rotation = glm::radians(degRot);
 
 	IMGUI_DISPLAY_COMP_END();
 

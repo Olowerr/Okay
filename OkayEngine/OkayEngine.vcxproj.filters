@@ -209,6 +209,9 @@
     <ClCompile Include="source\Engine\Algorithms\Interpolation\LerpList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Engine\Application\Input\Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\Engine\Graphics\Shaders\MeshVS.hlsl" />

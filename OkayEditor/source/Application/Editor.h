@@ -19,7 +19,7 @@ public:
 private:
 	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;
-	Okay::Entity spin;
+
 	void newFrame();
 	void update();
 	void endFrame();
@@ -75,7 +75,7 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 	};
 
 	ID3D11ShaderResourceView* previewImg = selectedTexID != Okay::INVALID_UINT ? content.getTexture(selectedTexID).getSRV() : nullptr;
-	ImGui::Image(previewImg, { ImVec2(15.f, 15.f) });
+	ImGui::Image(previewImg, ImVec2(15.f, 15.f));
 	ImGui::SameLine();
 	if (ImGui::BeginCombo(listLabel, previewImg ? content.getTexture(selectedTexID).getName().c_str() : nullptr))
 	{

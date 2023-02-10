@@ -26,7 +26,7 @@ public:
 	inline void clear(const glm::vec4& colour);
 	inline void present();
 
-	glm::ivec2 getDimensions() const;
+	glm::uvec2 getDimensions() const;
 
 	void show();
 	void close();
@@ -37,6 +37,7 @@ public:
 	void update();
 	bool openFileExplorer(char* pOutput, size_t bufferSize);
 
+	static inline Window* getActiveWindow();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -54,37 +55,19 @@ private: // Window handling through HWND
 	static void onResize(HWND hWnd, WPARAM wParam);
 };
 
-inline bool Window::isOpen() const
-{
-	return open;
-}
+inline bool Window::isOpen() const { return open; }
 
-inline Okay::RenderTexture& Window::getRenderTexture()
-{
-	return renderTexture;
-}
+inline Okay::RenderTexture& Window::getRenderTexture() { return renderTexture; }
+inline const Okay::RenderTexture& Window::getRenderTexture() const { return renderTexture; }
 
-inline const Okay::RenderTexture& Window::getRenderTexture() const
-{
-	return renderTexture;
-}
+inline void Window::clear() { renderTexture.clear(); }
+inline void Window::clear(float* colours) { renderTexture.clear(colours); }
+inline void Window::clear(const glm::vec4& colour) { renderTexture.clear(colour); }
 
-inline void Window::clear()
-{
-	renderTexture.clear();
-}
+inline void Window::present() { swapChain->Present(0u, 0u); }
 
-inline void Window::clear(float* colours)
+inline Window* Window::getActiveWindow() 
 {
-	renderTexture.clear(colours);
-}
-
-inline void Window::clear(const glm::vec4& colour)
-{
-	renderTexture.clear(colour);
-}
-
-inline void Window::present()
-{
-	swapChain->Present(0u, 0u);
+	auto it = Window::windows.find(GetActiveWindow());
+	return it != Window::windows.end() ? it->second : nullptr;
 }

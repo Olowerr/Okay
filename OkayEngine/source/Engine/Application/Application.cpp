@@ -6,7 +6,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
-	:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH),
+	:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE),
 	renderer(&window.getRenderTexture(), content)
 {
 
@@ -27,6 +27,7 @@ void Application::initImgui()
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.Fonts->AddFontFromFileTTF("C://Windows/Fonts/Arial.ttf", 14.f);
 
+#pragma region
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Text]						= ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 	style.Colors[ImGuiCol_TextDisabled]				= ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
@@ -79,6 +80,7 @@ void Application::initImgui()
 	style.Colors[ImGuiCol_NavWindowingDimBg]		= ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 	style.Colors[ImGuiCol_ModalWindowDimBg]			= ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 	style.GrabRounding = style.FrameRounding = 2.3f;
+#pragma endregion Style
 
 	ImGui_ImplWin32_Init(window.getHWnd());
 	ImGui_ImplDX11_Init(DX11::getInstance().getDevice(), DX11::getInstance().getDeviceContext());

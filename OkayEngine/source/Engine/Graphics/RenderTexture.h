@@ -9,7 +9,7 @@ namespace Okay
 {
 	class RenderTexture
 	{
-	private:
+	public:
 		enum BitPos : uint32_t
 		{
 			B_RENDER		 = 0,
@@ -17,7 +17,6 @@ namespace Okay
 			B_SHADER_WRITE	 = 2,
 			B_DEPTH			 = 3,
 		};
-	public:
 
 		enum Format : uint32_t
 		{

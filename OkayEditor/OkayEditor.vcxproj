@@ -219,10 +219,12 @@ SET ERRORLEVEL=0</Command>
     <ClCompile Include="source\Application\Editor.cpp" />
     <ClCompile Include="source\Application\EditorDisplay.cpp" />
     <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\Scripts\EditorCameraMovement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application\Editor.h" />
     <ClInclude Include="source\Application\EditorHelp.h" />
+    <ClInclude Include="source\Scripts\EditorCameraMovement.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OkayEngine\OkayEngine.vcxproj">

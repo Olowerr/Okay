@@ -86,11 +86,11 @@ HWND Window::getHWnd() const
 	return hWnd;
 }
 
-glm::ivec2 Window::getDimensions() const
+glm::uvec2 Window::getDimensions() const
 {
 	RECT rect{};
-	GetWindowRect(hWnd, &rect);
-	return glm::ivec2(int(rect.right - rect.left), int(rect.bottom - rect.top));
+	GetClientRect(hWnd, &rect);
+	return glm::uvec2(uint32_t(rect.right), uint32_t(rect.bottom));
 }
 
 void Window::update()
@@ -138,9 +138,12 @@ void Window::createRenderTexture(uint32_t flags)
 	DXGI_SWAP_CHAIN_DESC desc{};
 	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	desc.BufferCount = 1;
-	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
+	desc.BufferUsage = 
+		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_RENDER)		? DXGI_USAGE_RENDER_TARGET_OUTPUT	: 0u) |
+		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_SHADER_READ)	? DXGI_USAGE_SHADER_INPUT			: 0u) |
+		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_SHADER_WRITE)	? DXGI_USAGE_UNORDERED_ACCESS		: 0u);
 
-	desc.BufferDesc.Width = 0u; // 0u defaults to window dimensions
+	desc.BufferDesc.Width = 0u; // 0u defaults to the window dimensions
 	desc.BufferDesc.Height = 0u;
 	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -194,36 +197,44 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 
 	case WM_KEYDOWN:
 		Okay::Input::setKeyDown((Key)wParam);
-		break;
+		return 0;
 
 	case WM_KEYUP:
 		Okay::Input::setKeyUp((Key)wParam);
-		break;
+		return 0;
+
+	case WM_SYSKEYDOWN:
+		Okay::Input::setKeyDown((Key)wParam);
+		return 0;
+		
+	case WM_SYSKEYUP:
+		Okay::Input::setKeyUp((Key)wParam);
+		return 0;
 
 	case WM_MOUSEMOVE:
 		Okay::Input::mouseXPos = LOWORD(lParam);
 		Okay::Input::mouseYPos = HIWORD(lParam);
-		break;
+		return 0;
 
 	case WM_LBUTTONDOWN:
 		Okay::Input::mouseLeft = true;
-		break;
+		return 0;
 
 	case WM_LBUTTONUP:
 		Okay::Input::mouseLeft = false;
-		break;
+		return 0;
 
 	case WM_RBUTTONDOWN:
 		Okay::Input::mouseRight = true;
-		break;
+		return 0;
 
 	case WM_RBUTTONUP:
 		Okay::Input::mouseRight = false;
-		break;
+		return 0;
 
 	case WM_SIZE:
 		Window::onResize(hWnd, wParam);
-		break;
+		return 0;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -258,7 +269,7 @@ void Window::onResize(HWND hWnd, WPARAM wParam)
 	if (!window.swapChain)
 		return;
 
-	// Release all external references to the backBuffer before resizing it
+	// Release all external references to the backBuffer before resizing the buffer
 	const uint32_t flags = window.renderTexture.getFlags();
 	window.renderTexture.shutdown();
 	DX11_RELEASE(window.backBuffer);

@@ -24,12 +24,18 @@
     <ClCompile Include="source\Application\EditorDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Scripts\EditorCameraMovement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Application\Editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Application\EditorHelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Scripts\EditorCameraMovement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
