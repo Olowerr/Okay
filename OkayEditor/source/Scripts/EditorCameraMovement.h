@@ -14,7 +14,7 @@ public:
 
 private:
 	static inline const float SKIP_DURATION = 0.01f;
-	static inline const float PADDING = 2.f;
+	static inline const float PADDING = 5.f;
 
 	float rotSkipTimer;
 	bool skip = false;

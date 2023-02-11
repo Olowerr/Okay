@@ -35,6 +35,18 @@ namespace Okay
 		uint32_t numDirLights = 0u;
 	};
 
+	// FASTER THAN MULTIPLE MEMCPYS ?
+	struct GPUCamera
+	{
+		glm::mat4 viewProjMatrix;
+
+		glm::vec3 pos;
+		float paddding1;
+
+		glm::vec3 direction;
+		float paddding2;
+	};
+
 	class Renderer
 	{
 	public:
@@ -45,8 +57,8 @@ namespace Okay
 		void shutdown();
 
 		void submit(const MeshComponent& mesh, const Transform& transform);
-		void submitLight(const PointLight& light, const Transform& transform);
-		void submitLight(const DirectionalLight& light, const Transform& transform);
+		void submit(const PointLight& light, const Transform& transform);
+		void submit(const DirectionalLight& light, const Transform& transform);
 
 		void setRenderTexture(RenderTexture* pRenderTexture);
 
@@ -66,9 +78,10 @@ namespace Okay
 		using PointLightPair	= RenPair<const PointLight&, const Transform&>;
 		using DirLightPair		= RenPair<const DirectionalLight&, const Transform&>;
 
-		std::vector<MeshPair> meshes;
-
 		LightInfo lightInfo;
+		GPUCamera camData;
+
+		std::vector<MeshPair> meshes;
 
 		std::vector<PointLightPair> pointLights;
 		void expandPointLights();
@@ -111,25 +124,3 @@ namespace Okay
 		void createPixelShaders();
 	};
 }
-
-
-
-
-/*
-	TODO (in order):
-	Create Camera Class
-	Force Render triangle
-
-
-	Implement Importer (Seperate project) (.fbx & .obj)
-	Materials somewhere here..?
-	Implement rendering without instancing
-
-	Include Entt
-	Create Okay::MeshComponent & Okay::Transform (component ?)
-	Render by Entity
-
-	Create Scene Class
-
-
-*/

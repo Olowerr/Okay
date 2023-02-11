@@ -25,7 +25,7 @@ namespace Okay
 		glm::mat4 Identity4x4(1.f);
 
 		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
-		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(glm::mat4), false);
+		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(GPUCamera), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
@@ -97,7 +97,7 @@ namespace Okay
 		meshes.emplace_back(mesh, transform.matrix);
 	}
 
-	void Renderer::submitLight(const PointLight& light, const Transform& transform)
+	void Renderer::submit(const PointLight& light, const Transform& transform)
 	{
 		if (pointLights.size() == pointLights.capacity())
 			expandPointLights();
@@ -106,7 +106,7 @@ namespace Okay
 		lightInfo.numPointLights++;
 	}
 
-	void Renderer::submitLight(const DirectionalLight& light, const Transform& transform)
+	void Renderer::submit(const DirectionalLight& light, const Transform& transform)
 	{
 		if (dirLights.size() == dirLights.capacity())
 			expandDirLights();
@@ -171,16 +171,18 @@ namespace Okay
 		updateDirLightsBuffer();
 		DX11::updateBuffer(pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
 
+		// MAKE FUNCTION
 		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
 		const Camera& camera = cameraEntity.getComponent<Camera>();
 		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 		camTransform.calculateMatrix();
+		camData.direction = camTransform.forward();
+		camData.pos = camTransform.position;
+		camData.viewProjMatrix =  glm::transpose(camera.projectionMatrix *
+			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
+		DX11::updateBuffer(pViewProjectBuffer, &camData, sizeof(GPUCamera));
 
-		const glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
-			glm::lookAtLH(camTransform.position, camTransform.position + camTransform.forward(), camTransform.up()));
-	
-		DX11::updateBuffer(pViewProjectBuffer, &viewProjMatrix, sizeof(glm::mat4));
 
 		// Bind static mesh pipeline
 		bindMeshPipeline();

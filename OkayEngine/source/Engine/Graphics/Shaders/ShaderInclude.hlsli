@@ -20,11 +20,11 @@ cbuffer Camera : register(b0)
 	//float4x4 projectMatrix;
 	float4x4 viewProjectMatrix;
 
-	/*float3 camPos;
+	float3 camPos;
 	float camPad0;
 
 	float3 camDir;
-	float camPad1;*/
+	float camPad1;
 };
 
 cbuffer Transform : register(b1)

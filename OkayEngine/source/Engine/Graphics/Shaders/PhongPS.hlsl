@@ -1,8 +1,8 @@
 #include "ShaderInclude.hlsli"
 
-Texture2D baseColour : register(t0);
-Texture2D specular : register(t1);
-Texture2D ambient : register(t2);
+Texture2D diffuseTexture : register(t0);
+Texture2D specularTexture : register(t1);
+Texture2D ambientTexture: register(t2);
 
 cbuffer MatData : register(b3)
 {
@@ -41,18 +41,22 @@ static float3 SUN_DIR = normalize(float3(1.f, -1.f, 1.f));
 float4 main(TransformedVertex input) : SV_TARGET
 {
 #if 1
+	const float2 uv = input.uv * uvTiling + uvOffset;
+	const float4 baseColour = diffuseTexture.Sample(simp, uv);
+	const float4 specular = specularTexture.Sample(simp, uv);
+
 	PointLight poLight;
 	DirectionalLight dirLight;
 
 	float distance;
-	float finalIntensity;
+	float4 finalIntensity;
 	float3 lightVec;
 
-	float3 shading = float3(0.f, 0.f, 0.f);
+	float4 shading = float4(0.f, 0.f, 0.f, 1.f);
 
 	uint i = 0;
+
 	// temp calculations
-	
 	// Point Lights 
 	for (i = 0; i < numPoint; i++)
 	{
@@ -62,11 +66,12 @@ float4 main(TransformedVertex input) : SV_TARGET
 		distance = length(lightVec);
 		lightVec /= distance;
 
-		finalIntensity = (1.f / (1.f + poLight.attenuation.x * distance + poLight.attenuation.y * distance * distance));
-		finalIntensity *= max(dot(input.normal, lightVec), 0.f);
-		finalIntensity *= poLight.intensity;
+		const float attu = (1.f / (1.f + poLight.attenuation.x * distance + poLight.attenuation.y * distance * distance));
 
-		shading += finalIntensity * poLight.colour;
+		finalIntensity *= baseColour * max(dot(input.normal, lightVec), 0.f) + specular * max(dot(-camDir, reflect(camDir, input.normal)), 0.f);
+		finalIntensity *= poLight.intensity * attu;
+
+		shading += finalIntensity * float4(poLight.colour, 1.f);
 	}
 
 	for (i = 0; i < numDir; i++)
@@ -75,10 +80,11 @@ float4 main(TransformedVertex input) : SV_TARGET
 
 		finalIntensity = max(dot(input.normal, -dirLight.direction), 0.f);
 		
-		shading += finalIntensity * dirLight.colour;
+		shading += finalIntensity * float4(dirLight.colour, 1.f);
 	}
 
-	return baseColour.Sample(simp, input.uv * uvTiling + uvOffset) * float4(shading.rgb, 1.f);
+	
+	return baseColour * float4(shading.rgb, 1.f);
 
 #elif 0
 	return float4(baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb, 1.f);

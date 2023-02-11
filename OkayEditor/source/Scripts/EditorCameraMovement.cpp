@@ -29,14 +29,6 @@ void EditorCamera::start()
 void EditorCamera::update()
 {
 	using namespace Okay;
-
-	if (Input::isKeyDown(Key::F))
-	{
-		float x = Input::getDesktopMouseXPos();
-		float y = Input::getDesktopMouseYPos();
-		printf("%.0f, %.0f\n", x, y);
-	}
-
 	if (!Input::isKeyDown(Key::L_ALT) || !Input::leftMouseDown())
 		return;
 
@@ -73,26 +65,26 @@ void EditorCamera::update()
 		return;
 	
 	const glm::vec2 winSize(pWindow->getDimensions());
-	if (Input::getMouseXPos() > winSize.x)
+	if (Input::getMouseXPos() > winSize.x - PADDING)
 	{
 		Input::setMouseXPos(PADDING);
 		rotSkipTimer = SKIP_DURATION;
 		skip = true;
 	}
-	else if (Input::getMouseYPos() > winSize.y)
+	else if (Input::getMouseYPos() > winSize.y - PADDING)
 	{
 		Input::setMouseYPos(PADDING);
 		rotSkipTimer = SKIP_DURATION;
 		skip = true;
 	}
 
-	else if (Input::getMouseXPos() < 0.f)
+	else if (Input::getMouseXPos() < PADDING)
 	{
 		Input::setMouseXPos(winSize.x - PADDING);
 		rotSkipTimer = SKIP_DURATION;
 		skip = true;
 	}
-	else if (Input::getMouseYPos() < 0.f)
+	else if (Input::getMouseYPos() < PADDING)
 	{
 		Input::setMouseYPos(winSize.y - PADDING);
 		rotSkipTimer = SKIP_DURATION;

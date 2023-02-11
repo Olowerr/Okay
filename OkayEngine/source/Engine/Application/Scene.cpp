@@ -78,11 +78,11 @@ namespace Okay
     
         const auto& pointLightView = registry.view<PointLight, Transform>();
         for (entt::entity entity : pointLightView)
-            renderer.submitLight(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
+            renderer.submit(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
         
         const auto& dirLightView = registry.view<DirectionalLight, Transform>();
         for (entt::entity entity : dirLightView)
-            renderer.submitLight(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
+            renderer.submit(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
 
     }
     
