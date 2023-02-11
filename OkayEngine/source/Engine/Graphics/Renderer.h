@@ -93,7 +93,7 @@ namespace Okay
 
 
 	private: // Buffers
-		ID3D11Buffer* pViewProjectBuffer;
+		ID3D11Buffer* pCameraBuffer;
 		ID3D11Buffer* pWorldBuffer;
 		ID3D11Buffer* pMaterialBuffer;
 		ID3D11Buffer* pShaderDataBuffer;

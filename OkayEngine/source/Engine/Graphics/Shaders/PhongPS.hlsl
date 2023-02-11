@@ -66,9 +66,11 @@ float4 main(TransformedVertex input) : SV_TARGET
 		distance = length(lightVec);
 		lightVec /= distance;
 
+		float3 toCam = normalize(camPos - input.worldPos);
+
 		const float attu = (1.f / (1.f + poLight.attenuation.x * distance + poLight.attenuation.y * distance * distance));
 
-		finalIntensity *= baseColour * max(dot(input.normal, lightVec), 0.f) + specular * max(dot(-camDir, reflect(camDir, input.normal)), 0.f);
+		finalIntensity = baseColour * max(dot(input.normal, lightVec), 0.f) + specular * max(dot(camDir, reflect(toCam, input.normal)), 0.f);
 		finalIntensity *= poLight.intensity * attu;
 
 		shading += finalIntensity * float4(poLight.colour, 1.f);
@@ -84,7 +86,7 @@ float4 main(TransformedVertex input) : SV_TARGET
 	}
 
 	
-	return baseColour * float4(shading.rgb, 1.f);
+	return baseColour * shading;
 
 #elif 0
 	return float4(baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb, 1.f);

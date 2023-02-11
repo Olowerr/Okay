@@ -25,7 +25,7 @@ namespace Okay
 		glm::mat4 Identity4x4(1.f);
 
 		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
-		DX11::createConstantBuffer(&pViewProjectBuffer, nullptr, sizeof(GPUCamera), false);
+		DX11::createConstantBuffer(&pCameraBuffer, nullptr, sizeof(GPUCamera), false);
 		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
 		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
 		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
@@ -146,7 +146,7 @@ namespace Okay
 
 	void Renderer::shutdown()
 	{
-		DX11_RELEASE(pViewProjectBuffer);
+		DX11_RELEASE(pCameraBuffer);
 		DX11_RELEASE(pWorldBuffer);
 		DX11_RELEASE(pMaterialBuffer);
 		DX11_RELEASE(pShaderDataBuffer);
@@ -181,7 +181,7 @@ namespace Okay
 		camData.pos = camTransform.position;
 		camData.viewProjMatrix =  glm::transpose(camera.projectionMatrix *
 			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
-		DX11::updateBuffer(pViewProjectBuffer, &camData, sizeof(GPUCamera));
+		DX11::updateBuffer(pCameraBuffer, &camData, sizeof(GPUCamera));
 
 
 		// Bind static mesh pipeline
@@ -320,12 +320,13 @@ namespace Okay
 	{
 		pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		pDevContext->VSSetConstantBuffers(0, 1, &pViewProjectBuffer);
+		pDevContext->VSSetConstantBuffers(0, 1, &pCameraBuffer);
 		pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
 		pDevContext->VSSetConstantBuffers(2, 1, &pShaderDataBuffer);
 
 		pDevContext->RSSetViewports(1u, &viewport);
 
+		pDevContext->PSSetConstantBuffers(0, 1, &pCameraBuffer);
 		pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
 		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
 		pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
