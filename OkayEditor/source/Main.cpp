@@ -1,4 +1,5 @@
 #include "Application/Editor.h"
+#include "Engine/Components/Transform.h"
 
 int main(int argc, char* args[])
 {

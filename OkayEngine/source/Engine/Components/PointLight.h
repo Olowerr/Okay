@@ -6,11 +6,11 @@ namespace Okay
 {
 	struct PointLight
 	{
+		PointLight() = default;
 		PointLight(const glm::vec3& colour, float intensity, const glm::vec2& attenuation)
 			:colour(colour), intensity(intensity), attenuation(attenuation)
 		{ }
 
-		PointLight() = default;
 
 		glm::vec3 colour = glm::vec3(1.f);
 		float intensity = 1.f;

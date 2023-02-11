@@ -65,6 +65,8 @@ void Editor::run()
 		update();
 		scene.update();
 
+		// TODO: Move to an Application-function
+		// to reduce risk of entt reallocating between submit() and render()
 		scene.submit();
 		renderer.render(scene.getMainCamera());
 

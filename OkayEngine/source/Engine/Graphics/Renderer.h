@@ -3,6 +3,7 @@
 
 #include "Shader.h"
 #include "Engine/Components/PointLight.h"
+#include "Engine/Components/DirectionalLight.h"
 
 namespace Okay
 {
@@ -13,6 +14,27 @@ namespace Okay
 	struct MeshComponent;
 	struct Transform;
 
+	/*
+	* Used to pair an asset to a transform
+	* For example a mesh to a transform or a pointLight to a position
+	*/
+	template<typename T1, typename T2>
+	struct RenPair // TODO: Find better name
+	{
+		RenPair(T1 asset, T2 transform)
+			:asset(asset), transform(transform) 
+		{ }
+
+		T1 asset;
+		T2 transform;
+	};
+
+	struct LightInfo
+	{
+		uint32_t numPointLights = 0u;
+		uint32_t numDirLights = 0u;
+	};
+
 	class Renderer
 	{
 	public:
@@ -22,9 +44,9 @@ namespace Okay
 		~Renderer();
 		void shutdown();
 
-		void submit(const MeshComponent* pMesh, const Transform* pTransform);
-		//void SumbitSkeletal(Okay::CompSkeletalMesh* pMesh, Okay::Transform* pTransform);
-		void submitPointLight(const PointLight& pLight, const Transform& pTransform);
+		void submit(const MeshComponent& mesh, const Transform& transform);
+		void submitLight(const PointLight& light, const Transform& transform);
+		void submitLight(const DirectionalLight& light, const Transform& transform);
 
 		void setRenderTexture(RenderTexture* pRenderTexture);
 
@@ -33,52 +55,43 @@ namespace Okay
 		void setWireframe(bool wireFrame);
 
 
-	private:
-		RenderTexture* pRenderTarget;
+	private: // Misc
 		void onTargetResize();
-
+		RenderTexture* pRenderTarget;
 		const ContentBrowser& content;
 		ID3D11DeviceContext* pDevContext;
 
-		struct RenderMesh
-		{
-			const MeshComponent* pMesh = nullptr;
-			const Transform* pTransform = nullptr;
-		};
-		std::vector<RenderMesh> meshesToRender;
-		size_t numActiveMeshes;
+	private: // Assets to render
+		using MeshPair			= RenPair<const MeshComponent&, const glm::mat4&>;
+		using PointLightPair	= RenPair<const PointLight&, const Transform&>;
+		using DirLightPair		= RenPair<const DirectionalLight&, const Transform&>;
 
-		struct RenderSkeleton // Will change
-		{
-			const MeshComponent* pMesh = nullptr;
-			const Transform* pTransform = nullptr;
-		};
-		std::vector<RenderSkeleton> skeletonsToRender;
-		size_t numActiveSkeletons;
+		std::vector<MeshPair> meshes;
 
-		struct GPUPointLight
-		{
-			PointLight lightData;
-			glm::vec3 pos;
-		};
-		std::vector<GPUPointLight> lights;
-		size_t numPointLights;
+		LightInfo lightInfo;
+
+		std::vector<PointLightPair> pointLights;
 		void expandPointLights();
+		void updatePointLightsBuffer();
+
+		std::vector<DirLightPair> dirLights;
+		void expandDirLights();
+		void updateDirLightsBuffer();
+
 
 	private: // Buffers
-
 		ID3D11Buffer* pViewProjectBuffer;
 		ID3D11Buffer* pWorldBuffer;
 		ID3D11Buffer* pMaterialBuffer;
 		ID3D11Buffer* pShaderDataBuffer;
 
+		ID3D11Buffer* pLightInfoBuffer;
 		ID3D11Buffer* pPointLightBuffer;
 		ID3D11ShaderResourceView* pPointLightSRV;
-		ID3D11Buffer* pLightInfoBuffer;
+		ID3D11Buffer* pDirLightBuffer;
+		ID3D11ShaderResourceView* pDirLightSRV;
 
-		ID3D11RenderTargetView* bbRTV;
-
-	private: // Piplines
+	private: // Pipelines
 		void bindNecessities();
 		D3D11_VIEWPORT viewport;
 		ID3D11RasterizerState* pRSWireFrame;

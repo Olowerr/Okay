@@ -19,6 +19,7 @@ void Editor::addComponents(Okay::Entity entity)
 		IMGUI_ADD_COMP(MeshComponent);
 		IMGUI_ADD_COMP(Camera);
 		IMGUI_ADD_COMP(PointLight);
+		IMGUI_ADD_COMP(DirectionalLight);
 
 		ImGui::EndCombo();
 	}
@@ -35,13 +36,13 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	// Make macro?
 	ImGui::Text("Position:"); ImGui::SameLine();
-	ImGui::DragFloat3("##TraposNL", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Rotation:"); ImGui::SameLine();
-	ImGui::DragFloat3("##TrarotNL", &degRot.x, 0.5f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrarot", &degRot.x, 0.5f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Scale:   "); ImGui::SameLine();
-	ImGui::DragFloat3("##TrascaNL", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
 
 	tra.rotation = glm::radians(degRot);
 
@@ -81,13 +82,26 @@ void Editor::displayComponents(Okay::Entity entity)
 	PointLight& pointLight = entity.getComponent<PointLight>();
 
 	ImGui::Text("Intensity:"); ImGui::SameLine();
-	ImGui::DragFloat("##PLintNL", &pointLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+	ImGui::DragFloat("##NLPLint", &pointLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
 	ImGui::Text("Attenuation:"); ImGui::SameLine();
-	ImGui::DragFloat2("##PLattNL", &pointLight.attenuation.x, 0.001f, 0.f, 1.f, nullptr, ImGuiSliderFlags_Logarithmic);
+	ImGui::DragFloat2("##NLPLatt", &pointLight.attenuation.x, 0.001f, 0.f, 1.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
 	ImGui::Text("Colour:"); //ImGui::SameLine();
-	ImGui::ColorEdit3("##PLcolNL", &pointLight.colour.x);
+	ImGui::ColorEdit3("##NLPLcol", &pointLight.colour.x);
+
+	IMGUI_DISPLAY_COMP_END();
+
+
+	IMGUI_DISPLAY_COMP_START(DirectionalLight, "Directional Light", true);
+	
+	DirectionalLight& dirLight = entity.getComponent<DirectionalLight>();
+
+	ImGui::Text("Intensity:"); ImGui::SameLine();
+	ImGui::DragFloat("##NLDLint", &dirLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+
+	ImGui::Text("Colour:"); //ImGui::SameLine();
+	ImGui::ColorEdit3("##NLDLcol", &dirLight.colour.x);
 
 	IMGUI_DISPLAY_COMP_END();
 }

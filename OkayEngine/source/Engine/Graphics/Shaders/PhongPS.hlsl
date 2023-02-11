@@ -18,11 +18,20 @@ struct PointLight
 	float3 position;
 };
 
+struct DirectionalLight
+{
+	float3 colour;
+	float intensity;
+	float3 direction;
+};
+
 StructuredBuffer<PointLight> pointLights : register(t3);
+StructuredBuffer<DirectionalLight> dirLights : register(t4);
 
 cbuffer lightInfo : register(b4)
 {
 	uint numPoint;
+	uint numDir;
 }
 
 SamplerState simp : register(s0);
@@ -33,6 +42,7 @@ float4 main(TransformedVertex input) : SV_TARGET
 {
 #if 1
 	PointLight poLight;
+	DirectionalLight dirLight;
 
 	float distance;
 	float finalIntensity;
@@ -40,8 +50,11 @@ float4 main(TransformedVertex input) : SV_TARGET
 
 	float3 shading = float3(0.f, 0.f, 0.f);
 
-	// Point Lights // temp calculations
-	for (uint i = 0; i < numPoint; i++)
+	uint i = 0;
+	// temp calculations
+	
+	// Point Lights 
+	for (i = 0; i < numPoint; i++)
 	{
 		poLight = pointLights[i];
 
@@ -54,6 +67,15 @@ float4 main(TransformedVertex input) : SV_TARGET
 		finalIntensity *= poLight.intensity;
 
 		shading += finalIntensity * poLight.colour;
+	}
+
+	for (i = 0; i < numDir; i++)
+	{
+		dirLight = dirLights[i];
+
+		finalIntensity = max(dot(input.normal, -dirLight.direction), 0.f);
+		
+		shading += finalIntensity * dirLight.colour;
 	}
 
 	return baseColour.Sample(simp, input.uv * uvTiling + uvOffset) * float4(shading.rgb, 1.f);

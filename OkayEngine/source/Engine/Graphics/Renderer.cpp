@@ -11,12 +11,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <DirectXMath.h>
-
+#include <utility>
 namespace Okay
 {
 	Renderer::Renderer(RenderTexture* pRenderTarget, ContentBrowser& content)
 		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), content(content), pRenderTarget(pRenderTarget)
-		, numPointLights(0)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
 		content.addShader(content, "Default");
@@ -32,6 +31,7 @@ namespace Okay
 		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
 
 		expandPointLights();
+		expandDirLights();
 		createVertexShaders();
 		createPixelShaders();
 
@@ -55,14 +55,9 @@ namespace Okay
 			simp->Release();
 		}
 
-
-		meshesToRender.resize(10);
-		numActiveMeshes = 0;
-
-		//skeletalMeshes.resize(10);
-		//numSkeletalActive = 0;
-		//
-		//numPointLights = 0;
+		meshes.reserve(10);
+		pointLights.reserve(10);
+		dirLights.reserve(2);
 
 		D3D11_RASTERIZER_DESC rsDesc{};
 		rsDesc.FillMode = D3D11_FILL_WIREFRAME;
@@ -93,37 +88,31 @@ namespace Okay
 		shutdown();
 	}
 
-	void Renderer::submit(const MeshComponent* pMesh, const Transform* pTransform)
+	void Renderer::submit(const MeshComponent& mesh, const Transform& transform)
 	{
-		if (numActiveMeshes >= meshesToRender.size())
-			meshesToRender.resize(meshesToRender.size() + 10ull);
+		// Remove? std::vector reallocates itself but having control over the amount can be important
+		if (meshes.size() == meshes.capacity())
+			meshes.reserve(meshes.size() + 10ull);
 
-		meshesToRender[numActiveMeshes].pMesh = pMesh;
-		meshesToRender[numActiveMeshes].pTransform = pTransform;
-
-		++numActiveMeshes;
+		meshes.emplace_back(mesh, transform.matrix);
 	}
 
-	/*void Renderer::SumbitSkeletal(CompSkeletalMesh* pMesh, CompTransform* pTransform)
+	void Renderer::submitLight(const PointLight& light, const Transform& transform)
 	{
-		if (numSkeletalActive >= skeletalMeshes.size())
-			skeletalMeshes.resize(skeletalMeshes.size() + 10);
-
-		skeletalMeshes[numSkeletalActive].first = pMesh;
-		skeletalMeshes[numSkeletalActive].second = pTransform;
-
-		++numSkeletalActive;
-	}*/
-
-	void Renderer::submitPointLight(const PointLight& pLight, const Transform& pTransform)
-	{
-		if (numPointLights >= lights.size())
+		if (pointLights.size() == pointLights.capacity())
 			expandPointLights();
 
-		lights[numPointLights].lightData = pLight;
-		lights[numPointLights].pos = pTransform.position;
+		pointLights.emplace_back(light, transform);
+		lightInfo.numPointLights++;
+	}
 
-		++numPointLights;
+	void Renderer::submitLight(const DirectionalLight& light, const Transform& transform)
+	{
+		if (dirLights.size() == dirLights.capacity())
+			expandDirLights();
+		
+		dirLights.emplace_back(light, transform);
+		lightInfo.numDirLights++;
 	}
 
 	void Renderer::setRenderTexture(RenderTexture* pRenderTexture)
@@ -148,9 +137,11 @@ namespace Okay
 
 	void Renderer::newFrame()
 	{
-		numActiveMeshes = 0;
-		//numSkeletalActive = 0;
-		numPointLights = 0;
+		lightInfo.numPointLights = 0u;
+		lightInfo.numDirLights = 0u;
+		meshes.clear();
+		pointLights.clear();
+		dirLights.clear();
 	}
 
 	void Renderer::shutdown()
@@ -164,9 +155,11 @@ namespace Okay
 		DX11_RELEASE(pMeshVS);
 		DX11_RELEASE(pRSWireFrame);
 
+		DX11_RELEASE(pLightInfoBuffer);
 		DX11_RELEASE(pPointLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
-		DX11_RELEASE(pLightInfoBuffer);
+		DX11_RELEASE(pDirLightBuffer);
+		DX11_RELEASE(pDirLightSRV);
 
 		DX11_RELEASE(pAniVS);
 		DX11_RELEASE(pAniIL);
@@ -174,18 +167,19 @@ namespace Okay
 
 	void Renderer::render(Entity cameraEntity)
 	{
-		DX11::updateBuffer(pPointLightBuffer, lights.data(), uint32_t(sizeof(GPUPointLight) * numPointLights));
-		DX11::updateBuffer(pLightInfoBuffer, &numPointLights, 4);
-		
+		updatePointLightsBuffer();
+		updateDirLightsBuffer();
+		DX11::updateBuffer(pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
+
 		// Calculate viewProjection matrix
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
 		const Camera& camera = cameraEntity.getComponent<Camera>();
 		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 		camTransform.calculateMatrix();
 
-		glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
+		const glm::mat4 viewProjMatrix =  glm::transpose(camera.projectionMatrix *
 			glm::lookAtLH(camTransform.position, camTransform.position + camTransform.forward(), camTransform.up()));
-		
+	
 		DX11::updateBuffer(pViewProjectBuffer, &viewProjMatrix, sizeof(glm::mat4));
 
 		// Bind static mesh pipeline
@@ -193,24 +187,19 @@ namespace Okay
 
 		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
 		
-		// Preperation
 		ID3D11ShaderResourceView* textures[3] = {};
 		size_t i = 0;
 		glm::mat4 worldMatrix{};
 
 		// Draw all statis meshes
-		for (i = 0; i < numActiveMeshes; i++)
+		for (i = 0; i < meshes.size(); i++)
 		{
-			const MeshComponent& cMesh = *meshesToRender.at(i).pMesh;
+			const MeshComponent& cMesh = meshes[i].asset;
 			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
 			const Material& material = content.getMaterial(cMesh.materialIdx);
 			const Shader& shader = content.getShader(cMesh.shaderIdx);
 
-			Transform& cTransform = const_cast<Transform&>(*meshesToRender.at(i).pTransform);
-
-			// Temp - make more robust system (Update only if entity has script?) // No.. can miss entities
-			cTransform.calculateMatrix();
-			worldMatrix = glm::transpose(cTransform.matrix);
+			worldMatrix = glm::transpose(meshes[i].transform);
 
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
@@ -220,8 +209,6 @@ namespace Okay
 			DX11::updateBuffer(pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
 			DX11::updateBuffer(pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
 
-			shader.bind();
-			
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
 			pDevContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
@@ -231,6 +218,7 @@ namespace Okay
 			// RS
 			
 			// PS
+			shader.bind();
 			pDevContext->PSSetShaderResources(0u, 3u, textures);
 
 			// OM
@@ -239,26 +227,6 @@ namespace Okay
 			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0u);
 
 		}
-
-
-		// Draw skeletal meshes
-		/*BindSkeletalPipeline();
-
-		for (i = 0; i < numSkeletalActive; i++)
-		{
-			CompSkeletalMesh& cMesh = *skeletalMeshes[i].first;
-			const CompTransform& transform = *skeletalMeshes[i].second;
-
-			material = cMesh.GetMaterial();
-			material->BindTextures();
-			cMesh.UpdateSkeletalMatrices();
-
-			DX11::UpdateBuffer(pWorldBuffer, &transform.matrix, sizeof(DirectX::XMFLOAT4X4));
-			DX11::UpdateBuffer(pMaterialBuffer, &material->GetGPUData(), sizeof(MaterialGPUData));
-
-			cMesh.GetMesh()->Draw();
-
-		}*/
 	}
 
 	void Renderer::setWireframe(bool wireFrame)
@@ -268,21 +236,82 @@ namespace Okay
 
 	void Renderer::expandPointLights()
 	{
-		static const UINT Increase = 5;
+		static const size_t Increase = 5;
+		static const size_t GPUPointLightSize = sizeof(PointLight) + sizeof(glm::vec3);
 		HRESULT hr = E_FAIL;
 
 		DX11_RELEASE(pPointLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
 
-		lights.resize(numPointLights + Increase);
+		pointLights.reserve(pointLights.size() + Increase);
 
-		hr = DX11::createStructuredBuffer(&pPointLightBuffer, lights.data(), sizeof(GPUPointLight), (uint32_t)lights.size(), false);
+		hr = DX11::createStructuredBuffer(&pPointLightBuffer, pointLights.data(), GPUPointLightSize, (uint32_t)pointLights.capacity(), false);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight structured buffer");
 
-		hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32_t)lights.size());
+		hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32_t)pointLights.capacity());
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight SRV");
 
 		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
+	}
+
+	void Renderer::updatePointLightsBuffer()
+	{
+		D3D11_MAPPED_SUBRESOURCE sub;
+		if (FAILED(pDevContext->Map(pPointLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+			return;
+
+		char* location = (char*)sub.pData;
+		for (size_t i = 0; i < pointLights.size(); i++)
+		{
+			memcpy(location, &pointLights[i].asset, sizeof(PointLight));
+			location += sizeof(PointLight);
+
+			memcpy(location, &pointLights[i].transform.position, sizeof(glm::vec3));
+			location += sizeof(glm::vec3);
+		}
+
+		pDevContext->Unmap(pPointLightBuffer, 0);
+	}
+
+	void Renderer::expandDirLights()
+	{
+		static const size_t Increase = 5;
+		static const size_t GPUDirLightSize = sizeof(DirectionalLight) + sizeof(glm::vec3);
+		HRESULT hr = E_FAIL;
+
+		DX11_RELEASE(pDirLightBuffer);
+		DX11_RELEASE(pDirLightSRV);
+
+		dirLights.reserve(dirLights.size() + Increase);
+
+		hr = DX11::createStructuredBuffer(&pDirLightBuffer, dirLights.data(), GPUDirLightSize, (uint32_t)dirLights.capacity(), false);
+		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating dirLight structured buffer");
+
+		hr = DX11::createStructuredSRV(&pDirLightSRV, pDirLightBuffer, (uint32_t)dirLights.capacity());
+		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating dirLight SRV");
+
+		pDevContext->PSSetShaderResources(4, 1, &pDirLightSRV);
+	}
+
+	void Renderer::updateDirLightsBuffer()
+	{
+		D3D11_MAPPED_SUBRESOURCE sub;
+		if (FAILED(pDevContext->Map(pDirLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+			return;
+
+		glm::vec3 dirLightDirection{};
+		char* location = (char*)sub.pData;
+		for (size_t i = 0; i < dirLights.size(); i++)
+		{
+			memcpy(location, &dirLights[i].asset, sizeof(DirectionalLight));
+			location += sizeof(DirectionalLight);
+
+			dirLightDirection = dirLights[i].transform.forward();
+			memcpy(location, &dirLightDirection, sizeof(glm::vec3));
+			location += sizeof(glm::vec3);
+		}
+
+		pDevContext->Unmap(pDirLightBuffer, 0);
 	}
 
 	void Renderer::bindNecessities()
@@ -337,7 +366,7 @@ namespace Okay
 
 		return;
 
-		D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
+		/*D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"WEIGHTS",	 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -352,7 +381,7 @@ namespace Okay
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Vertex Shader");
 
 		hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pAniIL);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Input Layout");
+		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Input Layout");*/
 	}
 
 	void Renderer::createPixelShaders()

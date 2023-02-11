@@ -301,7 +301,7 @@ void TerrainEditor::createTerrainMesh(bool smoothShading, uint32_t subDivs, floa
 	{
 		for (size_t v = 0; v < NUM_VERTS; v++)
 		{
-			glm::vec3 pos = findPos(baseVerts[v], i, subDivs) * scale;
+			glm::vec3 pos = findPos(baseVerts[v], (uint32_t)i, subDivs) * scale;
 
 			float noise = noiser.sample(pos.x + scroll.x, pos.z + scroll.y);
 			noise = std::pow(noise, exponent);

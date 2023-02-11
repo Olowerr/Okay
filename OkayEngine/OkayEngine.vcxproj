@@ -213,6 +213,7 @@
     <ClInclude Include="source\Engine\Application\Input\Input.h" />
     <ClInclude Include="source\Engine\Application\Input\Keys.h" />
     <ClInclude Include="source\Engine\Application\Scene.h" />
+    <ClInclude Include="source\Engine\Components\DirectionalLight.h" />
     <ClInclude Include="source\Engine\Script\ScriptComponent.h" />
     <ClInclude Include="source\Engine\Script\DefaultScripts\FreeLookMovement.h" />
     <ClInclude Include="source\Engine\Script\ScriptBehaviour.h" />

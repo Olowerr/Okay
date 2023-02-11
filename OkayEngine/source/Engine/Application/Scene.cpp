@@ -62,9 +62,13 @@ namespace Okay
     
     void Scene::submit()
     {
+        const auto& transformView = registry.view<Transform>(); // Exclude static entities
+        for (entt::entity entity : transformView)
+            transformView.get<Transform>(entity).calculateMatrix();
+
         const auto& meshView = registry.view<MeshComponent, Transform>();
         for (entt::entity entity : meshView)
-            renderer.submit(&meshView.get<MeshComponent>(entity), &meshView.get<Transform>(entity));
+            renderer.submit(meshView.get<MeshComponent>(entity), meshView.get<Transform>(entity));
     
 #if 0 // Animations
         const auto& skeletalView = registry.view<Okay::CompSkeletalMesh, Transform>();
@@ -72,9 +76,14 @@ namespace Okay
             ren.SumbitSkeletal(&skeletalView.get<Okay::CompSkeletalMesh>(entity), &skeletalView.get<Transform>(entity));
 #endif
     
-        const auto& lightView = registry.view<PointLight, Transform>();
-        for (entt::entity entity : lightView)
-            renderer.submitPointLight(lightView.get<PointLight>(entity), lightView.get<Transform>(entity));
+        const auto& pointLightView = registry.view<PointLight, Transform>();
+        for (entt::entity entity : pointLightView)
+            renderer.submitLight(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
+        
+        const auto& dirLightView = registry.view<DirectionalLight, Transform>();
+        for (entt::entity entity : dirLightView)
+            renderer.submitLight(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
+
     }
     
     void Scene::end()
