@@ -33,7 +33,6 @@ Editor::Editor(std::string_view startScene)
 	light.getComponent<Okay::Transform>().position.y = 2.f;
 	light.addComponent<Okay::PointLight>().intensity = 2.f;
 
-
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
 	camera.addScript<EditorCamera>();

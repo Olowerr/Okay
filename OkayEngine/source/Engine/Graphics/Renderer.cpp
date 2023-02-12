@@ -12,6 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <DirectXMath.h>
 #include <utility>
+
 namespace Okay
 {
 	Renderer::Renderer(RenderTexture* pRenderTarget, ContentBrowser& content)

@@ -34,10 +34,10 @@ namespace Okay
 		ID3D11ShaderResourceView* pTextureCubeSRV;
 	};
 
-	bool SkyBox::setPositiveX(std::string_view path) { return verifyAndSetPath(0u, path); }
-	bool SkyBox::setNegativeX(std::string_view path) { return verifyAndSetPath(1u, path); }
-	bool SkyBox::setPositiveY(std::string_view path) { return verifyAndSetPath(2u, path); }
-	bool SkyBox::setNegativeY(std::string_view path) { return verifyAndSetPath(3u, path); }
-	bool SkyBox::setPositiveZ(std::string_view path) { return verifyAndSetPath(4u, path); }
-	bool SkyBox::setNegativeZ(std::string_view path) { return verifyAndSetPath(5u, path); }
+	inline bool SkyBox::setPositiveX(std::string_view path) { return verifyAndSetPath(0u, path); }
+	inline bool SkyBox::setNegativeX(std::string_view path) { return verifyAndSetPath(1u, path); }
+	inline bool SkyBox::setPositiveY(std::string_view path) { return verifyAndSetPath(2u, path); }
+	inline bool SkyBox::setNegativeY(std::string_view path) { return verifyAndSetPath(3u, path); }
+	inline bool SkyBox::setPositiveZ(std::string_view path) { return verifyAndSetPath(4u, path); }
+	inline bool SkyBox::setNegativeZ(std::string_view path) { return verifyAndSetPath(5u, path); }
 }
