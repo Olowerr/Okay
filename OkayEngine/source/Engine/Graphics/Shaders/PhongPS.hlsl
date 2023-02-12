@@ -8,6 +8,9 @@ cbuffer MatData : register(b3)
 {
 	float2 uvTiling;
 	float2 uvOffset;
+	float shinyness;
+
+	float matPadding1;
 }
 
 struct PointLight
@@ -38,55 +41,65 @@ SamplerState simp : register(s0);
 
 static float3 SUN_DIR = normalize(float3(1.f, -1.f, 1.f));
 
+float3 OkayReflect(float3 v, float3 n)
+{
+	return 2 * dot(v, n) * n - v;
+}
+
 float4 main(TransformedVertex input) : SV_TARGET
 {
 #if 1
 	const float2 uv = input.uv * uvTiling + uvOffset;
 	const float4 baseColour = diffuseTexture.Sample(simp, uv);
 	const float4 specular = specularTexture.Sample(simp, uv);
+	const float4 ambient = ambientTexture.Sample(simp, uv);
+	const float3 posToCam = normalize(camPos - input.worldPos);
 
 	PointLight poLight;
 	DirectionalLight dirLight;
 
 	float distance;
-	float4 finalIntensity;
-	float3 lightVec;
+	float3 posToLight;
 
-	float4 shading = float4(0.f, 0.f, 0.f, 1.f);
+	float4 diffShading = float4(0.f, 0.f, 0.f, 1.f);
+	float4 specShading = float4(0.f, 0.f, 0.f, 1.f);
 
 	uint i = 0;
 
-	// temp calculations
+	// TODO: Remove: (dot(posToLight, input.normal) > 0.f).
+	// Without it points lit up even when the light source was inside the object.
+	// But to my understanding, it should work without the extra check
+
 	// Point Lights 
 	for (i = 0; i < numPoint; i++)
 	{
 		poLight = pointLights[i];
 
-		lightVec = poLight.position - input.worldPos;
-		distance = length(lightVec);
-		lightVec /= distance;
-
-		float3 toCam = normalize(camPos - input.worldPos);
+		posToLight = poLight.position - input.worldPos;
+		distance = length(posToLight);
+		posToLight /= distance;
 
 		const float attu = (1.f / (1.f + poLight.attenuation.x * distance + poLight.attenuation.y * distance * distance));
 
-		finalIntensity = baseColour * max(dot(input.normal, lightVec), 0.f) + specular * max(dot(camDir, reflect(toCam, input.normal)), 0.f);
-		finalIntensity *= poLight.intensity * attu;
+		specShading += specular * pow(max(dot(reflect(-posToLight, input.normal) * (dot(posToLight, input.normal) > 0.f), posToCam), 0.f), shinyness) *
+						float4(poLight.colour, 1.f) * poLight.intensity * attu;
 
-		shading += finalIntensity * float4(poLight.colour, 1.f);
+		diffShading += baseColour * max(dot(input.normal, posToLight), 0.f) * float4(poLight.colour, 1.f) * poLight.intensity * attu;
 	}
 
+	// Directional Lights
 	for (i = 0; i < numDir; i++)
 	{
 		dirLight = dirLights[i];
 
-		finalIntensity = max(dot(input.normal, -dirLight.direction), 0.f);
-		
-		shading += finalIntensity * float4(dirLight.colour, 1.f);
+		specShading += specular * pow(max(dot(reflect(dirLight.direction, input.normal) * (dot(-dirLight.direction, input.normal) > 0.f), posToCam), 0.f), shinyness) *
+			float4(dirLight.colour, 1.f) * dirLight.intensity;
+
+		diffShading += max(dot(input.normal, -dirLight.direction), 0.f) * float4(dirLight.colour, 1.f) * dirLight.intensity;
 	}
 
 	
-	return baseColour * shading;
+	return saturate(baseColour * (baseColour * 0.2f + diffShading + specShading));
 
 #elif 0
 	return float4(baseColour.Sample(simp, (input.uv + uvOffset) * uvTiling).rgb, 1.f);

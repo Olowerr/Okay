@@ -16,7 +16,8 @@ namespace Okay
 		{
 			glm::vec2 uvTiling = { 1.f, 1.f };
 			glm::vec2 uvOffset = { 0.f, 0.f };
-			// Tint ?
+			float shinynessExp = 1.f;
+			float padding[3];
 		};
 
 		struct Description

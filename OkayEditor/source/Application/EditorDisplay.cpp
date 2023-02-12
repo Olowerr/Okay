@@ -209,6 +209,9 @@ void Editor::displayMaterial(uint32_t index)
 	ImGui::Text("UV Tiling:"); ImGui::SameLine();
 	ImGui::DragFloat2("##NoTileLabel", &mat.getGPUData().uvTiling.x, 0.002f);
 
+	ImGui::Text("Shinyness:"); ImGui::SameLine();
+	ImGui::DragFloat("##NLshi", &mat.getGPUData().shinynessExp, 0.05f);
+
 	ImGui::Separator();
 }
 

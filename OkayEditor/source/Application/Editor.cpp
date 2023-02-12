@@ -22,19 +22,22 @@ Editor::Editor(std::string_view startScene)
 	Okay::Entity entity = scene.createEntity();
 	entity.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
 	entity.getComponent<Okay::Transform>().scale *= 2.f;
-
 	Okay::Entity floor = scene.createEntity();
 	floor.addComponent<Okay::MeshComponent>(1u);
 	floor.getComponent<Okay::Transform>().scale *= 5.f;
 	floor.getComponent<Okay::Transform>().position.y = -5.f;
 
+	Okay::Entity light = scene.createEntity();
+	light.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
+	light.getComponent<Okay::Transform>().scale *= 0.5f;
+	light.getComponent<Okay::Transform>().position.y = 2.f;
+	light.addComponent<Okay::PointLight>().intensity = 2.f;
+
 
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
-	camera.addComponent<Okay::PointLight>().intensity = 10.f;
 	camera.addScript<EditorCamera>();
 	scene.setMainCamera(camera);
-	scene.createEntity();
 	renderer.setRenderTexture(&gameTexture);
 
 	testTex = new Okay::RenderTexture(512u, 512u, 
