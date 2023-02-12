@@ -7,7 +7,7 @@
 namespace Okay
 {
     Scene::Scene(Renderer& renderer)
-        :renderer(renderer), mainCamera(entt::null, &registry)
+        :renderer(renderer), mainCamera(entt::null, &registry), skyLight(entt::null, &registry)
     {
     }
     

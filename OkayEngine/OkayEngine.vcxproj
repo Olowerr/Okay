@@ -214,6 +214,8 @@
     <ClInclude Include="source\Engine\Application\Input\Keys.h" />
     <ClInclude Include="source\Engine\Application\Scene.h" />
     <ClInclude Include="source\Engine\Components\DirectionalLight.h" />
+    <ClInclude Include="source\Engine\Components\SkyLight.h" />
+    <ClInclude Include="source\Engine\Graphics\Assets\SkyBox.h" />
     <ClInclude Include="source\Engine\Script\ScriptComponent.h" />
     <ClInclude Include="source\Engine\Script\DefaultScripts\FreeLookMovement.h" />
     <ClInclude Include="source\Engine\Script\ScriptBehaviour.h" />
@@ -264,7 +266,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="source\Engine\Graphics\RenderTexture.h" />
-    <ClInclude Include="source\Engine\Graphics\Shader.h">
+    <ClInclude Include="source\Engine\Graphics\Assets\Shader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -285,6 +287,7 @@
     <ClCompile Include="source\Engine\Application\Application.cpp" />
     <ClCompile Include="source\Engine\Application\Input\Input.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
+    <ClCompile Include="source\Engine\Graphics\Assets\SkyBox.cpp" />
     <ClCompile Include="source\Engine\Script\DefaultScripts\FreeLookMovement.cpp" />
     <ClCompile Include="source\Engine\Script\ScriptComponent.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />
@@ -325,7 +328,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="source\Engine\Graphics\RenderTexture.cpp" />
-    <ClCompile Include="source\Engine\Graphics\Shader.cpp">
+    <ClCompile Include="source\Engine\Graphics\Assets\Shader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

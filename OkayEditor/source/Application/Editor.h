@@ -45,6 +45,8 @@ private:
 
 	void displayStyling();
 
+	void displaySceneSettings();
+
 	Okay::RenderTexture* testTex;
 	Okay::PerlinNoise2D* noiser;
 

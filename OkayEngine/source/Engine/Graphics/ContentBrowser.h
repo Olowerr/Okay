@@ -7,7 +7,9 @@
 #include "Assets/Importing/OkayImporter.h"
 #include "Assets/Texture.h"
 #include "Assets/Material.h"
-#include "Shader.h"
+#include "Assets/Shader.h"
+
+// TODO: Move STBI to deps
 
 namespace Okay
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "Shader.h"
+#include "Assets/Shader.h"
 #include "Engine/Components/PointLight.h"
 #include "Engine/Components/DirectionalLight.h"
 
@@ -15,7 +15,7 @@ namespace Okay
 	struct Transform;
 
 	/*
-	* Used to pair an asset to a transform
+	* Used to pair an asset to a transform during rendering
 	* For example a mesh to a transform or a pointLight to a position
 	*/
 	template<typename T1, typename T2>

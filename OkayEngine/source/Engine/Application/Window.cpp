@@ -235,7 +235,7 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		return 0;
 
 	case WM_SIZE:
-		Window::onResize(hWnd, wParam);
+		Window::onResize(hWnd, wParam); // TODO: Only call when resizing is finished
 		return 0;
 	}
 

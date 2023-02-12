@@ -1,7 +1,7 @@
 
 #include "Shader.h"
 #include "Engine/DirectX/DX11.h"
-#include "ContentBrowser.h"
+#include "../ContentBrowser.h"
 
 #include <d3dcompiler.h>
 #include <stdlib.h>
