@@ -105,6 +105,7 @@ namespace Okay
 	template<typename T>
 	inline T& Entity::getScript()
 	{
+		OKAY_ASSERT(hasComponent<ScriptComponent>(), "The entity does not have any scripts");
 		return getComponent<ScriptComponent>().getScript<T>();
 	}
 
