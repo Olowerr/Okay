@@ -106,8 +106,7 @@ void Editor::endFrame()
 	ImGui::End();
 	ImGui::PopStyleVar();
 
-	// ((const Window&)window) bruh
-	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, ((const Window&)window).getRenderTexture().getRTV(), nullptr);
+	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, window.getRenderTexture().getRTV(), nullptr);
 	Application::endFrameImGui();
 }
 
@@ -119,15 +118,11 @@ void Editor::update()
 	displayInspector();
 	displayContent();
 	displayStyling();
+	
+	
+	return;
 
-	if (Okay::Input::isKeyDown(Key::SPACE) && Okay::Input::isKeyReleased(Key::E))
-	{
-		Okay::Shader& shader = content.getShader(Okay::Entity((entt::entity)selectionID, &scene).getComponent<Okay::MeshComponent>().shaderIdx);
-		//shader.pHeightMap = testTex->getSRV();
-		//shader.gpuData.hasHeightMap = TRUE;
-	}
-
-	//return;
+	// Perlin noise testing
 	ImGui::Begin("result", nullptr);
 
 	static float tiling = 1.f;
@@ -220,7 +215,7 @@ void Editor::displayInspector()
 		break;
 	case Editor::SelectionType::Entity:
 	{
-		Okay::Entity entity((entt::entity)selectionID, &scene);
+		Okay::Entity entity((entt::entity)selectionID, &scene.getRegistry());
 		displayComponents(entity);
 		addComponents(entity);
 	}

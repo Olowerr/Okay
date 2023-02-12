@@ -6,9 +6,8 @@
 
 namespace Okay
 {
-
     Scene::Scene(Renderer& renderer)
-        :renderer(renderer), mainCamera(entt::null)
+        :renderer(renderer), mainCamera(entt::null, &registry)
     {
     }
     
@@ -18,30 +17,10 @@ namespace Okay
     
     Entity Scene::createEntity()
     {
-        Entity entity(registry.create(), this);
+        Entity entity(registry.create(), &registry);
         entity.addComponent<Okay::Transform>();
         
         return entity;
-    }
-    
-    void Scene::destroyEntity(const Entity& entity)
-    {
-        registry.destroy(entity);
-    }
-
-    void Scene::destroyEntity(const entt::entity& entity)
-    {
-        registry.destroy(entity);
-    }
-    
-    Entity Okay::Scene::getMainCamera()
-    {
-        return Entity(mainCamera, this);
-    }
-
-    void Scene::setMainCamera(const Entity& entity) 
-    {
-        mainCamera = entity.getID(); 
     }
 
     void Scene::start()
@@ -62,25 +41,25 @@ namespace Okay
     
     void Scene::submit()
     {
-        const auto& transformView = registry.view<Transform>(); // Exclude static entities
+        auto transformView = registry.view<Transform>(); // Exclude static entities
         for (entt::entity entity : transformView)
             transformView.get<Transform>(entity).calculateMatrix();
 
-        const auto& meshView = registry.view<MeshComponent, Transform>();
+        auto meshView = registry.view<MeshComponent, Transform>();
         for (entt::entity entity : meshView)
             renderer.submit(meshView.get<MeshComponent>(entity), meshView.get<Transform>(entity));
     
 #if 0 // Animations
-        const auto& skeletalView = registry.view<Okay::CompSkeletalMesh, Transform>();
+        auto skeletalView = registry.view<Okay::CompSkeletalMesh, Transform>();
         for (entt::entity entity : skeletalView)
             ren.SumbitSkeletal(&skeletalView.get<Okay::CompSkeletalMesh>(entity), &skeletalView.get<Transform>(entity));
 #endif
     
-        const auto& pointLightView = registry.view<PointLight, Transform>();
+        auto pointLightView = registry.view<PointLight, Transform>();
         for (entt::entity entity : pointLightView)
             renderer.submit(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
         
-        const auto& dirLightView = registry.view<DirectionalLight, Transform>();
+        auto dirLightView = registry.view<DirectionalLight, Transform>();
         for (entt::entity entity : dirLightView)
             renderer.submit(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
 

@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Scene.h"
 #include "Engine/Okay/Okay.h"
 #include "Engine/Script/ScriptComponent.h"
 
-// TODO: Change Scene* pScene to entt::registry* pReg
-// So that Scene.h can include Entity.h and keep an (Okay::Entity) of the main camera instead
+#include "Entt/entt.hpp"
 
 namespace Okay
 {
@@ -13,92 +11,107 @@ namespace Okay
 	{
 	public:
 		Entity()
-			:entityId(entt::null), pScene(nullptr) { }
-		Entity(entt::entity id, Scene* scene)
-			:entityId(id), pScene(scene) { }
+			:entityId(entt::null), pReg(nullptr) 
+		{ }
 
-		Entity& operator=(const Entity&) = default;
-
-		// TODO: Move definitions outside of class declartion
-		// and inline those that make sense
+		Entity(entt::entity id, entt::registry* pReg)
+			:entityId(id), pReg(pReg) 
+		{ }
 
 		template<typename T, typename... Args>
-		T& addComponent(Args&&... args)
-		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
-			// Assert if has or just replace? or just return it ? // don't just return it
-			return pScene->getRegistry().emplace<T>(entityId, std::forward<Args>(args)...);
-		}
+		inline T& addComponent(Args&&... args);
 
 		template<typename... T>
-		bool hasComponent() const
-		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
-			return pScene->getRegistry().all_of<T...>(entityId);
-		}
+		inline bool hasComponent() const;
 
 		template<typename T>
-		T& getComponent()
-		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
-			OKAY_ASSERT(hasComponent<T>(), "Entity doesn't have the given component");
-			return pScene->getRegistry().get<T>(entityId);
-		}
+		inline T& getComponent();
 
 		template<typename T>
-		const T& getComponent() const
-		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
-			OKAY_ASSERT(hasComponent<T>(), "Entity doesn't have the given component");
-			return pScene->getRegistry().get<T>(entityId);
-		}
+		inline const T& getComponent() const;
 
 		template<typename T>
-		bool removeComponent()
-		{
-			OKAY_ASSERT(pScene, "pScene was nullptr");
-			return pScene->getRegistry().remove<T>(entityId);
-		}
+		inline bool removeComponent();
 
 		template<typename T, typename... Args>
-		T& addScript(Args&&... args)
-		{
-			if (!hasComponent<ScriptComponent>())
-				addComponent<ScriptComponent>();
-
-			return getComponent<ScriptComponent>().addScript<T>(*this, args...);
-		}
+		inline T& addScript(Args&&... args);
 
 		template<typename T>
-		T& getScript()
-		{
-			return getComponent<ScriptComponent>().getScript<T>();
-		}
+		inline T& getScript();
 
 		template<typename T>
-		inline void removeScript()
-		{
-			if (hasComponent<ScriptComponent>())
-				getComponent<ScriptComponent>().removeScript<T>();
-		}
+		inline void removeScript();
 
+		inline operator entt::entity() const	{ return entityId; }
+		inline entt::entity getID() const		{ return entityId; }
 
-		operator entt::entity()		  { return entityId; }
-		operator entt::entity() const { return entityId; }
-
-		entt::entity getID() const { return entityId; }
-		bool isValid() const 
-		{
-			if (!pScene)
-				return false;
-
-			return pScene->getRegistry().valid(entityId);
-		}
+		inline bool isValid() const				{ return pReg ? pReg->valid(entityId) : false; }
 
 	private:
-		Scene* pScene;
+		entt::registry* pReg;
 		entt::entity entityId;
+
 		// Due to padding, another 4 bytes can fit here for free
 		// What to add thooo :thonk:
 	};
+
+
+	template<typename T, typename... Args>
+	inline T& Entity::addComponent(Args&&... args)
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		return pReg->emplace<T>(entityId, std::forward<Args>(args)...);
+	}
+
+	template<typename... T>
+	inline bool Entity::hasComponent() const
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		return pReg->all_of<T...>(entityId);
+	}
+
+	template<typename T>
+	inline T& Entity::getComponent()
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		OKAY_ASSERT(hasComponent<T>(), "The entity doesn't have the given component");
+		return pReg->get<T>(entityId);
+	}
+
+	template<typename T>
+	inline const T& Entity::getComponent() const
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		OKAY_ASSERT(hasComponent<T>(), "The entity doesn't have the given component");
+		return pReg->get<T>(entityId);
+	}
+
+	template<typename T>
+	inline bool Entity::removeComponent()
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		return pReg->remove<T>(entityId);
+	}
+
+	template<typename T, typename... Args>
+	inline T& Entity::addScript(Args&&... args)
+	{
+		if (!hasComponent<ScriptComponent>())
+			addComponent<ScriptComponent>();
+
+		return getComponent<ScriptComponent>().addScript<T>(*this, args...);
+	}
+
+	template<typename T>
+	inline T& Entity::getScript()
+	{
+		return getComponent<ScriptComponent>().getScript<T>();
+	}
+
+	template<typename T>
+	inline void Entity::removeScript()
+	{
+		OKAY_ASSERT(hasComponent<ScriptComponent>(), "The entity does not have any scripts");
+		getComponent<ScriptComponent>().removeScript<T>();
+	} 
 }

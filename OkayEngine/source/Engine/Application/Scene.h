@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Entt/entt.hpp"
+#include "Entity.h"
 
 namespace Okay
 {
-	class Entity;
 	class Renderer;
 
 	class Scene
@@ -14,11 +14,12 @@ namespace Okay
 		~Scene();
 
 		Entity createEntity();
-		void destroyEntity(const Entity& entity);
-		void destroyEntity(const entt::entity& entity);
+		inline void destroyEntity(const Entity& entity);
+		inline void destroyEntity(entt::entity entity);
 
-		void setMainCamera(const Entity& entity);
-		Entity getMainCamera();
+		inline void setMainCamera(const Entity& entity);
+		inline Entity getMainCamera();
+
 		inline entt::registry& getRegistry();
 
 		void start();
@@ -27,10 +28,18 @@ namespace Okay
 		void end();
 
 	private:
-		entt::entity mainCamera;
-		Renderer& renderer;
 		entt::registry registry;
+		Renderer& renderer;
+
+		Entity mainCamera;
+		Entity skyLight;
 	};
 
-	inline entt::registry& Scene::getRegistry()	 { return registry; }
+	inline void Scene::destroyEntity(const Entity& entity)	{ registry.destroy(entity); }
+	inline void Scene::destroyEntity(entt::entity entity)	{ registry.destroy(entity); }
+
+	inline Entity Scene::getMainCamera()					{ return mainCamera; }
+	inline void Scene::setMainCamera(const Entity& entity)	{ if (entity.isValid()) mainCamera = entity; }
+
+	inline entt::registry& Scene::getRegistry()				{ return registry; }
 }
