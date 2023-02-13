@@ -41,6 +41,8 @@ namespace Okay
 		static inline float getMouseXDelta();
 		static inline float getMouseYDelta();
 
+		static inline float getMouseWheelDir();
+
 	private:
 		static void update();
 		static inline void setKeyDown(Key key);
@@ -55,6 +57,8 @@ namespace Okay
 		static inline float mouseXPos = 0.f, mouseYPos = 0.f;
 		static inline float mousePrevXPos = 0.f, mousePrevYPos = 0.f;
 		static inline float mouseXDelta = 0.f, mouseYDelta = 0.f;
+
+		static inline float mouseWheelDir = 0.f;
 	};
 
 	inline bool Input::isKeyDown(Key key)	  { return Input::keys[key]; }
@@ -75,4 +79,5 @@ namespace Okay
 	inline float Input::getMouseXDelta()	  { return Input::mouseXDelta; }
 	inline float Input::getMouseYDelta()	  { return Input::mouseYDelta; }
 	
+	inline float Input::getMouseWheelDir()	  { return Input::mouseWheelDir; }
 }

@@ -108,5 +108,7 @@ namespace Okay
 		Input::mouseYDelta = Input::mouseYPos - Input::mousePrevYPos;
 		Input::mousePrevXPos = Input::mouseXPos;
 		Input::mousePrevYPos = Input::mouseYPos;
+
+		Input::mouseWheelDir = 0.f;
 	}
 }

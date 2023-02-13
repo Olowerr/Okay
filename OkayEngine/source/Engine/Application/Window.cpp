@@ -218,6 +218,10 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		Okay::Input::mouseYPos = (float)GET_Y_LPARAM(lParam);
 		return 0;
 
+	case WM_MOUSEWHEEL:
+		Okay::Input::mouseWheelDir = GET_WHEEL_DELTA_WPARAM(wParam) * (1.f / 120.f);
+		return 0;
+
 	case WM_LBUTTONDOWN:
 		Okay::Input::mouseLeft = true;
 		return 0;

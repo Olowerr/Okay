@@ -35,8 +35,7 @@ namespace Okay
 		uint32_t numDirLights = 0u;
 	};
 
-	// FASTER THAN MULTIPLE MEMCPYS ?
-	struct GPUCamera
+	struct GPUCamera // Change to multiple memcpys ?
 	{
 		glm::mat4 viewProjMatrix;
 

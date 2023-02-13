@@ -29,23 +29,33 @@ void EditorCamera::start()
 void EditorCamera::update()
 {
 	using namespace Okay;
+
+	targetDist += Input::getMouseWheelDir() * -1.f * targetDist * 0.06f;
+	if (targetDist < 1.f) 
+		targetDist = 1.f;
+
+	Transform& tra = getComponent<Transform>();
+	glm::vec3 fwd = tra.forward();
+
+	tra.position = targetPos - fwd * targetDist;
+
+	// Only apply rotation if L_ALT and leftMouse is down
 	if (!Input::isKeyDown(Key::L_ALT) || !Input::leftMouseDown())
 		return;
 
-	//const float frameSpeed = Time::getDT() * speed;
-
-	//const float xInput = (float)Input::isKeyDown(Key::D) - (float)Input::isKeyDown(Key::A);
-	//const float yInput = (float)Input::isKeyDown(Key::SPACE) - (float)Input::isKeyDown(Key::L_CTRL);
-	//const float zInput = (float)Input::isKeyDown(Key::W) - (float)Input::isKeyDown(Key::S);
-	const float xRot = Input::getMouseXDelta();
-	const float yRot = Input::getMouseYDelta();
-
-	Transform& tra = getComponent<Transform>();
-	
 	if (!skip)
 	{
+		const float xRot = Input::getMouseXDelta();
+		const float yRot = Input::getMouseYDelta();
+
 		tra.rotation.x += yRot * 0.003f;
 		tra.rotation.y += xRot * 0.003f;
+
+		tra.calculateMatrix();
+		fwd = tra.forward();
+
+		const glm::vec3 right = tra.right();
+		tra.position = targetPos - fwd * targetDist;
 	}
 	else
 	{
@@ -53,11 +63,6 @@ void EditorCamera::update()
 		skip = rotSkipTimer > 0.f;
 	}
 
-	tra.calculateMatrix();
-	const glm::vec3 fwd = tra.forward();
-	const glm::vec3 right = tra.right();
-
-	tra.position = targetPos - fwd * targetDist;
 
 	// Loop around mouse if moved outside window
 	Window* pWindow = Window::getActiveWindow();
