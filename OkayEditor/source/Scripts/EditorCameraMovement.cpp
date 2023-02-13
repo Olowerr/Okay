@@ -30,7 +30,7 @@ void EditorCamera::update()
 {
 	using namespace Okay;
 
-	targetDist += Input::getMouseWheelDir() * -1.f * targetDist * 0.06f;
+	targetDist += std::min(Input::getMouseWheelDir() * -1.f * targetDist * 0.06f, 10.f);
 	if (targetDist < 1.f) 
 		targetDist = 1.f;
 
@@ -39,23 +39,33 @@ void EditorCamera::update()
 
 	tra.position = targetPos - fwd * targetDist;
 
-	// Only apply rotation if L_ALT and leftMouse is down
-	if (!Input::isKeyDown(Key::L_ALT) || !Input::leftMouseDown())
+	if (!Input::leftMouseDown())
 		return;
 
 	if (!skip)
 	{
-		const float xRot = Input::getMouseXDelta();
-		const float yRot = Input::getMouseYDelta();
+		const float xMouse = Input::getMouseXDelta();
+		const float yMouse = Input::getMouseYDelta();
 
-		tra.rotation.x += yRot * 0.003f;
-		tra.rotation.y += xRot * 0.003f;
+		// Rotation
+		if (Input::isKeyDown(Key::L_ALT))
+		{
+			tra.rotation.x += yMouse * 0.003f;
+			tra.rotation.y += xMouse * 0.003f;
 
-		tra.calculateMatrix();
-		fwd = tra.forward();
+			tra.calculateMatrix();
+			fwd = tra.forward();
 
-		const glm::vec3 right = tra.right();
-		tra.position = targetPos - fwd * targetDist;
+			tra.position = targetPos - fwd * targetDist;
+		}
+
+		// Movement
+		else if (Input::isKeyDown(Key::L_SHIFT))
+		{
+			const glm::vec3 right = tra.right();
+			const glm::vec3 up = tra.up();
+			targetPos += ((right * -xMouse * 0.03f) + (up * yMouse * 0.03f)) * targetDist * 0.1f;
+		}
 	}
 	else
 	{
@@ -64,7 +74,7 @@ void EditorCamera::update()
 	}
 
 
-	// Loop around mouse if moved outside window
+	// Loop around mouse if is moved outside window
 	Window* pWindow = Window::getActiveWindow();
 	if (!pWindow)
 		return;
