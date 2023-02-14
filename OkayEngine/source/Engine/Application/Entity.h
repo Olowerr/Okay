@@ -15,8 +15,9 @@ namespace Okay
 		{ }
 
 		Entity(entt::entity id, entt::registry* pReg)
-			:entityId(id), pReg(pReg) 
+			:entityId((entt::entity)id), pReg(pReg) 
 		{ }
+		
 
 		template<typename T, typename... Args>
 		inline T& addComponent(Args&&... args);
@@ -46,6 +47,8 @@ namespace Okay
 		inline entt::entity getID() const		{ return entityId; }
 
 		inline bool isValid() const				{ return pReg ? pReg->valid(entityId) : false; }
+
+		inline bool operator== (const Okay::Entity& other) { return entityId == other.entityId; }
 
 	private:
 		entt::registry* pReg;

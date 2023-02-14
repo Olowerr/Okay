@@ -29,6 +29,7 @@ private:
 	uint32_t selectionID;
 
 	void displayEntities();
+	inline Okay::Entity getEntity(uint32_t id);
 
 	void displayInspector();
 	void addComponents(Okay::Entity entity);
@@ -58,6 +59,11 @@ private:
 	template<typename T>
 	bool selectAsset(uint32_t selectedShaderID, uint32_t& result, const std::vector<T>& list, const char* listLabel);
 };
+
+inline Okay::Entity Editor::getEntity(uint32_t id)
+{
+	return Okay::Entity((entt::entity)id, &scene.getRegistry());
+}
 
 template<typename T, typename... Args>
 bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunction)(uint32_t), const char* listLabel)

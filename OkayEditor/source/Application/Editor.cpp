@@ -147,6 +147,7 @@ void Editor::displayEntities()
 	{
 		selectionID = (uint32_t)scene.createEntity().getID();
 		selectionType = SelectionType::Entity;
+		scene.getMainCamera().getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Remove"))
@@ -174,6 +175,7 @@ void Editor::displayEntities()
 		{
 			selectionID = (uint32_t)entity;
 			selectionType = SelectionType::Entity;
+			scene.getMainCamera().getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 		}
 
 		//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
@@ -214,7 +216,7 @@ void Editor::displayInspector()
 		break;
 	case Editor::SelectionType::Entity:
 	{
-		Okay::Entity entity((entt::entity)selectionID, &scene.getRegistry());
+		Okay::Entity entity = getEntity(selectionID);
 		displayComponents(entity);
 		addComponents(entity);
 	}

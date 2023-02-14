@@ -39,6 +39,28 @@ void EditorCamera::update()
 
 	tra.position = targetPos - fwd * targetDist;
 
+	if (lerpToFocus)
+	{
+		// Ensure 
+
+		const glm::vec3 entityPos = focusedEntity.getComponent<Transform>().position;
+		targetPos = glm::mix(targetPos, entityPos, focusLerpT);
+		focusLerpT += Time::getApplicationDT() * 0.5f;
+
+		if (focusLerpT >= 1.f)
+		{
+			targetPos = entityPos;
+			lerpToFocus = false;
+		}
+	}
+
+	if (!lerpToFocus && Input::isKeyPressed(Key::F) && focusedEntity.isValid())
+	{
+		focusLerpT = 0.f;
+		lerpToFocus = true;
+	}
+
+
 	if (!Input::leftMouseDown())
 		return;
 
@@ -67,6 +89,7 @@ void EditorCamera::update()
 			targetPos += ((right * -xMouse * 0.03f) + (up * yMouse * 0.03f)) * targetDist * 0.1f;
 		}
 	}
+
 	else
 	{
 		rotSkipTimer -= Time::getApplicationDT();

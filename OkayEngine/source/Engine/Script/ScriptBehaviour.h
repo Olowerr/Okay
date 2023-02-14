@@ -30,10 +30,14 @@ namespace Okay
 
 		template<typename T>
 		inline T& getScript();
+
+		inline Entity getEntity();
 	
 	private:
 		Entity entity;
 	};
+
+	inline Entity ScriptBehaviour::getEntity() { return entity; }
 
 	template<typename T, typename... Args>
 	inline T& ScriptBehaviour::addComponent(Args&&... args)
