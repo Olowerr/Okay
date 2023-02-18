@@ -244,23 +244,20 @@ void Editor::displayInspector()
 	ImGui::Begin("Other", nullptr);
 	ImGui::PushItemWidth(-15.f);
 
-	static float timer = 0.f;
 	static float dtSum = 0.f;
 	static int frameCount = 0;
-	static float dispDt = Okay::Time::getApplicationDT();
+	static float avgDt = 1.f;
 
-	dtSum += Okay::Time::getApplicationDT();
 	frameCount++;
-	if ((timer += Okay::Time::getApplicationDT()) > 0.5f)
+	if ((dtSum += Okay::Time::getApplicationDT()) > 0.5f)
 	{
-		dispDt = dtSum / frameCount;
-		timer -= 0.5f;
-		dtSum = 0.f;
+		avgDt = dtSum / frameCount;
+		dtSum -= 0.5f;
 		frameCount = 0;
 	}
 
-	ImGui::Text("FPS: %.6f", 1.f / dispDt);
-	ImGui::Text("MS:  %.6f", dispDt * 1000.f);
+	ImGui::Text("FPS: %.6f", 1.f / avgDt);
+	ImGui::Text("MS:  %.6f", avgDt * 1000.f);
 
 	ImGui::PopItemWidth();
 	ImGui::End();
