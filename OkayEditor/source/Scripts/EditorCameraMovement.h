@@ -17,8 +17,10 @@ public:
 private:
 	static inline const float SKIP_DURATION = 0.01f;
 	static inline const float PADDING = 5.f;
+	static inline const float FOCUS_TIME = 0.1f;
 
 	Okay::Entity focusedEntity;
+	glm::vec3 lerpStartPos;
 	bool lerpToFocus;
 	float focusLerpT;
 

@@ -5,6 +5,8 @@
 #include <Engine/Components/Transform.h>
 #include <Engine/Application/Window.h>
 
+#include "imgui/imgui.h"
+
 EditorCamera::EditorCamera(Okay::Entity entity)
 	:ScriptBehaviour(entity), targetPos(0.f), targetDist(10.f), rotSkipTimer(0.f)
 {
@@ -36,16 +38,13 @@ void EditorCamera::update()
 
 	Transform& tra = getComponent<Transform>();
 	glm::vec3 fwd = tra.forward();
-
 	tra.position = targetPos - fwd * targetDist;
 
 	if (lerpToFocus)
 	{
-		// Ensure 
-
 		const glm::vec3 entityPos = focusedEntity.getComponent<Transform>().position;
-		targetPos = glm::mix(targetPos, entityPos, focusLerpT);
-		focusLerpT += Time::getApplicationDT() * 0.5f;
+		targetPos = glm::mix(lerpStartPos, entityPos, focusLerpT);
+		focusLerpT += Time::getApplicationDT() / FOCUS_TIME;
 
 		if (focusLerpT >= 1.f)
 		{
@@ -56,6 +55,7 @@ void EditorCamera::update()
 
 	if (!lerpToFocus && Input::isKeyPressed(Key::F) && focusedEntity.isValid())
 	{
+		lerpStartPos = targetPos;
 		focusLerpT = 0.f;
 		lerpToFocus = true;
 	}
