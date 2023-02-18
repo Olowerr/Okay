@@ -10,6 +10,6 @@ int main(int argc, char* args[])
 	
 	Editor editor(scene);
 	editor.run();
-
+	
 	return 0;
 }

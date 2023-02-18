@@ -218,7 +218,7 @@ SET ERRORLEVEL=0</Command>
   <ItemGroup>
     <ClCompile Include="source\Application\Editor.cpp" />
     <ClCompile Include="source\Application\EditorDisplay.cpp" />
-    <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\EditorMain.cpp" />
     <ClCompile Include="source\Scripts\EditorCameraMovement.cpp" />
   </ItemGroup>
   <ItemGroup>
