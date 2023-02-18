@@ -33,8 +33,8 @@ void EditorCamera::update()
 	using namespace Okay;
 
 	targetDist += std::min(Input::getMouseWheelDir() * -1.f * targetDist * 0.06f, 10.f);
-	if (targetDist < 1.f) 
-		targetDist = 1.f;
+	if (targetDist < 0.1f) 
+		targetDist = 0.1f;
 
 	Transform& tra = getComponent<Transform>();
 	glm::vec3 fwd = tra.forward();
@@ -61,7 +61,7 @@ void EditorCamera::update()
 	}
 
 
-	if (!Input::leftMouseDown())
+	if (!Input::leftMouseDown() || (!Input::isKeyDown(Key::L_ALT) && !Input::isKeyDown(L_SHIFT)))
 		return;
 
 	if (!skip)
@@ -89,7 +89,6 @@ void EditorCamera::update()
 			targetPos += ((right * -xMouse * 0.03f) + (up * yMouse * 0.03f)) * targetDist * 0.1f;
 		}
 	}
-
 	else
 	{
 		rotSkipTimer -= Time::getApplicationDT();
