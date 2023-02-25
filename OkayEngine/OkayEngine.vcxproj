@@ -288,6 +288,7 @@
     <ClCompile Include="source\Engine\Application\Input\Input.cpp" />
     <ClCompile Include="source\Engine\Application\Scene.cpp" />
     <ClCompile Include="source\Engine\Graphics\Assets\SkyBox.cpp" />
+    <ClCompile Include="source\Engine\Okay\Okay.cpp" />
     <ClCompile Include="source\Engine\Script\DefaultScripts\FreeLookMovement.cpp" />
     <ClCompile Include="source\Engine\Script\ScriptComponent.cpp" />
     <ClCompile Include="source\Engine\Application\Window.cpp" />

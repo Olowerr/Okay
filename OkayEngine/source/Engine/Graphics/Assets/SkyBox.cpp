@@ -5,6 +5,8 @@
 
 namespace Okay
 {
+	std::unique_ptr<SkyBox::RenderResources> SkyBox::renderResources;
+
 	SkyBox::SkyBox()
 		:pTextureCube(nullptr), pTextureCubeSRV(nullptr)
 	{
@@ -102,5 +104,21 @@ namespace Okay
 
 		texturePaths[idx] = path;
 		return true;
+	}
+
+
+	void SkyBox::init(ContentBrowser& contentBrowser)
+	{
+		return;
+
+		renderResources = std::make_unique<SkyBox::RenderResources>();
+
+		bool succeeded = contentBrowser.importFile("engine_resources/meshes/cube.fbx");
+		OKAY_ASSERT(succeeded, "Failed loading SkyBox mesh");
+
+		renderResources->cubeMeshID = contentBrowser.getNumMeshes();
+
+		renderResources->pVS;
+
 	}
 }

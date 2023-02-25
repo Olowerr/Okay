@@ -15,9 +15,8 @@ if (!(condition))\
 {\
 	const std::wstring message(L"(" L#condition L") was false. Location: " __FILE__ ", Line: ");\
 	const std::wstring message2("\nFunction: " __FUNCTIONW__);\
-	if (MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + message2 + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_RETRYCANCEL) == IDCANCEL)\
-		exit(1);\
-	assert(false);\
+	MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + message2 + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_OK);\
+	__debugbreak();\
 }0
 
 #define PRINT_VEC3_WNAME(vec) printf(#vec " - (%.3f, %.3f, %.3f)\n", vec.x, vec.y, vec.z);
@@ -38,7 +37,11 @@ if (!(condition))\
 #define UNORM_TO_UCHAR(value)	unsigned char((value) * UCHAR_MAX)
 #define UCHAR_TO_UNORM(value)	float((value) / (float)UCHAR_MAX)
 
+#define SHADER_PATH "../OkayEngine/engine_resources/shaders/bin/"
+
 namespace Okay
 {
 	constexpr uint32_t INVALID_UINT = ~0u;
+
+	bool readBinary(std::string_view shaderName, std::string& output);
 }

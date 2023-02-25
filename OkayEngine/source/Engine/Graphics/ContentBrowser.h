@@ -29,7 +29,7 @@ namespace Okay
 		template<typename... Args>
 		inline Mesh& addMesh(Args&&... args);
 
-		inline size_t getNumMeshes() const;
+		inline uint32_t getNumMeshes() const;
 		inline const std::vector<Mesh>& getMeshes() const;
 		inline Mesh& getMesh(uint32_t index);
 		inline const Mesh& getMesh(uint32_t index) const;
@@ -40,7 +40,7 @@ namespace Okay
 		template<typename Func, typename... Args>
 		void forEachTexture(const Func& function, Args&&... args);
 
-		inline size_t getNumTextures() const;
+		inline uint32_t getNumTextures() const;
 		inline const std::vector<Texture>& getTextures() const;
 		inline Texture& getTexture(uint32_t index);
 		inline const Texture& getTexture(uint32_t index) const;
@@ -54,7 +54,7 @@ namespace Okay
 		template<typename... Args>
 		inline Material& addMaterial(Args&&... args);
 
-		inline size_t getNumMaterials() const;
+		inline uint32_t getNumMaterials() const;
 		inline const std::vector<Material>& getMaterials() const;
 		inline Material& getMaterial(uint32_t index);
 		inline const Material& getMaterial(uint32_t index) const;
@@ -139,9 +139,9 @@ namespace Okay
 		return meshes[index];
 	}
 
-	inline size_t ContentBrowser::getNumMeshes() const
+	inline uint32_t ContentBrowser::getNumMeshes() const
 	{
-		return meshes.size();
+		return (uint32_t)meshes.size();
 	}
 
 	inline const std::vector<Mesh>& ContentBrowser::getMeshes() const
@@ -161,9 +161,9 @@ namespace Okay
 		return textures[index];
 	}
 
-	inline size_t ContentBrowser::getNumTextures() const
+	inline uint32_t ContentBrowser::getNumTextures() const
 	{
-		return textures.size();
+		return (uint32_t)textures.size();
 	}
 
 	inline const std::vector<Texture>& ContentBrowser::getTextures() const
@@ -183,9 +183,9 @@ namespace Okay
 		return materials[index];
 	}
 
-	inline size_t ContentBrowser::getNumMaterials() const
+	inline uint32_t ContentBrowser::getNumMaterials() const
 	{
-		return materials.size();
+		return (uint32_t)materials.size();
 	}
 
 	inline const std::vector<Material>& ContentBrowser::getMaterials() const

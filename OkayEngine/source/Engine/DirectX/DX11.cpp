@@ -142,6 +142,7 @@ HRESULT DX11::createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData,
 
 	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
+
 HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
@@ -151,4 +152,28 @@ HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer
 	desc.Buffer.NumElements = numElements;
 
 	return getInstance().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
+}
+
+bool DX11::createVertexShader(std::string_view csoPath, ID3D11VertexShader** ppVertexShader)
+{
+	std::string shaderData;
+	bool result = Okay::readBinary(csoPath, shaderData);
+	OKAY_ASSERT(result, "Failed reading Vertex Shader CSO");
+
+	HRESULT hr = getInstance().pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVertexShader);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Vertex Shader");
+
+	return true;
+}
+
+bool DX11::createPixelShader(std::string_view csoPath, ID3D11PixelShader** ppPixelShader)
+{
+	std::string shaderData;
+	bool result = Okay::readBinary(csoPath, shaderData);
+	OKAY_ASSERT(result, "Failed reading Pixel Shader CSO");
+
+	HRESULT hr = getInstance().pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, ppPixelShader);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Pixel Shader");
+
+	return true;
 }

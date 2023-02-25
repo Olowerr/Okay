@@ -53,7 +53,7 @@ namespace Okay
 			{
 				if (textures[j].getName() == fileName)
 				{
-					// TODO: Add Material::IdxTex_Description (To avoid this index cheat)
+					// TODO: Add Material::IdxTex_Description (To avoid this ptr index cheat)
 					(&matDesc.baseColourTexIndex)[i] = (uint32_t)j;
 					found = true;
 				}

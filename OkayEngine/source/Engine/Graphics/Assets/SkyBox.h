@@ -7,6 +7,8 @@
 
 namespace Okay
 {
+	class ContentBrowser;
+
 	class SkyBox
 	{
 	public:
@@ -23,6 +25,7 @@ namespace Okay
 		inline bool setNegativeZ(std::string_view path);
 
 		bool create();
+		static void init(ContentBrowser& contentBrowser);
 
 	private:
 		bool verifyAndSetPath(uint32_t idx, std::string_view path);
@@ -32,6 +35,19 @@ namespace Okay
 
 		ID3D11Texture2D* pTextureCube;
 		ID3D11ShaderResourceView* pTextureCubeSRV;
+
+
+	private: // Used during rendering
+		struct RenderResources
+		{
+			uint32_t cubeMeshID = INVALID_UINT;
+			ID3D11VertexShader* pVS = nullptr;
+			ID3D11PixelShader* pPS = nullptr;
+
+		};
+
+		static std::unique_ptr<RenderResources> renderResources;
+
 	};
 
 	inline bool SkyBox::setPositiveX(std::string_view path) { return verifyAndSetPath(0u, path); }

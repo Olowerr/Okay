@@ -20,7 +20,7 @@ namespace Okay
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
 		content.addShader(content, "Default");
-		content.importFile("../OkayEngine/engine_resources/DefaultTexture.png");
+		content.importFile("../OkayEngine/engine_resources/textures/DefaultTexture.png");
 		content.addMaterial(Material::Description()).setName("Default");
 
 		glm::mat4 Identity4x4(1.f);
@@ -359,7 +359,7 @@ namespace Okay
 			{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 
-		result = Shader::readShader("MeshVS", shaderData);
+		result = readBinary(SHADER_PATH "MeshVS.cso", shaderData);
 		OKAY_ASSERT(result, "Failed reading MeshVS.cso");
 
 		hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS);

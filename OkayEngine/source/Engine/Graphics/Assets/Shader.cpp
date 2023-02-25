@@ -9,38 +9,16 @@
 
 namespace Okay
 {
-	const std::string Shader::ShaderPath = "../OkayEngine/engine_resources/shaders/bin/";
-
-	bool Shader::readShader(std::string_view shaderName, std::string& output)
-	{
-		std::ifstream reader(ShaderPath + shaderName.data() + ".cso", std::ios::binary);
-		OKAY_VERIFY(reader);
-
-		reader.seekg(0, std::ios::end);
-		output.reserve((size_t)reader.tellg());
-		reader.seekg(0, std::ios::beg);
-
-		output.assign(std::istreambuf_iterator<char>(reader), std::istreambuf_iterator<char>());
-
-		return true;
-	}
-
 	Shader::Shader(const ContentBrowser& content)
 		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
 	{
-		setPixelShader("PhongPS");
+		setPixelShader(SHADER_PATH "PhongPS.cso");
 	}
 
 	Shader::Shader(const ContentBrowser& content, std::string_view name)
 		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
 	{
-		setPixelShader("PhongPS");
-	}
-
-	Shader::Shader(const ContentBrowser& content, std::string_view psPath, std::string_view name)
-		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
-	{
-		setPixelShader(psPath);
+		setPixelShader(SHADER_PATH "PhongPS.cso");
 	}
 
 	Shader::Shader(Shader&& other) noexcept
@@ -100,13 +78,9 @@ namespace Okay
 
 	void Shader::setPixelShader(std::string_view path)
 	{
-		std::string shaderData;
-		bool foundShader = Shader::readShader(path, shaderData);
-		OKAY_ASSERT(foundShader, "Failed to read shader");
-
 		ID3D11PixelShader* newPs = nullptr;
-		HRESULT hr = DX11::getInstance().getDevice()->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &newPs);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating pixel shader");
+
+		DX11::createPixelShader(path, &newPs);
 
 		DX11_RELEASE(pPS);
 		pPS = newPs;
@@ -120,6 +94,7 @@ namespace Okay
 
 	void Shader::reloadShader()
 	{
+		// TODO: remove start path, it's specific to OkayEditor
 		compilePixelShader("resources/Shaders/" + psName);
 	}
 

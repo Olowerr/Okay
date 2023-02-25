@@ -20,12 +20,8 @@ namespace Okay
 			int padding[2]{};
 		};
 
-		static const std::string ShaderPath;
-		static bool readShader(std::string_view shaderName, std::string& output);
-
 		Shader(const ContentBrowser& content);
 		Shader(const ContentBrowser& content, std::string_view name);
-		Shader(const ContentBrowser& content, std::string_view psPath, std::string_view name);
 		Shader(Shader&& other) noexcept;
 		~Shader();
 		void shutdown();
