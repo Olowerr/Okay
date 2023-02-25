@@ -76,7 +76,7 @@ namespace Okay
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 
-		HRESULT hr = DX11::getInstance().getDevice()->CreateTexture2D(&desc, data, &pTextureCube);
+		HRESULT hr = DX11::get().getDevice()->CreateTexture2D(&desc, data, &pTextureCube);
 		for (size_t i = 0; i < 6; i++)
 			stbi_image_free((void*)data[i].pSysMem);
 
@@ -88,7 +88,7 @@ namespace Okay
 		srvDesc.TextureCube.MipLevels = 1u;
 		srvDesc.TextureCube.MostDetailedMip = 0u;
 
-		hr = DX11::getInstance().getDevice()->CreateShaderResourceView(pTextureCube, &srvDesc, &pTextureCubeSRV);
+		hr = DX11::get().getDevice()->CreateShaderResourceView(pTextureCube, &srvDesc, &pTextureCubeSRV);
 		if (FAILED(hr))
 			pTextureCube->Release();
 
@@ -107,18 +107,19 @@ namespace Okay
 	}
 
 
-	void SkyBox::init(ContentBrowser& contentBrowser)
+	void SkyBox::init(ID3D11InputLayout* pPositionIL)
 	{
-		return;
+		OKAY_ASSERT(pPositionIL, "Position IL was nullptr");
 
 		renderResources = std::make_unique<SkyBox::RenderResources>();
 
-		bool succeeded = contentBrowser.importFile("engine_resources/meshes/cube.fbx");
+		bool succeeded = ContentBrowser::get().importFile("engine_resources/meshes/cube.fbx");
 		OKAY_ASSERT(succeeded, "Failed loading SkyBox mesh");
+		renderResources->cubeMeshID = ContentBrowser::get().getNumMeshes() - 1u;
 
-		renderResources->cubeMeshID = contentBrowser.getNumMeshes();
-
-		renderResources->pVS;
-
+		pPositionIL->AddRef();
+		renderResources->pPositionIL = pPositionIL;
+		DX11::createVertexShader(SHADER_PATH "SkyBoxVS.cso", &renderResources->pVS);
+		DX11::createPixelShader(SHADER_PATH "SkyBoxPS.cso", &renderResources->pPS);
 	}
 }

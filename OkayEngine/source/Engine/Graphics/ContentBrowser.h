@@ -13,13 +13,23 @@
 
 namespace Okay
 {
-	class ContentBrowser
+	class ContentBrowser // TODO: Clean up 
 	{
-	public:
-		static bool canLoadTexture(const char* path);
-
+	private:
 		ContentBrowser();
+	public:
+		ContentBrowser(const ContentBrowser&) = delete;
+		ContentBrowser(ContentBrowser&&) = delete;
+		ContentBrowser& operator=(const ContentBrowser&) = delete;
 		~ContentBrowser();
+
+		static inline ContentBrowser& get()
+		{
+			static ContentBrowser cb;
+			return cb;
+		}
+
+		static bool canLoadTexture(const char* path);
 
 		bool importFile(std::string_view path);
 
@@ -71,7 +81,6 @@ namespace Okay
 		inline Shader& getShader(uint32_t index);
 
 	private:
-
 		std::vector<Mesh> meshes;
 		std::vector<Texture> textures;
 		std::vector<Material> materials;

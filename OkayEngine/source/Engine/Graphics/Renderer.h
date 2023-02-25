@@ -5,6 +5,8 @@
 #include "Engine/Components/PointLight.h"
 #include "Engine/Components/DirectionalLight.h"
 
+#include <memory>
+
 namespace Okay
 {
 	class RenderTexture;
@@ -33,6 +35,8 @@ namespace Okay
 	{
 		uint32_t numPointLights = 0u;
 		uint32_t numDirLights = 0u;
+
+		uint32_t padding[2]{};
 	};
 
 	struct GPUCamera // Change to multiple memcpys ?
@@ -49,11 +53,12 @@ namespace Okay
 	class Renderer
 	{
 	public:
-		static const uint32_t DEFAULT_SHADER_IDX = 0u;
+		
+		static void init();
+		static const uint32_t DEFAULT_SHADER_IDX = 0u; // TODO: Fix, kinda sus no?
 
-		Renderer(RenderTexture* target, ContentBrowser& content);
+		Renderer(RenderTexture* target);
 		~Renderer();
-		void shutdown();
 
 		void submit(const MeshComponent& mesh, const Transform& transform);
 		void submit(const PointLight& light, const Transform& transform);
@@ -69,8 +74,10 @@ namespace Okay
 	private: // Misc
 		void onTargetResize();
 		RenderTexture* pRenderTarget;
-		const ContentBrowser& content;
+		
 		ID3D11DeviceContext* pDevContext;
+		ID3D11RasterizerState* pWireframeRS;
+		D3D11_VIEWPORT viewport;
 
 	private: // Assets to render
 		using MeshPair			= RenPair<const MeshComponent&, const glm::mat4&>;
@@ -81,45 +88,53 @@ namespace Okay
 		GPUCamera camData;
 
 		std::vector<MeshPair> meshes;
-
 		std::vector<PointLightPair> pointLights;
-		void expandPointLights();
-		void updatePointLightsBuffer();
-
 		std::vector<DirLightPair> dirLights;
-		void expandDirLights();
+
+		void updatePointLightsBuffer();
 		void updateDirLightsBuffer();
+	
+		void calculateCameraMatrix(Entity cameraEntity);
+
+	private: // Static PipelineResources
+
+		struct PipelineResources
+		{
+			PipelineResources() = default;
+			~PipelineResources();
+
+			// Buffers --- 
+			ID3D11Buffer* pCameraBuffer = nullptr;
+			ID3D11Buffer* pWorldBuffer = nullptr;
+			ID3D11Buffer* pMaterialBuffer = nullptr;
+			ID3D11Buffer* pShaderDataBuffer = nullptr;
+
+			ID3D11Buffer* pLightInfoBuffer = nullptr;
+			ID3D11Buffer* pPointLightBuffer = nullptr;
+			ID3D11Buffer* pDirLightBuffer = nullptr;
+			ID3D11ShaderResourceView* pPointLightSRV = nullptr;
+			ID3D11ShaderResourceView* pDirLightSRV = nullptr;
+			uint32_t maxPointLights = 0u;
+			uint32_t maxDirLights = 0u;
 
 
-	private: // Buffers
-		ID3D11Buffer* pCameraBuffer;
-		ID3D11Buffer* pWorldBuffer;
-		ID3D11Buffer* pMaterialBuffer;
-		ID3D11Buffer* pShaderDataBuffer;
+			// Pipeline states(?) ---
+			ID3D11RasterizerState* pWireframeRS = nullptr;
 
-		ID3D11Buffer* pLightInfoBuffer;
-		ID3D11Buffer* pPointLightBuffer;
-		ID3D11ShaderResourceView* pPointLightSRV;
-		ID3D11Buffer* pDirLightBuffer;
-		ID3D11ShaderResourceView* pDirLightSRV;
+			ID3D11InputLayout* pMeshIL = nullptr;
+			ID3D11VertexShader* pMeshVS = nullptr;
 
-	private: // Pipelines
-		void bindNecessities();
-		D3D11_VIEWPORT viewport;
-		ID3D11RasterizerState* pRSWireFrame;
+			ID3D11InputLayout* pSkeletalIL = nullptr;
+			ID3D11VertexShader* pSkeletalVS = nullptr;
+		};
 
-		// Static meshes
-		void bindMeshPipeline();
-		ID3D11InputLayout* pMeshIL;
-		ID3D11VertexShader* pMeshVS;
+		static std::unique_ptr<PipelineResources> pipeline;
 
-		// Skeletal meshes
-		void bindSkeletalPipeline();
-		ID3D11InputLayout* pAniIL;
-		ID3D11VertexShader* pAniVS;
+		static void expandPointLights();
+		static void expandDirLights();
 
-	private: // Create Shaders
-		void createVertexShaders();
-		void createPixelShaders();
+		static void bindMeshPipeline();
+		static void bindSkeletalPipeline();
+
 	};
 }

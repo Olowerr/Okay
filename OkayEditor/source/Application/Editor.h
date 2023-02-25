@@ -7,7 +7,7 @@
 
 #include "imgui/imgui.h"
 
-class Editor : public Application
+class Editor : public Application // TODO: Inheritance isn't neccessary here, restructure?
 {
 public:
 	Editor(std::string_view startScene);
@@ -17,6 +17,7 @@ public:
 	virtual void run() override;
 
 private:
+	Okay::ContentBrowser& content;
 	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;
 
@@ -81,8 +82,10 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 		ImGui::Image(tex.getSRV(), { ImVec2(15.f, 15.f) });
 		idx++;
 	};
+	
+	ID3D11ShaderResourceView* previewImg = selectedTexID != Okay::INVALID_UINT ? 
+		content.getTexture(selectedTexID).getSRV() : nullptr;
 
-	ID3D11ShaderResourceView* previewImg = selectedTexID != Okay::INVALID_UINT ? content.getTexture(selectedTexID).getSRV() : nullptr;
 	ImGui::Image(previewImg, ImVec2(15.f, 15.f));
 	ImGui::SameLine();
 	if (ImGui::BeginCombo(listLabel, previewImg ? content.getTexture(selectedTexID).getName().c_str() : nullptr))
@@ -93,7 +96,9 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 			pressed = true;
 		}
 		else
+		{
 			content.forEachTexture(lambdaSelectTex);
+		}
 
 		ImGui::EndCombo();
 	}

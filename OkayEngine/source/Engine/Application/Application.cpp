@@ -7,9 +7,9 @@
 
 Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
 	:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE),
-	renderer(&window.getRenderTexture(), content)
+	renderer(&window.getRenderTexture())
 {
-
+	Okay::Renderer::init();
 }
 
 Application::~Application()
@@ -83,7 +83,7 @@ void Application::initImgui()
 #pragma endregion Style
 
 	ImGui_ImplWin32_Init(window.getHWnd());
-	ImGui_ImplDX11_Init(DX11::getInstance().getDevice(), DX11::getInstance().getDeviceContext());
+	ImGui_ImplDX11_Init(DX11::get().getDevice(), DX11::get().getDeviceContext());
 }
 
 void Application::destroyImgui()

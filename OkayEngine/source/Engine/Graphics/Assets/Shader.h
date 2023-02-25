@@ -5,7 +5,6 @@
 
 namespace Okay
 {
-	class ContentBrowser;
 	class Texture;
 
 	class Shader
@@ -20,8 +19,8 @@ namespace Okay
 			int padding[2]{};
 		};
 
-		Shader(const ContentBrowser& content);
-		Shader(const ContentBrowser& content, std::string_view name);
+		Shader();
+		Shader(std::string_view name);
 		Shader(Shader&& other) noexcept;
 		~Shader();
 		void shutdown();
@@ -43,7 +42,6 @@ namespace Okay
 		inline const GPUData& getGPUData() const;
 
 	private:
-		const ContentBrowser& content;
 		std::string name;
 
 		GPUData gpuData;

@@ -11,7 +11,7 @@ namespace Okay
 		D3D11_TEXTURE2D_DESC desc = createDefaultDesc();
 		D3D11_SUBRESOURCE_DATA initData{pData, width * 4, 0};
 
-		DX11& dx11 = DX11::getInstance();
+		DX11& dx11 = DX11::get();
 		dx11.getDevice()->CreateTexture2D(&desc, &initData, &texture);
 		OKAY_ASSERT(texture != nullptr, "Failed creating DX11 Texture");
 

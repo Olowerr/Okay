@@ -9,20 +9,20 @@
 
 namespace Okay
 {
-	Shader::Shader(const ContentBrowser& content)
-		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
+	Shader::Shader()
+		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
 	{
 		setPixelShader(SHADER_PATH "PhongPS.cso");
 	}
 
-	Shader::Shader(const ContentBrowser& content, std::string_view name)
-		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT), content(content)
+	Shader::Shader(std::string_view name)
+		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
 	{
 		setPixelShader(SHADER_PATH "PhongPS.cso");
 	}
 
 	Shader::Shader(Shader&& other) noexcept
-		:name(std::move(other.name)), content(other.content), psName(std::move(other.psName)),
+		:name(std::move(other.name)), psName(std::move(other.psName)),
 		gpuData(std::move(other.gpuData))
 	{
 		pPS = other.pPS;
@@ -49,7 +49,7 @@ namespace Okay
 
 	void Shader::bind() const
 	{
-		ID3D11DeviceContext* pDevCon = DX11::getInstance().getDeviceContext();
+		ID3D11DeviceContext* pDevCon = DX11::get().getDeviceContext();
 		pDevCon->VSSetShaderResources(0, 1, &pHeightMap);
 		pDevCon->PSSetShader(pPS, nullptr, 0);
 	}
@@ -67,13 +67,13 @@ namespace Okay
 		}
 		
 		gpuData.hasHeightMap = TRUE;
-		pHeightMap = content.getTexture(index).getSRV();
+		pHeightMap = ContentBrowser::get().getTexture(index).getSRV();
 		pHeightMap->AddRef();
 	}
 
 	const Texture* Shader::getHeightMap() const
 	{
-		return heightMapIdx != Okay::INVALID_UINT ? &content.getTexture(heightMapIdx) : nullptr;
+		return heightMapIdx != Okay::INVALID_UINT ? &ContentBrowser::get().getTexture(heightMapIdx) : nullptr;
 	}
 
 	void Shader::setPixelShader(std::string_view path)
@@ -112,7 +112,7 @@ namespace Okay
 		ID3D11PixelShader* pNewPS = nullptr;
 		if (SUCCEEDED(hr))
 		{
-			DX11::getInstance().getDevice()->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, &pNewPS);
+			DX11::get().getDevice()->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, &pNewPS);
 			DX11_RELEASE(outData);
 			if (!pNewPS)
 				return;

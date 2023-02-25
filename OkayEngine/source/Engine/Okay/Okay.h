@@ -13,9 +13,9 @@
 #define OKAY_ASSERT(condition, devMsg)\
 if (!(condition))\
 {\
-	const std::wstring message(L"(" L#condition L") was false. Location: " __FILE__ ", Line: ");\
-	const std::wstring message2("\nFunction: " __FUNCTIONW__);\
-	MessageBoxW(NULL, (message + std::to_wstring(__LINE__) + message2 + L"\n\nMessage: " devMsg).c_str() , L"ERROR", MB_OK);\
+	const std::wstring message = std::wstring(L"(" L#condition L") was false. Location: " __FILE__ ", Line: ") +\
+			 std::to_wstring(__LINE__) + std::wstring("\nFunction: " __FUNCTIONW__); \
+	MessageBoxW(NULL, (message + L"\n\nMessage: " devMsg).c_str(), L"ERROR", MB_OK);\
 	__debugbreak();\
 }0
 
@@ -37,11 +37,12 @@ if (!(condition))\
 #define UNORM_TO_UCHAR(value)	unsigned char((value) * UCHAR_MAX)
 #define UCHAR_TO_UNORM(value)	float((value) / (float)UCHAR_MAX)
 
-#define SHADER_PATH "../OkayEngine/engine_resources/shaders/bin/"
+#define ENGINE_RESOURCES_PATH "../OkayEngine/engine_resources/"
+#define SHADER_PATH ENGINE_RESOURCES_PATH "shaders/bin/"
 
 namespace Okay
 {
 	constexpr uint32_t INVALID_UINT = ~0u;
 
-	bool readBinary(std::string_view shaderName, std::string& output);
+	bool readBinary(std::string_view binName, std::string& output);
 }

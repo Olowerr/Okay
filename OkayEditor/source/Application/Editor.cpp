@@ -10,38 +10,39 @@
 #include "imgui/imgui_impl_win32.h"
 
 Editor::Editor(std::string_view startScene)
-	:Application(L"Okay"), scene(renderer), 
-	gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
+	:Application(L"Okay"), scene(renderer), content(Okay::ContentBrowser::get())
+	, gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
 	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
 {
-	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/texTest.fbx");
-	content.importFile("C:/Users/oliver/source/repos/Okay/OkayEditor/resources/highPolyQuad.fbx");
+	using namespace Okay;
+
+	content.importFile("resources/texTest.fbx");
+	content.importFile("resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
 
-	Okay::Entity entity = scene.createEntity();
-	entity.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
-	entity.getComponent<Okay::Transform>().scale *= 2.f;
-	Okay::Entity floor = scene.createEntity();
-	floor.addComponent<Okay::MeshComponent>(1u);
-	floor.getComponent<Okay::Transform>().scale *= 5.f;
-	floor.getComponent<Okay::Transform>().position.y = -5.f;
+	Entity entity = scene.createEntity();
+	entity.addComponent<MeshComponent>(0u, 0u, 0u);
+	entity.getComponent<Transform>().scale *= 2.f;
+	Entity floor = scene.createEntity();
+	floor.addComponent<MeshComponent>(1u);
+	floor.getComponent<Transform>().scale *= 5.f;
+	floor.getComponent<Transform>().position.y = -5.f;
 
-	Okay::Entity light = scene.createEntity();
-	light.addComponent<Okay::MeshComponent>(0u, 0u, 0u);
-	light.getComponent<Okay::Transform>().scale *= 0.5f;
-	light.getComponent<Okay::Transform>().position.y = 2.f;
-	light.addComponent<Okay::PointLight>().intensity = 2.f;
+	Entity light = scene.createEntity();
+	light.addComponent<MeshComponent>(0u, 0u, 0u);
+	light.getComponent<Transform>().scale *= 0.5f;
+	light.getComponent<Transform>().position.y = 2.f;
+	light.addComponent<PointLight>().intensity = 2.f;
 
-	Okay::Entity camera = scene.createEntity();
-	camera.addComponent<Okay::Camera>();
+	Entity camera = scene.createEntity();
+	camera.addComponent<Camera>();
 	camera.addScript<EditorCamera>();
 	scene.setMainCamera(camera);
 	renderer.setRenderTexture(&gameTexture);
 
-	testTex = new Okay::RenderTexture(512u, 512u, 
-		Okay::RenderTexture::SHADER_WRITE | Okay::RenderTexture::SHADER_READ, Okay::RenderTexture::F_8X1);
-	noiser = new Okay::PerlinNoise2D(4);
+	testTex = new RenderTexture(512u, 512u, RenderTexture::SHADER_WRITE | RenderTexture::SHADER_READ, RenderTexture::F_8X1);
+	noiser = new PerlinNoise2D(4);
 	noiser->generateTexture(testTex->getBuffer());
 }
 
@@ -105,7 +106,7 @@ void Editor::endFrame()
 	ImGui::End();
 	ImGui::PopStyleVar();
 
-	DX11::getInstance().getDeviceContext()->OMSetRenderTargets(1, window.getRenderTexture().getRTV(), nullptr);
+	DX11::get().getDeviceContext()->OMSetRenderTargets(1, window.getRenderTexture().getRTV(), nullptr);
 	Application::endFrameImGui();
 }
 

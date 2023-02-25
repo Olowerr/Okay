@@ -15,7 +15,7 @@ public:
 	DX11(DX11&&) = delete;
 	DX11& operator=(const DX11&) = delete;
 
-	static inline DX11& getInstance()
+	static inline DX11& get()
 	{
 		static DX11 dx11;
 		return dx11;

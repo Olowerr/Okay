@@ -46,7 +46,7 @@ namespace Okay
 	{
 		shutdown();
 
-		DX11& dx11 = DX11::getInstance();
+		DX11& dx11 = DX11::get();
 		dx11.createIndexBuffer(&indexBuffer, data.indices.data(), uint32_t(sizeof(uint32_t) * data.indices.size()));
 
 		dx11.createVertexBuffer(&vertexBuffers[0], data.positions.data(), uint32_t(sizeof(glm::vec3) * data.positions.size()));

@@ -127,7 +127,7 @@ void Editor::displayAssetList()
 	{
 		selectionID = (uint32_t)content.getShaders().size();
 		selectionType = SelectionType::Shader;
-		content.addShader(content, "New shader");
+		content.addShader("New shader");
 	}
 	IMGUI_DISPLAY_ASSET_END();
 }

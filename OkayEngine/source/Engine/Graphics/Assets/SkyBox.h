@@ -7,11 +7,12 @@
 
 namespace Okay
 {
-	class ContentBrowser;
 
 	class SkyBox
 	{
 	public:
+		static void init(ID3D11InputLayout* pPositionIL);
+
 		SkyBox();
 		SkyBox(SkyBox&& other) noexcept;
 		~SkyBox();
@@ -25,7 +26,6 @@ namespace Okay
 		inline bool setNegativeZ(std::string_view path);
 
 		bool create();
-		static void init(ContentBrowser& contentBrowser);
 
 	private:
 		bool verifyAndSetPath(uint32_t idx, std::string_view path);
@@ -36,11 +36,20 @@ namespace Okay
 		ID3D11Texture2D* pTextureCube;
 		ID3D11ShaderResourceView* pTextureCubeSRV;
 
-
-	private: // Used during rendering
+			
+	private: // statics used during rendering
 		struct RenderResources
 		{
+			RenderResources() = default;
+			~RenderResources() 
+			{
+				DX11_RELEASE(pPositionIL);
+				DX11_RELEASE(pVS);
+				DX11_RELEASE(pPS);
+			}
+
 			uint32_t cubeMeshID = INVALID_UINT;
+			ID3D11InputLayout* pPositionIL = nullptr;
 			ID3D11VertexShader* pVS = nullptr;
 			ID3D11PixelShader* pPS = nullptr;
 

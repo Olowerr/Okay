@@ -15,78 +15,158 @@
 
 namespace Okay
 {
-	Renderer::Renderer(RenderTexture* pRenderTarget, ContentBrowser& content)
-		:pMeshIL(), pMeshVS(), pDevContext(DX11::getInstance().getDeviceContext()), content(content), pRenderTarget(pRenderTarget)
+	std::unique_ptr<Renderer::PipelineResources> Renderer::pipeline;
+
+	void Renderer::init()
 	{
-		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
-		content.addShader(content, "Default");
-		content.importFile("../OkayEngine/engine_resources/textures/DefaultTexture.png");
+		bool result = false;
+		HRESULT hr = E_FAIL;
+
+		ContentBrowser& content = ContentBrowser::get();
+		DX11& dx11 = DX11::get();
+
+		content.addShader("Default");
+		content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
 		content.addMaterial(Material::Description()).setName("Default");
 
-		glm::mat4 Identity4x4(1.f);
+		pipeline = std::make_unique<PipelineResources>();
 
-		DX11::createConstantBuffer(&pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
-		DX11::createConstantBuffer(&pCameraBuffer, nullptr, sizeof(GPUCamera), false);
-		DX11::createConstantBuffer(&pWorldBuffer, &Identity4x4, sizeof(glm::mat4), false);
-		DX11::createConstantBuffer(&pLightInfoBuffer, nullptr, 16, false);
-		DX11::createConstantBuffer(&pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
+		// Buffers
+		{ 
+			hr = DX11::createConstantBuffer(&pipeline->pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating materialBuffer");
 
-		expandPointLights();
-		expandDirLights();
-		createVertexShaders();
-		createPixelShaders();
+			hr = DX11::createConstantBuffer(&pipeline->pCameraBuffer, nullptr, sizeof(GPUCamera), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating cameraBuffer");
 
-		// Sampler
-		{
-			ID3D11SamplerState* simp;
-			D3D11_SAMPLER_DESC desc{};
-			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.MinLOD = -FLT_MAX;
-			desc.MaxLOD = FLT_MAX;
-			desc.MipLODBias = 0.f;
-			desc.MaxAnisotropy = 1u;
-			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			DX11::getInstance().getDevice()->CreateSamplerState(&desc, &simp);
+			hr = DX11::createConstantBuffer(&pipeline->pWorldBuffer, nullptr, sizeof(glm::mat4), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating worldBuffer");
 
-			pDevContext->PSSetSamplers(0, 1, &simp);
-			pDevContext->VSSetSamplers(0, 1, &simp);
-			simp->Release();
+			hr = DX11::createConstantBuffer(&pipeline->pLightInfoBuffer, nullptr, sizeof(LightInfo), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating lightInfoBuffer");
+
+			hr = DX11::createConstantBuffer(&pipeline->pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating shaderDataBuffer");
+
+			expandPointLights();
+			expandDirLights();
 		}
 
+		// Wireframe RS
+		{
+			D3D11_RASTERIZER_DESC rsDesc{};
+			rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+			rsDesc.CullMode = D3D11_CULL_NONE;
+			rsDesc.FrontCounterClockwise = FALSE;
+			rsDesc.DepthBias = 0;
+			rsDesc.SlopeScaledDepthBias = 0.0f;
+			rsDesc.DepthBiasClamp = 0.0f;
+			rsDesc.DepthClipEnable = TRUE;
+			rsDesc.ScissorEnable = FALSE;
+			rsDesc.MultisampleEnable = FALSE;
+			rsDesc.AntialiasedLineEnable = FALSE;
+			hr = dx11.getDevice()->CreateRasterizerState(&rsDesc, &pipeline->pWireframeRS);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating wireframeRS");
+		}
+		
+
+		// Basic linear sampler
+		{
+			ID3D11SamplerState* simp;
+			D3D11_SAMPLER_DESC simpDesc{};
+			simpDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			simpDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			simpDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			simpDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			simpDesc.MinLOD = -FLT_MAX;
+			simpDesc.MaxLOD = FLT_MAX;
+			simpDesc.MipLODBias = 0.f;
+			simpDesc.MaxAnisotropy = 1u;
+			simpDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+			hr = dx11.getDevice()->CreateSamplerState(&simpDesc, &simp);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating sampler");
+
+			dx11.getDeviceContext()->PSSetSamplers(0, 1, &simp);
+			dx11.getDeviceContext()->VSSetSamplers(0, 1, &simp);
+			simp->Release();
+		}
+		
+
+		// Input Layouts & Shaders
+		{
+			std::string shaderData;	
+
+			D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[3] = {
+				{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"UV",			0, DXGI_FORMAT_R32G32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+
+			result = readBinary(SHADER_PATH "MeshVS.cso", shaderData);
+			OKAY_ASSERT(result, "Failed reading MeshVS.cso");
+
+			hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pipeline->pMeshVS);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Vertex Shader");
+
+			hr = dx11.getDevice()->CreateInputLayout(inputLayoutDesc, 3, shaderData.c_str(), shaderData.length(), &pipeline->pMeshIL);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Input Layout");
+
+#if 0 // Skeletal Animation (OLD)
+			D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"WEIGHTS",	 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"UV",		 0, DXGI_FORMAT_R32G32_FLOAT,		2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+
+			result = Shader::readShader("SkeletalMeshVS.cso", shaderData);
+			OKAY_ASSERT(result, "Failed reading SkeletalMeshVS.cso");
+
+			hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pAniVS);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Vertex Shader");
+
+			hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pAniIL);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Input Layout");
+#endif
+		}
+
+		// Bind necessities
+		{
+			ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
+			pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			pDevContext->VSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
+			pDevContext->VSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
+			pDevContext->VSSetConstantBuffers(2, 1, &pipeline->pShaderDataBuffer);
+
+			pDevContext->PSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
+			pDevContext->PSSetConstantBuffers(3, 1, &pipeline->pMaterialBuffer);
+			pDevContext->PSSetShaderResources(3, 1, &pipeline->pPointLightSRV);
+			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pLightInfoBuffer);
+		}
+		
+	}
+
+	Renderer::Renderer(RenderTexture* pRenderTarget)
+		:pDevContext(DX11::get().getDeviceContext()), pRenderTarget(pRenderTarget)
+	{
+		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+		
 		meshes.reserve(10);
 		pointLights.reserve(10);
 		dirLights.reserve(2);
-
-		D3D11_RASTERIZER_DESC rsDesc{};
-		rsDesc.FillMode = D3D11_FILL_WIREFRAME;
-		rsDesc.CullMode = D3D11_CULL_NONE;
-		rsDesc.FrontCounterClockwise = FALSE;
-		rsDesc.DepthBias = 0;
-		rsDesc.SlopeScaledDepthBias = 0.0f;
-		rsDesc.DepthBiasClamp = 0.0f;
-		rsDesc.DepthClipEnable = TRUE;
-		rsDesc.ScissorEnable = FALSE;
-		rsDesc.MultisampleEnable = FALSE;
-		rsDesc.AntialiasedLineEnable = FALSE;
-
-		DX11::getInstance().getDevice()->CreateRasterizerState(&rsDesc, &pRSWireFrame);
-		OKAY_ASSERT(pRSWireFrame, "Failed to create wireframe RS");
 
 		viewport.TopLeftX = 0.f;
 		viewport.TopLeftY = 0.f;
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
 		onTargetResize();
-
-		bindNecessities();
 	}
 
 	Renderer::~Renderer()
 	{
-		shutdown();
+		DX11_RELEASE(pWireframeRS);
 	}
 
 	void Renderer::submit(const MeshComponent& mesh, const Transform& transform)
@@ -100,7 +180,7 @@ namespace Okay
 
 	void Renderer::submit(const PointLight& light, const Transform& transform)
 	{
-		if (pointLights.size() == pointLights.capacity())
+		if (pointLights.size() >= (uint32_t)pipeline->maxPointLights)
 			expandPointLights();
 
 		pointLights.emplace_back(light, transform);
@@ -109,7 +189,7 @@ namespace Okay
 
 	void Renderer::submit(const DirectionalLight& light, const Transform& transform)
 	{
-		if (dirLights.size() == dirLights.capacity())
+		if (dirLights.size() >= (uint32_t)pipeline->maxDirLights)
 			expandDirLights();
 		
 		dirLights.emplace_back(light, transform);
@@ -145,47 +225,14 @@ namespace Okay
 		dirLights.clear();
 	}
 
-	void Renderer::shutdown()
-	{
-		DX11_RELEASE(pCameraBuffer);
-		DX11_RELEASE(pWorldBuffer);
-		DX11_RELEASE(pMaterialBuffer);
-		DX11_RELEASE(pShaderDataBuffer);
-
-		DX11_RELEASE(pMeshIL);
-		DX11_RELEASE(pMeshVS);
-		DX11_RELEASE(pRSWireFrame);
-
-		DX11_RELEASE(pLightInfoBuffer);
-		DX11_RELEASE(pPointLightBuffer);
-		DX11_RELEASE(pPointLightSRV);
-		DX11_RELEASE(pDirLightBuffer);
-		DX11_RELEASE(pDirLightSRV);
-
-		DX11_RELEASE(pAniVS);
-		DX11_RELEASE(pAniIL);
-	}
-
 	void Renderer::render(Entity cameraEntity)
 	{
 		updatePointLightsBuffer();
 		updateDirLightsBuffer();
-		DX11::updateBuffer(pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
+		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
+		
+		calculateCameraMatrix(cameraEntity);
 
-		// MAKE FUNCTION
-		// Calculate viewProjection matrix
-		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
-		const Camera& camera = cameraEntity.getComponent<Camera>();
-		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
-		camTransform.calculateMatrix();
-		camData.direction = camTransform.forward();
-		camData.pos = camTransform.position;
-		camData.viewProjMatrix =  glm::transpose(camera.projectionMatrix *
-			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
-		DX11::updateBuffer(pCameraBuffer, &camData, sizeof(GPUCamera));
-
-
-		// Bind static mesh pipeline
 		bindMeshPipeline();
 
 		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
@@ -193,6 +240,8 @@ namespace Okay
 		ID3D11ShaderResourceView* textures[3] = {};
 		size_t i = 0;
 		glm::mat4 worldMatrix{};
+
+		ContentBrowser& content = ContentBrowser::get();
 
 		// Draw all statis meshes
 		for (i = 0; i < meshes.size(); i++)
@@ -208,9 +257,9 @@ namespace Okay
 			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
 			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
 
-			DX11::updateBuffer(pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
-			DX11::updateBuffer(pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
-			DX11::updateBuffer(pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
+			DX11::updateBuffer(pipeline->pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
+			DX11::updateBuffer(pipeline->pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
+			DX11::updateBuffer(pipeline->pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
 
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
@@ -219,7 +268,8 @@ namespace Okay
 			// VS
 			
 			// RS
-			
+			pDevContext->RSSetState(pWireframeRS);
+
 			// PS
 			shader.bind();
 			pDevContext->PSSetShaderResources(0u, 3u, textures);
@@ -234,33 +284,40 @@ namespace Okay
 
 	void Renderer::setWireframe(bool wireFrame)
 	{
-		pDevContext->RSSetState(wireFrame ? pRSWireFrame : nullptr);
+		if (wireFrame)
+		{
+			pWireframeRS = pipeline->pWireframeRS;
+			pWireframeRS->AddRef();
+		}
+		else
+		{
+			DX11_RELEASE(pWireframeRS);
+		}
 	}
 
 	void Renderer::expandPointLights()
 	{
-		static const size_t Increase = 5;
 		static const size_t GPUPointLightSize = sizeof(PointLight) + sizeof(glm::vec3);
 		HRESULT hr = E_FAIL;
 
-		DX11_RELEASE(pPointLightBuffer);
-		DX11_RELEASE(pPointLightSRV);
+		DX11_RELEASE(pipeline->pPointLightBuffer);
+		DX11_RELEASE(pipeline->pPointLightSRV);
 
-		pointLights.reserve(pointLights.size() + Increase);
+		pipeline->maxPointLights += 5u;
 
-		hr = DX11::createStructuredBuffer(&pPointLightBuffer, pointLights.data(), GPUPointLightSize, (uint32_t)pointLights.capacity(), false);
+		hr = DX11::createStructuredBuffer(&pipeline->pPointLightBuffer, nullptr, GPUPointLightSize, pipeline->maxPointLights, false);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight structured buffer");
 
-		hr = DX11::createStructuredSRV(&pPointLightSRV, pPointLightBuffer, (uint32_t)pointLights.capacity());
+		hr = DX11::createStructuredSRV(&pipeline->pPointLightSRV, pipeline->pPointLightBuffer, pipeline->maxPointLights);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight SRV");
 
-		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
+		DX11::get().getDeviceContext()->PSSetShaderResources(3, 1, &pipeline->pPointLightSRV);
 	}
 
 	void Renderer::updatePointLightsBuffer()
 	{
 		D3D11_MAPPED_SUBRESOURCE sub;
-		if (FAILED(pDevContext->Map(pPointLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+		if (FAILED(pDevContext->Map(pipeline->pPointLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 			return;
 
 		char* location = (char*)sub.pData;
@@ -273,33 +330,32 @@ namespace Okay
 			location += sizeof(glm::vec3);
 		}
 
-		pDevContext->Unmap(pPointLightBuffer, 0);
+		pDevContext->Unmap(pipeline->pPointLightBuffer, 0);
 	}
 
 	void Renderer::expandDirLights()
-	{
-		static const size_t Increase = 5;
+	{;
 		static const size_t GPUDirLightSize = sizeof(DirectionalLight) + sizeof(glm::vec3);
 		HRESULT hr = E_FAIL;
 
-		DX11_RELEASE(pDirLightBuffer);
-		DX11_RELEASE(pDirLightSRV);
+		DX11_RELEASE(pipeline->pDirLightBuffer);
+		DX11_RELEASE(pipeline->pDirLightSRV);
 
-		dirLights.reserve(dirLights.size() + Increase);
+		pipeline->maxDirLights += 5u;
 
-		hr = DX11::createStructuredBuffer(&pDirLightBuffer, dirLights.data(), GPUDirLightSize, (uint32_t)dirLights.capacity(), false);
+		hr = DX11::createStructuredBuffer(&pipeline->pDirLightBuffer, nullptr, GPUDirLightSize, pipeline->maxDirLights, false);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating dirLight structured buffer");
 
-		hr = DX11::createStructuredSRV(&pDirLightSRV, pDirLightBuffer, (uint32_t)dirLights.capacity());
+		hr = DX11::createStructuredSRV(&pipeline->pDirLightSRV, pipeline->pDirLightBuffer, pipeline->maxDirLights);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating dirLight SRV");
 
-		pDevContext->PSSetShaderResources(4, 1, &pDirLightSRV);
+		DX11::get().getDeviceContext()->PSSetShaderResources(4, 1, &pipeline->pDirLightSRV);
 	}
 
 	void Renderer::updateDirLightsBuffer()
 	{
 		D3D11_MAPPED_SUBRESOURCE sub;
-		if (FAILED(pDevContext->Map(pDirLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+		if (FAILED(pDevContext->Map(pipeline->pDirLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 			return;
 
 		glm::vec3 dirLightDirection{};
@@ -314,82 +370,57 @@ namespace Okay
 			location += sizeof(glm::vec3);
 		}
 
-		pDevContext->Unmap(pDirLightBuffer, 0);
+		pDevContext->Unmap(pipeline->pDirLightBuffer, 0);
 	}
 
-	void Renderer::bindNecessities()
+	void Renderer::calculateCameraMatrix(Entity cameraEntity)
 	{
-		pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		// Calculate viewProjection matrix
+		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
 
-		pDevContext->VSSetConstantBuffers(0, 1, &pCameraBuffer);
-		pDevContext->VSSetConstantBuffers(1, 1, &pWorldBuffer);
-		pDevContext->VSSetConstantBuffers(2, 1, &pShaderDataBuffer);
+		const Camera& camera = cameraEntity.getComponent<Camera>();
+		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 
-		pDevContext->RSSetViewports(1u, &viewport);
+		camTransform.calculateMatrix();
+		camData.direction = camTransform.forward();
+		camData.pos = camTransform.position;
+		camData.viewProjMatrix = glm::transpose(camera.projectionMatrix *
+			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
 
-		pDevContext->PSSetConstantBuffers(0, 1, &pCameraBuffer);
-		pDevContext->PSSetConstantBuffers(3, 1, &pMaterialBuffer);
-		pDevContext->PSSetShaderResources(3, 1, &pPointLightSRV);
-		pDevContext->PSSetConstantBuffers(4, 1, &pLightInfoBuffer);
-
+		DX11::updateBuffer(pipeline->pCameraBuffer, &camData, sizeof(GPUCamera));
 	}
 
 	void Renderer::bindMeshPipeline()
 	{
-		pDevContext->IASetInputLayout(pMeshIL);
-		pDevContext->VSSetShader(pMeshVS, nullptr, 0);
+		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pMeshIL);
+		DX11::get().getDeviceContext()->VSSetShader(pipeline->pMeshVS, nullptr, 0);
 	}
 
 	void Renderer::bindSkeletalPipeline()
 	{
-		pDevContext->IASetInputLayout(pAniIL);
-		pDevContext->VSSetShader(pAniVS, nullptr, 0);
-	}
-
-	void Renderer::createVertexShaders()
-	{
-		DX11& dx11 = DX11::getInstance();
-		std::string shaderData;
-		bool result = false;
-		HRESULT hr = E_FAIL;
-
-		D3D11_INPUT_ELEMENT_DESC desc[3] = {
-			{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"UV",			0, DXGI_FORMAT_R32G32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-
-		result = readBinary(SHADER_PATH "MeshVS.cso", shaderData);
-		OKAY_ASSERT(result, "Failed reading MeshVS.cso");
-
-		hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pMeshVS);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Vertex Shader");
-
-		hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pMeshIL);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Input Layout");
-
 		return;
-
-		/*D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
-			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"JOINTIDX", 0, DXGI_FORMAT_R32G32B32A32_UINT,  1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"WEIGHTS",	 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"UV",		 0, DXGI_FORMAT_R32G32_FLOAT,		2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT,	3, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-
-		result = Shader::readShader("SkeletalMeshVS.cso", shaderData);
-		OKAY_ASSERT(result, "Failed reading SkeletalMeshVS.cso");
-
-		hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pAniVS);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Vertex Shader");
-
-		hr = dx11.getDevice()->CreateInputLayout(desc, 3, shaderData.c_str(), shaderData.length(), &pAniIL);
-		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skeletal mesh Input Layout");*/
+		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pSkeletalIL);
+		DX11::get().getDeviceContext()->VSSetShader(pipeline->pSkeletalVS, nullptr, 0);
 	}
-
-	void Renderer::createPixelShaders()
+	
+	Renderer::PipelineResources::~PipelineResources()
 	{
+		DX11_RELEASE(pCameraBuffer);
+		DX11_RELEASE(pWorldBuffer);
+		DX11_RELEASE(pMaterialBuffer);
+		DX11_RELEASE(pShaderDataBuffer);
 
+		DX11_RELEASE(pMeshIL);
+		DX11_RELEASE(pMeshVS);
+		DX11_RELEASE(pWireframeRS);
+
+		DX11_RELEASE(pLightInfoBuffer);
+		DX11_RELEASE(pPointLightBuffer);
+		DX11_RELEASE(pPointLightSRV);
+		DX11_RELEASE(pDirLightBuffer);
+		DX11_RELEASE(pDirLightSRV);
+
+		DX11_RELEASE(pSkeletalIL);
+		DX11_RELEASE(pSkeletalVS);
 	}
 }

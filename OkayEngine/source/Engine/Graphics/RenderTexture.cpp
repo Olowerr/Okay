@@ -77,7 +77,7 @@ namespace Okay
 	{
 		shutdown();
 
-		ID3D11Device* pDevice = DX11::getInstance().getDevice();
+		ID3D11Device* pDevice = DX11::get().getDevice();
 
 		D3D11_TEXTURE2D_DESC desc{};
 		desc.Width = width;
@@ -110,26 +110,26 @@ namespace Okay
 	void RenderTexture::clear()
 	{
 		static float white[4]{ 0.f, 0.f, 0.f, 1.f };
-		DX11::getInstance().getDeviceContext()->ClearRenderTargetView(rtv, white);
+		DX11::get().getDeviceContext()->ClearRenderTargetView(rtv, white);
 
 		if (dsv)
-			DX11::getInstance().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
+			DX11::get().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
 	}
 
 	void RenderTexture::clear(float* colour)
 	{
-		DX11::getInstance().getDeviceContext()->ClearRenderTargetView(rtv, colour);
+		DX11::get().getDeviceContext()->ClearRenderTargetView(rtv, colour);
 
 		if (dsv)
-			DX11::getInstance().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
+			DX11::get().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
 	}
 
 	void RenderTexture::clear(const glm::vec4& colour)
 	{
-		DX11::getInstance().getDeviceContext()->ClearRenderTargetView(rtv, &colour.r);
+		DX11::get().getDeviceContext()->ClearRenderTargetView(rtv, &colour.r);
 
 		if (dsv)
-			DX11::getInstance().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
+			DX11::get().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
 
 	}
 
@@ -154,7 +154,7 @@ namespace Okay
 	void RenderTexture::readFlgs(uint32_t flags)
 	{
 		this->flags = flags;
-		ID3D11Device* pDevice = DX11::getInstance().getDevice();
+		ID3D11Device* pDevice = DX11::get().getDevice();
 
 		if (CHECK_BIT(flags, BitPos::B_RENDER))
 		{

@@ -62,7 +62,7 @@ HRESULT DX11::createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UIN
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -77,7 +77,7 @@ HRESULT DX11::createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
@@ -92,17 +92,17 @@ HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	D3D11_SUBRESOURCE_DATA inData{};
 	inData.pSysMem = pData;
 	inData.SysMemPitch = inData.SysMemSlicePitch = 0;
-	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 void DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize)
 {
 	D3D11_MAPPED_SUBRESOURCE sub;
-	if (FAILED(getInstance().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+	if (FAILED(get().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 		return;
 
 	memcpy(sub.pData, pData, byteSize);
-	getInstance().pDeviceContext->Unmap(pBuffer, 0);
+	get().pDeviceContext->Unmap(pBuffer, 0);
 }
 
 void DX11::updateTexture(ID3D11Texture2D* pBuffer, const void* pData, uint32_t elementByteSize, uint32_t width, uint32_t height)
@@ -123,7 +123,7 @@ void DX11::updateTexture(ID3D11Texture2D* pBuffer, const void* pData, uint32_t e
 	box.right = width;
 	box.bottom = height;
 
-	getInstance().pDeviceContext->UpdateSubresource(pBuffer, 0, &box, pData, width * elementByteSize, 0u);
+	get().pDeviceContext->UpdateSubresource(pBuffer, 0, &box, pData, width * elementByteSize, 0u);
 }
 
 HRESULT DX11::createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable)
@@ -140,7 +140,7 @@ HRESULT DX11::createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData,
 	inData.SysMemPitch = 0;
 	inData.SysMemSlicePitch = 0;
 
-	return getInstance().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
+	return get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
 HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements)
@@ -151,7 +151,7 @@ HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer
 	desc.Buffer.FirstElement = 0;
 	desc.Buffer.NumElements = numElements;
 
-	return getInstance().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
+	return get().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
 }
 
 bool DX11::createVertexShader(std::string_view csoPath, ID3D11VertexShader** ppVertexShader)
@@ -160,7 +160,7 @@ bool DX11::createVertexShader(std::string_view csoPath, ID3D11VertexShader** ppV
 	bool result = Okay::readBinary(csoPath, shaderData);
 	OKAY_ASSERT(result, "Failed reading Vertex Shader CSO");
 
-	HRESULT hr = getInstance().pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVertexShader);
+	HRESULT hr = get().pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVertexShader);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Vertex Shader");
 
 	return true;
@@ -172,7 +172,7 @@ bool DX11::createPixelShader(std::string_view csoPath, ID3D11PixelShader** ppPix
 	bool result = Okay::readBinary(csoPath, shaderData);
 	OKAY_ASSERT(result, "Failed reading Pixel Shader CSO");
 
-	HRESULT hr = getInstance().pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, ppPixelShader);
+	HRESULT hr = get().pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, ppPixelShader);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Pixel Shader");
 
 	return true;

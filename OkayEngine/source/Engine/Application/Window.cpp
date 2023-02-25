@@ -160,7 +160,7 @@ void Window::createRenderTexture(uint32_t flags)
 	desc.Windowed = true;
 	desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	ID3D11Device* pDevice = DX11::getInstance().getDevice();
+	ID3D11Device* pDevice = DX11::get().getDevice();
 	IDXGIDevice* idxDevice = nullptr;
 	IDXGIAdapter* adapter = nullptr;
 	IDXGIFactory* factory = nullptr;

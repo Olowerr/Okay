@@ -34,7 +34,7 @@ namespace Okay
 		}
 
 		DX11::updateTexture(resultBuffer, result, 1u, width, height);
-		DX11::getInstance().getDeviceContext()->CopyResource(output, resultBuffer);
+		DX11::get().getDeviceContext()->CopyResource(output, resultBuffer);
 
 		DX11_RELEASE(resultBuffer);
 		OKAY_DELETE_ARRAY(result);
@@ -171,7 +171,7 @@ namespace Okay
 		texDesc.MiscFlags = 0u;
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 
-		DX11::getInstance().getDevice()->CreateTexture2D(&texDesc, nullptr, resultBuffer);
+		DX11::get().getDevice()->CreateTexture2D(&texDesc, nullptr, resultBuffer);
 	}
 
 	bool PerlinNoise2D::imgui(const char* label)
