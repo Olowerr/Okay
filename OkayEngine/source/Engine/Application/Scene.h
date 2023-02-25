@@ -20,7 +20,12 @@ namespace Okay
 		inline void setMainCamera(const Entity& entity);
 		inline Entity getMainCamera();
 
+		inline void setSkyLight(const Entity& entity);
+		inline Entity getSkyLight();
+
 		inline entt::registry& getRegistry();
+
+		void updateCamerasAspectRatio(uint32_t width, uint32_t height);
 
 		void start();
 		void update();
@@ -37,8 +42,11 @@ namespace Okay
 	inline void Scene::destroyEntity(const Entity& entity)	{ registry.destroy(entity); }
 	inline void Scene::destroyEntity(entt::entity entity)	{ registry.destroy(entity); }
 
-	inline Entity Scene::getMainCamera()					{ return mainCamera; }
 	inline void Scene::setMainCamera(const Entity& entity)	{ if (entity.isValid()) mainCamera = entity; }
+	inline Entity Scene::getMainCamera()					{ return mainCamera; }
+
+	inline void Scene::setSkyLight(const Entity& entity)	{ if (entity.isValid()) skyLight = entity; }
+	inline Entity Scene::getSkyLight()						{ return skyLight; }
 
 	inline entt::registry& Scene::getRegistry()				{ return registry; }
 }

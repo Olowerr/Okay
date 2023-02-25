@@ -23,6 +23,14 @@ namespace Okay
         return entity;
     }
 
+    void Scene::updateCamerasAspectRatio(uint32_t width, uint32_t height)
+    {
+        registry.view<Camera>().each([=](Camera& camera)
+        {
+            camera.onTargetResize((float)width, (float)height);
+        });
+    }
+
     void Scene::start()
     {
         registry.view<ScriptComponent>().each([](ScriptComponent& script)
@@ -41,9 +49,6 @@ namespace Okay
     
     void Scene::submit(Renderer& renderer)
     {
-        renderer.setCamera(mainCamera);
-        renderer.setSkyLight(skyLight);
-
         auto transformView = registry.view<Transform>(); // Exclude static entities
         for (entt::entity entity : transformView)
             transformView.get<Transform>(entity).calculateMatrix();

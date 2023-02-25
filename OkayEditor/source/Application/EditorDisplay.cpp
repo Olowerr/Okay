@@ -30,6 +30,7 @@ void Editor::displayComponents(Okay::Entity entity)
 {
 	using namespace Okay;
 
+
 	IMGUI_DISPLAY_COMP_START(Transform, "Transform", false);
 
 	Transform& tra = entity.getComponent<Transform>();

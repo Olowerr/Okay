@@ -7,6 +7,9 @@
 
 #include "imgui/imgui.h"
 
+// Editor Entities should not be visable for the user
+using EditorEntity = char;
+
 class Editor : public Application // TODO: Inheritance isn't neccessary here, restructure?
 {
 public:
@@ -17,6 +20,7 @@ public:
 	virtual void run() override;
 
 private:
+	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;
 	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;

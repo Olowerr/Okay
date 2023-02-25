@@ -5,6 +5,7 @@
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
+#include <Engine/Components/SkyLight.h>
 
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
@@ -15,6 +16,14 @@ Editor::Editor(std::string_view startScene)
 	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
 {
 	using namespace Okay;
+
+	renderer.setRenderTexture(&gameTexture);
+	gameTexture.addOnResizeCallback(&Scene::updateCamerasAspectRatio, 2u, 3u);
+
+	editorCamera = scene.createEntity();
+	editorCamera.addComponent<EditorEntity>();
+	editorCamera.addScript<EditorCamera>();
+	renderer.setCamera(editorCamera);
 
 	content.importFile("resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
@@ -35,11 +44,7 @@ Editor::Editor(std::string_view startScene)
 	light.getComponent<Transform>().position.y = 2.f;
 	light.addComponent<PointLight>().intensity = 2.f;
 
-	Entity camera = scene.createEntity();
-	camera.addComponent<Camera>();
-	camera.addScript<EditorCamera>();
-	scene.setMainCamera(camera);
-	renderer.setRenderTexture(&gameTexture);
+
 
 	testTex = new RenderTexture(512u, 512u, RenderTexture::SHADER_WRITE | RenderTexture::SHADER_READ, RenderTexture::F_8X1);
 	noiser = new PerlinNoise2D(4);
@@ -98,7 +103,6 @@ void Editor::endFrame()
 	{
 		texSize = winSize;
 		gameTexture.resize((uint32_t)winSize.x, (uint32_t)winSize.y);
-		scene.getMainCamera().getComponent<Okay::Camera>().onTargetResize(winSize.x, winSize.y);
 	}
 
 	ImGui::Image(*gameTexture.getSRV(), texSize);
@@ -114,6 +118,7 @@ void Editor::update()
 {
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
+	displaySceneSettings();
 	displayEntities();
 	displayInspector();
 	displayContent();
@@ -168,7 +173,7 @@ void Editor::displayEntities()
 		return;
 	}
 
-	auto entities = reg.view<Okay::Transform>();
+	auto entities = reg.view<Okay::Transform>(entt::exclude<EditorEntity>);
 
 	for (auto entity : entities)
 	{
@@ -176,7 +181,7 @@ void Editor::displayEntities()
 		{
 			selectionID = (uint32_t)entity;
 			selectionType = SelectionType::Entity;
-			scene.getMainCamera().getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
+			editorCamera.getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 		}
 
 		//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
@@ -292,4 +297,39 @@ void Editor::displayContent()
 
 void Editor::displaySceneSettings()
 {
+	if (!ImGui::Begin("Scene Settings"))
+	{
+		ImGui::End();
+		return;
+	}
+
+	if (ImGui::BeginCombo("Main Camera", std::to_string((uint32_t)scene.getMainCamera().getID()).c_str()))
+	{
+		auto cameraView = scene.getRegistry().view<Okay::Camera>(entt::exclude<EditorEntity>);
+
+		for (entt::entity entity : cameraView)
+		{
+			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getMainCamera()))
+				scene.setMainCamera(getEntity((uint32_t)entity));
+		}
+		
+
+		ImGui::EndCombo();
+	}
+
+	if (ImGui::BeginCombo("Sky Light", std::to_string((uint32_t)scene.getSkyLight().getID()).c_str()))
+	{
+		auto skyLightView = scene.getRegistry().view<Okay::SkyLight>(entt::exclude<EditorEntity>);
+
+		for (entt::entity entity : skyLightView)
+		{
+			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getSkyLight()))
+				scene.setSkyLight(getEntity((uint32_t)entity));
+		}
+		
+
+		ImGui::EndCombo();
+	}
+
+	ImGui::End();
 }

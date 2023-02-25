@@ -68,7 +68,7 @@ namespace Okay
 		inline ID3D11DepthStencilView* const* getDSV() const;
 
 	private:
-		std::vector<std::function<void()>> callbacks;
+		std::vector<std::function<void(uint32_t, uint32_t)>> callbacks;
 
 		bool isOwner;
 		uint32_t flags;

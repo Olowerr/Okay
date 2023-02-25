@@ -4,12 +4,15 @@
 #include <Engine/Application/Time.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Application/Window.h>
+#include <Engine/Components/Camera.h>
 
 #include "imgui/imgui.h"
 
 EditorCamera::EditorCamera(Okay::Entity entity)
 	:ScriptBehaviour(entity), targetPos(0.f), targetDist(10.f), rotSkipTimer(0.f)
 {
+	if (!entity.hasComponent<Okay::Camera>())
+		entity.addComponent<Okay::Camera>();
 }
 
 EditorCamera::~EditorCamera()

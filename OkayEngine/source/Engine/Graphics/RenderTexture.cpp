@@ -1,12 +1,14 @@
 #include "RenderTexture.h"
 #include "Engine/DirectX/DX11.h"
 
+
 namespace Okay
 {
 	RenderTexture::RenderTexture()
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
 		depthBuffer(nullptr), dsv(nullptr), isOwner(false), flags(0u), format(Format::INVALID)
 	{
+
 	}
 
 	RenderTexture::RenderTexture(ID3D11Texture2D* texture, uint32_t flags)
@@ -141,7 +143,7 @@ namespace Okay
 		create(width, height, flags, format);
 
 		for (auto& callback : callbacks)
-			callback();
+			callback(width, height);
 	}
 
 	glm::ivec2 RenderTexture::getDimensions() const

@@ -14,6 +14,7 @@ public:
 
 	virtual void run() = 0;
 
+	
 	void initImgui();
 	void destroyImgui();
 

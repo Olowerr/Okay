@@ -155,7 +155,8 @@ namespace Okay
 		viewport.TopLeftY = 0.f;
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
-		onTargetResize();
+		glm::ivec2 dims = pRenderTarget->getDimensions();
+		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
 
 	Renderer::~Renderer()
@@ -198,15 +199,14 @@ namespace Okay
 		pRenderTarget = pRenderTexture;
 		pRenderTarget->addOnResizeCallback(&Renderer::onTargetResize, this);
 
-		onTargetResize();
+		glm::ivec2 dims = pRenderTarget->getDimensions();
+		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
 
-	void Renderer::onTargetResize()
+	void Renderer::onTargetResize(uint32_t width, uint32_t height)
 	{
-		const glm::ivec2 dims = pRenderTarget->getDimensions();
-		viewport.Width = (float)dims.x;
-		viewport.Height = (float)dims.y;
-
+		viewport.Width = (float)width;
+		viewport.Height = (float)height;
 		pDevContext->RSSetViewports(1u, &viewport);
 	}
 
@@ -226,24 +226,22 @@ namespace Okay
 		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
 		
 		calculateCameraMatrix();
-
 		bindMeshPipeline();
-
 		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
+		pDevContext->RSSetState(pWireframeRS);
 		
 		ID3D11ShaderResourceView* textures[3] = {};
-		size_t i = 0;
 		glm::mat4 worldMatrix{};
 
 		ContentBrowser& content = ContentBrowser::get();
 
-		// Draw all statis meshes
-		for (i = 0; i < meshes.size(); i++)
+		// Draw all static meshes
+		for (size_t i = 0; i < meshes.size(); i++)
 		{
-			const MeshComponent& cMesh = meshes[i].asset;
-			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
-			const Material& material = content.getMaterial(cMesh.materialIdx);
-			const Shader& shader = content.getShader(cMesh.shaderIdx);
+			const MeshComponent& cMesh	= meshes[i].asset;
+			const Mesh& mesh			= content.getMesh(cMesh.meshIdx);
+			const Material& material	= content.getMaterial(cMesh.materialIdx);
+			const Shader& shader		= content.getShader(cMesh.shaderIdx);
 
 			worldMatrix = glm::transpose(meshes[i].transform);
 
@@ -255,20 +253,14 @@ namespace Okay
 			DX11::updateBuffer(pipeline->pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
 			DX11::updateBuffer(pipeline->pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
 
+
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
 			pDevContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
 
-			// VS
-			
-			// RS
-			pDevContext->RSSetState(pWireframeRS);
-
 			// PS
 			shader.bind();
 			pDevContext->PSSetShaderResources(0u, 3u, textures);
-
-			// OM
 
 			// Draw
 			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0u);
@@ -369,9 +361,6 @@ namespace Okay
 
 	void Renderer::calculateCameraMatrix()
 	{
-		OKAY_ASSERT(cameraEntity.isValid(), "Camera entity isn't valid");
-		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "Camera entity doesn't have a Camera Component");
-
 		const Camera& camera = cameraEntity.getComponent<Camera>();
 		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 

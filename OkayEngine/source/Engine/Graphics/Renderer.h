@@ -4,6 +4,7 @@
 #include "Assets/Shader.h"
 #include "Engine/Components/PointLight.h"
 #include "Engine/Components/DirectionalLight.h"
+#include "Engine/Components/Camera.h"
 #include "Engine/Application/Entity.h"
 
 #include <memory>
@@ -74,7 +75,7 @@ namespace Okay
 
 
 	private: // Misc
-		void onTargetResize();
+		void onTargetResize(uint32_t width, uint32_t height);
 		RenderTexture* pRenderTarget;
 		Entity cameraEntity;
 		Entity skyEntity;
@@ -145,6 +146,9 @@ namespace Okay
 
 	inline void Renderer::setCamera(Entity cameraEntity)
 	{
+		OKAY_ASSERT(cameraEntity.isValid(), "Camera entity isn't valid");
+		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "Camera entity doesn't have a Camera Component");
+
 		this->cameraEntity = cameraEntity;
 	}
 
