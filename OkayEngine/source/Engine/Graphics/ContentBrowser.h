@@ -43,6 +43,7 @@ namespace Okay
 		inline const std::vector<Mesh>& getMeshes() const;
 		inline Mesh& getMesh(uint32_t index);
 		inline const Mesh& getMesh(uint32_t index) const;
+		uint32_t getMeshID(std::string_view meshName) const;
 		Mesh& getMesh(std::string_view meshName);
 		const Mesh& getMesh(std::string_view meshName) const;
 

@@ -13,7 +13,7 @@
 #include <execution>
 
 TerrainEditor::TerrainEditor()
-	:Application(L"Okay Terrain"), scene(renderer), noiser(123u)
+	:Application(L"Okay Terrain"), content(Okay::ContentBrowser::get()), noiser(123u)
 {
 	Okay::Entity camera = scene.createEntity();
 	camera.addComponent<Okay::Camera>();
@@ -22,23 +22,25 @@ TerrainEditor::TerrainEditor()
 	camera.getComponent<Okay::Transform>().position.y = 300.f;
 	scene.setMainCamera(camera);
 
+
+	content.addMesh();
+	content.addMesh();
+	content.importFile("resources/ground.png");
+	content.importFile("resources/water.png");
 	content.addMaterial().setBaseColour(1u);
+	content.addMaterial().setBaseColour(2u);
+	content.addShader().compilePixelShader("resources/Shaders/terrainShader.txt");
+	terrainShaderId = 1u;
+
+
 	terrain = scene.createEntity();
 	terrain.addComponent<Okay::MeshComponent>(0u, 1u, 1u);
 
-	content.addMaterial().setBaseColour(2u);
 	water = scene.createEntity();
 	water.addComponent<Okay::MeshComponent>(1u, 2u, 0u);
 	water.getComponent<Okay::Transform>().position.y = waterHeight;
 	
-	content.addShader(content).compilePixelShader("resources/Shaders/terrainShader.txt");
-	terrainShaderId = 1u;
 
-	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/ground.png");
-	content.importFile("C:/Users/oliver/source/repos/Okay/OkayTerrain/resources/water.png");
-
-	content.addMesh();
-	content.addMesh();
 
 #if 0
 	lerpPoints.addPoint(0.0f, -0.1f);
@@ -73,7 +75,7 @@ TerrainEditor::TerrainEditor()
 	waTra.scale.x = scale;
 	waTra.scale.z = scale;
 	
-	content.importFile("C:/Users/Oliver/source/repos/Okay/OkayEditor/resources/Meshes/gob.obj");
+	content.importFile("resources/gob.obj");
 	obj = scene.createEntity();
 	obj.addComponent<Okay::MeshComponent>(2u);
 
@@ -100,8 +102,8 @@ void TerrainEditor::run()
 		scene.update();
 		update();
 
-		scene.submit();
-		renderer.render(scene.getMainCamera());
+		scene.submit(renderer);
+		renderer.render();
 
 		Application::endFrameImGui();
 	}

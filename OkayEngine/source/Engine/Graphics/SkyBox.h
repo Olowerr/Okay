@@ -7,7 +7,6 @@
 
 namespace Okay
 {
-
 	class SkyBox
 	{
 	public:

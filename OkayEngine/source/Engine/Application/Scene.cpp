@@ -6,8 +6,8 @@
 
 namespace Okay
 {
-    Scene::Scene(Renderer& renderer)
-        :renderer(renderer), mainCamera(entt::null, &registry), skyLight(entt::null, &registry)
+    Scene::Scene()
+        :mainCamera(entt::null, &registry), skyLight(entt::null, &registry)
     {
     }
     
@@ -39,8 +39,11 @@ namespace Okay
         });
     }
     
-    void Scene::submit()
+    void Scene::submit(Renderer& renderer)
     {
+        renderer.setCamera(mainCamera);
+        renderer.setSkyLight(skyLight);
+
         auto transformView = registry.view<Transform>(); // Exclude static entities
         for (entt::entity entity : transformView)
             transformView.get<Transform>(entity).calculateMatrix();

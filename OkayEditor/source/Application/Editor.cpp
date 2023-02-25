@@ -10,13 +10,12 @@
 #include "imgui/imgui_impl_win32.h"
 
 Editor::Editor(std::string_view startScene)
-	:Application(L"Okay"), scene(renderer), content(Okay::ContentBrowser::get())
+	:Application(L"Okay"), content(Okay::ContentBrowser::get())
 	, gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
 	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
 {
 	using namespace Okay;
 
-	content.importFile("resources/texTest.fbx");
 	content.importFile("resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
 	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
@@ -24,6 +23,7 @@ Editor::Editor(std::string_view startScene)
 	Entity entity = scene.createEntity();
 	entity.addComponent<MeshComponent>(0u, 0u, 0u);
 	entity.getComponent<Transform>().scale *= 2.f;
+
 	Entity floor = scene.createEntity();
 	floor.addComponent<MeshComponent>(1u);
 	floor.getComponent<Transform>().scale *= 5.f;
@@ -70,8 +70,8 @@ void Editor::run()
 
 		// TODO: Move to an Application-function
 		// to reduce risk of entt reallocating between submit() and render()
-		scene.submit();
-		renderer.render(scene.getMainCamera());
+		scene.submit(renderer);
+		renderer.render();
 
 		endFrame();
 	} 

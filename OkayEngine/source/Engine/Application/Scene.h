@@ -10,7 +10,7 @@ namespace Okay
 	class Scene
 	{
 	public:
-		Scene(Renderer& renderer);
+		Scene();
 		~Scene();
 
 		Entity createEntity();
@@ -24,12 +24,11 @@ namespace Okay
 
 		void start();
 		void update();
-		void submit();
+		void submit(Renderer& renderer);
 		void end();
 
 	private:
 		entt::registry registry;
-		Renderer& renderer;
 
 		Entity mainCamera;
 		Entity skyLight;

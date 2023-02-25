@@ -39,6 +39,7 @@ namespace Okay
 		pos = pos == std::string_view::npos ? path.find_last_of('\\') : pos;
 		const std::string location(pos == std::string_view::npos ? "" : path.substr(0ull, pos + 1ull));
 
+		// TODO: Add option to skip importing the material
 		Material::Description matDesc;
 		matDesc.name = materialName;
 		

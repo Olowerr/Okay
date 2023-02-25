@@ -9,6 +9,13 @@ Application::Application(const wchar_t* appName, uint32_t width, uint32_t height
 	:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE),
 	renderer(&window.getRenderTexture())
 {
+	Okay::ContentBrowser& content = Okay::ContentBrowser::get();
+	content.addShader("Default");
+	content.addMaterial(Okay::Material::Description()).setName("Default");
+
+	content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
+	content.importFile(ENGINE_RESOURCES_PATH "meshes/cube.fbx");
+
 	Okay::Renderer::init();
 }
 

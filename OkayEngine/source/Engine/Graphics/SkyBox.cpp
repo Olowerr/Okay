@@ -1,6 +1,6 @@
 #include "SkyBox.h"
 
-#include "../ContentBrowser.h"
+#include "ContentBrowser.h"
 #include "Engine/Graphics/Assets/Importing/stb_image.h"
 
 namespace Okay
@@ -106,16 +106,20 @@ namespace Okay
 		return true;
 	}
 
-
 	void SkyBox::init(ID3D11InputLayout* pPositionIL)
 	{
 		OKAY_ASSERT(pPositionIL, "Position IL was nullptr");
-
 		renderResources = std::make_unique<SkyBox::RenderResources>();
 
-		bool succeeded = ContentBrowser::get().importFile("engine_resources/meshes/cube.fbx");
-		OKAY_ASSERT(succeeded, "Failed loading SkyBox mesh");
-		renderResources->cubeMeshID = ContentBrowser::get().getNumMeshes() - 1u;
+		ContentBrowser& content = ContentBrowser::get();
+
+		renderResources->cubeMeshID = content.getMeshID("cube");
+		if (renderResources->cubeMeshID == INVALID_UINT)
+		{
+			bool found = content.importFile(ENGINE_RESOURCES_PATH "cube.fbx");
+			OKAY_ASSERT(found, "Failed loading cube.fbx");
+			renderResources->cubeMeshID = content.getNumMeshes() - 1u;
+		}
 
 		pPositionIL->AddRef();
 		renderResources->pPositionIL = pPositionIL;

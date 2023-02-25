@@ -138,7 +138,7 @@
     <ClInclude Include="source\Engine\Components\SkyLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\Engine\Graphics\Assets\SkyBox.h">
+    <ClInclude Include="source\Engine\Graphics\SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -221,7 +221,7 @@
     <ClCompile Include="source\Engine\Application\Input\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\Assets\SkyBox.cpp">
+    <ClCompile Include="source\Engine\Graphics\SkyBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Engine\Okay\Okay.cpp">

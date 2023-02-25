@@ -26,6 +26,17 @@ namespace Okay
 		return *pAsset;
 	}
 
+	uint32_t Okay::ContentBrowser::getMeshID(std::string_view meshName) const
+	{
+		for (size_t i = 0; i < meshes.size(); i++)
+		{
+			if (meshes[i].getName() == meshName)
+				return (uint32_t)i;
+		}
+
+		return INVALID_UINT;
+	}
+
 	Texture& ContentBrowser::getTexture(std::string_view assetName)
 	{
 		Texture* pAsset = nullptr;

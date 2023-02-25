@@ -20,6 +20,7 @@ public:
 	virtual void run() override;
 
 private:
+	Okay::ContentBrowser& content;
 	Okay::Scene scene;
 	Okay::PerlinNoise2D noiser;
 	Okay::LerpList lerpPoints;

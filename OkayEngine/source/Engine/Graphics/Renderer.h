@@ -4,6 +4,7 @@
 #include "Assets/Shader.h"
 #include "Engine/Components/PointLight.h"
 #include "Engine/Components/DirectionalLight.h"
+#include "Engine/Application/Entity.h"
 
 #include <memory>
 
@@ -11,7 +12,6 @@ namespace Okay
 {
 	class RenderTexture;
 	class ContentBrowser;
-	class Entity;
 
 	struct MeshComponent;
 	struct Transform;
@@ -65,16 +65,20 @@ namespace Okay
 		void submit(const DirectionalLight& light, const Transform& transform);
 
 		void setRenderTexture(RenderTexture* pRenderTexture);
+		inline void setCamera(Entity cameraEntity);
+		inline void setSkyLight(Entity skyEntity);
 
 		void newFrame();
-		void render(Entity cameraEntity);
+		void render();
 		void setWireframe(bool wireFrame);
 
 
 	private: // Misc
 		void onTargetResize();
 		RenderTexture* pRenderTarget;
-		
+		Entity cameraEntity;
+		Entity skyEntity;
+
 		ID3D11DeviceContext* pDevContext;
 		ID3D11RasterizerState* pWireframeRS;
 		D3D11_VIEWPORT viewport;
@@ -94,7 +98,7 @@ namespace Okay
 		void updatePointLightsBuffer();
 		void updateDirLightsBuffer();
 	
-		void calculateCameraMatrix(Entity cameraEntity);
+		void calculateCameraMatrix();
 
 	private: // Static PipelineResources
 
@@ -137,4 +141,15 @@ namespace Okay
 		static void bindSkeletalPipeline();
 
 	};
+
+
+	inline void Renderer::setCamera(Entity cameraEntity)
+	{
+		this->cameraEntity = cameraEntity;
+	}
+
+	inline void Renderer::setSkyLight(Entity skyEntity)
+	{
+		this->skyEntity = skyEntity;
+	}
 }

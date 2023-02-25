@@ -22,14 +22,8 @@ namespace Okay
 		bool result = false;
 		HRESULT hr = E_FAIL;
 
-		ContentBrowser& content = ContentBrowser::get();
-		DX11& dx11 = DX11::get();
-
-		content.addShader("Default");
-		content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
-		content.addMaterial(Material::Description()).setName("Default");
-
 		pipeline = std::make_unique<PipelineResources>();
+		DX11& dx11 = DX11::get();
 
 		// Buffers
 		{ 
@@ -225,13 +219,13 @@ namespace Okay
 		dirLights.clear();
 	}
 
-	void Renderer::render(Entity cameraEntity)
+	void Renderer::render()
 	{
 		updatePointLightsBuffer();
 		updateDirLightsBuffer();
 		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
 		
-		calculateCameraMatrix(cameraEntity);
+		calculateCameraMatrix();
 
 		bindMeshPipeline();
 
@@ -373,10 +367,10 @@ namespace Okay
 		pDevContext->Unmap(pipeline->pDirLightBuffer, 0);
 	}
 
-	void Renderer::calculateCameraMatrix(Entity cameraEntity)
+	void Renderer::calculateCameraMatrix()
 	{
-		// Calculate viewProjection matrix
-		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "MainCamera doesn't have a Camera Component");
+		OKAY_ASSERT(cameraEntity.isValid(), "Camera entity isn't valid");
+		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "Camera entity doesn't have a Camera Component");
 
 		const Camera& camera = cameraEntity.getComponent<Camera>();
 		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
