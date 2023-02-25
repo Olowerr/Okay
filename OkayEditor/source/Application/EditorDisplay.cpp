@@ -4,7 +4,7 @@
 #include <Engine/Components/Camera.h>
 #include <Engine/Components/Transform.h>
 #include <Engine/Components/MeshComponent.h>
-#include <Engine/Okay/OkayString.h>
+#include <Engine/Components/SkyLight.h>
 
 #include <imgui/imgui.h>
 
@@ -20,6 +20,7 @@ void Editor::addComponents(Okay::Entity entity)
 		IMGUI_ADD_COMP(Camera);
 		IMGUI_ADD_COMP(PointLight);
 		IMGUI_ADD_COMP(DirectionalLight);
+		IMGUI_ADD_COMP(SkyLight);
 
 		ImGui::EndCombo();
 	}
@@ -100,8 +101,21 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Intensity:"); ImGui::SameLine();
 	ImGui::DragFloat("##NLDLint", &dirLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
-	ImGui::Text("Colour:"); //ImGui::SameLine();
+	ImGui::Text("Colour:"); 
 	ImGui::ColorEdit3("##NLDLcol", &dirLight.colour.x);
+
+	IMGUI_DISPLAY_COMP_END();
+
+
+	IMGUI_DISPLAY_COMP_START(SkyLight, "Sky Light", true);
+
+	SkyLight& skyLight = entity.getComponent<SkyLight>();
+
+	ImGui::Text("Intensity:"); ImGui::SameLine();
+	ImGui::DragFloat("##NLSKLint", &skyLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+
+	ImGui::Text("Tint:"); //ImGui::SameLine();
+	ImGui::ColorEdit3("##NLSKLtint", &skyLight.tint.x);
 
 	IMGUI_DISPLAY_COMP_END();
 }
