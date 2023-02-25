@@ -18,7 +18,7 @@ Editor::Editor(std::string_view startScene)
 	using namespace Okay;
 
 	renderer.setRenderTexture(&gameTexture);
-	gameTexture.addOnResizeCallback(&Scene::updateCamerasAspectRatio, 2u, 3u);
+	gameTexture.addOnResizeCallback(&Scene::updateCamerasAspectRatio, &scene);
 
 	editorCamera = scene.createEntity();
 	editorCamera.addComponent<EditorEntity>();

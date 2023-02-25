@@ -47,8 +47,8 @@ namespace Okay
 		void clear(float* colour);
 		void clear(const glm::vec4& colour);
 
-		template<typename Func, typename... Args>
-		inline void addOnResizeCallback(Func&& func, Args&&... args);
+		template<typename Func, typename T>
+		inline void addOnResizeCallback(Func&& func, T* pInstance);
 
 		template<typename Func>
 		inline void removeOnResizeCallback(Func&& func, void* pOwner);
@@ -85,10 +85,10 @@ namespace Okay
 		void readFlgs(uint32_t flags);
 	};
 
-	template<typename Func, typename... Args>
-	inline void RenderTexture::addOnResizeCallback(Func&& func, Args&&... args)
+	template<typename Func, typename T>
+	inline void RenderTexture::addOnResizeCallback(Func&& func, T* pInstance)
 	{
-		callbacks.emplace_back(std::bind(func, args...));
+		callbacks.emplace_back(std::bind(func, pInstance, std::placeholders::_1, std::placeholders::_2));
 	}
 
 	template<typename Func>
