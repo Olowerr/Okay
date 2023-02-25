@@ -111,14 +111,14 @@ void Window::update()
 	}
 }
 
-bool Window::openFileExplorer(char* pOutput, size_t bufferSize)
+bool Window::fileExplorerSelectFile(char* pOutput, size_t bufferSize)
 {
 	if (!pOutput || !bufferSize)
 		return false;
 
-	OPENFILENAME ofn{};
-
 	wchar_t fileName[MAX_FILENAME_LENGTH]{};
+
+	OPENFILENAME ofn{};
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = fileName;
@@ -131,7 +131,7 @@ bool Window::openFileExplorer(char* pOutput, size_t bufferSize)
 	if (!GetOpenFileName(&ofn))
 		return false;
 
-	wcstombs_s(nullptr, pOutput, bufferSize, ofn.lpstrFile, bufferSize);
+	wcstombs_s(nullptr, pOutput, bufferSize, fileName, bufferSize);
 	return true;
 }
 

@@ -44,8 +44,6 @@ Editor::Editor(std::string_view startScene)
 	light.getComponent<Transform>().position.y = 2.f;
 	light.addComponent<PointLight>().intensity = 2.f;
 
-
-
 	testTex = new RenderTexture(512u, 512u, RenderTexture::SHADER_WRITE | RenderTexture::SHADER_READ, RenderTexture::F_8X1);
 	noiser = new PerlinNoise2D(4);
 	noiser->generateTexture(testTex->getBuffer());
@@ -73,8 +71,6 @@ void Editor::run()
 		update();
 		scene.update();
 
-		// TODO: Move to an Application-function
-		// to reduce risk of entt reallocating between submit() and render()
 		scene.submit(renderer);
 		renderer.render();
 
@@ -279,7 +275,7 @@ void Editor::displayContent()
 		if (ImGui::MenuItem("Import"))
 		{
 			char output[Window::MAX_FILENAME_LENGTH]{};
-			if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+			if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
 				content.importFile(output);
 		}
 	
@@ -303,7 +299,8 @@ void Editor::displaySceneSettings()
 		return;
 	}
 
-	if (ImGui::BeginCombo("Main Camera", std::to_string((uint32_t)scene.getMainCamera().getID()).c_str()))
+	uint32_t mainCameraID = scene.getMainCamera().getID();
+	if (ImGui::BeginCombo("Main Camera", mainCameraID == Okay::INVALID_UINT ? "None" : std::to_string(mainCameraID).c_str()))
 	{
 		auto cameraView = scene.getRegistry().view<Okay::Camera>(entt::exclude<EditorEntity>);
 
@@ -313,11 +310,11 @@ void Editor::displaySceneSettings()
 				scene.setMainCamera(getEntity((uint32_t)entity));
 		}
 		
-
 		ImGui::EndCombo();
 	}
 
-	if (ImGui::BeginCombo("Sky Light", std::to_string((uint32_t)scene.getSkyLight().getID()).c_str()))
+	uint32_t skyLightID = scene.getSkyLight().getID();
+	if (ImGui::BeginCombo("Sky Light", skyLightID == Okay::INVALID_UINT ? "None" : std::to_string(skyLightID).c_str()))
 	{
 		auto skyLightView = scene.getRegistry().view<Okay::SkyLight>(entt::exclude<EditorEntity>);
 
@@ -325,9 +322,9 @@ void Editor::displaySceneSettings()
 		{
 			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getSkyLight()))
 				scene.setSkyLight(getEntity((uint32_t)entity));
+			
 		}
 		
-
 		ImGui::EndCombo();
 	}
 

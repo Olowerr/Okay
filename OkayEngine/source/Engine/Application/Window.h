@@ -35,7 +35,7 @@ public:
 
 	HWND getHWnd() const;
 	void update();
-	bool openFileExplorer(char* pOutput, size_t bufferSize);
+	bool fileExplorerSelectFile(char* pOutput, size_t bufferSize);
 
 	static inline Window* getActiveWindow();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

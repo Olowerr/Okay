@@ -8,6 +8,8 @@
 
 #include <imgui/imgui.h>
 
+#include <filesystem>
+
 void Editor::addComponents(Okay::Entity entity)
 {
 	using namespace Okay;
@@ -36,14 +38,17 @@ void Editor::displayComponents(Okay::Entity entity)
 	Transform& tra = entity.getComponent<Transform>();
 	glm::vec3 degRot = glm::degrees(tra.rotation);
 
-	// Make macro?
-	ImGui::Text("Position:"); ImGui::SameLine();
+	// Make function / macro ?
+	ImGui::Text("Position:"); 
+	ImGui::SameLine();
 	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
 	
-	ImGui::Text("Rotation:"); ImGui::SameLine();
+	ImGui::Text("Rotation:"); 
+	ImGui::SameLine();
 	ImGui::DragFloat3("##NLTrarot", &degRot.x, 0.5f, 0.f, 0.f, "%.1f");
 	
-	ImGui::Text("Scale:   "); ImGui::SameLine();
+	ImGui::Text("Scale:   "); 
+	ImGui::SameLine();
 	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
 
 	tra.rotation = glm::radians(degRot);
@@ -57,13 +62,13 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	MeshComponent& meshC = entity.getComponent<MeshComponent>();
 	
-	ImGui::Text("Mesh: %s", content.getMesh(meshC.meshIdx).getName().c_str());
+	ImGui::Text("Mesh:");
 	selectAsset(meshC.meshIdx, meshC.meshIdx, content.getMeshes(), "##NLMesh");
 
-	ImGui::Text("Material: %s", content.getMaterial(meshC.materialIdx).getName().c_str());
+	ImGui::Text("Material:");
 	selectAsset(meshC.materialIdx, meshC.materialIdx, content.getMaterials(), "##NLMat");
 	
-	ImGui::Text("Shader: %s", content.getShader(meshC.shaderIdx).getName().c_str());
+	ImGui::Text("Shader:");
 	selectAsset(meshC.shaderIdx, meshC.shaderIdx, content.getShaders(), "##NLSha");
 
 
@@ -83,13 +88,15 @@ void Editor::displayComponents(Okay::Entity entity)
 	
 	PointLight& pointLight = entity.getComponent<PointLight>();
 
-	ImGui::Text("Intensity:"); ImGui::SameLine();
+	ImGui::Text("Intensity:");
+	ImGui::SameLine();
 	ImGui::DragFloat("##NLPLint", &pointLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
-	ImGui::Text("Attenuation:"); ImGui::SameLine();
+	ImGui::Text("Attenuation:");
+	ImGui::SameLine();
 	ImGui::DragFloat2("##NLPLatt", &pointLight.attenuation.x, 0.001f, 0.f, 1.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
-	ImGui::Text("Colour:"); //ImGui::SameLine();
+	ImGui::Text("Colour:"); 
 	ImGui::ColorEdit3("##NLPLcol", &pointLight.colour.x);
 
 	IMGUI_DISPLAY_COMP_END();
@@ -99,7 +106,8 @@ void Editor::displayComponents(Okay::Entity entity)
 	
 	DirectionalLight& dirLight = entity.getComponent<DirectionalLight>();
 
-	ImGui::Text("Intensity:"); ImGui::SameLine();
+	ImGui::Text("Intensity:"); 
+	ImGui::SameLine();
 	ImGui::DragFloat("##NLDLint", &dirLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
 	ImGui::Text("Colour:"); 
@@ -112,11 +120,18 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	SkyLight& skyLight = entity.getComponent<SkyLight>();
 
-	ImGui::Text("Intensity:"); ImGui::SameLine();
+	ImGui::Text("Intensity:"); 
+	ImGui::SameLine();
 	ImGui::DragFloat("##NLSKLint", &skyLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
-	ImGui::Text("Tint:"); //ImGui::SameLine();
+	ImGui::Text("Tint:"); 
 	ImGui::ColorEdit3("##NLSKLtint", &skyLight.tint.x);
+
+	ImGui::Text("Textures: %s", nullptr);
+	if (ImGui::Button("Select"))
+	{
+		printf("Fix - Fix - Fix - Fix - Fix - Fix - Fix - Fix\n");
+	}
 
 	IMGUI_DISPLAY_COMP_END();
 }
@@ -251,7 +266,7 @@ void Editor::displayShader(uint32_t index)
 	if (ImGui::Button("Select"))
 	{
 		char output[Window::MAX_FILENAME_LENGTH]{};
-		if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
 			shader.compilePixelShader(output);
 	}
 	ImGui::SameLine();

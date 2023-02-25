@@ -10,6 +10,7 @@
 #ifdef DIST
 #define OKAY_ASSERT(condition, devMsg) 
 #else
+// TODO: Kinda uneccessary to use a MessageBox if __debugbreak is being used anyway...
 #define OKAY_ASSERT(condition, devMsg)\
 if (!(condition))\
 {\

@@ -44,7 +44,7 @@ namespace Okay
 		inline void removeScript();
 
 		inline operator entt::entity() const	{ return entityId; }
-		inline entt::entity getID() const		{ return entityId; }
+		inline uint32_t getID() const		{ return (uint32_t)entityId; }
 
 		inline bool isValid() const				{ return pReg ? pReg->valid(entityId) : false; }
 

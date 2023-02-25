@@ -49,6 +49,11 @@ namespace Okay
     
     void Scene::submit(Renderer& renderer)
     {
+        // TODO: Should the renderer get a Scene* or the scene a Renderer* :thonk:
+        // Submiting this way might be good for lights, since the data needs to be copied to the GPU anyway
+
+        renderer.setSkyLight(skyLight);
+
         auto transformView = registry.view<Transform>(); // Exclude static entities
         for (entt::entity entity : transformView)
             transformView.get<Transform>(entity).calculateMatrix();

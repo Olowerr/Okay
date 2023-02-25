@@ -111,7 +111,7 @@ namespace Okay
 
 	void RenderTexture::clear()
 	{
-		static float white[4]{ 0.f, 0.f, 0.f, 1.f };
+		static float white[4]{ 1.f, 1.f, 1.f, 1.f };
 		DX11::get().getDeviceContext()->ClearRenderTargetView(rtv, white);
 
 		if (dsv)
