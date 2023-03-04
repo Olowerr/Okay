@@ -17,24 +17,15 @@ namespace Okay
 		~SkyBox();
 		void shutdown();
 
-		inline bool setPositiveX(std::string_view path);
-		inline bool setNegativeX(std::string_view path);
-		inline bool setPositiveY(std::string_view path);
-		inline bool setNegativeY(std::string_view path);
-		inline bool setPositiveZ(std::string_view path);
-		inline bool setNegativeZ(std::string_view path);
-
-		bool create();
+		bool create(std::string_view path);
 
 	private:
-		bool verifyAndSetPath(uint32_t idx, std::string_view path);
-
-		// Both std::vector and a raw pointer doesn't feel fitting here
-		std::unique_ptr<std::string[]> texturePaths;
-
 		ID3D11Texture2D* pTextureCube;
 		ID3D11ShaderResourceView* pTextureCubeSRV;
 
+		std::string texturePath;
+
+		void copyImgSection(void* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight);
 			
 	private: // statics used during rendering
 		struct RenderResources
@@ -58,10 +49,4 @@ namespace Okay
 
 	};
 
-	inline bool SkyBox::setPositiveX(std::string_view path) { return verifyAndSetPath(0u, path); }
-	inline bool SkyBox::setNegativeX(std::string_view path) { return verifyAndSetPath(1u, path); }
-	inline bool SkyBox::setPositiveY(std::string_view path) { return verifyAndSetPath(2u, path); }
-	inline bool SkyBox::setNegativeY(std::string_view path) { return verifyAndSetPath(3u, path); }
-	inline bool SkyBox::setPositiveZ(std::string_view path) { return verifyAndSetPath(4u, path); }
-	inline bool SkyBox::setNegativeZ(std::string_view path) { return verifyAndSetPath(5u, path); }
 }

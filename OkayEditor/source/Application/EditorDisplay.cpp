@@ -130,7 +130,11 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Textures: %s", nullptr);
 	if (ImGui::Button("Select"))
 	{
-		printf("Fix - Fix - Fix - Fix - Fix - Fix - Fix - Fix\n");
+		char output[Window::MAX_FILENAME_LENGTH]{};
+		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
+		{
+			skyLight.skyBox->create(output);
+		}
 	}
 
 	IMGUI_DISPLAY_COMP_END();
