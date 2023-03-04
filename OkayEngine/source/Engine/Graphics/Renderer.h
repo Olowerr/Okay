@@ -2,9 +2,12 @@
 #include <vector>
 
 #include "Assets/Shader.h"
+
 #include "Engine/Components/PointLight.h"
 #include "Engine/Components/DirectionalLight.h"
 #include "Engine/Components/Camera.h"
+#include "Engine/Components/SkyLight.h"
+
 #include "Engine/Application/Entity.h"
 
 #include <memory>
@@ -113,6 +116,7 @@ namespace Okay
 			ID3D11Buffer* pWorldBuffer = nullptr;
 			ID3D11Buffer* pMaterialBuffer = nullptr;
 			ID3D11Buffer* pShaderDataBuffer = nullptr;
+			ID3D11Buffer* pSkyLightDataBuffer = nullptr;
 
 			ID3D11Buffer* pLightInfoBuffer = nullptr;
 			ID3D11Buffer* pPointLightBuffer = nullptr;
@@ -137,9 +141,13 @@ namespace Okay
 
 			// Rasterizer states
 			ID3D11RasterizerState* pWireframeRS = nullptr;
+			ID3D11RasterizerState* pNoCullRS = nullptr;
 
 			// Pixel shaders
 			ID3D11PixelShader* pSkyBoxPS = nullptr;
+
+			// Depth Stencils
+			ID3D11DepthStencilState* pLessEqualDSS = nullptr;
 		};
 
 		static std::unique_ptr<PipelineResources> pipeline;
@@ -157,12 +165,12 @@ namespace Okay
 	{
 		OKAY_ASSERT(cameraEntity.isValid(), "Camera entity isn't valid");
 		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "Camera entity doesn't have a Camera Component");
-
 		this->cameraEntity = cameraEntity;
 	}
 
 	inline void Renderer::setSkyLight(Entity skyEntity)
 	{
+		OKAY_ASSERT(skyEntity.hasComponent<SkyLight>(), "Sky Entity entity doesn't have a SkyLight Component");
 		this->skyEntity = skyEntity;
 	}
 }

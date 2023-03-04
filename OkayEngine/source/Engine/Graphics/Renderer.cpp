@@ -24,6 +24,8 @@ namespace Okay
 
 		pipeline = std::make_unique<PipelineResources>();
 		DX11& dx11 = DX11::get();
+		ID3D11Device* pDevice = dx11.getDevice();
+		ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
 
 		pipeline->skyboxMeshId = ContentBrowser::get().getMeshID("cube");
 		if (pipeline->skyboxMeshId == INVALID_UINT)
@@ -50,11 +52,16 @@ namespace Okay
 			hr = DX11::createConstantBuffer(&pipeline->pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating shaderDataBuffer");
 
+			// TODO: Fix "16u"
+			hr = DX11::createConstantBuffer(&pipeline->pSkyLightDataBuffer, nullptr, 16u, false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skyLightDataBuffer");
+
+
 			expandPointLights();
 			expandDirLights();
 		}
 
-		// Wireframe RS
+		// Rasterizer states
 		{
 			D3D11_RASTERIZER_DESC rsDesc{};
 			rsDesc.FillMode = D3D11_FILL_WIREFRAME;
@@ -67,8 +74,13 @@ namespace Okay
 			rsDesc.ScissorEnable = FALSE;
 			rsDesc.MultisampleEnable = FALSE;
 			rsDesc.AntialiasedLineEnable = FALSE;
-			hr = dx11.getDevice()->CreateRasterizerState(&rsDesc, &pipeline->pWireframeRS);
+			hr = pDevice->CreateRasterizerState(&rsDesc, &pipeline->pWireframeRS);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating wireframeRS");
+
+			rsDesc.FillMode = D3D11_FILL_SOLID;
+			hr = pDevice->CreateRasterizerState(&rsDesc, &pipeline->pNoCullRS);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating noCullRS");
+			
 		}
 		
 
@@ -85,11 +97,11 @@ namespace Okay
 			simpDesc.MipLODBias = 0.f;
 			simpDesc.MaxAnisotropy = 1u;
 			simpDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			hr = dx11.getDevice()->CreateSamplerState(&simpDesc, &simp);
+			hr = pDevice->CreateSamplerState(&simpDesc, &simp);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating sampler");
 
-			dx11.getDeviceContext()->PSSetSamplers(0, 1, &simp);
-			dx11.getDeviceContext()->VSSetSamplers(0, 1, &simp);
+			pDevContext->PSSetSamplers(0, 1, &simp);
+			pDevContext->VSSetSamplers(0, 1, &simp);
 			simp->Release();
 		}
 		
@@ -102,23 +114,33 @@ namespace Okay
 				{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 			};
 
+			std::string shaderData;
 			auto createVSAndInputLayout = [&](std::string_view path, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppIL, uint32_t ilLength)
 			{
-				std::string shaderData;
-
 				result = readBinary(path, shaderData);
-				OKAY_ASSERT(result, "Failed reading MeshVS.cso");
+				OKAY_ASSERT(result, "Failed reading shader");
 
-				hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVS);
+				hr = pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVS);
 				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating vertex shader");
 
-				hr = dx11.getDevice()->CreateInputLayout(inputLayoutDesc, ilLength, shaderData.c_str(), shaderData.length(), ppIL);
+				hr = pDevice->CreateInputLayout(inputLayoutDesc, ilLength, shaderData.c_str(), shaderData.length(), ppIL);
 				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating input layout");
 			};
 	
 			createVSAndInputLayout(SHADER_PATH "MeshVS.cso", &pipeline->pMeshVS, &pipeline->pPosUvNormIL, 3u);
-			createVSAndInputLayout(SHADER_PATH "SkyBoxVS.cso", &pipeline->pSkyBoxVS, &pipeline->pPosIL, 1u);
+			
 
+			// Skybox
+			{
+				createVSAndInputLayout(SHADER_PATH "SkyBoxVS.cso", &pipeline->pSkyBoxVS, &pipeline->pPosIL, 1u);
+
+				result = readBinary(SHADER_PATH "SkyBoxPS.cso", shaderData);
+				OKAY_ASSERT(result, "Failed reading SkyBoxPS.cso");
+
+				hr = pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pipeline->pSkyBoxPS);
+				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating SkyBoxPS.cso");
+
+			}
 #if 0 // Skeletal Animation (OLD)
 			D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -139,19 +161,43 @@ namespace Okay
 #endif
 		}
 
+		// Depthstenil states
+		{
+			D3D11_DEPTH_STENCIL_DESC dsDesc;
+			dsDesc.DepthEnable = true;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // Comparison_Equal no bueno (?)
+			dsDesc.StencilEnable = false;
+			dsDesc.StencilReadMask = 0;
+			dsDesc.StencilWriteMask = 0;
+
+			hr = pDevice->CreateDepthStencilState(&dsDesc, &pipeline->pLessEqualDSS);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating lessEqual Depth Stencil State");
+		}
+
 		// Bind necessities
 		{
-			ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
 			pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			pDevContext->VSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
 			pDevContext->VSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
-			pDevContext->VSSetConstantBuffers(2, 1, &pipeline->pShaderDataBuffer);
+			pDevContext->VSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
+			pDevContext->VSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
+			pDevContext->VSSetConstantBuffers(4, 1, &pipeline->pSkyLightDataBuffer);
+			pDevContext->VSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
 
 			pDevContext->PSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
-			pDevContext->PSSetConstantBuffers(3, 1, &pipeline->pMaterialBuffer);
-			pDevContext->PSSetShaderResources(3, 1, &pipeline->pPointLightSRV);
-			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pLightInfoBuffer);
+			pDevContext->PSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
+			pDevContext->PSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
+			pDevContext->PSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
+			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pSkyLightDataBuffer);
+			pDevContext->PSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
+
+			// 0-2	| material textures
+			// 3	| height map 
+			pDevContext->PSSetShaderResources(4, 1, &pipeline->pPointLightSRV);
+			pDevContext->PSSetShaderResources(5, 1, &pipeline->pDirLightSRV);
+			// 6	| skyBoxTextureCube
 		}
 		
 	}
@@ -235,20 +281,37 @@ namespace Okay
 
 	void Renderer::render()
 	{
-		updatePointLightsBuffer();
-		updateDirLightsBuffer();
-		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
-		
-		calculateCameraMatrix();
-		bindMeshPipeline();
-		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
-		pDevContext->RSSetState(pWireframeRS);
-		
 		ID3D11ShaderResourceView* textures[3] = {};
 		glm::mat4 worldMatrix{};
 
 		ContentBrowser& content = ContentBrowser::get();
 
+
+		updatePointLightsBuffer();
+		updateDirLightsBuffer();
+		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
+
+		SkyLight* pSkyLight = nullptr;
+		if (skyEntity.isValid())
+		{
+			OKAY_ASSERT(skyEntity.hasComponent<SkyLight>(), "Sky Entity entity doesn't have a SkyLight Component");
+			pSkyLight = &skyEntity.getComponent<SkyLight>();
+			DX11::updateBuffer(pipeline->pSkyLightDataBuffer, &pSkyLight->tint.x, 16u); //TODO: fix omg
+		}
+		else
+		{
+			float tempSkyLightData[4]{/*1.f, 1.f, 1.f, 1.f*/};
+			DX11::updateBuffer(pipeline->pSkyLightDataBuffer, &tempSkyLightData, 16u); //TODO: fix omg
+		}
+		
+		calculateCameraMatrix();
+
+		bindMeshPipeline();
+		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
+		
+		// TODO: Change wireframe to a material property
+		pDevContext->RSSetState(pWireframeRS);
+		
 		// Draw all static meshes
 		for (size_t i = 0; i < meshes.size(); i++)
 		{
@@ -267,7 +330,6 @@ namespace Okay
 			DX11::updateBuffer(pipeline->pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
 			DX11::updateBuffer(pipeline->pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
 
-
 			// IA
 			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
 			pDevContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
@@ -277,8 +339,31 @@ namespace Okay
 			pDevContext->PSSetShaderResources(0u, 3u, textures);
 
 			// Draw
-			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0u);
+			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0);
+		}
 
+		//TODO: Create constants for d3d11 resource slots
+
+		// Skybox
+		if (pSkyLight)
+		{
+			const Mesh& skyBoxMesh = content.getMesh(pipeline->skyboxMeshId);
+
+			pDevContext->IASetInputLayout(pipeline->pPosIL);
+
+			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, skyBoxMesh.getBuffers(), Mesh::Stride, Mesh::Offset);
+			pDevContext->IASetIndexBuffer(skyBoxMesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
+
+			pDevContext->VSSetShader(pipeline->pSkyBoxVS, nullptr, 0u);
+
+			pDevContext->RSSetState(pipeline->pNoCullRS);
+
+			pDevContext->PSSetShader(pipeline->pSkyBoxPS, nullptr, 0u);
+			pDevContext->PSSetShaderResources(6u, 1, pSkyLight->skyBox->getTextureCubeSRV());
+
+			pDevContext->OMSetDepthStencilState(pipeline->pLessEqualDSS, 0u);
+
+			pDevContext->DrawIndexed(skyBoxMesh.getNumIndices(), 0u, 0);
 		}
 	}
 
@@ -389,8 +474,10 @@ namespace Okay
 
 	void Renderer::bindMeshPipeline()
 	{
-		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pPosUvNormIL);
-		DX11::get().getDeviceContext()->VSSetShader(pipeline->pMeshVS, nullptr, 0);
+		ID3D11DeviceContext* pDevContext = DX11::get().getDeviceContext();
+		pDevContext->IASetInputLayout(pipeline->pPosUvNormIL);
+		pDevContext->VSSetShader(pipeline->pMeshVS, nullptr, 0u);
+		pDevContext->OMSetDepthStencilState(nullptr, 0u);
 	}
 
 	void Renderer::bindSkeletalPipeline()
@@ -406,6 +493,7 @@ namespace Okay
 		DX11_RELEASE(pWorldBuffer);
 		DX11_RELEASE(pMaterialBuffer);
 		DX11_RELEASE(pShaderDataBuffer);
+		DX11_RELEASE(pSkyLightDataBuffer);
 
 		DX11_RELEASE(pLightInfoBuffer);
 		DX11_RELEASE(pPointLightBuffer);
@@ -422,7 +510,10 @@ namespace Okay
 		DX11_RELEASE(pSkyBoxVS);
 
 		DX11_RELEASE(pWireframeRS);
+		DX11_RELEASE(pNoCullRS);
 
 		DX11_RELEASE(pSkyBoxPS);
+
+		DX11_RELEASE(pLessEqualDSS);
 	}
 }

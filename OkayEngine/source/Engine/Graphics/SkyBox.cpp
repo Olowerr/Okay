@@ -36,6 +36,12 @@ namespace Okay
 			return false;
 		}
 
+		shutdown();
+
+		size_t pos = path.find_last_of('/');
+		pos = pos == std::string_view::npos ? path.find_last_of('\\') : pos;
+		textureName = pos == std::string_view::npos ? path : path.substr(pos + 1ull);
+
 		const uint32_t width = imgWidth / 4;
 		const uint32_t height = imgHeight / 3;
 		const uint32_t byteWidth = width * height * 4u;
@@ -51,29 +57,39 @@ namespace Okay
 		// The coursor points to the location of each side
 		uint32_t* coursor = nullptr;
 
+		auto copyImgSection = [&](uint32_t* pTarget)
+		{
+			for (uint32_t i = 0; i < height; i++)
+			{
+				memcpy(pTarget, coursor, width * 4ull);
+				pTarget += width;
+				coursor += imgWidth;
+			}
+		};
+
 		// Positive X
 		coursor = pImgData + imgWidth * height + width * 2u;
-		copyImgSection((uint32_t*)data[0].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[0].pSysMem);
 
 		// Negative X
 		coursor = pImgData + imgWidth * height;
-		copyImgSection((uint32_t*)data[1].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[1].pSysMem);
 
 		// Positive Y
 		coursor = pImgData + width;
-		copyImgSection((uint32_t*)data[2].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[2].pSysMem);
 
 		// Negative Y
 		coursor = pImgData + imgWidth * height * 2u + width;
-		copyImgSection((uint32_t*)data[3].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[3].pSysMem);
 
 		// Positive Z
-		coursor = pImgData + imgWidth * height + width * 3u;
-		copyImgSection((uint32_t*)data[4].pSysMem, coursor, imgWidth, width, height);
+		coursor = pImgData + imgWidth * height + width;
+		copyImgSection((uint32_t*)data[4].pSysMem);
 		
 		// Negative Z
-		coursor = pImgData + imgWidth * height + width;
-		copyImgSection((uint32_t*)data[5].pSysMem, coursor, imgWidth, width, height);
+		coursor = pImgData + imgWidth * height + width * 3u;
+		copyImgSection((uint32_t*)data[5].pSysMem);
 
 
 		D3D11_TEXTURE2D_DESC desc{};
@@ -116,11 +132,6 @@ namespace Okay
 	
 	void SkyBox::copyImgSection(uint32_t* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight)
 	{
-		for (uint32_t i = 0; i < readHeight; i++)
-		{
-			memcpy(pTarget, pSource, readWidth * 4ull);
-			pTarget += readWidth;
-			pSource += imgWidth;
-		}
+		
 	}
 }

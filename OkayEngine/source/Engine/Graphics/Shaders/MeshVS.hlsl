@@ -1,16 +1,5 @@
 #include "ShaderInclude.hlsli"
 
-typedef int BOOL;
-
-cbuffer ShaderData : register(b2)
-{
-	BOOL heightMapBool;
-	float heightMapScalar;
-	int padding[2];
-};
-
-SamplerState simp : register(s0);
-Texture2D heightMap : register(t0);
 
 TransformedVertex main(InputVertex input)
 {

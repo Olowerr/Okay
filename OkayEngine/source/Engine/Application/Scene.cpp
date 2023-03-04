@@ -47,20 +47,18 @@ namespace Okay
         });
     }
     
-    void Scene::submit(Renderer& renderer)
+    void Scene::submit()
     {
         // TODO: Should the renderer get a Scene* or the scene a Renderer* :thonk:
         // Submiting this way might be good for lights, since the data needs to be copied to the GPU anyway
 
-        renderer.setSkyLight(skyLight);
-
-        auto transformView = registry.view<Transform>(); // Exclude static entities
+        auto transformView = registry.view<Transform>(); // TODO: SExclude static entities
         for (entt::entity entity : transformView)
             transformView.get<Transform>(entity).calculateMatrix();
 
         auto meshView = registry.view<MeshComponent, Transform>();
         for (entt::entity entity : meshView)
-            renderer.submit(meshView.get<MeshComponent>(entity), meshView.get<Transform>(entity));
+            pRenderer->submit(meshView.get<MeshComponent>(entity), meshView.get<Transform>(entity));
     
 #if 0 // Animations
         auto skeletalView = registry.view<Okay::CompSkeletalMesh, Transform>();
@@ -70,11 +68,11 @@ namespace Okay
     
         auto pointLightView = registry.view<PointLight, Transform>();
         for (entt::entity entity : pointLightView)
-            renderer.submit(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
+            pRenderer->submit(pointLightView.get<PointLight>(entity), pointLightView.get<Transform>(entity));
         
         auto dirLightView = registry.view<DirectionalLight, Transform>();
         for (entt::entity entity : dirLightView)
-            renderer.submit(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
+            pRenderer->submit(dirLightView.get<DirectionalLight>(entity), dirLightView.get<Transform>(entity));
 
     }
     

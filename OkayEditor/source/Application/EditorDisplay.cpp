@@ -127,13 +127,14 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Tint:"); 
 	ImGui::ColorEdit3("##NLSKLtint", &skyLight.tint.x);
 
-	ImGui::Text("Textures: %s", nullptr);
+	ImGui::Text("Textures: %s", skyLight.skyBox->getTextureName().c_str());
 	if (ImGui::Button("Select"))
 	{
 		char output[Window::MAX_FILENAME_LENGTH]{};
 		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
 		{
-			skyLight.skyBox->create(output);
+			if (!skyLight.skyBox->create(output))
+				printf("Failed loading skybox texture\n");
 		}
 	}
 

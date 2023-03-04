@@ -50,7 +50,7 @@ namespace Okay
 	void Shader::bind() const
 	{
 		ID3D11DeviceContext* pDevCon = DX11::get().getDeviceContext();
-		pDevCon->VSSetShaderResources(0, 1, &pHeightMap);
+		pDevCon->VSSetShaderResources(3, 1u, &pHeightMap);
 		pDevCon->PSSetShader(pPS, nullptr, 0);
 	}
 

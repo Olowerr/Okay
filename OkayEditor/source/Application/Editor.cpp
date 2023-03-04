@@ -61,6 +61,7 @@ void Editor::run()
 
 	Application::initImgui();
 
+	scene.setRenderer(&renderer);
 	scene.start();
 	Time::start();
 
@@ -71,7 +72,7 @@ void Editor::run()
 		update();
 		scene.update();
 
-		scene.submit(renderer);
+		scene.submit();
 		renderer.render();
 
 		endFrame();
@@ -320,7 +321,8 @@ void Editor::displaySceneSettings()
 
 		for (entt::entity entity : skyLightView)
 		{
-			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getSkyLight()))
+			const Okay::SkyBox& skyBox = *skyLightView.get<Okay::SkyLight>(entity).skyBox;
+			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getSkyLight() && skyBox.getTextureCubeSRV()))
 				scene.setSkyLight(getEntity((uint32_t)entity));
 			
 		}
