@@ -4,9 +4,9 @@
 
 namespace Okay
 {
-	bool readBinary(std::string_view binName, std::string& output)
+	bool readBinary(std::string_view binPath, std::string& output)
 	{
-		std::ifstream reader(binName.data(), std::ios::binary);
+		std::ifstream reader(binPath.data(), std::ios::binary);
 		OKAY_VERIFY(reader);
 
 		reader.seekg(0, std::ios::end);

@@ -123,14 +123,23 @@ namespace Okay
 			uint32_t maxDirLights = 0u;
 
 
-			// Pipeline states(?) ---
+			uint32_t skyboxMeshId = INVALID_UINT;
+
+			// Input layouts
+			ID3D11InputLayout* pPosIL = nullptr;
+			ID3D11InputLayout* pPosUvNormIL = nullptr;
+			ID3D11InputLayout* pPosUvNormJidxWeightIL = nullptr;
+
+			// Vertex shaders
+			ID3D11VertexShader* pMeshVS = nullptr;
+			ID3D11VertexShader* pSkeletalVS = nullptr;
+			ID3D11VertexShader* pSkyBoxVS = nullptr;
+
+			// Rasterizer states
 			ID3D11RasterizerState* pWireframeRS = nullptr;
 
-			ID3D11InputLayout* pMeshIL = nullptr;
-			ID3D11VertexShader* pMeshVS = nullptr;
-
-			ID3D11InputLayout* pSkeletalIL = nullptr;
-			ID3D11VertexShader* pSkeletalVS = nullptr;
+			// Pixel shaders
+			ID3D11PixelShader* pSkyBoxPS = nullptr;
 		};
 
 		static std::unique_ptr<PipelineResources> pipeline;

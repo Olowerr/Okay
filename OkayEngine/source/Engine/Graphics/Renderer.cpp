@@ -25,6 +25,14 @@ namespace Okay
 		pipeline = std::make_unique<PipelineResources>();
 		DX11& dx11 = DX11::get();
 
+		pipeline->skyboxMeshId = ContentBrowser::get().getMeshID("cube");
+		if (pipeline->skyboxMeshId == INVALID_UINT)
+		{
+			bool found = ContentBrowser::get().importFile(ENGINE_RESOURCES_PATH "cube.fbx");
+			OKAY_ASSERT(found, "Failed loading cube.fbx");
+			pipeline->skyboxMeshId = ContentBrowser::get().getNumMeshes() - 1u;
+		}
+
 		// Buffers
 		{ 
 			hr = DX11::createConstantBuffer(&pipeline->pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
@@ -88,22 +96,28 @@ namespace Okay
 
 		// Input Layouts & Shaders
 		{
-			std::string shaderData;	
-
 			D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[3] = {
 				{"POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 				{"UV",			0, DXGI_FORMAT_R32G32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 				{"NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 			};
 
-			result = readBinary(SHADER_PATH "MeshVS.cso", shaderData);
-			OKAY_ASSERT(result, "Failed reading MeshVS.cso");
+			auto createVSAndInputLayout = [&](std::string_view path, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppIL, uint32_t ilLength)
+			{
+				std::string shaderData;
 
-			hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, &pipeline->pMeshVS);
-			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Vertex Shader");
+				result = readBinary(path, shaderData);
+				OKAY_ASSERT(result, "Failed reading MeshVS.cso");
 
-			hr = dx11.getDevice()->CreateInputLayout(inputLayoutDesc, 3, shaderData.c_str(), shaderData.length(), &pipeline->pMeshIL);
-			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating static mesh Input Layout");
+				hr = dx11.getDevice()->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVS);
+				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating vertex shader");
+
+				hr = dx11.getDevice()->CreateInputLayout(inputLayoutDesc, ilLength, shaderData.c_str(), shaderData.length(), ppIL);
+				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating input layout");
+			};
+	
+			createVSAndInputLayout(SHADER_PATH "MeshVS.cso", &pipeline->pMeshVS, &pipeline->pPosUvNormIL, 3u);
+			createVSAndInputLayout(SHADER_PATH "SkyBoxVS.cso", &pipeline->pSkyBoxVS, &pipeline->pPosIL, 1u);
 
 #if 0 // Skeletal Animation (OLD)
 			D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
@@ -375,14 +389,14 @@ namespace Okay
 
 	void Renderer::bindMeshPipeline()
 	{
-		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pMeshIL);
+		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pPosUvNormIL);
 		DX11::get().getDeviceContext()->VSSetShader(pipeline->pMeshVS, nullptr, 0);
 	}
 
 	void Renderer::bindSkeletalPipeline()
 	{
 		return;
-		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pSkeletalIL);
+		DX11::get().getDeviceContext()->IASetInputLayout(pipeline->pPosUvNormJidxWeightIL);
 		DX11::get().getDeviceContext()->VSSetShader(pipeline->pSkeletalVS, nullptr, 0);
 	}
 	
@@ -393,17 +407,22 @@ namespace Okay
 		DX11_RELEASE(pMaterialBuffer);
 		DX11_RELEASE(pShaderDataBuffer);
 
-		DX11_RELEASE(pMeshIL);
-		DX11_RELEASE(pMeshVS);
-		DX11_RELEASE(pWireframeRS);
-
 		DX11_RELEASE(pLightInfoBuffer);
 		DX11_RELEASE(pPointLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
 		DX11_RELEASE(pDirLightBuffer);
 		DX11_RELEASE(pDirLightSRV);
 
-		DX11_RELEASE(pSkeletalIL);
+		DX11_RELEASE(pPosIL);
+		DX11_RELEASE(pPosUvNormIL);
+		DX11_RELEASE(pPosUvNormJidxWeightIL);
+
+		DX11_RELEASE(pMeshVS);
 		DX11_RELEASE(pSkeletalVS);
+		DX11_RELEASE(pSkyBoxVS);
+
+		DX11_RELEASE(pWireframeRS);
+
+		DX11_RELEASE(pSkyBoxPS);
 	}
 }

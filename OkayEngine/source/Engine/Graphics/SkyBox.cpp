@@ -5,41 +5,9 @@
 
 namespace Okay
 {
-	std::unique_ptr<SkyBox::RenderResources> SkyBox::renderResources;
-
-	void SkyBox::init(ID3D11InputLayout* pPositionIL)
-	{
-		OKAY_ASSERT(pPositionIL, "Position IL was nullptr");
-		renderResources = std::make_unique<SkyBox::RenderResources>();
-
-		ContentBrowser& content = ContentBrowser::get();
-
-		renderResources->cubeMeshID = content.getMeshID("cube");
-		if (renderResources->cubeMeshID == INVALID_UINT)
-		{
-			bool found = content.importFile(ENGINE_RESOURCES_PATH "cube.fbx");
-			OKAY_ASSERT(found, "Failed loading cube.fbx");
-			renderResources->cubeMeshID = content.getNumMeshes() - 1u;
-		}
-
-		pPositionIL->AddRef();
-		renderResources->pPositionIL = pPositionIL;
-		DX11::createVertexShader(SHADER_PATH "SkyBoxVS.cso", &renderResources->pVS);
-		DX11::createPixelShader(SHADER_PATH "SkyBoxPS.cso", &renderResources->pPS);
-	}
-
 	SkyBox::SkyBox()
 		:pTextureCube(nullptr), pTextureCubeSRV(nullptr)
 	{
-	}
-
-	SkyBox::SkyBox(SkyBox&& other) noexcept
-	{
-		pTextureCube = other.pTextureCube;
-		other.pTextureCube = nullptr;
-
-		pTextureCubeSRV = other.pTextureCubeSRV;
-		other.pTextureCubeSRV = nullptr;
 	}
 
 	SkyBox::~SkyBox()
@@ -85,27 +53,27 @@ namespace Okay
 
 		// Positive X
 		coursor = pImgData + imgWidth * height + width * 2u;
-		copyImgSection((void*)data[0].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[0].pSysMem, coursor, imgWidth, width, height);
 
 		// Negative X
 		coursor = pImgData + imgWidth * height;
-		copyImgSection((void*)data[1].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[1].pSysMem, coursor, imgWidth, width, height);
 
 		// Positive Y
 		coursor = pImgData + width;
-		copyImgSection((void*)data[2].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[2].pSysMem, coursor, imgWidth, width, height);
 
 		// Negative Y
 		coursor = pImgData + imgWidth * height * 2u + width;
-		copyImgSection((void*)data[3].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[3].pSysMem, coursor, imgWidth, width, height);
 
 		// Positive Z
 		coursor = pImgData + imgWidth * height + width * 3u;
-		copyImgSection((void*)data[4].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[4].pSysMem, coursor, imgWidth, width, height);
 		
 		// Negative Z
 		coursor = pImgData + imgWidth * height + width;
-		copyImgSection((void*)data[5].pSysMem, coursor, imgWidth, width, height);
+		copyImgSection((uint32_t*)data[5].pSysMem, coursor, imgWidth, width, height);
 
 
 		D3D11_TEXTURE2D_DESC desc{};
@@ -146,14 +114,12 @@ namespace Okay
 		return true;
 	}
 	
-	void SkyBox::copyImgSection(void* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight)
+	void SkyBox::copyImgSection(uint32_t* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight)
 	{
-		uint32_t* targetCoursor = (uint32_t*)pTarget;
-
 		for (uint32_t i = 0; i < readHeight; i++)
 		{
-			memcpy(targetCoursor, pSource, readWidth * 4ull);
-			targetCoursor += readWidth;
+			memcpy(pTarget, pSource, readWidth * 4ull);
+			pTarget += readWidth;
 			pSource += imgWidth;
 		}
 	}

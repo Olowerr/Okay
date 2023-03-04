@@ -231,6 +231,7 @@
   <ItemGroup>
     <FxCompile Include="source\Engine\Graphics\Shaders\MeshVS.hlsl" />
     <FxCompile Include="source\Engine\Graphics\Shaders\PhongPS.hlsl" />
+    <FxCompile Include="source\Engine\Graphics\Shaders\SkyBoxVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source\Engine\Graphics\Shaders\ShaderInclude.hlsli" />
