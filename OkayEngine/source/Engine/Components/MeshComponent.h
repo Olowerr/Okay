@@ -14,6 +14,7 @@ namespace Okay
 		{
 		}
 
+		// TODO: typedef uint32_t
 		uint32_t meshIdx = 0u;
 		uint32_t materialIdx = 0u;
 		uint32_t shaderIdx = 0u;

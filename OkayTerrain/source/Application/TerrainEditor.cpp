@@ -223,7 +223,7 @@ void TerrainEditor::update()
 	if (ImGui::Button("Select"))
 	{
 		char output[Window::MAX_FILENAME_LENGTH]{};
-		if (window.openFileExplorer(output, Window::MAX_FILENAME_LENGTH))
+		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
 			shader.compilePixelShader(output);
 	}
 	ImGui::SameLine();
