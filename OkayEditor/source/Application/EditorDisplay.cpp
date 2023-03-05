@@ -23,6 +23,7 @@ void Editor::addComponents(Okay::Entity entity)
 		IMGUI_ADD_COMP(PointLight);
 		IMGUI_ADD_COMP(DirectionalLight);
 		IMGUI_ADD_COMP(SkyLight);
+		IMGUI_ADD_COMP(Sun);
 
 		ImGui::EndCombo();
 	}
@@ -124,7 +125,7 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	ImGui::Text("Intensity:"); 
 	ImGui::SameLine();
-	ImGui::DragFloat("##NLDLint", &dirLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+	ImGui::DragFloat("##NLDLInt", &dirLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
 	ImGui::Text("Colour:"); 
 	ImGui::ColorEdit3("##NLDLcol", &dirLight.colour.x);
@@ -143,7 +144,7 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Tint:"); 
 	ImGui::ColorEdit3("##NLSKLtint", &skyLight.tint.x);
 
-	ImGui::Text("Textures: %s", skyLight.skyBox->getTextureName().c_str());
+	ImGui::Text("Texture: %s", skyLight.skyBox->getTextureName().c_str());
 	if (ImGui::Button("Select"))
 	{
 		std::string file;
@@ -153,6 +154,27 @@ void Editor::displayComponents(Okay::Entity entity)
 				printf("Failed loading skybox texture\n"); // TODO: Add editor runtime warning & error
 		}
 	}
+
+	IMGUI_DISPLAY_COMP_END();
+
+
+	IMGUI_DISPLAY_COMP_START(Sun, "Sun", true);
+
+	Sun& sun = entity.getComponent<Sun>();
+
+	ImGui::Text("Colour:");
+	ImGui::ColorEdit3("##NLSuncol", &sun.colour.x);
+
+	ImGui::Text("Size:");
+	ImGui::SameLine();
+
+	float displaySize = 100.f - sun.size;
+	ImGui::DragFloat("##NLSunSize", &displaySize, 0.1f, 0.1f, 99.9999f);
+	sun.size = 100.f - displaySize;
+	
+	ImGui::Text("Intensity:");
+	ImGui::SameLine();
+	ImGui::DragFloat("##NLSunint", &sun.intensity, 0.1f);
 
 	IMGUI_DISPLAY_COMP_END();
 }

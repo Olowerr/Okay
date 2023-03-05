@@ -12,13 +12,13 @@ namespace Okay
 	Shader::Shader()
 		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
 	{
-		setPixelShader(SHADER_PATH "PhongPS.cso");
+		setPixelShader(SHADER_BIN_PATH "PhongPS.cso");
 	}
 
 	Shader::Shader(std::string_view name)
 		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
 	{
-		setPixelShader(SHADER_PATH "PhongPS.cso");
+		setPixelShader(SHADER_BIN_PATH "PhongPS.cso");
 	}
 
 	Shader::Shader(Shader&& other) noexcept

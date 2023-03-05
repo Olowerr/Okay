@@ -30,6 +30,12 @@ namespace Okay
 
 		template<typename T>
 		inline const T& getComponent() const;
+		
+		template<typename T>
+		inline T* tryGetComponent();
+
+		template<typename T>
+		inline const T* tryGetComponent() const;
 
 		template<typename T>
 		inline bool removeComponent();
@@ -44,8 +50,9 @@ namespace Okay
 		inline void removeScript();
 
 		inline operator entt::entity() const	{ return entityId; }
-		inline uint32_t getID() const		{ return (uint32_t)entityId; }
+		inline uint32_t getID() const			{ return (uint32_t)entityId; }
 
+		inline explicit operator bool() const			{ return isValid(); }
 		inline bool isValid() const				{ return pReg ? pReg->valid(entityId) : false; }
 
 		inline bool operator== (const Okay::Entity& other) { return entityId == other.entityId; }
@@ -87,6 +94,20 @@ namespace Okay
 		OKAY_ASSERT(pReg, "pReg was nullptr");
 		OKAY_ASSERT(hasComponent<T>(), "The entity doesn't have the given component");
 		return pReg->get<T>(entityId);
+	}
+
+	template<typename T>
+	inline T* Entity::tryGetComponent()
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		return pReg->try_get<T>(entityId);
+	}
+
+	template<typename T>
+	inline const T* Entity::tryGetComponent() const
+	{
+		OKAY_ASSERT(pReg, "pReg was nullptr");
+		return pReg->try_get<T>(entityId);
 	}
 
 	template<typename T>

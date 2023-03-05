@@ -7,7 +7,6 @@
 namespace Okay
 {
     Scene::Scene()
-        :mainCamera(entt::null, &registry), skyLight(entt::null, &registry)
     {
     }
     
@@ -47,7 +46,7 @@ namespace Okay
         });
     }
     
-    void Scene::submit()
+    void Scene::submit(Renderer* pRenderer)
     {
         // TODO: Should the renderer get a Scene* or the scene a Renderer* :thonk:
         // Submiting this way might be good for lights, since the data needs to be copied to the GPU anyway

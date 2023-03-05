@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
 
-#include "Assets/Shader.h"
+#include "Assets/Shader.h" // ?
 
-#include "Engine/Components/PointLight.h"
-#include "Engine/Components/DirectionalLight.h"
-#include "Engine/Components/Camera.h"
-#include "Engine/Components/SkyLight.h"
+#include "Engine/Components/PointLight.h"		// fwd dec?
+#include "Engine/Components/DirectionalLight.h"	// fwd dec?
+#include "Engine/Components/Sun.h"				// fwd dec?
+#include "Engine/Components/Camera.h"			// fwd dec?
+#include "Engine/Components/SkyLight.h"			// fwd dec?
 
 #include "Engine/Application/Entity.h"
 
@@ -15,7 +16,7 @@
 namespace Okay
 {
 	class RenderTexture;
-	class ContentBrowser;
+	class Scene;
 
 	struct MeshComponent;
 	struct Transform;
@@ -35,6 +36,7 @@ namespace Okay
 		T2 transform;
 	};
 
+	// TODO: Merge these structs into one larger // or? :thonk:
 	struct LightInfo
 	{
 		uint32_t numPointLights = 0u;
@@ -43,7 +45,7 @@ namespace Okay
 		uint32_t padding[2]{};
 	};
 
-	struct GPUCamera // Change to multiple memcpys ?
+	struct GPUCamera
 	{
 		glm::mat4 viewProjMatrix;
 
@@ -52,6 +54,21 @@ namespace Okay
 
 		glm::vec3 direction;
 		float paddding2;
+	};
+
+	struct GPUSkyData
+	{
+		glm::vec3 ambientTint = glm::vec3(1.f);
+		float ambientTintIntensity = 0.f;
+	};
+
+	struct GPUSunData
+	{
+		glm::vec3 direction = glm::vec3(1.f);
+		float size = 1.f;
+
+		glm::vec3 colour = glm::vec3(1.f);
+		float intensity = 0.f;
 	};
 
 	class Renderer
@@ -69,23 +86,24 @@ namespace Okay
 		void submit(const DirectionalLight& light, const Transform& transform);
 
 		void setRenderTexture(RenderTexture* pRenderTexture);
-		inline void setCamera(Entity cameraEntity);
-		inline void setSkyLight(Entity skyEntity);
+		inline void setScene(Scene* pScene);
 
 		void newFrame();
-		void render();
+		void render(const Entity& camera = Entity());
 		void setWireframe(bool wireFrame);
 
+		void imGui();
 
 	private: // Misc
-		void onTargetResize(uint32_t width, uint32_t height);
+		Scene* pScene;
 		RenderTexture* pRenderTarget;
-		Entity cameraEntity;
-		Entity skyEntity;
+		
+		void render_internal();
 
 		ID3D11DeviceContext* pDevContext;
 		ID3D11RasterizerState* pWireframeRS;
 		D3D11_VIEWPORT viewport;
+		void onTargetResize(uint32_t width, uint32_t height);
 
 	private: // Assets to render
 		using MeshPair			= RenPair<const MeshComponent&, const glm::mat4&>;
@@ -93,7 +111,6 @@ namespace Okay
 		using DirLightPair		= RenPair<const DirectionalLight&, const Transform&>;
 
 		LightInfo lightInfo;
-		GPUCamera camData;
 
 		std::vector<MeshPair> meshes;
 		std::vector<PointLightPair> pointLights;
@@ -102,7 +119,8 @@ namespace Okay
 		void updatePointLightsBuffer();
 		void updateDirLightsBuffer();
 	
-		void calculateCameraMatrix();
+		// NOTE: Can (atm) be static, but dunno how things will change once a defeered context is used
+		void updateCameraBuffer(const Entity& cameraEntity); 
 
 	private: // Static PipelineResources
 
@@ -116,7 +134,9 @@ namespace Okay
 			ID3D11Buffer* pWorldBuffer = nullptr;
 			ID3D11Buffer* pMaterialBuffer = nullptr;
 			ID3D11Buffer* pShaderDataBuffer = nullptr;
-			ID3D11Buffer* pSkyLightDataBuffer = nullptr;
+
+			ID3D11Buffer* pSkyDataBuffer = nullptr;
+			ID3D11Buffer* pSunDataBuffer = nullptr;
 
 			ID3D11Buffer* pLightInfoBuffer = nullptr;
 			ID3D11Buffer* pPointLightBuffer = nullptr;
@@ -157,20 +177,7 @@ namespace Okay
 
 		static void bindMeshPipeline();
 		static void bindSkeletalPipeline();
-
 	};
 
-
-	inline void Renderer::setCamera(Entity cameraEntity)
-	{
-		OKAY_ASSERT(cameraEntity.isValid(), "Camera entity isn't valid");
-		OKAY_ASSERT(cameraEntity.hasComponent<Camera>(), "Camera entity doesn't have a Camera Component");
-		this->cameraEntity = cameraEntity;
-	}
-
-	inline void Renderer::setSkyLight(Entity skyEntity)
-	{
-		OKAY_ASSERT(skyEntity.hasComponent<SkyLight>(), "Sky Entity entity doesn't have a SkyLight Component");
-		this->skyEntity = skyEntity;
-	}
+	inline void Renderer::setScene(Scene* pScene) { this->pScene = pScene; }
 }

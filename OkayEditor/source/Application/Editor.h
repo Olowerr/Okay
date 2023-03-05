@@ -63,6 +63,9 @@ private:
 	// List label can be disabled by starting it with "##"
 	template<typename T>
 	bool selectAsset(uint32_t selectedShaderID, uint32_t& result, const std::vector<T>& list, const char* listLabel);
+
+	template<typename T, typename ResetFunction>
+	Okay::Entity selectEntity(const char* label, uint32_t selectedEntity, ResetFunction resetFunction);
 };
 
 inline Okay::Entity Editor::getEntity(uint32_t id)
@@ -131,4 +134,27 @@ bool Editor::selectAsset(uint32_t currentSelectionId, uint32_t& result, const st
 	}
 
 	return pressed;
+}
+
+template<typename T, typename OnResetFunction>
+inline Okay::Entity Editor::selectEntity(const char* label, uint32_t currentEntity, OnResetFunction resetFunction)
+{
+	Okay::Entity selectedEntity;
+	if (ImGui::BeginCombo(label, currentEntity == Okay::INVALID_UINT ? "None" : std::to_string(currentEntity).c_str()))
+	{
+		auto entityView = scene.getRegistry().view<T>(entt::exclude<EditorEntity>);
+
+		if (ImGui::Selectable("Reset"))
+			resetFunction();
+
+		for (entt::entity entity : entityView)
+		{
+			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), (uint32_t)entity == currentEntity))
+				selectedEntity = getEntity((uint32_t)entity);
+		}
+
+		ImGui::EndCombo();
+	}
+
+	return selectedEntity;
 }

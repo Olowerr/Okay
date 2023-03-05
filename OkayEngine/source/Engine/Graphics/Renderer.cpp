@@ -4,13 +4,12 @@
 #include "ContentBrowser.h"
 #include "RenderTexture.h"
 
-#include "Engine/Application/Entity.h"
-#include "Engine/Components/Camera.h"
 #include "Engine/Components/Transform.h"
 #include "Engine/Components/MeshComponent.h"
 
+#include "Engine/Application/Scene.h"
+
 #include <glm/gtc/matrix_transform.hpp>
-#include <DirectXMath.h>
 #include <utility>
 
 namespace Okay
@@ -36,7 +35,7 @@ namespace Okay
 		}
 
 		// Buffers
-		{ 
+		{
 			hr = DX11::createConstantBuffer(&pipeline->pMaterialBuffer, nullptr, sizeof(Material::GPUData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating materialBuffer");
 
@@ -52,9 +51,13 @@ namespace Okay
 			hr = DX11::createConstantBuffer(&pipeline->pShaderDataBuffer, nullptr, sizeof(Shader::GPUData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating shaderDataBuffer");
 
-			// TODO: Fix "16u"
-			hr = DX11::createConstantBuffer(&pipeline->pSkyLightDataBuffer, nullptr, 16u, false);
+			hr = DX11::createConstantBuffer(&pipeline->pSkyDataBuffer, nullptr, sizeof(GPUSkyData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skyLightDataBuffer");
+
+			hr = DX11::createConstantBuffer(&pipeline->pSunDataBuffer, nullptr, sizeof(GPUSunData), false);
+			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating sunDataBuffer");
+
+
 
 
 			expandPointLights();
@@ -80,9 +83,9 @@ namespace Okay
 			rsDesc.FillMode = D3D11_FILL_SOLID;
 			hr = pDevice->CreateRasterizerState(&rsDesc, &pipeline->pNoCullRS);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating noCullRS");
-			
+
 		}
-		
+
 
 		// Basic linear sampler
 		{
@@ -104,7 +107,7 @@ namespace Okay
 			pDevContext->VSSetSamplers(0, 1, &simp);
 			simp->Release();
 		}
-		
+
 
 		// Input Layouts & Shaders
 		{
@@ -126,15 +129,15 @@ namespace Okay
 				hr = pDevice->CreateInputLayout(inputLayoutDesc, ilLength, shaderData.c_str(), shaderData.length(), ppIL);
 				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating input layout");
 			};
-	
-			createVSAndInputLayout(SHADER_PATH "MeshVS.cso", &pipeline->pMeshVS, &pipeline->pPosUvNormIL, 3u);
-			
+
+			createVSAndInputLayout(SHADER_BIN_PATH "MeshVS.cso", &pipeline->pMeshVS, &pipeline->pPosUvNormIL, 3u);
+
 
 			// Skybox
 			{
-				createVSAndInputLayout(SHADER_PATH "SkyBoxVS.cso", &pipeline->pSkyBoxVS, &pipeline->pPosIL, 1u);
+				createVSAndInputLayout(SHADER_BIN_PATH "SkyBoxVS.cso", &pipeline->pSkyBoxVS, &pipeline->pPosIL, 1u);
 
-				result = readBinary(SHADER_PATH "SkyBoxPS.cso", shaderData);
+				result = readBinary(SHADER_BIN_PATH "SkyBoxPS.cso", shaderData);
 				OKAY_ASSERT(result, "Failed reading SkyBoxPS.cso");
 
 				hr = pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pipeline->pSkyBoxPS);
@@ -183,15 +186,17 @@ namespace Okay
 			pDevContext->VSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
 			pDevContext->VSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
 			pDevContext->VSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
-			pDevContext->VSSetConstantBuffers(4, 1, &pipeline->pSkyLightDataBuffer);
-			pDevContext->VSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
+			pDevContext->VSSetConstantBuffers(4, 1, &pipeline->pSkyDataBuffer);
+			pDevContext->VSSetConstantBuffers(5, 1, &pipeline->pSunDataBuffer);
+			pDevContext->VSSetConstantBuffers(6, 1, &pipeline->pLightInfoBuffer);
 
 			pDevContext->PSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
 			pDevContext->PSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
 			pDevContext->PSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
 			pDevContext->PSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
-			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pSkyLightDataBuffer);
-			pDevContext->PSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
+			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pSkyDataBuffer);
+			pDevContext->PSSetConstantBuffers(5, 1, &pipeline->pSunDataBuffer);
+			pDevContext->PSSetConstantBuffers(6, 1, &pipeline->pLightInfoBuffer);
 
 			// 0-2	| material textures
 			// 3	| height map 
@@ -199,14 +204,14 @@ namespace Okay
 			pDevContext->PSSetShaderResources(5, 1, &pipeline->pDirLightSRV);
 			// 6	| skyBoxTextureCube
 		}
-		
+
 	}
 
 	Renderer::Renderer(RenderTexture* pRenderTarget)
 		:pDevContext(DX11::get().getDeviceContext()), pRenderTarget(pRenderTarget)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
-		
+
 		meshes.reserve(10);
 		pointLights.reserve(10);
 		dirLights.reserve(2);
@@ -246,7 +251,7 @@ namespace Okay
 	{
 		if (dirLights.size() >= (uint32_t)pipeline->maxDirLights)
 			expandDirLights();
-		
+
 		dirLights.emplace_back(light, transform);
 		lightInfo.numDirLights++;
 	}
@@ -262,69 +267,138 @@ namespace Okay
 		glm::ivec2 dims = pRenderTarget->getDimensions();
 		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
+}
 
-	void Renderer::onTargetResize(uint32_t width, uint32_t height)
+#include "imgui/imgui.h"
+#include <d3dcompiler.h>
+namespace Okay 
+{
+	void Renderer::imGui()
 	{
-		viewport.Width = (float)width;
-		viewport.Height = (float)height;
-		pDevContext->RSSetViewports(1u, &viewport);
+		ImGui::Begin("Skybox stuff");
+
+		if (ImGui::Button("Refresh"))
+		{
+			ID3DBlob* outData = nullptr;
+			ID3DBlob* outErrors = nullptr;
+
+			static const wchar_t* path = L"../OkayEngine/source/Engine/Graphics/Shaders/SkyBoxPS.hlsl";
+			static const size_t pathSize = wcslen(path);
+
+			HRESULT hr = D3DCompileFromFile(path, nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_OPTIMIZATION_LEVEL2, 0u, &outData, &outErrors);
+
+			ID3D11PixelShader* pNewPS = nullptr;
+			if (SUCCEEDED(hr))
+			{
+				DX11::get().getDevice()->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, &pNewPS);
+				DX11_RELEASE(outData);
+				if (!pNewPS)
+				{
+					ImGui::End();
+					return;
+				}
+			}
+			else
+			{
+				if (outErrors)
+				{
+					printf("Error compiling shader: %s\n", (char*)outErrors->GetBufferPointer());
+					DX11_RELEASE(outErrors);
+				}
+				ImGui::End();
+				return;
+			}
+
+			DX11_RELEASE(pipeline->pSkyBoxPS);
+			pipeline->pSkyBoxPS = pNewPS;
+		}
+
+		ImGui::End();
 	}
 
-	void Renderer::newFrame()
+	void Renderer::render(const Entity& camera)
 	{
-		lightInfo.numPointLights = 0u;
-		lightInfo.numDirLights = 0u;
-		meshes.clear();
-		pointLights.clear();
-		dirLights.clear();
+		Entity actualCamera = camera ? camera : pScene->getMainCamera();
+
+		// Should only occur if a scene is started without a camera
+		// Maybe add a OKAY_DEBUG/OKAY_SAFE define?
+		bool bad = false;
+		if (!actualCamera) 
+		{
+			actualCamera = pScene->createEntity();
+			actualCamera.addComponent<Camera>();
+			bad = true;
+		}
+
+		updateCameraBuffer(actualCamera);
+		if (bad)
+			pScene->destroyEntity(actualCamera);
+
+		pScene->submit(this);
+		render_internal();
 	}
 
-	void Renderer::render()
+	void Renderer::render_internal()
 	{
+		ContentBrowser& content = ContentBrowser::get();
 		ID3D11ShaderResourceView* textures[3] = {};
 		glm::mat4 worldMatrix{};
 
-		ContentBrowser& content = ContentBrowser::get();
+		const Entity skyLightEntity = pScene->getSkyLight();
+		const Entity sunEntity = pScene->getSun();
 
+		//TODO: Display warning if nullptr 
+		const SkyLight* pSkyLight = skyLightEntity ? skyLightEntity.tryGetComponent<SkyLight>() : nullptr;
+		const Sun* pSun = sunEntity ? sunEntity.tryGetComponent<Sun>() : nullptr;
+
+		if (pSkyLight)
+		{
+			DX11::updateBuffer(pipeline->pSkyDataBuffer, &pSkyLight->tint, sizeof(GPUSkyData));
+		}
+		else
+		{
+			GPUSkyData data;
+			DX11::updateBuffer(pipeline->pSkyDataBuffer, &data, sizeof(GPUSkyData));
+		}
+
+		if (pSun)
+		{
+			GPUSunData data;
+			data.direction = -sunEntity.getComponent<Transform>().forward();
+			data.colour = pSun->colour;
+			data.size = pSun->size;
+			data.intensity = pSun->intensity;
+			DX11::updateBuffer(pipeline->pSunDataBuffer, &data, sizeof(GPUSunData));
+		}
+		else
+		{
+			GPUSunData data;
+			DX11::updateBuffer(pipeline->pSunDataBuffer, &data, sizeof(GPUSunData));
+		}
 
 		updatePointLightsBuffer();
 		updateDirLightsBuffer();
 		DX11::updateBuffer(pipeline->pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
 
-		SkyLight* pSkyLight = nullptr;
-		if (skyEntity.isValid())
-		{
-			OKAY_ASSERT(skyEntity.hasComponent<SkyLight>(), "Sky Entity entity doesn't have a SkyLight Component");
-			pSkyLight = &skyEntity.getComponent<SkyLight>();
-			DX11::updateBuffer(pipeline->pSkyLightDataBuffer, &pSkyLight->tint.x, 16u); //TODO: fix omg
-		}
-		else
-		{
-			float tempSkyLightData[4]{/*1.f, 1.f, 1.f, 1.f*/};
-			DX11::updateBuffer(pipeline->pSkyLightDataBuffer, &tempSkyLightData, 16u); //TODO: fix omg
-		}
-		
-		calculateCameraMatrix();
-
 		bindMeshPipeline();
 		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
-		
-		// TODO: Change wireframe to a material property
+
+		// TODO: Add wireFrame as a material property aswell
 		pDevContext->RSSetState(pWireframeRS);
-		
+
 		// Draw all static meshes
 		for (size_t i = 0; i < meshes.size(); i++)
 		{
-			const MeshComponent& cMesh	= meshes[i].asset;
-			const Mesh& mesh			= content.getMesh(cMesh.meshIdx);
-			const Material& material	= content.getMaterial(cMesh.materialIdx);
-			const Shader& shader		= content.getShader(cMesh.shaderIdx);
+			const MeshComponent& cMesh = meshes[i].asset;
+			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
+			const Material& material = content.getMaterial(cMesh.materialIdx);
+			const Shader& shader = content.getShader(cMesh.shaderIdx);
 
 			worldMatrix = glm::transpose(meshes[i].transform);
 
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
-			textures[Material::SPECULAR_INDEX]	 = content.getTexture(material.getSpecular()).getSRV();
-			textures[Material::AMBIENT_INDEX]	 = content.getTexture(material.getAmbient()).getSRV();
+			textures[Material::SPECULAR_INDEX] = content.getTexture(material.getSpecular()).getSRV();
+			textures[Material::AMBIENT_INDEX] = content.getTexture(material.getAmbient()).getSRV();
 
 			DX11::updateBuffer(pipeline->pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
 			DX11::updateBuffer(pipeline->pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
@@ -365,6 +439,22 @@ namespace Okay
 
 			pDevContext->DrawIndexed(skyBoxMesh.getNumIndices(), 0u, 0);
 		}
+	}
+
+	void Renderer::onTargetResize(uint32_t width, uint32_t height)
+	{
+		viewport.Width = (float)width;
+		viewport.Height = (float)height;
+		pDevContext->RSSetViewports(1u, &viewport);
+	}
+
+	void Renderer::newFrame()
+	{
+		lightInfo.numPointLights = 0u;
+		lightInfo.numDirLights = 0u;
+		meshes.clear();
+		pointLights.clear();
+		dirLights.clear();
 	}
 
 	void Renderer::setWireframe(bool wireFrame)
@@ -447,10 +537,11 @@ namespace Okay
 		char* location = (char*)sub.pData;
 		for (size_t i = 0; i < dirLights.size(); i++)
 		{
+			dirLightDirection = dirLights[i].transform.forward();
+
 			memcpy(location, &dirLights[i].asset, sizeof(DirectionalLight));
 			location += sizeof(DirectionalLight);
 
-			dirLightDirection = dirLights[i].transform.forward();
 			memcpy(location, &dirLightDirection, sizeof(glm::vec3));
 			location += sizeof(glm::vec3);
 		}
@@ -458,12 +549,12 @@ namespace Okay
 		pDevContext->Unmap(pipeline->pDirLightBuffer, 0);
 	}
 
-	void Renderer::calculateCameraMatrix()
+	void Renderer::updateCameraBuffer(const Entity& cameraEntity)
 	{
 		const Camera& camera = cameraEntity.getComponent<Camera>();
-		Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
+		const Transform& camTransform = cameraEntity.getComponent<Okay::Transform>();
 
-		camTransform.calculateMatrix();
+		GPUCamera camData{};
 		camData.direction = camTransform.forward();
 		camData.pos = camTransform.position;
 		camData.viewProjMatrix = glm::transpose(camera.projectionMatrix *
@@ -493,12 +584,14 @@ namespace Okay
 		DX11_RELEASE(pWorldBuffer);
 		DX11_RELEASE(pMaterialBuffer);
 		DX11_RELEASE(pShaderDataBuffer);
-		DX11_RELEASE(pSkyLightDataBuffer);
+
+		DX11_RELEASE(pSkyDataBuffer);
+		DX11_RELEASE(pSunDataBuffer);
 
 		DX11_RELEASE(pLightInfoBuffer);
 		DX11_RELEASE(pPointLightBuffer);
-		DX11_RELEASE(pPointLightSRV);
 		DX11_RELEASE(pDirLightBuffer);
+		DX11_RELEASE(pPointLightSRV);
 		DX11_RELEASE(pDirLightSRV);
 
 		DX11_RELEASE(pPosIL);

@@ -39,7 +39,7 @@ if (!(condition))\
 #define UCHAR_TO_UNORM(value)	float((value) / (float)UCHAR_MAX)
 
 #define ENGINE_RESOURCES_PATH "../OkayEngine/engine_resources/"
-#define SHADER_PATH ENGINE_RESOURCES_PATH "shaders/bin/"
+#define SHADER_BIN_PATH ENGINE_RESOURCES_PATH "shaders/bin/"
 
 namespace Okay
 {

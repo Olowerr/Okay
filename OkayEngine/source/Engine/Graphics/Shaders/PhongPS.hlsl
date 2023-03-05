@@ -53,5 +53,5 @@ float4 main(TransformedVertex input) : SV_TARGET
 	}
 	
 
-	return saturate(baseColour * (float4(skyColour, 0.f) * skyIntensity + diffShading + specShading));
+	return saturate(baseColour * (float4(ambientTint, 0.f) * ambientTintIntensity + diffShading + specShading));
 }

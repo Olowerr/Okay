@@ -18,16 +18,22 @@ struct TransformedVertex
 
 struct PointLight
 {
+	// Component
 	float3 colour;
 	float intensity;
 	float2 attenuation;
+
+	// Transform
 	float3 position;
 };
 
 struct DirectionalLight
 {
+	// Component
 	float3 colour;
 	float intensity;
+
+	// Transform
 	float3 direction;
 };
 
@@ -63,16 +69,25 @@ cbuffer ShaderData : register(b3)
 {
 	BOOL heightMapBool;
 	float heightMapScalar;
-	int padding[2];
+	float padding[2];
 };
 
-cbuffer SkyLight : register(b4)
+cbuffer SkyData : register(b4)
 {
-	float3 skyColour;
-	float skyIntensity;
+	float3 ambientTint;
+	float ambientTintIntensity;
 }
 
-cbuffer lightInfo : register(b5)
+cbuffer SunData : register(b5)
+{
+	float3 sunDir;
+	float sunSize;
+
+	float3 sunColour;
+	float sunIntensity;
+}
+
+cbuffer lightInfo : register(b6)
 {
 	uint numPoint;
 	uint numDir;
@@ -92,4 +107,3 @@ TextureCube skyBoxTexture : register(t6);
 
 // Samplers
 SamplerState simp : register(s0);
-

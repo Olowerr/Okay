@@ -23,7 +23,6 @@ Editor::Editor(std::string_view startScene)
 	editorCamera = scene.createEntity();
 	editorCamera.addComponent<EditorEntity>();
 	editorCamera.addScript<EditorCamera>();
-	renderer.setCamera(editorCamera);
 
 	content.importFile("resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
@@ -61,10 +60,10 @@ void Editor::run()
 
 	Application::initImgui();
 
-	scene.setRenderer(&renderer);
 	scene.start();
 	Time::start();
 
+	renderer.setScene(&scene);
 	while (window.isOpen())
 	{
 		newFrame();
@@ -72,8 +71,8 @@ void Editor::run()
 		update();
 		scene.update();
 
-		scene.submit();
-		renderer.render();
+		renderer.imGui();
+		renderer.render(editorCamera);
 
 		endFrame();
 	} 
@@ -300,35 +299,15 @@ void Editor::displaySceneSettings()
 		return;
 	}
 
-	uint32_t mainCameraID = scene.getMainCamera().getID();
-	if (ImGui::BeginCombo("Main Camera", mainCameraID == Okay::INVALID_UINT ? "None" : std::to_string(mainCameraID).c_str()))
-	{
-		auto cameraView = scene.getRegistry().view<Okay::Camera>(entt::exclude<EditorEntity>);
+	if (Okay::Entity entity = selectEntity<Okay::Camera>("Main Camera", scene.getMainCamera().getID(), [&]() {scene.setMainCamera(Okay::Entity()); }))
+		scene.setMainCamera(entity);
 
-		for (entt::entity entity : cameraView)
-		{
-			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getMainCamera()))
-				scene.setMainCamera(getEntity((uint32_t)entity));
-		}
-		
-		ImGui::EndCombo();
-	}
-
-	uint32_t skyLightID = scene.getSkyLight().getID();
-	if (ImGui::BeginCombo("Sky Light", skyLightID == Okay::INVALID_UINT ? "None" : std::to_string(skyLightID).c_str()))
-	{
-		auto skyLightView = scene.getRegistry().view<Okay::SkyLight>(entt::exclude<EditorEntity>);
-
-		for (entt::entity entity : skyLightView)
-		{
-			const Okay::SkyBox& skyBox = *skyLightView.get<Okay::SkyLight>(entity).skyBox;
-			if (ImGui::Selectable(std::to_string((uint32_t)entity).c_str(), entity == scene.getSkyLight() && skyBox.getTextureCubeSRV()))
-				scene.setSkyLight(getEntity((uint32_t)entity));
-			
-		}
-		
-		ImGui::EndCombo();
-	}
+	if (Okay::Entity entity = selectEntity<Okay::SkyLight>("Sky Light", scene.getSkyLight().getID(), [&]() { scene.setSkyLight(Okay::Entity()); }))
+		scene.setSkyLight(entity);
+	
+	if (Okay::Entity entity = selectEntity<Okay::Sun>("Sun", scene.getSun().getID(), [&]() { scene.setSun(Okay::Entity()); }))
+		scene.setSun(entity);
+	
 
 	ImGui::End();
 }
