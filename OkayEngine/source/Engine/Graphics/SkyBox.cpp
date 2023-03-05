@@ -6,7 +6,7 @@
 namespace Okay
 {
 	SkyBox::SkyBox()
-		:pTextureCube(nullptr), pTextureCubeSRV(nullptr)
+		:pTextureCubeSRV(nullptr)
 	{
 	}
 
@@ -17,7 +17,6 @@ namespace Okay
 
 	void SkyBox::shutdown()
 	{
-		DX11_RELEASE(pTextureCube);
 		DX11_RELEASE(pTextureCubeSRV);
 	}
 
@@ -91,6 +90,7 @@ namespace Okay
 		coursor = pImgData + imgWidth * height + width * 3u;
 		copyImgSection((uint32_t*)data[5].pSysMem);
 
+		stbi_image_free(pImgData);
 
 		D3D11_TEXTURE2D_DESC desc{};
 		desc.ArraySize = 6u;
@@ -105,9 +105,9 @@ namespace Okay
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 
+		ID3D11Texture2D* pTextureCube = nullptr;
 		HRESULT hr = DX11::get().getDevice()->CreateTexture2D(&desc, data, &pTextureCube);
 
-		stbi_image_free(pImgData);
 		for (size_t i = 0; i < 6; i++)
 			free((void*)data[i].pSysMem);
 
@@ -120,18 +120,12 @@ namespace Okay
 		srvDesc.TextureCube.MostDetailedMip = 0u;
 
 		hr = DX11::get().getDevice()->CreateShaderResourceView(pTextureCube, &srvDesc, &pTextureCubeSRV);
-		if (FAILED(hr))
-			pTextureCube->Release();
+		pTextureCube->Release();
 
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Texture Cube SRV");
 
 		DX11::get().getDeviceContext()->PSSetShaderResources(10, 1, &pTextureCubeSRV);
 
 		return true;
-	}
-	
-	void SkyBox::copyImgSection(uint32_t* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight)
-	{
-		
 	}
 }

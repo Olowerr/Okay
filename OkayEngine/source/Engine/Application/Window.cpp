@@ -58,14 +58,6 @@ Window::~Window()
 	DX11_RELEASE(swapChain);
 }
 
-//void Window::createRenderTexture(uint32_t flags)
-//{
-//	RECT rect{};
-//	GetWindowRect(hWnd, &rect);
-//	renderTexture.create(uint32_t(rect.right - rect.left), uint32_t(rect.bottom - rect.top), flags);
-//	createRenderTexture_Internal(flags);
-//}
-
 void Window::show()
 {
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
@@ -105,17 +97,11 @@ void Window::update()
 		DispatchMessage(&msg);
 	}
 	if (msg.message == WM_QUIT)
-	{
 		open = false;
-		CloseWindow(hWnd);
-	}
 }
 
-bool Window::fileExplorerSelectFile(char* pOutput, size_t bufferSize)
+bool Window::fileExplorerSelectFile(std::string& output)
 {
-	if (!pOutput || !bufferSize)
-		return false;
-
 	wchar_t fileName[MAX_FILENAME_LENGTH]{};
 
 	OPENFILENAME ofn{};
@@ -130,8 +116,11 @@ bool Window::fileExplorerSelectFile(char* pOutput, size_t bufferSize)
 
 	if (!GetOpenFileName(&ofn))
 		return false;
+	
+	const size_t bufferSize = wcslen(fileName);
+	output.resize(bufferSize + 1ull);
+	wcstombs_s(nullptr, output.data(), bufferSize + 1ull, fileName, bufferSize);
 
-	wcstombs_s(nullptr, pOutput, bufferSize, fileName, bufferSize);
 	return true;
 }
 

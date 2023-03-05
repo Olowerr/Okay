@@ -275,9 +275,9 @@ void Editor::displayContent()
 	{
 		if (ImGui::MenuItem("Import"))
 		{
-			char output[Window::MAX_FILENAME_LENGTH]{};
-			if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
-				content.importFile(output);
+			std::string file;
+			if (window.fileExplorerSelectFile(file))
+				content.importFile(file);
 		}
 	
 		if (ImGui::MenuItem("weow"))

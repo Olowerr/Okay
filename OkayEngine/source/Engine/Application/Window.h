@@ -35,7 +35,7 @@ public:
 
 	HWND getHWnd() const;
 	void update();
-	bool fileExplorerSelectFile(char* pOutput, size_t bufferSize);
+	bool fileExplorerSelectFile(std::string& output);
 
 	static inline Window* getActiveWindow();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

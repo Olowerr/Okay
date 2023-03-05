@@ -32,6 +32,22 @@ void Editor::displayComponents(Okay::Entity entity)
 {
 	using namespace Okay;
 
+	ImGui::Text("Entity - %u", entity.getID());
+	ImGui::Separator();
+
+	// TODO: Change IMGUI_DISPLAY_COMP to a function, and make the components collapsable
+	/*static const ImVec4 col1{0.3f, 0.3f, 0.3f, 1.f};
+	static const ImVec4 col2{0.4f, 0.4f, 0.4f, 1.f};
+	static const ImVec4 col3{0.2f, 0.2f, 0.2f, 1.f};
+
+	ImGui::PushStyleColor(ImGuiCol_Header, col1);
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, col2);
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, col3);
+
+	if (ImGui::TreeNodeEx("la", ImGuiTreeNodeFlags_Framed, "asdasdad"))
+		ImGui::TreePop();	
+
+	ImGui::PopStyleColor(3);*/
 
 	IMGUI_DISPLAY_COMP_START(Transform, "Transform", false);
 
@@ -41,7 +57,7 @@ void Editor::displayComponents(Okay::Entity entity)
 	// Make function / macro ?
 	ImGui::Text("Position:"); 
 	ImGui::SameLine();
-	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.001f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Rotation:"); 
 	ImGui::SameLine();
@@ -49,7 +65,7 @@ void Editor::displayComponents(Okay::Entity entity)
 	
 	ImGui::Text("Scale:   "); 
 	ImGui::SameLine();
-	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.001f, 0.f, 0.f, "%.1f");
 
 	tra.rotation = glm::radians(degRot);
 
@@ -130,11 +146,11 @@ void Editor::displayComponents(Okay::Entity entity)
 	ImGui::Text("Textures: %s", skyLight.skyBox->getTextureName().c_str());
 	if (ImGui::Button("Select"))
 	{
-		char output[Window::MAX_FILENAME_LENGTH]{};
-		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
+		std::string file;
+		if (window.fileExplorerSelectFile(file))
 		{
-			if (!skyLight.skyBox->create(output))
-				printf("Failed loading skybox texture\n");
+			if (!skyLight.skyBox->create(file))
+				printf("Failed loading skybox texture\n"); // TODO: Add editor runtime warning & error
 		}
 	}
 
@@ -270,9 +286,9 @@ void Editor::displayShader(uint32_t index)
 
 	if (ImGui::Button("Select"))
 	{
-		char output[Window::MAX_FILENAME_LENGTH]{};
-		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
-			shader.compilePixelShader(output);
+		std::string file;
+		if (window.fileExplorerSelectFile(file))
+			shader.compilePixelShader(file);
 	}
 	ImGui::SameLine();
 

@@ -20,12 +20,9 @@ namespace Okay
 		inline const std::string& getTextureName() const;
 
 	private:
-		ID3D11Texture2D* pTextureCube;
-		ID3D11ShaderResourceView* pTextureCubeSRV;
-
 		std::string textureName;
 
-		void copyImgSection(uint32_t* pTarget, uint32_t* pSource, uint32_t imgWidth, uint32_t readWidth, uint32_t readHeight);
+		ID3D11ShaderResourceView* pTextureCubeSRV;
 	};
 
 	inline ID3D11ShaderResourceView* const* SkyBox::getTextureCubeSRV() const { return &pTextureCubeSRV; }
