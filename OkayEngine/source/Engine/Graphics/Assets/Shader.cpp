@@ -106,6 +106,7 @@ namespace Okay
 		wchar_t* lpPath = new wchar_t[path.size() + 1ull]{};
 		mbstowcs_s(nullptr, lpPath, path.size() + 1ull, path.data(), path.size());
 
+		// TODO: Fix Include directory
 		HRESULT hr = D3DCompileFromFile(lpPath, nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_OPTIMIZATION_LEVEL2, 0u, &outData, &outErrors);
 		OKAY_DELETE_ARRAY(lpPath);
 
