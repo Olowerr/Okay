@@ -45,7 +45,7 @@ private:
 	HWND hWnd;
 	bool open;
 
-	IDXGISwapChain* swapChain;
+	IDXGISwapChain* pSwapChain;
 	Okay::RenderTexture renderTexture;
 
 	void getAndSetBackBuffer(uint32_t flags);
@@ -64,7 +64,7 @@ inline void Window::clear() { renderTexture.clear(); }
 inline void Window::clear(float* colours) { renderTexture.clear(colours); }
 inline void Window::clear(const glm::vec4& colour) { renderTexture.clear(colour); }
 
-inline void Window::present() { swapChain->Present(0u, 0u); }
+inline void Window::present() { pSwapChain->Present(0u, 0u); }
 
 inline Window* Window::getActiveWindow() 
 {

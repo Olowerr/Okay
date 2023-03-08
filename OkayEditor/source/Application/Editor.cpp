@@ -149,7 +149,7 @@ void Editor::displayEntities()
 	{
 		selectionID = (uint32_t)scene.createEntity().getID();
 		selectionType = SelectionType::Entity;
-		scene.getMainCamera().getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
+		editorCamera.getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Remove"))

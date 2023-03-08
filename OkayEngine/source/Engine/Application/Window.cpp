@@ -10,7 +10,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 std::unordered_map<HWND, Window*> Window::windows;
 
 Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint32_t renderTexFlags)
-	:open(false), msg(), swapChain(nullptr)
+	:open(false), msg(), pSwapChain(nullptr)
 {
 	WNDCLASS winClass = {};
 	winClass.lpfnWndProc = WindowProc;
@@ -36,20 +36,20 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 
 	OKAY_ASSERT(hWnd != nullptr, "Failed creating window");
 	windows.insert({ hWnd, this });
-	show();
 
+	// Create before show, or onResize is called and swapChain is nullptr
 	createRenderTexture(renderTexFlags == Okay::INVALID_UINT ? Okay::RenderTexture::B_RENDER : renderTexFlags);
+	show();
 }
 
 Window::~Window()
 {
 	DestroyWindow(hWnd);
+	UnregisterClass(L"WinClass", GetModuleHandle(NULL));
 	windows.erase(hWnd);
 
-	UnregisterClass(L"WinClass", GetModuleHandle(NULL));
-
 	renderTexture.shutdown();
-	DX11_RELEASE(swapChain);
+	DX11_RELEASE(pSwapChain);
 }
 
 void Window::show()
@@ -117,12 +117,12 @@ bool Window::fileExplorerSelectFile(std::string& output)
 
 void Window::createRenderTexture(uint32_t flags)
 {
-	DX11::createSwapChain(&swapChain, hWnd, 
+	DX11::createSwapChain(&pSwapChain, hWnd,
 		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_RENDER)		? DXGI_USAGE_RENDER_TARGET_OUTPUT	: 0u) |
 		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_SHADER_READ)	? DXGI_USAGE_SHADER_INPUT			: 0u) |
 		(CHECK_BIT(flags, Okay::RenderTexture::BitPos::B_SHADER_WRITE)	? DXGI_USAGE_UNORDERED_ACCESS		: 0u) );
 
-	OKAY_ASSERT(swapChain, "Failed creating swapchain");
+	OKAY_ASSERT(pSwapChain, "Failed creating swapchain");
 
 	getAndSetBackBuffer(flags);
 }
@@ -130,8 +130,8 @@ void Window::createRenderTexture(uint32_t flags)
 void Window::getAndSetBackBuffer(uint32_t flags)
 {
 	ID3D11Texture2D* backBuffer = nullptr;
-	swapChain->GetBuffer(0u, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-	OKAY_ASSERT(swapChain, "Failed getting backBuffer");
+	pSwapChain->GetBuffer(0u, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	OKAY_ASSERT(pSwapChain, "Failed getting backBuffer");
 
 	renderTexture.create(backBuffer, flags);
 	DX11_RELEASE(backBuffer);
@@ -215,6 +215,6 @@ void Window::onResize(HWND hWnd, WPARAM wParam)
 	const uint32_t flags = window.renderTexture.getFlags();
 	window.renderTexture.shutdown();
 
-	window.swapChain->ResizeBuffers(0u, 0u, 0u, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+	window.pSwapChain->ResizeBuffers(0u, 0u, 0u, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 	window.getAndSetBackBuffer(flags);
 }
