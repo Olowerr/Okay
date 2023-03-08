@@ -1,8 +1,8 @@
 #pragma once
 #include "Engine/Okay/Okay.h"
 #include "Engine/Okay/OkayMath.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/euler_angles.hpp"
+
+#include "glm/gtx/quaternion.hpp"
 
 namespace Okay
 {
@@ -23,7 +23,7 @@ namespace Okay
 		{
 			matrix = 
 				Okay::mat4Translation(position) * 
-				glm::eulerAngleZYX(rotation.z, rotation.y, rotation.x) * // TODO: Check rotation order
+				glm::toMat4(glm::quat(rotation)) * 
 				Okay::mat4Scale(scale);
 		}
 	};
