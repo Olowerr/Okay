@@ -102,24 +102,21 @@ void Window::update()
 
 bool Window::fileExplorerSelectFile(std::string& output)
 {
-	wchar_t fileName[MAX_FILENAME_LENGTH]{};
+	char fileName[MAX_FILENAME_LENGTH]{};
 
-	OPENFILENAME ofn{};
-	ofn.lStructSize = sizeof(OPENFILENAME);
+	OPENFILENAMEA ofn{};
+	ofn.lStructSize = sizeof(OPENFILENAMEA);
 	ofn.hwndOwner = hWnd;
 	ofn.lpstrFile = fileName;
-	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = MAX_FILENAME_LENGTH;
-	ofn.lpstrFilter = L"All Files\0*.*";
+	ofn.lpstrFilter = "All Files\0*.*";
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_NOCHANGEDIR;
 
-	if (!GetOpenFileName(&ofn))
+	if (!GetOpenFileNameA(&ofn))
 		return false;
 	
-	const size_t bufferSize = wcslen(fileName);
-	output.resize(bufferSize);
-	wcstombs_s(nullptr, output.data(), bufferSize + 1ull, fileName, bufferSize);
+	output = ofn.lpstrFile;
 
 	return true;
 }
