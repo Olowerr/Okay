@@ -12,7 +12,7 @@ class Window
 public:
 	static const size_t MAX_FILENAME_LENGTH = 256ull;
 
-	Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint32_t renderTexFlags = ~0u, bool defaultWinProc = false);
+	Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint32_t renderTexFlags = Okay::INVALID_UINT);
 	~Window();
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;
@@ -39,16 +39,16 @@ public:
 
 	static inline Window* getActiveWindow();
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	static LRESULT CALLBACK WindowProcChild(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	MSG msg;
 	HWND hWnd;
 	bool open;
 
-	ID3D11Texture2D* backBuffer;
 	IDXGISwapChain* swapChain;
 	Okay::RenderTexture renderTexture;
+
+	void getAndSetBackBuffer(uint32_t flags);
 
 private: // Window handling through HWND
 	static std::unordered_map<HWND, Window*> windows;

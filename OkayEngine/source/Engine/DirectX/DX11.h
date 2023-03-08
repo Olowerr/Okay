@@ -27,6 +27,8 @@ public:
 	ID3D11DeviceContext* getDeviceContext();
 
 	// Helper functions // TODO: Change UINT to uint32_t
+	static bool createSwapChain(IDXGISwapChain** ppSwapChain, HWND hWnd, DXGI_USAGE dx11UsageFlags = DXGI_USAGE_RENDER_TARGET_OUTPUT);
+
 	static HRESULT createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static HRESULT createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static HRESULT createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
@@ -38,6 +40,7 @@ public:
 
 	static bool createVertexShader(std::string_view csoPath, ID3D11VertexShader** ppVertexShader);
 	static bool createPixelShader(std::string_view csoPath, ID3D11PixelShader** ppVertexShader);
+
 
 private:
 	ID3D11Device* pDevice;

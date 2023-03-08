@@ -50,6 +50,45 @@ ID3D11DeviceContext* DX11::getDeviceContext()
 
 /* ------ HELPER FUNCTIONS ------ */
 
+bool DX11::createSwapChain(IDXGISwapChain** ppSwapChain, HWND hWnd, DXGI_USAGE dx11UsageFlags)
+{
+	DXGI_SWAP_CHAIN_DESC desc{};
+	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	desc.BufferCount = 1;
+	desc.BufferUsage = dx11UsageFlags;
+
+	desc.BufferDesc.Width = 0u; // 0u defaults to the window dimensions
+	desc.BufferDesc.Height = 0u;
+	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	desc.BufferDesc.RefreshRate.Numerator = 0u;
+	desc.BufferDesc.RefreshRate.Denominator = 1u;
+
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+
+	desc.OutputWindow = hWnd;
+	desc.Windowed = true;
+	desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	ID3D11Device* pDevice = get().getDevice();
+	IDXGIDevice* idxDevice = nullptr;
+	IDXGIAdapter* adapter = nullptr;
+	IDXGIFactory* factory = nullptr;
+
+	pDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&idxDevice);
+	idxDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&adapter);
+	adapter->GetParent(__uuidof(IDXGIFactory), (void**)&factory);
+
+	factory->CreateSwapChain(pDevice, &desc, ppSwapChain);
+	DX11_RELEASE(idxDevice);
+	DX11_RELEASE(adapter);
+	DX11_RELEASE(factory);
+
+	return *ppSwapChain;
+}
+
 HRESULT DX11::createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable)
 {
 	D3D11_BUFFER_DESC desc{};
