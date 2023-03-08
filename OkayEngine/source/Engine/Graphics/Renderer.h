@@ -5,7 +5,6 @@
 
 #include "Engine/Components/PointLight.h"		// fwd dec?
 #include "Engine/Components/DirectionalLight.h"	// fwd dec?
-#include "Engine/Components/Sun.h"				// fwd dec?
 #include "Engine/Components/Camera.h"			// fwd dec?
 #include "Engine/Components/SkyLight.h"			// fwd dec?
 
@@ -60,15 +59,12 @@ namespace Okay
 	{
 		glm::vec3 ambientTint = glm::vec3(1.f);
 		float ambientTintIntensity = 0.f;
-	};
 
-	struct GPUSunData
-	{
-		glm::vec3 direction = glm::vec3(1.f);
-		float size = 1.f;
+		glm::vec3 sunDirection = glm::vec3(1.f);
+		float sunSize = 1.f;
 
-		glm::vec3 colour = glm::vec3(1.f);
-		float intensity = 0.f;
+		glm::vec3 sunColour = glm::vec3(1.f);
+		float sunIntensity = 0.f;
 	};
 
 	class Renderer
@@ -136,7 +132,6 @@ namespace Okay
 			ID3D11Buffer* pShaderDataBuffer = nullptr;
 
 			ID3D11Buffer* pSkyDataBuffer = nullptr;
-			ID3D11Buffer* pSunDataBuffer = nullptr;
 
 			ID3D11Buffer* pLightInfoBuffer = nullptr;
 			ID3D11Buffer* pPointLightBuffer = nullptr;

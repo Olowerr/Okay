@@ -305,9 +305,6 @@ void Editor::displaySceneSettings()
 	if (Okay::Entity entity = selectEntity<Okay::SkyLight>("Sky Light", scene.getSkyLight().getID(), [&]() { scene.setSkyLight(Okay::Entity()); }))
 		scene.setSkyLight(entity);
 	
-	if (Okay::Entity entity = selectEntity<Okay::Sun>("Sun", scene.getSun().getID(), [&]() { scene.setSun(Okay::Entity()); }))
-		scene.setSun(entity);
-	
 
 	ImGui::End();
 }

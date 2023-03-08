@@ -12,14 +12,15 @@ namespace Okay
 	struct SkyLight
 	{
 		SkyLight() = default;
-		SkyLight(const glm::vec3& tint, float intensity)
-			:tint(tint), intensity(intensity)
-		{ }
 
+		// TODO: Change to shared_ptr ? 
 		std::unique_ptr<SkyBox> skyBox = std::make_unique<SkyBox>();
 
-		// TODO: Change to GPUSkyData ?
-		glm::vec3 tint = glm::vec3(1.f);
-		float intensity = 0.2f;
+		glm::vec3 ambientTint = glm::vec3(1.f);
+		float ambientIntensity = 0.2f;
+
+		glm::vec3 sunColour = glm::vec3(1.f);
+		float sunSize = 50.f; // Subject to change
+		float sunIntensity = 1.f;
 	};
 }

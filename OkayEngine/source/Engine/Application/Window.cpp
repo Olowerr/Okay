@@ -118,7 +118,7 @@ bool Window::fileExplorerSelectFile(std::string& output)
 		return false;
 	
 	const size_t bufferSize = wcslen(fileName);
-	output.resize(bufferSize + 1ull);
+	output.resize(bufferSize);
 	wcstombs_s(nullptr, output.data(), bufferSize + 1ull, fileName, bufferSize);
 
 	return true;

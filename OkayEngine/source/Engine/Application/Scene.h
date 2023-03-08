@@ -19,11 +19,9 @@ namespace Okay
 
 		inline void setMainCamera(const Entity& entity);
 		inline void setSkyLight(const Entity& entity);
-		inline void setSun(const Entity& entity);
 
 		inline Entity getMainCamera();
 		inline Entity getSkyLight();
-		inline Entity getSun();
 
 		inline entt::registry& getRegistry();
 
@@ -39,8 +37,6 @@ namespace Okay
 
 		Entity mainCamera;
 		Entity skyLight;
-		Entity sun;
-
 	};
 
 	inline void Scene::destroyEntity(const Entity& entity)	{ registry.destroy(entity); }
@@ -48,11 +44,9 @@ namespace Okay
 
 	inline void Scene::setMainCamera(const Entity& entity)	{ mainCamera = entity; }
 	inline void Scene::setSkyLight(const Entity& entity)	{ skyLight = entity; }
-	inline void Scene::setSun(const Entity& entity)			{ sun = entity; }
 
 	inline Entity Scene::getMainCamera()					{ return mainCamera; }
 	inline Entity Scene::getSkyLight()						{ return skyLight; }
-	inline Entity Scene::getSun()							{ return sun; }
 
 	inline entt::registry& Scene::getRegistry()				{ return registry; }
 }

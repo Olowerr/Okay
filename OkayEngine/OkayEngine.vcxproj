@@ -215,7 +215,6 @@
     <ClInclude Include="source\Engine\Application\Scene.h" />
     <ClInclude Include="source\Engine\Components\DirectionalLight.h" />
     <ClInclude Include="source\Engine\Components\SkyLight.h" />
-    <ClInclude Include="source\Engine\Components\Sun.h" />
     <ClInclude Include="source\Engine\Graphics\SkyBox.h" />
     <ClInclude Include="source\Engine\Script\ScriptComponent.h" />
     <ClInclude Include="source\Engine\Script\DefaultScripts\FreeLookMovement.h" />

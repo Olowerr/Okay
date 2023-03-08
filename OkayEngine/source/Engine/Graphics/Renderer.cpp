@@ -54,11 +54,6 @@ namespace Okay
 			hr = DX11::createConstantBuffer(&pipeline->pSkyDataBuffer, nullptr, sizeof(GPUSkyData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skyLightDataBuffer");
 
-			hr = DX11::createConstantBuffer(&pipeline->pSunDataBuffer, nullptr, sizeof(GPUSunData), false);
-			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating sunDataBuffer");
-
-
-
 
 			expandPointLights();
 			expandDirLights();
@@ -187,16 +182,14 @@ namespace Okay
 			pDevContext->VSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
 			pDevContext->VSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
 			pDevContext->VSSetConstantBuffers(4, 1, &pipeline->pSkyDataBuffer);
-			pDevContext->VSSetConstantBuffers(5, 1, &pipeline->pSunDataBuffer);
-			pDevContext->VSSetConstantBuffers(6, 1, &pipeline->pLightInfoBuffer);
+			pDevContext->VSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
 
 			pDevContext->PSSetConstantBuffers(0, 1, &pipeline->pCameraBuffer);
 			pDevContext->PSSetConstantBuffers(1, 1, &pipeline->pWorldBuffer);
 			pDevContext->PSSetConstantBuffers(2, 1, &pipeline->pMaterialBuffer);
 			pDevContext->PSSetConstantBuffers(3, 1, &pipeline->pShaderDataBuffer);
 			pDevContext->PSSetConstantBuffers(4, 1, &pipeline->pSkyDataBuffer);
-			pDevContext->PSSetConstantBuffers(5, 1, &pipeline->pSunDataBuffer);
-			pDevContext->PSSetConstantBuffers(6, 1, &pipeline->pLightInfoBuffer);
+			pDevContext->PSSetConstantBuffers(5, 1, &pipeline->pLightInfoBuffer);
 
 			// 0-2	| material textures
 			// 3	| height map 
@@ -345,36 +338,22 @@ namespace Okay
 		glm::mat4 worldMatrix{};
 
 		const Entity skyLightEntity = pScene->getSkyLight();
-		const Entity sunEntity = pScene->getSun();
 
 		//TODO: Display warning if nullptr 
 		const SkyLight* pSkyLight = skyLightEntity ? skyLightEntity.tryGetComponent<SkyLight>() : nullptr;
-		const Sun* pSun = sunEntity ? sunEntity.tryGetComponent<Sun>() : nullptr;
 
+		GPUSkyData skyData;	
 		if (pSkyLight)
 		{
-			DX11::updateBuffer(pipeline->pSkyDataBuffer, &pSkyLight->tint, sizeof(GPUSkyData));
-		}
-		else
-		{
-			GPUSkyData data;
-			DX11::updateBuffer(pipeline->pSkyDataBuffer, &data, sizeof(GPUSkyData));
-		}
+			skyData.ambientTint = pSkyLight->ambientTint;
+			skyData.ambientTintIntensity = pSkyLight->ambientIntensity;
 
-		if (pSun)
-		{
-			GPUSunData data;
-			data.direction = -sunEntity.getComponent<Transform>().forward();
-			data.colour = pSun->colour;
-			data.size = pSun->size;
-			data.intensity = pSun->intensity;
-			DX11::updateBuffer(pipeline->pSunDataBuffer, &data, sizeof(GPUSunData));
+			skyData.sunDirection = -skyLightEntity.getComponent<Transform>().forward();
+			skyData.sunColour = pSkyLight->sunColour;
+			skyData.sunSize = pSkyLight->sunSize;
+			skyData.sunIntensity = pSkyLight->sunIntensity;
 		}
-		else
-		{
-			GPUSunData data;
-			DX11::updateBuffer(pipeline->pSunDataBuffer, &data, sizeof(GPUSunData));
-		}
+		DX11::updateBuffer(pipeline->pSkyDataBuffer, &skyData, sizeof(GPUSkyData));
 
 		updatePointLightsBuffer();
 		updateDirLightsBuffer();
@@ -586,7 +565,6 @@ namespace Okay
 		DX11_RELEASE(pShaderDataBuffer);
 
 		DX11_RELEASE(pSkyDataBuffer);
-		DX11_RELEASE(pSunDataBuffer);
 
 		DX11_RELEASE(pLightInfoBuffer);
 		DX11_RELEASE(pPointLightBuffer);

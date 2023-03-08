@@ -23,7 +23,6 @@ void Editor::addComponents(Okay::Entity entity)
 		IMGUI_ADD_COMP(PointLight);
 		IMGUI_ADD_COMP(DirectionalLight);
 		IMGUI_ADD_COMP(SkyLight);
-		IMGUI_ADD_COMP(Sun);
 
 		ImGui::EndCombo();
 	}
@@ -137,15 +136,30 @@ void Editor::displayComponents(Okay::Entity entity)
 
 	SkyLight& skyLight = entity.getComponent<SkyLight>();
 
-	ImGui::Text("Intensity:"); 
+
+	ImGui::Text("Ambient tint:"); 
+	ImGui::ColorEdit3("##NLSKLtint", &skyLight.ambientTint.x);
+
+	ImGui::Text("Ambient intensity:"); 
 	ImGui::SameLine();
-	ImGui::DragFloat("##NLSKLint", &skyLight.intensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
+	ImGui::DragFloat("##NLSKLint", &skyLight.ambientIntensity, 0.01f, 0.f, 100.f, nullptr, ImGuiSliderFlags_Logarithmic);
 
-	ImGui::Text("Tint:"); 
-	ImGui::ColorEdit3("##NLSKLtint", &skyLight.tint.x);
+	ImGui::Text("Sun colour:");
+	ImGui::ColorEdit3("##NLSKLcol", &skyLight.sunColour.x);
 
-	ImGui::Text("Texture: %s", skyLight.skyBox->getTextureName().c_str());
-	if (ImGui::Button("Select"))
+	ImGui::Text("Size:");
+	ImGui::SameLine();
+
+	float displaySize = 100.f - skyLight.sunSize;
+	ImGui::DragFloat("##NLSunSize", &displaySize, 0.1f, 0.1f, 99.9999f);
+	skyLight.sunSize = 100.f - displaySize;
+
+	ImGui::Text("Intensity:");
+	ImGui::SameLine();
+	ImGui::DragFloat("##NLSunint", &skyLight.sunIntensity, 0.1f);
+
+	ImGui::Text("Skybox texture: %s", skyLight.skyBox->getTextureName().c_str());
+	if (ImGui::Button("Select texture"))
 	{
 		std::string file;
 		if (window.fileExplorerSelectFile(file))
@@ -154,27 +168,6 @@ void Editor::displayComponents(Okay::Entity entity)
 				printf("Failed loading skybox texture\n"); // TODO: Add editor runtime warning & error
 		}
 	}
-
-	IMGUI_DISPLAY_COMP_END();
-
-
-	IMGUI_DISPLAY_COMP_START(Sun, "Sun", true);
-
-	Sun& sun = entity.getComponent<Sun>();
-
-	ImGui::Text("Colour:");
-	ImGui::ColorEdit3("##NLSuncol", &sun.colour.x);
-
-	ImGui::Text("Size:");
-	ImGui::SameLine();
-
-	float displaySize = 100.f - sun.size;
-	ImGui::DragFloat("##NLSunSize", &displaySize, 0.1f, 0.1f, 99.9999f);
-	sun.size = 100.f - displaySize;
-	
-	ImGui::Text("Intensity:");
-	ImGui::SameLine();
-	ImGui::DragFloat("##NLSunint", &sun.intensity, 0.1f);
 
 	IMGUI_DISPLAY_COMP_END();
 }

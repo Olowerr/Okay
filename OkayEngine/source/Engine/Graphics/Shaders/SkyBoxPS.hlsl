@@ -76,10 +76,7 @@ cbuffer SkyData : register(b4)
 {
 	float3 ambientTint;
 	float ambientTintIntensity;
-}
 
-cbuffer SunData : register(b5)
-{
 	float3 sunDir;
 	float sunSize;
 
@@ -87,7 +84,7 @@ cbuffer SunData : register(b5)
 	float sunIntensity;
 }
 
-cbuffer lightInfo : register(b6)
+cbuffer lightInfo : register(b5)
 {
 	uint numPoint;
 	uint numDir;
