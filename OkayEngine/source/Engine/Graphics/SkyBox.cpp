@@ -113,13 +113,7 @@ namespace Okay
 
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Texture Cube");
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = desc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels = 1u;
-		srvDesc.TextureCube.MostDetailedMip = 0u;
-
-		hr = DX11::get().getDevice()->CreateShaderResourceView(pTextureCube, &srvDesc, &pTextureCubeSRV);
+		hr = DX11::get().getDevice()->CreateShaderResourceView(pTextureCube, nullptr, &pTextureCubeSRV);
 		pTextureCube->Release();
 
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Texture Cube SRV");
