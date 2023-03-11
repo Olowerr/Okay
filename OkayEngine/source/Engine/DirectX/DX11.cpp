@@ -27,7 +27,7 @@ void DX11::shutdown()
 {
 	DX11_RELEASE(pDeviceContext);
 
-#ifndef DIST
+#if 0
 	ID3D11Debug* debugger = nullptr;
 	pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debugger));
 	debugger->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
