@@ -1,6 +1,5 @@
 #include "ShaderInclude.hlsli"
 
-
 float4 main(TransformedVertex input) : SV_TARGET
 {
 	const float2 uv = input.uv * uvTiling + uvOffset;
@@ -18,26 +17,22 @@ float4 main(TransformedVertex input) : SV_TARGET
 	float4 diffShading = float4(0.f, 0.f, 0.f, 1.f);
 	float4 specShading = float4(0.f, 0.f, 0.f, 1.f);
 
-	uint i = 0;
-
-	// TODO: Remove: (dot(posToLight, input.normal) > 0.f).
-	// Without it points lit up even when the light source was inside the object.
-	// But to my understanding, it should work without the extra check
+	uint i = 0u;
 
 	// Point Lights 
 	for (i = 0; i < numPoint; i++)
 	{
 		poLight = pointLights[i];
-
+		
 		posToLight = poLight.position - input.worldPos;
 		distance = length(posToLight);
 		posToLight /= distance;
-
+		
 		const float attu = (1.f / (1.f + poLight.attenuation.x * distance + poLight.attenuation.y * distance * distance));
-
-		specShading += specular * pow(max(dot(reflect(-posToLight, input.normal) * (dot(posToLight, input.normal) > 0.f), posToCam), 0.f), shinyness) *
-						float4(poLight.colour, 1.f) * poLight.intensity * attu;
-
+		
+		specShading += specular * pow(max(dot(reflect(-posToLight, input.normal), posToCam), 0.f), shinyness) * 
+			float4(poLight.colour, 1.f) * poLight.intensity * attu;
+		
 		diffShading += baseColour * max(dot(input.normal, posToLight), 0.f) * float4(poLight.colour, 1.f) * poLight.intensity * attu;
 	}
 
@@ -46,7 +41,7 @@ float4 main(TransformedVertex input) : SV_TARGET
 	{
 		dirLight = dirLights[i];
 
-		specShading += specular * pow(max(dot(reflect(dirLight.direction, input.normal) * (dot(-dirLight.direction, input.normal) > 0.f), posToCam), 0.f), shinyness) *
+		specShading += specular * pow(max(dot(reflect(dirLight.direction, input.normal), posToCam), 0.f), shinyness) * 
 			float4(dirLight.colour, 1.f) * dirLight.intensity;
 
 		diffShading += max(dot(input.normal, -dirLight.direction), 0.f) * float4(dirLight.colour, 1.f) * dirLight.intensity;

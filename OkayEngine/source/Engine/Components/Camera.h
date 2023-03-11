@@ -22,7 +22,7 @@ namespace Okay
 		}
 
 		Camera()
-			:fov(90.f), nearZ(0.1f), farZ(10000.f)
+			:fov(90.f), nearZ(0.1f), farZ(1000.f)
 		{
 			calculateProjMatrix(fov, 16.f, 9.f, nearZ, farZ);
 		}

@@ -231,7 +231,7 @@ namespace Okay
 
 	void Renderer::submit(const PointLight& light, const Transform& transform)
 	{
-		if (pointLights.size() >= (uint32_t)pipeline.maxPointLights)
+		if ((uint32_t)pointLights.size() >= pipeline.maxPointLights)
 			expandPointLights();
 
 		pointLights.emplace_back(light, transform);
@@ -240,7 +240,7 @@ namespace Okay
 
 	void Renderer::submit(const DirectionalLight& light, const Transform& transform)
 	{
-		if (dirLights.size() >= (uint32_t)pipeline.maxDirLights)
+		if ((uint32_t)dirLights.size() >= pipeline.maxDirLights)
 			expandDirLights();
 
 		dirLights.emplace_back(light, transform);
@@ -274,7 +274,7 @@ namespace Okay
 			ID3DBlob* outData = nullptr;
 			ID3DBlob* outErrors = nullptr;
 
-			static const wchar_t* path = L"../OkayEngine/source/Engine/Graphics/Shaders/SkyBoxPS.hlsl";
+			static const wchar_t* path = L"../OkayEngine/source/Engine/Graphics/Shaders/PhongPS.hlsl";
 			static const size_t pathSize = wcslen(path);
 
 			HRESULT hr = D3DCompileFromFile(path, nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_OPTIMIZATION_LEVEL2, 0u, &outData, &outErrors);
