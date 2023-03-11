@@ -52,9 +52,6 @@ private:
 
 	void displaySceneSettings();
 
-	Okay::RenderTexture* testTex;
-	Okay::PerlinNoise2D* noiser;
-
 	// List label can be disabled by starting it with "##"
 	template<typename T, typename... Args>
 	bool selectTexture(T& instance, uint32_t selectedID, void (T::* function)(uint32_t), const char* listLabel);

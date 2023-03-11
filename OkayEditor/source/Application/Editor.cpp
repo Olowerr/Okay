@@ -30,25 +30,31 @@ Editor::Editor(std::string_view startScene)
 	entity.addComponent<MeshComponent>(0u, 0u, 0u);
 	entity.getComponent<Transform>().scale *= 2.f;
 
+
 	Entity floor = scene.createEntity();
 	floor.addComponent<MeshComponent>(1u);
 	floor.getComponent<Transform>().scale *= 10.f;
 	floor.getComponent<Transform>().position.y = -5.f;
 
-	Entity light = scene.createEntity();
-	light.getComponent<Transform>().scale *= 0.5f;
-	light.getComponent<Transform>().position = glm::vec3(2.f);
-	light.addComponent<PointLight>().intensity = 2.f;
 
-	testTex = new RenderTexture(512u, 512u, RenderTexture::SHADER_WRITE | RenderTexture::SHADER_READ, RenderTexture::F_8X1);
-	noiser = new PerlinNoise2D(4);
-	noiser->generateTexture(testTex->getBuffer());
+	Entity light = scene.createEntity();
+	light.addComponent<DirectionalLight>();
+	Transform& lightTra = light.getComponent<Transform>();
+	lightTra.position = glm::vec3(2.f);
+	lightTra.rotation = glm::radians(glm::vec3(50.f, -60.f, 0.f));
+
+	SkyLight& skyComp = light.addComponent<SkyLight>(); 
+	skyComp.skyBox->create("resources/Textures/SkyBox1.png");
+	skyComp.sunColour = glm::vec3(0.86f, 0.55f, 0.47f);
+	skyComp.sunSize = 99.9f;
+	skyComp.ambientTint = glm::vec3(0.7f, 0.8f, 0.9);
+	skyComp.ambientIntensity = 0.8f;
+
+	scene.setSkyLight(light);
 }
 
 Editor::~Editor()
 {
-	delete testTex;
-	delete noiser;
 }
    
 void Editor::run()
@@ -116,24 +122,6 @@ void Editor::update()
 	displayInspector();
 	displayContent();
 	displayStyling();
-	
-	
-	return;
-
-	// Perlin noise testing
-	ImGui::Begin("result", nullptr);
-
-	static float tiling = 1.f;
-	static float offsets[2]{};
-
-	ImGui::DragFloat("tiling", &tiling, 0.01f, 0.00f, 100.f, "%.4f");
-	ImGui::DragFloat2("offset", offsets, 0.01f, 0.00f, 100.f, "%.4f");
-		
-	ImGui::Image(*testTex->getSRV(), ImVec2(512.f, 512.f), ImVec2(offsets[0], offsets[1]), ImVec2(offsets[0] + tiling, offsets[1] + tiling));
-	ImGui::End();
-
-	if (noiser->imgui("Perlin"))
-		noiser->generateTexture(testTex->getBuffer());
 }
 
 void Editor::displayEntities()
