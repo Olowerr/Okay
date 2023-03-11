@@ -165,7 +165,7 @@ namespace Okay
 			ID3D11DepthStencilState* pLessEqualDSS = nullptr;
 		};
 
-		static std::unique_ptr<PipelineResources> pipeline;
+		static PipelineResources pipeline;
 
 		static void expandPointLights();
 		static void expandDirLights();
