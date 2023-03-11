@@ -5,7 +5,6 @@ float4 main(TransformedVertex input) : SV_TARGET
 	const float2 uv = input.uv * uvTiling + uvOffset;
 	const float4 baseColour = diffuseTexture.Sample(simp, uv);
 	const float4 specular = specularTexture.Sample(simp, uv);
-	const float4 ambient = ambientTexture.Sample(simp, uv);
 	const float3 posToCam = normalize(camPos - input.worldPos);
 
 	PointLight poLight;

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <comdef.h>
 #include <string>
+#include <fstream>
 
 //#include "glm/glm.hpp"
 
@@ -45,5 +46,24 @@ namespace Okay
 {
 	constexpr uint32_t INVALID_UINT = ~0u;
 
-	bool readBinary(std::string_view binName, std::string& output);
+	static bool readBinary(std::string_view binPath, std::string& output)
+	{
+		std::ifstream reader(binPath.data(), std::ios::binary);
+		OKAY_VERIFY(reader);
+
+		reader.seekg(0, std::ios::end);
+		output.reserve((size_t)reader.tellg());
+		reader.seekg(0, std::ios::beg);
+
+		output.assign(std::istreambuf_iterator<char>(reader), std::istreambuf_iterator<char>());
+
+		return true;
+	}
+
+	static size_t findLastSlashPos(std::string_view path)
+	{
+		size_t pos = path.find_last_of('/');
+		return pos == std::string_view::npos ? path.find_last_of('\\') : pos;
+
+	}
 }

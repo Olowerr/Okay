@@ -93,14 +93,13 @@ cbuffer lightInfo : register(b5)
 // Resources
 Texture2D diffuseTexture : register(t0);
 Texture2D specularTexture : register(t1);
-Texture2D ambientTexture: register(t2);
 
-Texture2D heightMap : register(t3);
+Texture2D heightMap : register(t2);
 
-StructuredBuffer<PointLight> pointLights : register(t4);
-StructuredBuffer<DirectionalLight> dirLights : register(t5);
+StructuredBuffer<PointLight> pointLights : register(t3);
+StructuredBuffer<DirectionalLight> dirLights : register(t4);
 
-TextureCube skyBoxTexture : register(t6);
+TextureCube skyBoxTexture : register(t5);
 
 // Samplers
 SamplerState simp : register(s0);

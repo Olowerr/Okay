@@ -224,9 +224,6 @@
     <ClCompile Include="source\Engine\Graphics\SkyBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Okay\Okay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\Engine\Graphics\Shaders\MeshVS.hlsl" />

@@ -34,9 +34,6 @@ namespace Okay
 		pMat->GetTexture(aiTextureType_SPECULAR, 0, &aiStr);
 		texPaths[1] = aiStr.C_Str();
 
-		pMat->GetTexture(aiTextureType_AMBIENT, 0, &aiStr);
-		texPaths[2] = aiStr.C_Str();
-
 
 		// Vertex Positions
 		outData.positions.resize(pMesh->mNumVertices);

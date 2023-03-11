@@ -241,7 +241,6 @@ void Editor::displayMaterial(uint32_t index)
 	Okay::Material& mat = content.getMaterial(index);
 	const uint32_t base = mat.getBaseColour();
 	const uint32_t spec = mat.getSpecular();
-	const uint32_t ambi = mat.getAmbient();
 
 	ImGui::Text("Material - %s", mat.getName().c_str());
 	ImGui::Separator();
@@ -258,13 +257,6 @@ void Editor::displayMaterial(uint32_t index)
 	{
 		if (mat.getSpecular() == Okay::INVALID_UINT)
 			mat.setSpecular(0u);
-	}
-
-	ImGui::Text("Ambient:    "); ImGui::SameLine();
-	if (selectTexture(mat, ambi, &Okay::Material::setAmbient, "##NLAmbi"))
-	{
-		if (mat.getAmbient() == Okay::INVALID_UINT)
-			mat.setAmbient(0u);
 	}
 
 	ImGui::Text("");

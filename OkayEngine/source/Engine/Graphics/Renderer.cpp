@@ -189,11 +189,11 @@ namespace Okay
 			pDevContext->PSSetConstantBuffers(4, 1, &pipeline.pSkyDataBuffer);
 			pDevContext->PSSetConstantBuffers(5, 1, &pipeline.pLightInfoBuffer);
 
-			// 0-2	| material textures
-			// 3	| height map 
-			pDevContext->PSSetShaderResources(4, 1, &pipeline.pPointLightSRV);
-			pDevContext->PSSetShaderResources(5, 1, &pipeline.pDirLightSRV);
-			// 6	| skyBoxTextureCube
+			// 0-1	| material textures
+			// 2	| height map 
+			pDevContext->PSSetShaderResources(3, 1, &pipeline.pPointLightSRV);
+			pDevContext->PSSetShaderResources(4, 1, &pipeline.pDirLightSRV);
+			// 5	| skyBoxTextureCube
 		}
 
 	}
@@ -333,7 +333,7 @@ namespace Okay
 	void Renderer::render_internal()
 	{
 		ContentBrowser& content = ContentBrowser::get();
-		ID3D11ShaderResourceView* textures[3] = {};
+		ID3D11ShaderResourceView* textures[2] = {};
 		glm::mat4 worldMatrix{};
 
 		const Entity skyLightEntity = pScene->getSkyLight();
@@ -376,7 +376,6 @@ namespace Okay
 
 			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX] = content.getTexture(material.getSpecular()).getSRV();
-			textures[Material::AMBIENT_INDEX] = content.getTexture(material.getAmbient()).getSRV();
 
 			DX11::updateBuffer(pipeline.pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
 			DX11::updateBuffer(pipeline.pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
@@ -388,7 +387,7 @@ namespace Okay
 
 			// PS
 			shader.bind();
-			pDevContext->PSSetShaderResources(0u, 3u, textures);
+			pDevContext->PSSetShaderResources(0u, 2u, textures);
 
 			// Draw
 			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0);
