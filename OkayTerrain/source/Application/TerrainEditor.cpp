@@ -95,6 +95,7 @@ void TerrainEditor::run()
 	scene.start();
 	Time::start();
 
+	renderer.setScene(&scene);
 	while (window.isOpen())
 	{
 		Application::newFrameImGui();
@@ -102,7 +103,6 @@ void TerrainEditor::run()
 		scene.update();
 		update();
 
-		scene.submit(renderer);
 		renderer.render();
 
 		Application::endFrameImGui();
@@ -222,8 +222,8 @@ void TerrainEditor::update()
 
 	if (ImGui::Button("Select"))
 	{
-		char output[Window::MAX_FILENAME_LENGTH]{};
-		if (window.fileExplorerSelectFile(output, Window::MAX_FILENAME_LENGTH))
+		std::string output;
+		if (window.fileExplorerSelectFile(output))
 			shader.compilePixelShader(output);
 	}
 	ImGui::SameLine();
