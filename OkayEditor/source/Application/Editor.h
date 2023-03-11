@@ -39,7 +39,6 @@ private:
 	void displayInspector();
 	void addComponents(Okay::Entity entity);
 	void displayComponents(Okay::Entity entity);
-	uint32_t XIconID;
 
 	void displayMesh(uint32_t index);
 	void displayTexture(uint32_t index);

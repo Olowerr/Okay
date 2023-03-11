@@ -13,7 +13,7 @@
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), content(Okay::ContentBrowser::get())
 	, gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
-	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None), XIconID(Okay::INVALID_UINT)
+	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None)
 {
 	using namespace Okay;
 
@@ -25,8 +25,6 @@ Editor::Editor(std::string_view startScene)
 	editorCamera.addScript<EditorCamera>();
 
 	content.importFile("resources/highPolyQuad.fbx");
-	content.importFile("resources/Textures/X-icon.png");
-	XIconID = (uint32_t)content.getNumTextures() - 1u; // TODO: change to getTexture() when more icons come
 
 	Entity entity = scene.createEntity();
 	entity.addComponent<MeshComponent>(0u, 0u, 0u);
@@ -34,13 +32,12 @@ Editor::Editor(std::string_view startScene)
 
 	Entity floor = scene.createEntity();
 	floor.addComponent<MeshComponent>(1u);
-	floor.getComponent<Transform>().scale *= 5.f;
+	floor.getComponent<Transform>().scale *= 10.f;
 	floor.getComponent<Transform>().position.y = -5.f;
 
 	Entity light = scene.createEntity();
-	light.addComponent<MeshComponent>(0u, 0u, 0u);
 	light.getComponent<Transform>().scale *= 0.5f;
-	light.getComponent<Transform>().position.y = 2.f;
+	light.getComponent<Transform>().position = glm::vec3(2.f);
 	light.addComponent<PointLight>().intensity = 2.f;
 
 	testTex = new RenderTexture(512u, 512u, RenderTexture::SHADER_WRITE | RenderTexture::SHADER_READ, RenderTexture::F_8X1);

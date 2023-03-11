@@ -57,7 +57,7 @@ void Editor::displayComponents(Okay::Entity entity)
 	// Make function / macro ?
 	ImGui::Text("Position:"); 
 	ImGui::SameLine();
-	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.001f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrapos", &tra.position.x, 0.01f, 0.f, 0.f, "%.1f");
 	
 	ImGui::Text("Rotation:"); 
 	ImGui::SameLine();
@@ -305,6 +305,8 @@ void Editor::displayShader(uint32_t index)
 
 void Editor::displayStyling()
 {
+	return;
+
 	if (!ImGui::Begin("Styling"))
 	{
 		ImGui::End();
