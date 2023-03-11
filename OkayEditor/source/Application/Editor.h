@@ -39,7 +39,7 @@ private:
 	void displayInspector();
 	void addComponents(Okay::Entity entity);
 	void displayComponents(Okay::Entity entity);
-
+	int hej;
 	void displayMesh(uint32_t index);
 	void displayTexture(uint32_t index);
 	void displayMaterial(uint32_t index);
