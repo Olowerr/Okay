@@ -26,7 +26,7 @@ Editor::Editor(std::string_view startScene)
 
 	content.importFile("resources/highPolyQuad.fbx");
 	content.importFile("resources/Textures/X-icon.png");
-	XIconID = (uint32_t)content.getNumTextures() - 1u; // change to getTexture() when more icons come
+	XIconID = (uint32_t)content.getNumTextures() - 1u; // TODO: change to getTexture() when more icons come
 
 	Entity entity = scene.createEntity();
 	entity.addComponent<MeshComponent>(0u, 0u, 0u);
@@ -143,8 +143,6 @@ void Editor::displayEntities()
 {
 	ImGui::Begin("Entities", nullptr);
 
-	entt::registry& reg = scene.getRegistry();
-
 	if (ImGui::Button("Create"))
 	{
 		selectionID = (uint32_t)scene.createEntity().getID();
@@ -169,7 +167,7 @@ void Editor::displayEntities()
 		return;
 	}
 
-	auto entities = reg.view<Okay::Transform>(entt::exclude<EditorEntity>);
+	auto entities = scene.getRegistry().view<Okay::Transform>(entt::exclude<EditorEntity>);
 
 	for (auto entity : entities)
 	{
@@ -179,29 +177,7 @@ void Editor::displayEntities()
 			selectionType = SelectionType::Entity;
 			editorCamera.getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 		}
-
-		//if (ImGui::Selectable(entities.get<CompTag>(entity).tag, entity == currentEntity))
-			//{
-			//	currentEntity = Entity(entity, Engine::GetActiveScene());
-			//	UpdateSelection(AssetType::ENTITY);
-			//}
-			//
-			//if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-			//{
-			//	currentEntity = Entity(entity, Engine::GetActiveScene());
-			//	UpdateSelection(AssetType::ENTITY);
-			//
-			//	entityMenu = true;
-			//	listMenu = false;
-			//	menuPos = ImGui::GetMousePos();
-			//}
 	}
-
-	//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !entityMenu && ImGui::IsWindowHovered())
-	//{
-	//	listMenu = true;
-	//	menuPos = ImGui::GetMousePos();
-	//}
 
 	ImGui::EndListBox();
 	ImGui::End();
