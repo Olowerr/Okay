@@ -10,7 +10,7 @@ OkayTerrain was a procedural terrain generation test using Perlin noise and is q
 * ECS (EnTT)
 * Importing assets in real time (Assimp)
 * SkyBox (The sun comes from the shader)
-* Lights (Point and directonal)
+* Lights (Point and directional)
 * Phong shading
 * Real time editable materials and shaders 
   * Editable shaders work but are still WIP
