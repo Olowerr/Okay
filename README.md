@@ -17,4 +17,4 @@ I mostly use it to test implementations and play around with renderering, archit
 * Scripting (C# or LUA)
 
 This is how it currently looks:
-![github-small](Pics/Pretty.png)
+![github-small](Pics/Pretty.PNG)
