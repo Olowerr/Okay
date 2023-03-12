@@ -1,3 +1,5 @@
+![github-small](Pics/Pretty.PNG)
+
 # Okay
 Okay is a mini game engine running on DirectX 11 and the whole project is very subject to change and doesn't have a final goal.
 I mostly use it to test implementations and play around with renderering, architecture and more. 
@@ -19,5 +21,4 @@ OkayTerrain was a procedural terrain generation test using Perlin noise and is q
 * Instancing
 * Scripting (C# or LUA)
 
-This is how it currently looks:
-![github-small](Pics/Pretty.PNG)
+katkittykatkat
