@@ -5,7 +5,7 @@ I mostly use it to test implementations and play around with renderering, archit
 # Details:
 * ECS (EnTT)
 * Importing assets in real time (Assimp)
-* SkyBox (including a sun)
+* SkyBox (The sun comes from the shader)
 * Lights (Point and directonal)
 * Phong shading
 * Real time editable materials and shaders 
