@@ -4,7 +4,7 @@ I mostly use it to test implementations and play around with renderering, archit
 OkayEngine is the core which builds to a static lib. OkayEditor and OkayTerrain simply run on it and builds their own featues.
 OkayTerrain was a procedural terrain generation test using Perlin noise and is quite messy. One day it might be cleaned up and moved into OkayEditor 👀
 
-# Details:
+# Details
 * ECS (EnTT)
 * Importing assets in real time (Assimp)
 * SkyBox (The sun comes from the shader)
@@ -14,7 +14,7 @@ OkayTerrain was a procedural terrain generation test using Perlin noise and is q
   * Editable shaders work but are still WIP
 * Perlin noise (Currently only used in OkayTerrain)
 
-# Planned features:
+# Planned features
 * Bloom
 * Instancing
 * Scripting (C# or LUA)
