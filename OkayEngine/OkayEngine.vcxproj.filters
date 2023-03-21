@@ -16,6 +16,9 @@
     <Filter Include="Imgui">
       <UniqueIdentifier>{95c08f6c-052e-4092-80e4-9ccad40ba409}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2ef5c2f8-1e70-4527-a0e1-582607f79208}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Engine\Application\Application.h">
@@ -226,12 +229,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="source\Engine\Graphics\Shaders\MeshVS.hlsl" />
-    <FxCompile Include="source\Engine\Graphics\Shaders\PhongPS.hlsl" />
-    <FxCompile Include="source\Engine\Graphics\Shaders\SkyBoxVS.hlsl" />
-    <FxCompile Include="source\Engine\Graphics\Shaders\SkyBoxPS.hlsl" />
+    <FxCompile Include="engine_resources\shaders\MeshVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="engine_resources\shaders\PhongPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="engine_resources\shaders\SkyBoxPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="engine_resources\shaders\SkyBoxVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="source\Engine\Graphics\Shaders\ShaderInclude.hlsli" />
+    <None Include="engine_resources\shaders\ShaderInclude.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

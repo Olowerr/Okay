@@ -1,6 +1,8 @@
 #include "DX11.h"
 #include "Engine/Application/Window.h"
 
+#include <d3dcompiler.h>
+
 DX11::DX11()
 	:pDevice(), pDeviceContext()
 {
@@ -193,26 +195,141 @@ HRESULT DX11::createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer
 	return get().pDevice->CreateShaderResourceView(pBuffer, &desc, ppSRV);
 }
 
-bool DX11::createVertexShader(std::string_view csoPath, ID3D11VertexShader** ppVertexShader)
+
+
+class IncludeReader : public ID3DInclude
 {
-	std::string shaderData;
-	bool result = Okay::readBinary(csoPath, shaderData);
-	OKAY_ASSERT(result, "Failed reading Vertex Shader CSO");
+public:
 
-	HRESULT hr = get().pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVertexShader);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Vertex Shader");
+	// Inherited via ID3DInclude
+	virtual HRESULT __stdcall Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID* ppData, UINT* pBytes) override
+	{
+		std::ifstream reader(std::string(SHADER_PATH) + pFileName);
+		if (!reader)
+			return E_FAIL;
 
-	return true;
+		reader.seekg(0, std::ios::end);
+		includeBuffer.reserve((size_t)reader.tellg());
+		reader.seekg(0, std::ios::beg);
+
+		includeBuffer.assign(std::istreambuf_iterator<char>(reader), std::istreambuf_iterator<char>());
+
+		*ppData = includeBuffer.c_str();
+		*pBytes = (uint32_t)includeBuffer.size();
+
+		return S_OK;
+	}
+
+	virtual HRESULT __stdcall Close(LPCVOID pData) override
+	{
+		includeBuffer.clear();
+		return S_OK;
+	}
+
+private:
+	std::string includeBuffer;
+};
+
+bool DX11::createVertexShader(std::string_view path, ID3D11VertexShader** ppVertexShader, std::string* pOutShaderData)
+{
+	if (!ppVertexShader)
+		return false;
+
+	std::string_view fileEnding = Okay::getFileEnding(path);
+
+	if (fileEnding == ".CSO" || fileEnding == ".cso")
+	{
+		std::string shaderData;
+		if (!Okay::readBinary(path, shaderData))
+			return false;
+
+		if (pOutShaderData)
+			*pOutShaderData = shaderData;
+
+		return SUCCEEDED(get().pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVertexShader));
+	}
+	else
+	{
+		// Convert char-string to wchar_t-string
+		wchar_t* lpPath = new wchar_t[path.size() + 1ull]{};
+		mbstowcs_s(nullptr, lpPath, path.size() + 1ull, path.data(), path.size());
+
+		ID3DBlob* outData = nullptr;
+		ID3DBlob* outErrors = nullptr;
+		
+		// If neither are defined a compiler error is produced. Forcing the user to ensure the correct one is used
+#if defined(_DEBUG)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL0;
+#elif defined(NDEBUG)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL2;
+#elif defined(DIST)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
+		IncludeReader includer;
+		HRESULT hr = D3DCompileFromFile(lpPath, nullptr, &includer, "main", "vs_5_0", optimizationLevel, 0u, &outData, &outErrors);
+		OKAY_DELETE_ARRAY(lpPath);
+
+		if (FAILED(hr))
+		{
+			printf("Vertex shader compilation error: %s\n", (char*)outErrors->GetBufferPointer());
+			return false;
+		}
+
+		if (pOutShaderData)
+			pOutShaderData->assign((char*)outData->GetBufferPointer(), outData->GetBufferSize());
+
+		return SUCCEEDED(get().pDevice->CreateVertexShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, ppVertexShader));
+	}
+
+	return false;
 }
 
-bool DX11::createPixelShader(std::string_view csoPath, ID3D11PixelShader** ppPixelShader)
+bool DX11::createPixelShader(std::string_view path, ID3D11PixelShader** ppPixelShader)
 {
-	std::string shaderData;
-	bool result = Okay::readBinary(csoPath, shaderData);
-	OKAY_ASSERT(result, "Failed reading Pixel Shader CSO");
+	if (!ppPixelShader)
+		return false;
 
-	HRESULT hr = get().pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, ppPixelShader);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating Pixel Shader");
+	std::string_view fileEnding = Okay::getFileEnding(path);
 
-	return true;
+	if (fileEnding == ".CSO" || fileEnding == ".cso")
+	{
+		std::string shaderData;
+		if (!Okay::readBinary(path, shaderData))
+			return false;
+
+		return SUCCEEDED(get().pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, ppPixelShader));
+	}
+	else
+	{
+		// Convert char-string to wchar_t-string
+		wchar_t* lpPath = new wchar_t[path.size() + 1ull]{};
+		mbstowcs_s(nullptr, lpPath, path.size() + 1ull, path.data(), path.size());
+
+		ID3DBlob* outData = nullptr;
+		ID3DBlob* outErrors = nullptr;
+
+		// If neither are defined a compiler error is produced. Forcing the user to ensure the correct one is used
+#if defined(_DEBUG)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL0;
+#elif defined(NDEBUG)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL2;
+#elif defined(DIST)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
+		IncludeReader includer;
+		HRESULT hr = D3DCompileFromFile(lpPath, nullptr, &includer, "main", "ps_5_0", optimizationLevel, 0u, &outData, &outErrors);
+		OKAY_DELETE_ARRAY(lpPath);
+
+		if (FAILED(hr))
+		{
+			printf("Pixel shader compilation error: %s\n", (char*)outErrors->GetBufferPointer());
+			return false;
+		}
+
+		return SUCCEEDED(get().pDevice->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, ppPixelShader));
+	}
+
+	return false;
 }

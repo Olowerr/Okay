@@ -15,7 +15,7 @@ namespace Okay
 	{
 		// TODO: Display warning if an import fails
 
-		const std::string_view fileEnding = path.substr(path.find_last_of('.'));
+		const std::string_view fileEnding = getFileEnding(path);
 
 		if (ContentBrowser::canLoadTexture(path.data()))
 			return loadTexture(path.data());

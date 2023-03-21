@@ -111,32 +111,23 @@ namespace Okay
 			};
 
 			std::string shaderData;
-			auto createVSAndInputLayout = [&](std::string_view path, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppIL, uint32_t ilLength)
+			auto createVSAndInputLayout = [&](std::string_view path, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppIL, uint32_t numILElements)
 			{
-				result = readBinary(path, shaderData);
-				OKAY_ASSERT(result, "Failed reading shader");
+				bool result = DX11::createVertexShader(path, ppVS, &shaderData);
+				OKAY_ASSERT(result, "Failed creating vertex shader");
 
-				hr = pDevice->CreateVertexShader(shaderData.c_str(), shaderData.length(), nullptr, ppVS);
-				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating vertex shader");
-
-				hr = pDevice->CreateInputLayout(inputLayoutDesc, ilLength, shaderData.c_str(), shaderData.length(), ppIL);
+				hr = pDevice->CreateInputLayout(inputLayoutDesc, numILElements, shaderData.c_str(), shaderData.length(), ppIL);
 				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating input layout");
 			};
 
-			createVSAndInputLayout(SHADER_BIN_PATH "MeshVS.cso", &pipeline.pMeshVS, &pipeline.pPosUvNormIL, 3u);
 
+			createVSAndInputLayout(SHADER_PATH "MeshVS.hlsl", &pipeline.pMeshVS, &pipeline.pPosUvNormIL, 3u);
 
 			// Skybox
-			{
-				createVSAndInputLayout(SHADER_BIN_PATH "SkyBoxVS.cso", &pipeline.pSkyBoxVS, &pipeline.pPosIL, 1u);
+			createVSAndInputLayout(SHADER_PATH "SkyBoxVS.hlsl", &pipeline.pSkyBoxVS, &pipeline.pPosIL, 1u);
+			DX11::createPixelShader(SHADER_PATH "SkyBoxPS.hlsl", &pipeline.pSkyBoxPS);
 
-				result = readBinary(SHADER_BIN_PATH "SkyBoxPS.cso", shaderData);
-				OKAY_ASSERT(result, "Failed reading SkyBoxPS.cso");
 
-				hr = pDevice->CreatePixelShader(shaderData.c_str(), shaderData.length(), nullptr, &pipeline.pSkyBoxPS);
-				OKAY_ASSERT(SUCCEEDED(hr), "Failed creating SkyBoxPS.cso");
-
-			}
 #if 0 // Skeletal Animation (OLD)
 			D3D11_INPUT_ELEMENT_DESC aniDesc[5] = {
 				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},

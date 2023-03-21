@@ -40,7 +40,7 @@ if (!(condition))\
 #define UCHAR_TO_UNORM(value)	float((value) / (float)UCHAR_MAX)
 
 #define ENGINE_RESOURCES_PATH "../OkayEngine/engine_resources/"
-#define SHADER_BIN_PATH ENGINE_RESOURCES_PATH "shaders/bin/"
+#define SHADER_PATH ENGINE_RESOURCES_PATH "shaders/"
 
 namespace Okay
 {
@@ -65,5 +65,10 @@ namespace Okay
 		size_t pos = path.find_last_of('/');
 		return pos == std::string_view::npos ? path.find_last_of('\\') : pos;
 
+	}
+
+	static std::string_view getFileEnding(std::string_view path)
+	{
+		return path.substr(path.find_last_of('.'));
 	}
 }
