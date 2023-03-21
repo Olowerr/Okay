@@ -229,21 +229,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="engine_resources\shaders\MeshVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="engine_resources\shaders\PhongPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="engine_resources\shaders\SkyBoxPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="engine_resources\shaders\SkyBoxVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="engine_resources\shaders\ShaderInclude.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="engine_resources\shaders\MeshVS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="engine_resources\shaders\PhongPS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="engine_resources\shaders\SkyBoxPS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="engine_resources\shaders\SkyBoxVS.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -9,6 +9,8 @@
 
 #include "Engine/Application/Scene.h"
 
+#include "imgui/imgui.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <utility>
 
@@ -249,52 +251,42 @@ namespace Okay
 		glm::ivec2 dims = pRenderTarget->getDimensions();
 		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
-}
 
-#include "imgui/imgui.h"
-#include <d3dcompiler.h>
-namespace Okay 
-{
-	// Temp
+#define VS_UPDATE_BUTTON(shader, pVS)\
+if (ImGui::Button(shader))\
+{\
+ID3D11VertexShader* pNewVS = nullptr;\
+DX11::createVertexShader(SHADER_PATH shader, &pNewVS);\
+if (!pNewVS)\
+	return;\
+DX11_RELEASE(pVS);\
+pVS = pNewVS;\
+}\
+
+#define PS_UPDATE_BUTTON(shader, pPS)\
+if (ImGui::Button(shader))\
+{\
+ID3D11PixelShader* pNewPS = nullptr;\
+DX11::createPixelShader(SHADER_PATH shader ".hlsl", &pNewPS);\
+if (!pNewPS)\
+	return;\
+DX11_RELEASE(pPS);\
+pPS = pNewPS;\
+}\
+
 	void Renderer::imGui()
 	{
-		ImGui::Begin("Skybox stuff");
-
-		if (ImGui::Button("Refresh"))
+		if (!ImGui::Begin("Reload shaders"))
 		{
-			ID3DBlob* outData = nullptr;
-			ID3DBlob* outErrors = nullptr;
-
-			static const wchar_t* path = L"../OkayEngine/source/Engine/Graphics/Shaders/PhongPS.hlsl";
-			static const size_t pathSize = wcslen(path);
-
-			HRESULT hr = D3DCompileFromFile(path, nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_OPTIMIZATION_LEVEL2, 0u, &outData, &outErrors);
-
-			ID3D11PixelShader* pNewPS = nullptr;
-			if (SUCCEEDED(hr))
-			{
-				DX11::get().getDevice()->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, &pNewPS);
-				DX11_RELEASE(outData);
-				if (!pNewPS)
-				{
-					ImGui::End();
-					return;
-				}
-			}
-			else
-			{
-				if (outErrors)
-				{
-					printf("Error compiling shader: %s\n", (char*)outErrors->GetBufferPointer());
-					DX11_RELEASE(outErrors);
-				}
-				ImGui::End();
-				return;
-			}
-
-			DX11_RELEASE(pipeline.pSkyBoxPS);
-			pipeline.pSkyBoxPS = pNewPS;
+			ImGui::End();
+			return;
 		}
+
+		VS_UPDATE_BUTTON("MeshVS", pipeline.pMeshVS);
+
+		VS_UPDATE_BUTTON("SkyBoxVS", pipeline.pSkyBoxVS);
+		PS_UPDATE_BUTTON("SkyBoxPS", pipeline.pSkyBoxPS);
+
 
 		ImGui::End();
 	}

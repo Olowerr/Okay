@@ -335,10 +335,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="engine_resources\shaders\MeshVS.hlsl" />
-    <FxCompile Include="engine_resources\shaders\PhongPS.hlsl" />
-    <FxCompile Include="engine_resources\shaders\SkyBoxPS.hlsl" />
-    <FxCompile Include="engine_resources\shaders\SkyBoxVS.hlsl" />
+    <None Include="engine_resources\shaders\MeshVS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="engine_resources\shaders\PhongPS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="engine_resources\shaders\SkyBoxPS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="engine_resources\shaders\SkyBoxVS.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="engine_resources\shaders\ShaderInclude.hlsli" />
