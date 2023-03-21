@@ -269,20 +269,17 @@ bool DX11::createShader(std::string_view path, ShaderType** ppShader, std::strin
 		ID3DBlob* compileErrors = nullptr;
 
 		// If neither are defined a compiler error is produced. Forcing the user to ensure the correct one is used
-#if defined(_DEBUG)
+#if defined(DIST)
+		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#elif defined(_DEBUG)
 		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL0;
 #elif defined(NDEBUG)
 		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL2;
-#elif defined(DIST)
-		uint32_t optimizationLevel = D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
 
 		const char* shaderTypeTarget = nullptr;
-		if constexpr (std::is_same<ShaderType, ID3D11VertexShader>())
-			shaderTypeTarget = "vs_5_0";
-
-		else if constexpr (std::is_same<ShaderType, ID3D11PixelShader>())
-			shaderTypeTarget = "ps_5_0";
+		if		constexpr (std::is_same<ShaderType, ID3D11VertexShader>())	shaderTypeTarget = "vs_5_0";
+		else if constexpr (std::is_same<ShaderType, ID3D11PixelShader>())	shaderTypeTarget = "ps_5_0";
 
 		IncludeReader includer;
 		HRESULT hr = D3DCompileFromFile(lpPath, nullptr, &includer, "main", shaderTypeTarget, optimizationLevel, 0u, &shaderData, &compileErrors);
