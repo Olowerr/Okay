@@ -393,7 +393,7 @@ pPS = pNewPS;\
 			pDevContext->RSSetState(pipeline.pNoCullRS);
 
 			pDevContext->PSSetShader(pipeline.pSkyBoxPS, nullptr, 0u);
-			pDevContext->PSSetShaderResources(6u, 1, pSkyLight->skyBox->getTextureCubeSRV());
+			pDevContext->PSSetShaderResources(5u, 1u, pSkyLight->skyBox->getTextureCubeSRV());
 
 			pDevContext->OMSetDepthStencilState(pipeline.pLessEqualDSS, 0u);
 
