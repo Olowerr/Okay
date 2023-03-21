@@ -276,12 +276,13 @@ pPS = pNewPS;\
 
 	void Renderer::imGui()
 	{
-		if (!ImGui::Begin("Reload shaders"))
+		if (!ImGui::Begin("Shaders"))
 		{
 			ImGui::End();
 			return;
 		}
 
+		ImGui::Text("Reload shaders:");
 		VS_UPDATE_BUTTON("MeshVS", pipeline.pMeshVS);
 
 		VS_UPDATE_BUTTON("SkyBoxVS", pipeline.pSkyBoxVS);

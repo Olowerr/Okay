@@ -222,7 +222,6 @@ public:
 
 	virtual HRESULT __stdcall Close(LPCVOID pData) override
 	{
-		includeBuffer.clear();
 		return S_OK;
 	}
 
