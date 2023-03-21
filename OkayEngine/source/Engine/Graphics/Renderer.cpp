@@ -115,7 +115,7 @@ namespace Okay
 			std::string shaderData;
 			auto createVSAndInputLayout = [&](std::string_view path, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppIL, uint32_t numILElements)
 			{
-				bool result = DX11::createVertexShader(path, ppVS, &shaderData);
+				bool result = DX11::createShader(path, ppVS, &shaderData);
 				OKAY_ASSERT(result, "Failed creating vertex shader");
 
 				hr = pDevice->CreateInputLayout(inputLayoutDesc, numILElements, shaderData.c_str(), shaderData.length(), ppIL);
@@ -127,7 +127,7 @@ namespace Okay
 
 			// Skybox
 			createVSAndInputLayout(SHADER_PATH "SkyBoxVS.hlsl", &pipeline.pSkyBoxVS, &pipeline.pPosIL, 1u);
-			DX11::createPixelShader(SHADER_PATH "SkyBoxPS.hlsl", &pipeline.pSkyBoxPS);
+			DX11::createShader(SHADER_PATH "SkyBoxPS.hlsl", &pipeline.pSkyBoxPS);
 
 
 #if 0 // Skeletal Animation (OLD)
@@ -256,7 +256,7 @@ namespace Okay
 if (ImGui::Button(shader))\
 {\
 ID3D11VertexShader* pNewVS = nullptr;\
-DX11::createVertexShader(SHADER_PATH shader, &pNewVS);\
+DX11::createShader(SHADER_PATH shader, &pNewVS);\
 if (!pNewVS)\
 	return;\
 DX11_RELEASE(pVS);\
@@ -267,7 +267,7 @@ pVS = pNewVS;\
 if (ImGui::Button(shader))\
 {\
 ID3D11PixelShader* pNewPS = nullptr;\
-DX11::createPixelShader(SHADER_PATH shader ".hlsl", &pNewPS);\
+DX11::createShader(SHADER_PATH shader ".hlsl", &pNewPS);\
 if (!pNewPS)\
 	return;\
 DX11_RELEASE(pPS);\

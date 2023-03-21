@@ -80,7 +80,7 @@ namespace Okay
 	{
 		ID3D11PixelShader* newPs = nullptr;
 
-		DX11::createPixelShader(path, &newPs);
+		DX11::createShader(path, &newPs);
 
 		DX11_RELEASE(pPS);
 		pPS = newPs;

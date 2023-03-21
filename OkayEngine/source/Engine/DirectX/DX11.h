@@ -38,9 +38,8 @@ public:
 	static HRESULT createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable = true);
 	static HRESULT createStructuredSRV(ID3D11ShaderResourceView** ppSRV, ID3D11Buffer* pBuffer, UINT numElements);
 
-	static bool createVertexShader(std::string_view path, ID3D11VertexShader** ppVertexShader, std::string* pOutShaderData = nullptr);
-	static bool createPixelShader(std::string_view path, ID3D11PixelShader** ppPixelShader);
-
+	template<typename ShaderType>
+	static bool createShader(std::string_view path, ShaderType** ppShader, std::string* pOutShaderData = nullptr);
 
 private:
 	ID3D11Device* pDevice;
