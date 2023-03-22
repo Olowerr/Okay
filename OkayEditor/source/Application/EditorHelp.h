@@ -9,7 +9,7 @@ if (!entity.hasComponent<comp>())\
 		entity.addComponent<Okay::comp>();\
 }0
 
-//bool rmvComp = ImGui::ImageButton(content.getTexture(XIconID).getSRV(), {ImVec2(15.f, 15.f)});
+//bool rmvComp = ImGui::ImageButton(content.getAsset<Texture>(XIconID).getSRV(), {ImVec2(15.f, 15.f)});
 #define IMGUI_DISPLAY_COMP_START(comp, displayText, rmvButton)\
 if (entity.hasComponent<Okay::comp>())\
 {\

@@ -206,9 +206,6 @@
     <ClCompile Include="source\Engine\Graphics\RenderTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

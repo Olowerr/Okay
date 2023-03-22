@@ -1,8 +1,9 @@
 #pragma once
 #include <Engine/Application/Application.h>
 #include <Engine/Application/Scene.h>
-#include <Engine/DirectX/DX11.h>
 #include <Engine/Application/Entity.h>
+
+#include <Engine/DirectX/DX11.h>
 #include <Engine/Algorithms/Noise/PerlinNoise2D.h>
 
 #include "imgui/imgui.h"
@@ -87,11 +88,11 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 	};
 	
 	ID3D11ShaderResourceView* previewImg = selectedTexID != Okay::INVALID_UINT ? 
-		content.getTexture(selectedTexID).getSRV() : nullptr;
+		content.getAsset<Okay::Texture>(selectedTexID).getSRV() : nullptr;
 
 	ImGui::Image(previewImg, ImVec2(15.f, 15.f));
 	ImGui::SameLine();
-	if (ImGui::BeginCombo(listLabel, previewImg ? content.getTexture(selectedTexID).getName().c_str() : nullptr))
+	if (ImGui::BeginCombo(listLabel, previewImg ? content.getAsset<Okay::Texture>(selectedTexID).getName().c_str() : nullptr))
 	{
 		if (ImGui::Selectable("Reset"))
 		{
@@ -100,7 +101,7 @@ bool Editor::selectTexture(T& instance, uint32_t selectedTexID, void (T::* pFunc
 		}
 		else
 		{
-			content.forEachTexture(lambdaSelectTex);
+			content.forEachAsset<Okay::Texture>(lambdaSelectTex);
 		}
 
 		ImGui::EndCombo();

@@ -27,19 +27,18 @@ namespace Okay
 		ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
 		ContentBrowser& content = ContentBrowser::get();
 
+		content.addAsset<Shader>("Phong", SHADER_PATH "PhongPS.hlsl", true);
+		pipeline.defaultShaderId = content.getAmount<Shader>() - 1u;
 
-		content.addShader("Phong", SHADER_PATH "PhongPS.hlsl", true);
-		pipeline.defaultShaderId = content.getNumShaders() - 1u;
-
-		content.addMaterial(Okay::Material::Description()).setName("Default");
+		content.addAsset<Material>(Okay::Material::Description()).setName("Default");
 		content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
 
-		pipeline.skyboxMeshId = content.getMeshID("cube");
+		pipeline.skyboxMeshId = content.getAssetID<Mesh>("cube");
 		if (pipeline.skyboxMeshId == INVALID_UINT)
 		{
 			bool found = content.importFile(ENGINE_RESOURCES_PATH "meshes/cube.fbx");
 			OKAY_ASSERT(found, "Failed loading cube.fbx");
-			pipeline.skyboxMeshId = content.getNumMeshes() - 1u;
+			pipeline.skyboxMeshId = content.getAmount<Mesh>() - 1u;
 		}
 
 		// Buffers
@@ -360,14 +359,14 @@ pPS = pNewPS;\
 		for (size_t i = 0; i < meshes.size(); i++)
 		{
 			const MeshComponent& cMesh = meshes[i].asset;
-			const Mesh& mesh = content.getMesh(cMesh.meshIdx);
-			const Material& material = content.getMaterial(cMesh.materialIdx);
-			const Shader& shader = content.getShader(cMesh.shaderIdx);
+			const Mesh& mesh = content.getAsset<Mesh>(cMesh.meshIdx);
+			const Material& material = content.getAsset<Material>(cMesh.materialIdx);
+			const Shader& shader = content.getAsset<Shader>(cMesh.shaderIdx);
 
 			worldMatrix = glm::transpose(meshes[i].transform);
 
-			textures[Material::BASECOLOUR_INDEX] = content.getTexture(material.getBaseColour()).getSRV();
-			textures[Material::SPECULAR_INDEX] = content.getTexture(material.getSpecular()).getSRV();
+			textures[Material::BASECOLOUR_INDEX] = content.getAsset<Texture>(material.getBaseColour()).getSRV();
+			textures[Material::SPECULAR_INDEX] = content.getAsset<Texture>(material.getSpecular()).getSRV();
 
 			DX11::updateBuffer(pipeline.pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
 			DX11::updateBuffer(pipeline.pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
@@ -390,7 +389,7 @@ pPS = pNewPS;\
 		// Skybox
 		if (pSkyLight)
 		{
-			const Mesh& skyBoxMesh = content.getMesh(pipeline.skyboxMeshId);
+			const Mesh& skyBoxMesh = content.getAsset<Mesh>(pipeline.skyboxMeshId);
 
 			pDevContext->IASetInputLayout(pipeline.pPosIL);
 

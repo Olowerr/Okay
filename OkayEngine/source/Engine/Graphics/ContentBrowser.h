@@ -29,58 +29,34 @@ namespace Okay
 			return cb;
 		}
 
-		static bool canLoadTexture(const char* path);
+		// Const functions are kinda weird
+		// cuz why would you ever have a const-version of this? It's a singleton..
+		// Rmv?
 
+
+		static bool canLoadTexture(const char* path);
 		bool importFile(std::string_view path);
 
-		template<typename Func, typename... Args>
-		void forEachMesh(const Func& function, Args&&... args);
+		template<typename Asset, typename... Args>
+		Asset& addAsset(Args&&... args);
 
-		template<typename... Args>
-		inline Mesh& addMesh(Args&&... args);
+		template<typename Asset>
+		Asset& getAsset(uint32_t index);
 
-		inline uint32_t getNumMeshes() const;
-		inline const std::vector<Mesh>& getMeshes() const;
-		inline Mesh& getMesh(uint32_t index);
-		inline const Mesh& getMesh(uint32_t index) const;
-		uint32_t getMeshID(std::string_view meshName) const;
-		Mesh& getMesh(std::string_view meshName);
-		const Mesh& getMesh(std::string_view meshName) const;
+		template<typename Asset>
+		const Asset& getAsset(uint32_t index) const;
 
+		template<typename Asset>
+		uint32_t getAmount() const;
 
-		template<typename Func, typename... Args>
-		void forEachTexture(const Func& function, Args&&... args);
+		template<typename Asset>
+		const std::vector<Asset>& getAll() const;
 
-		inline uint32_t getNumTextures() const;
-		inline const std::vector<Texture>& getTextures() const;
-		inline Texture& getTexture(uint32_t index);
-		inline const Texture& getTexture(uint32_t index) const;
-		Texture& getTexture(std::string_view textureName);
-		const Texture& getTexture(std::string_view textureName) const;
+		template<typename Asset, typename Function, typename... Args>
+		void forEachAsset(Function function, Args&&... args);
 
-
-		template<typename Func, typename... Args>
-		void forEachMaterial(const Func& function, Args&&... args);
-
-		template<typename... Args>
-		inline Material& addMaterial(Args&&... args);
-
-		inline uint32_t getNumMaterials() const;
-		inline const std::vector<Material>& getMaterials() const;
-		inline Material& getMaterial(uint32_t index);
-		inline const Material& getMaterial(uint32_t index) const;
-		Material& getMaterial(std::string_view materialName);
-		const Material& getMaterial(std::string_view materialName) const;
-
-		template<typename Func, typename... Args>
-		void forEachShader(const Func& function, Args&&... args);
-
-		template<typename... Args>
-		Shader& addShader(Args&&... args);
-		inline const std::vector<Shader>& getShaders() const;
-		inline const Shader& getShader(uint32_t index) const;
-		inline Shader& getShader(uint32_t index);
-		inline uint32_t getNumShaders() const;
+		template<typename Asset>
+		uint32_t getAssetID(std::string_view assetName) const;
 
 	private:
 		std::vector<Mesh> meshes;
@@ -90,140 +66,102 @@ namespace Okay
 
 		bool loadMesh(std::string_view path);
 		bool loadTexture(std::string_view path);
+
+		template<typename Asset>
+		std::vector<Asset>& getAssets();
+
+		template<typename Asset>
+		const std::vector<Asset>& getAssetsConst() const;
 	};
 
-	template<typename Func, typename... Args>
-	inline void ContentBrowser::forEachMesh(const Func& function, Args&&... args)
+#define STATIC_ASSERT_ASSET_TYPE()\
+static_assert(std::is_same<Asset, Mesh>() ||\
+			  std::is_same<Asset, Texture>() ||\
+			  std::is_same<Asset, Material>() ||\
+			  std::is_same<Asset, Shader>(), \
+			  "Invalid Asset type")
+
+	template<typename Asset>
+	std::vector<Asset>& ContentBrowser::getAssets()
 	{
-		for (size_t i = 0; i < meshes.size(); i++)
-			function(meshes[i], args...);
+		STATIC_ASSERT_ASSET_TYPE();
+
+		if		constexpr (std::is_same<Asset, Mesh>())		return meshes;
+		else if constexpr (std::is_same<Asset, Texture>())	return textures;
+		else if constexpr (std::is_same<Asset, Material>())	return materials;
+		else if constexpr (std::is_same<Asset, Shader>())	return shaders;
 	}
 
-	template<typename ...Args>
-	inline Mesh& ContentBrowser::addMesh(Args && ...args)
+	template<typename Asset>
+	const std::vector<Asset>& ContentBrowser::getAssetsConst() const
 	{
-		return meshes.emplace_back(args...);
-	}
-	
-	template<typename Func, typename... Args>
-	inline void ContentBrowser::forEachTexture(const Func& function, Args&&... args)
-	{
-		for (size_t i = 0; i < textures.size(); i++)
-				function(textures[i], args...);
-	}
-	
-	template<typename Func, typename... Args>
-	inline void ContentBrowser::forEachMaterial(const Func& function, Args&&... args)
-	{
-		for (size_t i = 0; i < materials.size(); i++)
-			function(materials[i], args...);
+		STATIC_ASSERT_ASSET_TYPE();
+		return const_cast<ContentBrowser*>(this)->getAssets<Asset>();
 	}
 
-	template<typename ...Args>
-	inline Material& ContentBrowser::addMaterial(Args && ...args)
+	template<typename Asset, typename ...Args>
+	inline Asset& ContentBrowser::addAsset(Args && ...args)
 	{
-		return materials.emplace_back(args...);
+		STATIC_ASSERT_ASSET_TYPE();
+		return getAssets<Asset>().emplace_back(args...);
 	}
 
-	template<typename Func, typename ...Args>
-	inline void ContentBrowser::forEachShader(const Func& function, Args && ...args)
+	template<typename Asset>
+	inline Asset& ContentBrowser::getAsset(uint32_t index)
 	{
-		for (size_t i = 0; i < shaders.size(); i++)
-			function(shaders[i], args...);
+		STATIC_ASSERT_ASSET_TYPE();
+		std::vector<Asset>& assets = getAssets<Asset>();
+
+		OKAY_ASSERT(index < (uint32_t)assets.size(), "Invalid index");
+		return assets[index];
 	}
 
-	template<typename ...Args>
-	inline Shader& ContentBrowser::addShader(Args&&... args)
+	template<typename Asset>
+	inline const Asset& ContentBrowser::getAsset(uint32_t index) const
 	{
-		return shaders.emplace_back(args...);
+		// I'd wanna just return the non-const version but I'm it's spooky since it looks recursive
+
+		STATIC_ASSERT_ASSET_TYPE();
+		const std::vector<Asset>& assets = getAssets<Asset>();
+
+		OKAY_ASSERT(index < (uint32_t)assets.size(), "Invalid index");
+		return assets[index];
 	}
 
-	inline Mesh& ContentBrowser::getMesh(uint32_t index)
+	template<typename Asset>
+	inline uint32_t ContentBrowser::getAmount() const
 	{
-		OKAY_ASSERT(index < (uint32_t)meshes.size(), "Invalid index");
-		return meshes[index];
+		STATIC_ASSERT_ASSET_TYPE();
+		return (uint32_t)getAssetsConst<Asset>().size();
 	}
 
-	inline const Mesh& ContentBrowser::getMesh(uint32_t index) const
+	template<typename Asset>
+	inline const std::vector<Asset>& ContentBrowser::getAll() const
 	{
-		OKAY_ASSERT(index < (uint32_t)meshes.size(), "Invalid index");
-		return meshes[index];
+		STATIC_ASSERT_ASSET_TYPE();
+		return getAssetsConst<Asset>();
 	}
 
-	inline uint32_t ContentBrowser::getNumMeshes() const
+	template<typename Asset, typename Function, typename ...Args>
+	inline void ContentBrowser::forEachAsset(Function function, Args && ...args)
 	{
-		return (uint32_t)meshes.size();
+		STATIC_ASSERT_ASSET_TYPE();
+		std::vector<Asset>& assets = getAssets<Asset>();
+		for (size_t i = 0; i < assets.size(); i++)
+			function(assets[i], args...);
 	}
 
-	inline const std::vector<Mesh>& ContentBrowser::getMeshes() const
+	template<typename Asset>
+	inline uint32_t ContentBrowser::getAssetID(std::string_view assetName) const
 	{
-		return meshes;
+		STATIC_ASSERT_ASSET_TYPE();
+		const std::vector<Asset>& assets = getAssetsConst<Asset>();
+		for (size_t i = 0; i < assets.size(); i++)
+		{
+			if (assets[i].getName() == assetName)
+				return (uint32_t)i;
+		}
+		
+		return INVALID_UINT;
 	}
-
-	inline Texture& ContentBrowser::getTexture(uint32_t index)
-	{
-		OKAY_ASSERT(index < (uint32_t)textures.size(), "Invalid index");
-		return textures[index];
-	}
-
-	inline const Texture& ContentBrowser::getTexture(uint32_t index) const
-	{
-		OKAY_ASSERT(index < (uint32_t)textures.size(), "Invalid index");
-		return textures[index];
-	}
-
-	inline uint32_t ContentBrowser::getNumTextures() const
-	{
-		return (uint32_t)textures.size();
-	}
-
-	inline const std::vector<Texture>& ContentBrowser::getTextures() const
-	{
-		return textures;
-	}
-	
-	inline Material& ContentBrowser::getMaterial(uint32_t index)
-	{
-		OKAY_ASSERT(index < (uint32_t)materials.size(), "Invalid index");
-		return materials[index];
-	}
-
-	inline const Material& ContentBrowser::getMaterial(uint32_t index) const
-	{
-		OKAY_ASSERT(index < (uint32_t)materials.size(), "Invalid index");
-		return materials[index];
-	}
-
-	inline uint32_t ContentBrowser::getNumMaterials() const
-	{
-		return (uint32_t)materials.size();
-	}
-
-	inline const std::vector<Material>& ContentBrowser::getMaterials() const
-	{
-		return materials;
-	}
-
-	inline const std::vector<Shader>& Okay::ContentBrowser::getShaders() const
-	{
-		return shaders;
-	}
-
-	inline const Shader& ContentBrowser::getShader(uint32_t index) const
-	{
-		OKAY_ASSERT(index < (uint32_t)shaders.size(), "Invalid index");
-		return shaders[index];
-	}
-
-	inline Shader& ContentBrowser::getShader(uint32_t index)
-	{
-		OKAY_ASSERT(index < (uint32_t)shaders.size(), "Invalid index");
-		return shaders[index];
-	}
-
-	inline uint32_t ContentBrowser::getNumShaders() const
-	{
-		return (uint32_t)shaders.size();
-	}
-
 }

@@ -79,13 +79,13 @@ void Editor::displayComponents(Okay::Entity entity)
 	MeshComponent& meshC = entity.getComponent<MeshComponent>();
 	
 	ImGui::Text("Mesh:");
-	selectAsset(meshC.meshIdx, meshC.meshIdx, content.getMeshes(), "##NLMesh");
+	selectAsset(meshC.meshIdx, meshC.meshIdx, content.getAll<Mesh>(), "##NLMesh");
 
 	ImGui::Text("Material:");
-	selectAsset(meshC.materialIdx, meshC.materialIdx, content.getMaterials(), "##NLMat");
+	selectAsset(meshC.materialIdx, meshC.materialIdx, content.getAll<Material>(), "##NLMat");
 	
 	ImGui::Text("Shader:");
-	selectAsset(meshC.shaderIdx, meshC.shaderIdx, content.getShaders(), "##NLSha");
+	selectAsset(meshC.shaderIdx, meshC.shaderIdx, content.getAll<Shader>(), "##NLSha");
 
 
 	IMGUI_DISPLAY_COMP_END();
@@ -177,30 +177,30 @@ void Editor::displayAssetList()
 	using namespace Okay;
 	static const ImVec2 size(250.f, 0.f);
 
-	IMGUI_DISPLAY_ASSET_START(content.getMeshes(), Mesh, "Meshes", false, true);
+	IMGUI_DISPLAY_ASSET_START(content.getAll<Mesh>(), Mesh, "Meshes", false, true);
 	IMGUI_DISPLAY_ASSET_END();
 
 
-	IMGUI_DISPLAY_ASSET_START(content.getTextures(), Texture, "Textures", true, true);
+	IMGUI_DISPLAY_ASSET_START(content.getAll<Texture>(), Texture, "Textures", true, true);
 	IMGUI_DISPLAY_ASSET_END();
 
 
-	IMGUI_DISPLAY_ASSET_START(content.getMaterials(), Material, "Materials", true, true);
+	IMGUI_DISPLAY_ASSET_START(content.getAll<Material>(), Material, "Materials", true, true);
 	IMGUI_DISPLAY_ASSET_END();
 
-	IMGUI_DISPLAY_ASSET_START(content.getShaders(), Shader, "Shaders", true, true);
+	IMGUI_DISPLAY_ASSET_START(content.getAll<Shader>(), Shader, "Shaders", true, true);
 	if (create)
 	{
-		selectionID = (uint32_t)content.getShaders().size();
+		selectionID = (uint32_t)content.getAmount<Shader>();
 		selectionType = SelectionType::Shader;
-		content.addShader();
+		content.addAsset<Shader>();
 	}
 	IMGUI_DISPLAY_ASSET_END();
 }
 
 void Editor::displayMesh(uint32_t index)
 {
-	const Okay::Mesh& mesh = content.getMesh(index);
+	const Okay::Mesh& mesh = content.getAsset<Okay::Mesh>(index);
 
 	ImGui::Text("Mesh - %s", mesh.getName().c_str());
 	ImGui::Separator();
@@ -215,7 +215,7 @@ void Editor::displayMesh(uint32_t index)
 
 void Editor::displayTexture(uint32_t index)
 {
-	const Okay::Texture& texture = content.getTexture(index);
+	const Okay::Texture& texture = content.getAsset<Okay::Texture>(index);
 	const uint32_t width = texture.getWidth(), height = texture.getHeight();
 	const float aspectRatio = texture.getAspectRatio();
 
@@ -238,7 +238,7 @@ void Editor::displayTexture(uint32_t index)
 
 void Editor::displayMaterial(uint32_t index)
 {
-	Okay::Material& mat = content.getMaterial(index);
+	Okay::Material& mat = content.getAsset<Okay::Material>(index);
 	const uint32_t base = mat.getBaseColour();
 	const uint32_t spec = mat.getSpecular();
 
@@ -275,7 +275,7 @@ void Editor::displayMaterial(uint32_t index)
 
 void Editor::displayShader(uint32_t index)
 {
-	Okay::Shader& shader = content.getShader(index);
+	Okay::Shader& shader = content.getAsset<Okay::Shader>(index);
 	const Okay::Texture* heightMap = shader.getHeightMap();
 	static float heightMapScalar = 1.f;
 

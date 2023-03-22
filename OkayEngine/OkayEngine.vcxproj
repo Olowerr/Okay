@@ -320,7 +320,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="source\Engine\Graphics\ContentBrowserFindAsset.cpp" />
     <ClCompile Include="source\Engine\Algorithms\Noise\PerlinNoise2D.cpp" />
     <ClCompile Include="source\Engine\Graphics\Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

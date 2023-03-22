@@ -76,13 +76,13 @@ namespace Okay
 		}
 		
 		gpuData.hasHeightMap = TRUE;
-		pHeightMap = ContentBrowser::get().getTexture(index).getSRV();
+		pHeightMap = ContentBrowser::get().getAsset<Texture>(index).getSRV();
 		pHeightMap->AddRef();
 	}
 
 	const Texture* Shader::getHeightMap() const
 	{
-		return heightMapIdx != Okay::INVALID_UINT ? &ContentBrowser::get().getTexture(heightMapIdx) : nullptr;
+		return heightMapIdx != Okay::INVALID_UINT ? &ContentBrowser::get().getAsset<Texture>(heightMapIdx) : nullptr;
 	}
 
 	void Shader::setPixelShader(std::string_view path)
