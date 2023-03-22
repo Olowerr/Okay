@@ -40,6 +40,8 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 	// Create before show, or onResize is called and swapChain is nullptr
 	createRenderTexture(renderTexFlags == Okay::INVALID_UINT ? Okay::RenderTexture::B_RENDER : renderTexFlags);
 	show();
+	renderTexture.clear(glm::vec4(0.f));
+	present();
 }
 
 Window::~Window()
