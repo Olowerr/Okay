@@ -3,8 +3,6 @@
 
 #include "Engine/Okay/Okay.h"
 
-class Window;
-
 class DX11
 {
 private:

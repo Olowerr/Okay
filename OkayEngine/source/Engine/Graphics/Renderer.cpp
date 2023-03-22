@@ -25,13 +25,19 @@ namespace Okay
 		DX11& dx11 = DX11::get();
 		ID3D11Device* pDevice = dx11.getDevice();
 		ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
+		ContentBrowser& content = ContentBrowser::get();
 
-		pipeline.skyboxMeshId = ContentBrowser::get().getMeshID("cube");
+
+		content.addShader("Default");
+		content.addMaterial(Okay::Material::Description()).setName("Default");
+		content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
+
+		pipeline.skyboxMeshId = content.getMeshID("cube");
 		if (pipeline.skyboxMeshId == INVALID_UINT)
 		{
-			bool found = ContentBrowser::get().importFile(ENGINE_RESOURCES_PATH "cube.fbx");
+			bool found = content.importFile(ENGINE_RESOURCES_PATH "cube.fbx");
 			OKAY_ASSERT(found, "Failed loading cube.fbx");
-			pipeline.skyboxMeshId = ContentBrowser::get().getNumMeshes() - 1u;
+			pipeline.skyboxMeshId = content.getNumMeshes() - 1u;
 		}
 
 		// Buffers
