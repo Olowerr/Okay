@@ -41,10 +41,14 @@ namespace Okay
 
 		// Vertex UV (Assimp structures UV as float3)
 		outData.uvs.resize(pMesh->mNumVertices);
-		for (uint32_t i = 0; i < pMesh->mNumVertices; i++)
+
+		if (pMesh->mTextureCoords[0])
 		{
-			outData.uvs[i].r = pMesh->mTextureCoords[0][i].x;
-			outData.uvs[i].g = pMesh->mTextureCoords[0][i].y;
+			for (uint32_t i = 0; i < pMesh->mNumVertices; i++)
+			{
+				outData.uvs[i].r = pMesh->mTextureCoords[0][i].x;
+				outData.uvs[i].g = pMesh->mTextureCoords[0][i].y;
+			}
 		}
 
 		// Vertex Normal
