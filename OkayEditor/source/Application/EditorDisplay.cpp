@@ -65,7 +65,7 @@ void Editor::displayComponents(Okay::Entity entity)
 	
 	ImGui::Text("Scale:   "); 
 	ImGui::SameLine();
-	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.001f, 0.f, 0.f, "%.1f");
+	ImGui::DragFloat3("##NLTrasca", &tra.scale.x, 0.01f, 0.f, 0.f, "%.1f");
 
 	tra.rotation = glm::radians(degRot);
 
