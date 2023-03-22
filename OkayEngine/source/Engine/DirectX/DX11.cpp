@@ -286,7 +286,7 @@ bool DX11::createShader(std::string_view path, ShaderType** ppShader, std::strin
 
 		if (FAILED(hr))
 		{
-			printf("Shader compilation error: %s\n", (char*)compileErrors->GetBufferPointer());
+			printf("Shader compilation error: %s\n", compileErrors ? (char*)compileErrors->GetBufferPointer() : "No information, file might not have been found");
 			return false;
 		}
 
