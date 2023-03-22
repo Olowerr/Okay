@@ -193,7 +193,7 @@ void Editor::displayAssetList()
 	{
 		selectionID = (uint32_t)content.getShaders().size();
 		selectionType = SelectionType::Shader;
-		content.addShader("New shader");
+		content.addShader();
 	}
 	IMGUI_DISPLAY_ASSET_END();
 }
@@ -291,13 +291,13 @@ void Editor::displayShader(uint32_t index)
 
 	ImGui::Text("Pixel Shader: %s", shader.getPSName().c_str());
 
-	if (ImGui::Button("Select"))
-	{
-		std::string file;
-		if (window.fileExplorerSelectFile(file))
-			shader.compilePixelShader(file);
-	}
-	ImGui::SameLine();
+	//if (ImGui::Button("Select"))
+	//{
+	//	std::string file;
+	//	if (window.fileExplorerSelectFile(file))
+	//		shader.compilePixelShader(file);
+	//}
+	//ImGui::SameLine();
 
 	if (ImGui::Button("Reload"))
 		shader.reloadShader();

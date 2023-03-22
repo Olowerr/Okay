@@ -78,8 +78,7 @@ namespace Okay
 		OKAY_VERIFY(pData);
 
 		size_t pos = findLastSlashPos(path);
-		pos = pos == std::string_view::npos ? 0ull : pos;
-		pos++;
+		pos = pos == std::string_view::npos ? 1ull : ++pos;
 
 		// texName contains ex: .png, it is removed inside the Texture constructor
 		std::string_view texName = path.substr(pos);

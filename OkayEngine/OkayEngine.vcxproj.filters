@@ -244,5 +244,6 @@
     <None Include="engine_resources\shaders\SkyBoxVS.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="engine_resources\shaders\NewShaderDefault.hlsl" />
   </ItemGroup>
 </Project>

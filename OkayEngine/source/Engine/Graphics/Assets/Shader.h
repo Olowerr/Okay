@@ -19,8 +19,10 @@ namespace Okay
 			int padding[2]{};
 		};
 
-		Shader();
-		Shader(std::string_view name);
+		inline void setCustomShaderPath(std::string_view location);
+
+		Shader(bool ignoreCustomShaderPath = false);
+		Shader(std::string_view name, std::string_view shaderPath, bool ignoreCustomShaderPath = false);
 		Shader(Shader&& other) noexcept;
 		~Shader();
 		void shutdown();
@@ -34,7 +36,6 @@ namespace Okay
 		inline void setHeightMapScalar(float scalar);
 
 		void setPixelShader(std::string_view path);
-		void compilePixelShader(std::string_view path);
 		void reloadShader();
 		inline const std::string& getPSName() const;
 		
@@ -46,12 +47,21 @@ namespace Okay
 
 		GPUData gpuData;
 
+		const bool ignoreCustomShaderPath; // Might change, currently used for Engine shaders (like PhongPS)
 		std::string psName;
 		ID3D11PixelShader* pPS;
 
 		ID3D11ShaderResourceView* pHeightMap;
 		uint32_t heightMapIdx;
+
+		static std::string shaderLocation;
+		void createDefaultShader();
 	};
+
+	inline void Shader::setCustomShaderPath(std::string_view location)
+	{
+		Shader::shaderLocation = location;
+	}
 
 	inline const std::string& Shader::getName() const
 	{
@@ -84,15 +94,3 @@ namespace Okay
 	}
 
 }
-
-/*
-
-	Renderer ALWAYS sends the same type of data to PS
-	ShaderModel decides how to use the data
-
-
-	MESH CLASS
-	MESH CONTAINER
-
-
-*/

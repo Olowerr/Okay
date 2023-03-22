@@ -72,7 +72,6 @@ namespace Okay
 	public:
 		
 		static void init();
-		static const uint32_t DEFAULT_SHADER_IDX = 0u; // TODO: Fix, kinda sus no?
 
 		Renderer(RenderTexture* target);
 		~Renderer();
@@ -141,7 +140,7 @@ namespace Okay
 			uint32_t maxPointLights = 0u;
 			uint32_t maxDirLights = 0u;
 
-
+			uint32_t defaultShaderId = INVALID_UINT;
 			uint32_t skyboxMeshId = INVALID_UINT;
 
 			// Input layouts

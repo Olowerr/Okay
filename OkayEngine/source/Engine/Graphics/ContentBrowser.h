@@ -80,6 +80,7 @@ namespace Okay
 		inline const std::vector<Shader>& getShaders() const;
 		inline const Shader& getShader(uint32_t index) const;
 		inline Shader& getShader(uint32_t index);
+		inline uint32_t getNumShaders() const;
 
 	private:
 		std::vector<Mesh> meshes;
@@ -218,6 +219,11 @@ namespace Okay
 	{
 		OKAY_ASSERT(index < (uint32_t)shaders.size(), "Invalid index");
 		return shaders[index];
+	}
+
+	inline uint32_t ContentBrowser::getNumShaders() const
+	{
+		return (uint32_t)shaders.size();
 	}
 
 }

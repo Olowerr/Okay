@@ -9,21 +9,28 @@
 
 namespace Okay
 {
-	Shader::Shader()
-		:name("Default"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
+	// No location forces them to create whereever the working directory is
+	// Is better than SHADER_PATH no ?
+	std::string Shader::shaderLocation = "";
+
+	Shader::Shader(bool ignoreCustomShaderPath)
+		:name("New Shader"), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
+		, ignoreCustomShaderPath(ignoreCustomShaderPath)
 	{
-		setPixelShader(SHADER_PATH "PhongPS.hlsl");
+		createDefaultShader();
+		DX11::createShader(shaderLocation + psName, &pPS);
 	}
 
-	Shader::Shader(std::string_view name)
+	Shader::Shader(std::string_view name, std::string_view shaderPath, bool ignoreCustomShaderPath)
 		:name(name), pPS(nullptr), pHeightMap(nullptr), heightMapIdx(Okay::INVALID_UINT)
+		, ignoreCustomShaderPath(ignoreCustomShaderPath)
 	{
-		setPixelShader(SHADER_PATH "PhongPS.hlsl");
+		setPixelShader(shaderPath);
 	}
 
 	Shader::Shader(Shader&& other) noexcept
 		:name(std::move(other.name)), psName(std::move(other.psName)),
-		gpuData(std::move(other.gpuData))
+		gpuData(std::move(other.gpuData)), ignoreCustomShaderPath(other.ignoreCustomShaderPath)
 	{
 		pPS = other.pPS;
 		other.pPS = nullptr;
@@ -38,6 +45,8 @@ namespace Okay
 	Shader::~Shader()
 	{
 		shutdown();
+
+		// TODO: (Temp before asset saving) delete the created shader
 	}
 
 	void Shader::shutdown()
@@ -50,7 +59,7 @@ namespace Okay
 	void Shader::bind() const
 	{
 		ID3D11DeviceContext* pDevCon = DX11::get().getDeviceContext();
-		pDevCon->VSSetShaderResources(3, 1u, &pHeightMap);
+		pDevCon->VSSetShaderResources(2u, 1u, &pHeightMap);
 		pDevCon->PSSetShader(pPS, nullptr, 0);
 	}
 
@@ -79,63 +88,70 @@ namespace Okay
 	void Shader::setPixelShader(std::string_view path)
 	{
 		ID3D11PixelShader* newPs = nullptr;
-
-		DX11::createShader(path, &newPs);
+		if (!DX11::createShader(path, &newPs))
+			return;
 
 		DX11_RELEASE(pPS);
 		pPS = newPs;
 
-		size_t pos1 = path.find_last_of('/');
-		pos1 = pos1 == std::string_view::npos ? path.find_last_of('\\') : pos1;
-		pos1 = pos1 == std::string_view::npos ? 0ull : pos1;
-
-		psName = path.substr(pos1);
+		size_t pos = findLastSlashPos(path);
+		pos = pos == std::string_view::npos ? 1ull : ++pos;
+		psName = path.substr(pos);
 	}
 
 	void Shader::reloadShader()
 	{
-		// TODO: remove start path, it's specific to OkayEditor
-		compilePixelShader("resources/Shaders/" + psName);
-	}
-
-	void Shader::compilePixelShader(std::string_view path)
-	{
-		ID3DBlob* outData = nullptr;
-		ID3DBlob* outErrors = nullptr;
-		
-		wchar_t* lpPath = new wchar_t[path.size() + 1ull]{};
-		mbstowcs_s(nullptr, lpPath, path.size() + 1ull, path.data(), path.size());
-
-		// TODO: Fix Include directory
-		HRESULT hr = D3DCompileFromFile(lpPath, nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_OPTIMIZATION_LEVEL2, 0u, &outData, &outErrors);
-		OKAY_DELETE_ARRAY(lpPath);
-
-		ID3D11PixelShader* pNewPS = nullptr;
-		if (SUCCEEDED(hr))
-		{
-			DX11::get().getDevice()->CreatePixelShader(outData->GetBufferPointer(), outData->GetBufferSize(), nullptr, &pNewPS);
-			DX11_RELEASE(outData);
-			if (!pNewPS)
-				return;
-		}
-		else
-		{
-			if (outErrors)
-			{
-				printf("Error compiling shader: %s\n", (char*)outErrors->GetBufferPointer());
-				DX11_RELEASE(outErrors);
-			}
-
+		ID3D11PixelShader* newPs = nullptr;
+		if (!DX11::createShader((ignoreCustomShaderPath ? SHADER_PATH : shaderLocation) + psName, &newPs))
 			return;
-		}
-		
-		size_t pos1 = path.find_last_of('/');
-		pos1 = pos1 == std::string_view::npos ? path.find_last_of('\\') : pos1;
-		pos1 = pos1 == std::string_view::npos ? 0ull : pos1 + 1ull;
-		psName = path.substr(pos1);
 
 		DX11_RELEASE(pPS);
-		pPS = pNewPS;
+		pPS = newPs;
+	}
+
+	void Shader::createDefaultShader()
+	{
+		// Try to find an available file name, so we don't overwrite an existing one
+		std::string counterStr = "";
+		uint32_t tryCounter = 0;
+		while (tryCounter++ < 100u) // :P
+		{
+			std::ifstream reader(shaderLocation + "NewShader" + counterStr + ".hlsl");
+			if (!reader)
+			{
+				// File name available
+				reader.close();
+				break;
+			}
+
+			reader.close();
+			counterStr = counterStr == "" ? "1" : std::to_string(std::stoi(counterStr) + 1);
+		}
+
+		OKAY_ASSERT(tryCounter < 100u, "Too many shader creation attempts");
+
+		std::ifstream reader(SHADER_PATH "NewShaderDefault.hlsl");
+		OKAY_ASSERT(reader.is_open(), "Failed opening NewShaderDefault.hlsl");
+
+		std::ofstream writer(shaderLocation + "NewShader" + counterStr + ".hlsl");
+		OKAY_ASSERT(writer.is_open(), "Failed opening the target shader"); // Would be kinda weird if failed no?
+
+		psName = "NewShader" + counterStr + ".hlsl";
+
+		// Copy the contents of NewShaderDefault
+		std::string buffer;
+		reader.seekg(0, std::ios::end);
+		buffer.reserve((size_t)reader.tellg());
+		reader.seekg(0, std::ios::beg);
+
+		while (!reader.eof())
+			buffer += reader.get();
+
+		buffer.pop_back();
+		writer << buffer;
+
+		reader.close();
+		writer.close();
 	}
 }
 

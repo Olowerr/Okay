@@ -28,7 +28,9 @@ namespace Okay
 		ContentBrowser& content = ContentBrowser::get();
 
 
-		content.addShader("Default");
+		content.addShader("Phong", SHADER_PATH "PhongPS.hlsl", true);
+		pipeline.defaultShaderId = content.getNumShaders() - 1u;
+
 		content.addMaterial(Okay::Material::Description()).setName("Default");
 		content.importFile(ENGINE_RESOURCES_PATH "textures/DefaultTexture.png");
 
