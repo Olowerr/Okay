@@ -35,7 +35,7 @@ namespace Okay
 		pipeline.skyboxMeshId = content.getMeshID("cube");
 		if (pipeline.skyboxMeshId == INVALID_UINT)
 		{
-			bool found = content.importFile(ENGINE_RESOURCES_PATH "cube.fbx");
+			bool found = content.importFile(ENGINE_RESOURCES_PATH "meshes/cube.fbx");
 			OKAY_ASSERT(found, "Failed loading cube.fbx");
 			pipeline.skyboxMeshId = content.getNumMeshes() - 1u;
 		}
