@@ -23,10 +23,14 @@ namespace Okay
 		virtual void postRender();
 		virtual void run();
 
+		void registerRenderer(Renderer* pRenderer);
+		void deRegisterRenderer(Renderer* pRenderer);
 
 	protected:
 		Window window;
 		Renderer renderer;
 		Scene scene;
+
+		std::vector<Renderer*> registeredRenderers;
 	};
 }

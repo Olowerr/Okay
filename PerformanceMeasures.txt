@@ -1,0 +1,14 @@
+Average DT when rendering a scene twice, single vs multi threaded
+(Rough values, no exact total record duration, just me winging it)
+
+multi 4 entities: 	0.3517823 ms
+single 4 entities:	0.3198882 ms
+
+mutli 100 entities: 	1.6095417 ms
+single 100 entities: 	2.5028253 ms
+
+mutli 200 entities: 	3.0087633 ms
+single 200 entities: 	4.4968429 ms
+
+mutli 1000 entities: 	12.1601400 ms
+single 1000 entities: 	20.4625683 ms

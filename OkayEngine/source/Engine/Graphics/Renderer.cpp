@@ -195,9 +195,12 @@ namespace Okay
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
 		OKAY_ASSERT(pScene, "Scene was nullptr");
 
+#ifdef MULTI_THREADED
 		HRESULT hr = DX11::get().getDevice()->CreateDeferredContext(0u, &pDefContext);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating DeferredContext");
-
+#else
+		pDefContext = DX11::get().getDeviceContext();
+#endif
 		expandPointLights();
 		expandDirLights();
 
@@ -217,7 +220,10 @@ namespace Okay
 	{
 		DX11_RELEASE(pWireframeRS);
 		DX11_RELEASE(pCommandList);
+
+#ifdef MULTI_THREADED
 		DX11_RELEASE(pDefContext);
+#endif
 	}
 
 	void Renderer::submit(const MeshComponent& mesh, const Transform& transform)
@@ -299,16 +305,34 @@ pPS = pNewPS;\
 		ImGui::End();
 	}
 
-	void Renderer::realRender()
+	void Renderer::prepareForRecording()
 	{
+		lightInfo.numPointLights = 0u;
+		lightInfo.numDirLights = 0u;
+		meshes.clear();
+		pointLights.clear();
+		dirLights.clear();
+
+		static const float clearColour[4]{ 1.f, 1.f, 1.f, 1.f };
+		pDefContext->ClearRenderTargetView(*pRenderTarget->getRTV(), clearColour);
+		if (ID3D11DepthStencilView* pDsv = *pRenderTarget->getDSV())
+			pDefContext->ClearDepthStencilView(pDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+
+		pScene->submit(this);
+	}
+
+	void Renderer::executeCommands()
+	{
+#ifdef MULTI_THREADED
 		if (!pCommandList)
 			return;
 
 		DX11::get().getDeviceContext()->ExecuteCommandList(pCommandList, FALSE);
 		DX11_RELEASE(pCommandList);
+#endif
 	}
 
-	void Renderer::render()
+	void Renderer::recordCommands()
 	{
 		Entity actualCamera = customCamera ? customCamera : pScene->getMainCamera();
 
@@ -326,11 +350,10 @@ pPS = pNewPS;\
 		if (bad)
 			pScene->destroyEntity(actualCamera);
 
-		newFrame();
-		pScene->submit(this);
 		render_internal();
-
+#ifdef MULTI_THREADED
 		pDefContext->FinishCommandList(FALSE, &pCommandList);
+#endif
 	}
 
 	void Renderer::render_internal()
@@ -423,21 +446,6 @@ pPS = pNewPS;\
 		viewport.Width = (float)width;
 		viewport.Height = (float)height;
 		pDefContext->RSSetViewports(1u, &viewport);
-	}
-
-	void Renderer::newFrame()
-	{
-		pRenderTarget->clear();
-		lightInfo.numPointLights = 0u;
-		lightInfo.numDirLights = 0u;
-		meshes.clear();
-		pointLights.clear();
-		dirLights.clear();
-
-		static const float clearColour[4]{ 1.f, 1.f, 1.f, 1.f };
-		pDefContext->ClearRenderTargetView(*pRenderTarget->getRTV(), clearColour);
-		if (ID3D11DepthStencilView* pDsv = *pRenderTarget->getDSV())
-			pDefContext->ClearDepthStencilView(pDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 	}
 
 	void Renderer::setWireframe(bool wireFrame)

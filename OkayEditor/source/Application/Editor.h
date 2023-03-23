@@ -21,6 +21,8 @@ public:
 	virtual void update() override;
 	virtual void postRender() override;
 
+	std::unique_ptr<Okay::Renderer> ren2;
+	std::unique_ptr<Okay::RenderTexture> ren2Target;
 private:
 	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;

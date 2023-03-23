@@ -12,6 +12,8 @@
 
 #include <memory>
 
+//#define MULTI_THREADED
+
 namespace Okay
 {
 	class RenderTexture;
@@ -84,13 +86,13 @@ namespace Okay
 		inline void setScene(Scene* pScene);
 		inline void setCustomCamera(Entity camera = Entity());
 
-		void newFrame();
-		void render();
+		void prepareForRecording();
+		void recordCommands();
 		void setWireframe(bool wireFrame);
 
 		void imGui();
 
-		void realRender();
+		void executeCommands();
 
 	private: // Misc
 		Scene* pScene;
