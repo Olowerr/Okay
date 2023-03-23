@@ -12,3 +12,7 @@ single 200 entities: 	4.4968429 ms
 
 mutli 1000 entities: 	12.1601400 ms
 single 1000 entities: 	20.4625683 ms
+
+
+
+one scene, 1000 entities: 10.5588531
