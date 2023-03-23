@@ -66,6 +66,7 @@ namespace Okay
 			for (size_t i = 0; i < registeredRenderers.size(); i++)
 				registeredRenderers[i]->executeCommands();
 #else		
+			// When MULTI_THREADED isn't defined, the immediate context is used by these functions
 			for (size_t i = 0; i < registeredRenderers.size(); i++)
 			{
 				registeredRenderers[i]->prepareForRecording();
@@ -86,12 +87,15 @@ namespace Okay
 		registeredRenderers.emplace_back(pRenderer);
 	}
 
-	void Application::deRegisterRenderer(Renderer* pRenderer)
+	void Application::deregisterRenderer(Renderer* pRenderer)
 	{
 		for (size_t i = 0; i < registeredRenderers.size(); i++)
 		{
 			if (registeredRenderers[i] == pRenderer)
+			{
 				registeredRenderers.erase(registeredRenderers.begin() + i);
+				return;
+			}
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace Okay
 		virtual void run();
 
 		void registerRenderer(Renderer* pRenderer);
-		void deRegisterRenderer(Renderer* pRenderer);
+		void deregisterRenderer(Renderer* pRenderer);
 
 	protected:
 		Window window;
