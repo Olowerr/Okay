@@ -1,10 +1,6 @@
 #include "Application.h"
 #include "Engine/DirectX/DX11.h"
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_win32.h"
-
 namespace Okay
 {
 	Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
