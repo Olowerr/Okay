@@ -34,6 +34,10 @@ private:
 	SelectionType selectionType;
 	uint32_t selectionID;
 
+	std::unique_ptr<Window> window2;
+	std::unique_ptr<Okay::Renderer> renderer2;
+	Okay::Entity cam2;
+
 	void displayEntities();
 	inline Okay::Entity getEntity(uint32_t id);
 

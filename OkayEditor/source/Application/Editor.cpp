@@ -13,7 +13,7 @@
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), content(Okay::ContentBrowser::get())
 	, gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
-	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None)
+	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None)	
 {
 	using namespace Okay;
 
@@ -51,15 +51,34 @@ Editor::Editor(std::string_view startScene)
 	skyComp.ambientIntensity = 0.8f;
 
 	scene.setSkyLight(light);
+
+	window2 = std::make_unique<Window>(1600, 900, L"Window2", Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE);
+	renderer2 = std::make_unique<Okay::Renderer>(&window2->getRenderTexture());
+	renderer2->setScene(&scene);
+
+	// TODO: Update cameras projection based on the respective viewport
+	// NOTE: Made the Editor should have its own entt::registry ?
+
+	cam2 = scene.createEntity();
+	cam2.addComponent<Camera>();
+	cam2.getComponent<Transform>().position = glm::vec3(0.f, 0.f, -5.f);
 }
 
 Editor::~Editor()
 {
 }
-   
+#include <thread>
 void Editor::run()
 {
 	using namespace Okay;
+
+
+	auto loop = [&](Renderer* ren, Entity cam) 
+	{
+		ren->newFrame();
+		ren->render(cam);
+	};
+
 
 	Application::initImgui();
 
@@ -75,8 +94,17 @@ void Editor::run()
 		scene.update();
 
 		renderer.imGui();
-		renderer.render(editorCamera);
 
+		std::thread thread1(loop, &renderer, editorCamera);
+		std::thread thread2(loop, renderer2.get(), cam2);
+
+		thread1.join();
+		thread2.join();
+
+		renderer.realRender();
+		renderer2->realRender();
+
+		window2->present();
 		endFrame();
 	} 
 	scene.end();
@@ -86,7 +114,6 @@ void Editor::run()
 
 void Editor::newFrame()
 {
-	gameTexture.clear(glm::vec4(0.6f, 0.2f, 0.9f, 1.f));
 	Application::newFrameImGui();
 }
 

@@ -24,7 +24,6 @@ namespace Okay
 		HRESULT hr = E_FAIL;
 		DX11& dx11 = DX11::get();
 		ID3D11Device* pDevice = dx11.getDevice();
-		ID3D11DeviceContext* pDevContext = dx11.getDeviceContext();
 		ContentBrowser& content = ContentBrowser::get();
 
 		content.addAsset<Shader>("Phong", SHADER_PATH "PhongPS.hlsl", true);
@@ -60,10 +59,6 @@ namespace Okay
 
 			hr = DX11::createConstantBuffer(&pipeline.pSkyDataBuffer, nullptr, sizeof(GPUSkyData), false);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating skyLightDataBuffer");
-
-
-			expandPointLights();
-			expandDirLights();
 		}
 
 		// Rasterizer states
@@ -91,7 +86,6 @@ namespace Okay
 
 		// Basic linear sampler
 		{
-			ID3D11SamplerState* simp;
 			D3D11_SAMPLER_DESC simpDesc{};
 			simpDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			simpDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -102,12 +96,8 @@ namespace Okay
 			simpDesc.MipLODBias = 0.f;
 			simpDesc.MaxAnisotropy = 1u;
 			simpDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			hr = pDevice->CreateSamplerState(&simpDesc, &simp);
+			hr = pDevice->CreateSamplerState(&simpDesc, &pipeline.simp);
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating sampler");
-
-			pDevContext->PSSetSamplers(0, 1, &simp);
-			pDevContext->VSSetSamplers(0, 1, &simp);
-			simp->Release();
 		}
 
 
@@ -171,6 +161,7 @@ namespace Okay
 			OKAY_ASSERT(SUCCEEDED(hr), "Failed creating lessEqual Depth Stencil State");
 		}
 
+#if 0
 		// Bind necessities
 		{
 			pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -195,13 +186,19 @@ namespace Okay
 			pDevContext->PSSetShaderResources(4, 1, &pipeline.pDirLightSRV);
 			// 5	| skyBoxTextureCube
 		}
-
+#endif
 	}
 
 	Renderer::Renderer(RenderTexture* pRenderTarget)
-		:pDevContext(DX11::get().getDeviceContext()), pRenderTarget(pRenderTarget)
+		:pRenderTarget(pRenderTarget)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+
+		HRESULT hr = DX11::get().getDevice()->CreateDeferredContext(0u, &pDefContext);
+		OKAY_ASSERT(SUCCEEDED(hr), "Failed creating DeferredContext");
+
+		expandPointLights();
+		expandDirLights();
 
 		meshes.reserve(10);
 		pointLights.reserve(10);
@@ -218,6 +215,8 @@ namespace Okay
 	Renderer::~Renderer()
 	{
 		DX11_RELEASE(pWireframeRS);
+		DX11_RELEASE(pCommandList);
+		DX11_RELEASE(pDefContext);
 	}
 
 	void Renderer::submit(const MeshComponent& mesh, const Transform& transform)
@@ -299,6 +298,15 @@ pPS = pNewPS;\
 		ImGui::End();
 	}
 
+	void Renderer::realRender()
+	{
+		if (!pCommandList)
+			return;
+
+		DX11::get().getDeviceContext()->ExecuteCommandList(pCommandList, FALSE);
+		DX11_RELEASE(pCommandList);
+	}
+
 	void Renderer::render(const Entity& camera)
 	{
 		Entity actualCamera = camera ? camera : pScene->getMainCamera();
@@ -319,6 +327,8 @@ pPS = pNewPS;\
 
 		pScene->submit(this);
 		render_internal();
+
+		pDefContext->FinishCommandList(FALSE, &pCommandList);
 	}
 
 	void Renderer::render_internal()
@@ -343,19 +353,16 @@ pPS = pNewPS;\
 			skyData.sunSize = pSkyLight->sunSize;
 			skyData.sunIntensity = pSkyLight->sunIntensity;
 		}
-		DX11::updateBuffer(pipeline.pSkyDataBuffer, &skyData, sizeof(GPUSkyData));
+		DX11::updateBuffer(pipeline.pSkyDataBuffer, &skyData, sizeof(GPUSkyData), pDefContext);
 
 		updatePointLightsBuffer();
 		updateDirLightsBuffer();
-		DX11::updateBuffer(pipeline.pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo));
-
-		bindMeshPipeline();
-		pDevContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
-
-		// TODO: Add wireFrame as a material property aswell
-		pDevContext->RSSetState(pWireframeRS);
+		DX11::updateBuffer(pipeline.pLightInfoBuffer, &lightInfo, (uint32_t)sizeof(LightInfo), pDefContext);
+		
+		bind();
 
 		// Draw all static meshes
+		bindMeshPipeline();
 		for (size_t i = 0; i < meshes.size(); i++)
 		{
 			const MeshComponent& cMesh = meshes[i].asset;
@@ -368,20 +375,20 @@ pPS = pNewPS;\
 			textures[Material::BASECOLOUR_INDEX] = content.getAsset<Texture>(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX] = content.getAsset<Texture>(material.getSpecular()).getSRV();
 
-			DX11::updateBuffer(pipeline.pWorldBuffer, &worldMatrix, sizeof(glm::mat4));
-			DX11::updateBuffer(pipeline.pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData));
-			DX11::updateBuffer(pipeline.pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData));
+			DX11::updateBuffer(pipeline.pWorldBuffer, &worldMatrix, sizeof(glm::mat4), pDefContext);
+			DX11::updateBuffer(pipeline.pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData), pDefContext);
+			DX11::updateBuffer(pipeline.pShaderDataBuffer, &shader.getGPUData(), sizeof(Shader::GPUData), pDefContext);
 
 			// IA
-			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
-			pDevContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
+			pDefContext->IASetVertexBuffers(0u, Mesh::NumBuffers, mesh.getBuffers(), Mesh::Stride, Mesh::Offset);
+			pDefContext->IASetIndexBuffer(mesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
 
 			// PS
-			shader.bind();
-			pDevContext->PSSetShaderResources(0u, 2u, textures);
+			shader.bind(pDefContext);
+			pDefContext->PSSetShaderResources(0u, 2u, textures);
 
 			// Draw
-			pDevContext->DrawIndexed(mesh.getNumIndices(), 0u, 0);
+			pDefContext->DrawIndexed(mesh.getNumIndices(), 0u, 0);
 		}
 
 		//TODO: Create constants for d3d11 resource slots
@@ -391,21 +398,21 @@ pPS = pNewPS;\
 		{
 			const Mesh& skyBoxMesh = content.getAsset<Mesh>(pipeline.skyboxMeshId);
 
-			pDevContext->IASetInputLayout(pipeline.pPosIL);
+			pDefContext->IASetInputLayout(pipeline.pPosIL);
 
-			pDevContext->IASetVertexBuffers(0u, Mesh::NumBuffers, skyBoxMesh.getBuffers(), Mesh::Stride, Mesh::Offset);
-			pDevContext->IASetIndexBuffer(skyBoxMesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
+			pDefContext->IASetVertexBuffers(0u, Mesh::NumBuffers, skyBoxMesh.getBuffers(), Mesh::Stride, Mesh::Offset);
+			pDefContext->IASetIndexBuffer(skyBoxMesh.getIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
 
-			pDevContext->VSSetShader(pipeline.pSkyBoxVS, nullptr, 0u);
+			pDefContext->VSSetShader(pipeline.pSkyBoxVS, nullptr, 0u);
 
-			pDevContext->RSSetState(pipeline.pNoCullRS);
+			pDefContext->RSSetState(pipeline.pNoCullRS);
 
-			pDevContext->PSSetShader(pipeline.pSkyBoxPS, nullptr, 0u);
-			pDevContext->PSSetShaderResources(5u, 1u, pSkyLight->skyBox->getTextureCubeSRV());
+			pDefContext->PSSetShader(pipeline.pSkyBoxPS, nullptr, 0u);
+			pDefContext->PSSetShaderResources(5u, 1u, pSkyLight->skyBox->getTextureCubeSRV());
 
-			pDevContext->OMSetDepthStencilState(pipeline.pLessEqualDSS, 0u);
+			pDefContext->OMSetDepthStencilState(pipeline.pLessEqualDSS, 0u);
 
-			pDevContext->DrawIndexed(skyBoxMesh.getNumIndices(), 0u, 0);
+			pDefContext->DrawIndexed(skyBoxMesh.getNumIndices(), 0u, 0);
 		}
 	}
 
@@ -413,7 +420,7 @@ pPS = pNewPS;\
 	{
 		viewport.Width = (float)width;
 		viewport.Height = (float)height;
-		pDevContext->RSSetViewports(1u, &viewport);
+		pDefContext->RSSetViewports(1u, &viewport);
 	}
 
 	void Renderer::newFrame()
@@ -423,6 +430,11 @@ pPS = pNewPS;\
 		meshes.clear();
 		pointLights.clear();
 		dirLights.clear();
+
+		static const float clearColour[4]{ 1.f, 1.f, 1.f, 1.f };
+		pDefContext->ClearRenderTargetView(*pRenderTarget->getRTV(), clearColour);
+		if (ID3D11DepthStencilView* pDsv = *pRenderTarget->getDSV())
+			pDefContext->ClearDepthStencilView(pDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 	}
 
 	void Renderer::setWireframe(bool wireFrame)
@@ -454,13 +466,13 @@ pPS = pNewPS;\
 		hr = DX11::createStructuredSRV(&pipeline.pPointLightSRV, pipeline.pPointLightBuffer, pipeline.maxPointLights);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating pointLight SRV");
 
-		DX11::get().getDeviceContext()->PSSetShaderResources(3, 1, &pipeline.pPointLightSRV);
+		pDefContext->PSSetShaderResources(3, 1, &pipeline.pPointLightSRV);
 	}
 
 	void Renderer::updatePointLightsBuffer()
 	{
 		D3D11_MAPPED_SUBRESOURCE sub;
-		if (FAILED(pDevContext->Map(pipeline.pPointLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+		if (FAILED(pDefContext->Map(pipeline.pPointLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 			return;
 
 		char* location = (char*)sub.pData;
@@ -473,7 +485,7 @@ pPS = pNewPS;\
 			location += sizeof(glm::vec3);
 		}
 
-		pDevContext->Unmap(pipeline.pPointLightBuffer, 0);
+		pDefContext->Unmap(pipeline.pPointLightBuffer, 0);
 	}
 
 	void Renderer::expandDirLights()
@@ -492,13 +504,13 @@ pPS = pNewPS;\
 		hr = DX11::createStructuredSRV(&pipeline.pDirLightSRV, pipeline.pDirLightBuffer, pipeline.maxDirLights);
 		OKAY_ASSERT(SUCCEEDED(hr), "Failed recreating dirLight SRV");
 
-		DX11::get().getDeviceContext()->PSSetShaderResources(4, 1, &pipeline.pDirLightSRV);
+		pDefContext->PSSetShaderResources(4, 1, &pipeline.pDirLightSRV);
 	}
 
 	void Renderer::updateDirLightsBuffer()
 	{
 		D3D11_MAPPED_SUBRESOURCE sub;
-		if (FAILED(pDevContext->Map(pipeline.pDirLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+		if (FAILED(pDefContext->Map(pipeline.pDirLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 			return;
 
 		glm::vec3 dirLightDirection{};
@@ -514,7 +526,7 @@ pPS = pNewPS;\
 			location += sizeof(glm::vec3);
 		}
 
-		pDevContext->Unmap(pipeline.pDirLightBuffer, 0);
+		pDefContext->Unmap(pipeline.pDirLightBuffer, 0);
 	}
 
 	void Renderer::updateCameraBuffer(const Entity& cameraEntity)
@@ -528,15 +540,43 @@ pPS = pNewPS;\
 		camData.viewProjMatrix = glm::transpose(camera.projectionMatrix *
 			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
 
-		DX11::updateBuffer(pipeline.pCameraBuffer, &camData, sizeof(GPUCamera));
+		DX11::updateBuffer(pipeline.pCameraBuffer, &camData, sizeof(GPUCamera), pDefContext);
+	}
+
+	void Renderer::bind()
+	{
+		pDefContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		pDefContext->VSSetConstantBuffers(0, 1, &pipeline.pCameraBuffer);
+		pDefContext->VSSetConstantBuffers(1, 1, &pipeline.pWorldBuffer);
+		pDefContext->VSSetConstantBuffers(2, 1, &pipeline.pMaterialBuffer);
+		pDefContext->VSSetConstantBuffers(3, 1, &pipeline.pShaderDataBuffer);
+		pDefContext->VSSetConstantBuffers(4, 1, &pipeline.pSkyDataBuffer);
+		pDefContext->VSSetConstantBuffers(5, 1, &pipeline.pLightInfoBuffer);
+
+		pDefContext->PSSetConstantBuffers(0, 1, &pipeline.pCameraBuffer);
+		pDefContext->PSSetConstantBuffers(1, 1, &pipeline.pWorldBuffer);
+		pDefContext->PSSetConstantBuffers(2, 1, &pipeline.pMaterialBuffer);
+		pDefContext->PSSetConstantBuffers(3, 1, &pipeline.pShaderDataBuffer);
+		pDefContext->PSSetConstantBuffers(4, 1, &pipeline.pSkyDataBuffer);
+		pDefContext->PSSetConstantBuffers(5, 1, &pipeline.pLightInfoBuffer);
+		pDefContext->PSSetShaderResources(3, 1, &pipeline.pPointLightSRV);
+		pDefContext->PSSetShaderResources(4, 1, &pipeline.pDirLightSRV);
+
+		pDefContext->VSSetSamplers(0u, 1u, &pipeline.simp);
+		pDefContext->PSSetSamplers(0u, 1u, &pipeline.simp);
+
+		pDefContext->RSSetState(pWireframeRS);
+		pDefContext->RSSetViewports(1u, &viewport);
+
+		pDefContext->OMSetRenderTargets(1u, pRenderTarget->getRTV(), *pRenderTarget->getDSV());
+
 	}
 
 	void Renderer::bindMeshPipeline()
 	{
-		ID3D11DeviceContext* pDevContext = DX11::get().getDeviceContext();
-		pDevContext->IASetInputLayout(pipeline.pPosUvNormIL);
-		pDevContext->VSSetShader(pipeline.pMeshVS, nullptr, 0u);
-		pDevContext->OMSetDepthStencilState(nullptr, 0u);
+		pDefContext->IASetInputLayout(pipeline.pPosUvNormIL);
+		pDefContext->VSSetShader(pipeline.pMeshVS, nullptr, 0u);
+		pDefContext->OMSetDepthStencilState(nullptr, 0u);
 	}
 
 	void Renderer::bindSkeletalPipeline()
@@ -560,6 +600,8 @@ pPS = pNewPS;\
 		DX11_RELEASE(pDirLightBuffer);
 		DX11_RELEASE(pPointLightSRV);
 		DX11_RELEASE(pDirLightSRV);
+
+		DX11_RELEASE(simp);
 
 		DX11_RELEASE(pPosIL);
 		DX11_RELEASE(pPosUvNormIL);

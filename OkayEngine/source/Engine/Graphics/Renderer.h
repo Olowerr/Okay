@@ -89,13 +89,17 @@ namespace Okay
 
 		void imGui();
 
+		void realRender();
+
 	private: // Misc
 		Scene* pScene;
 		RenderTexture* pRenderTarget;
 		
 		void render_internal();
 
-		ID3D11DeviceContext* pDevContext;
+		ID3D11DeviceContext* pDefContext;
+		ID3D11CommandList* pCommandList;
+
 		ID3D11RasterizerState* pWireframeRS;
 		D3D11_VIEWPORT viewport;
 		void onTargetResize(uint32_t width, uint32_t height);
@@ -116,6 +120,8 @@ namespace Okay
 	
 		// NOTE: Can (atm) be static, but dunno how things will change once a defeered context is used
 		void updateCameraBuffer(const Entity& cameraEntity); 
+
+		void bind();
 
 	private: // Static PipelineResources
 
@@ -139,6 +145,8 @@ namespace Okay
 			ID3D11ShaderResourceView* pDirLightSRV = nullptr;
 			uint32_t maxPointLights = 0u;
 			uint32_t maxDirLights = 0u;
+
+			ID3D11SamplerState* simp = nullptr;
 
 			uint32_t defaultShaderId = INVALID_UINT;
 			uint32_t skyboxMeshId = INVALID_UINT;
@@ -166,11 +174,11 @@ namespace Okay
 
 		static PipelineResources pipeline;
 
-		static void expandPointLights();
-		static void expandDirLights();
+		void expandPointLights();
+		void expandDirLights();
 
-		static void bindMeshPipeline();
-		static void bindSkeletalPipeline();
+		void bindMeshPipeline();
+		void bindSkeletalPipeline();
 	};
 
 	inline void Renderer::setScene(Scene* pScene) { this->pScene = pScene; }

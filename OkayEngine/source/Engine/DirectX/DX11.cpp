@@ -18,6 +18,9 @@ DX11::DX11()
 	hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
 		&featureLevel, 1u, D3D11_SDK_VERSION, &pDevice, nullptr, &pDeviceContext);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed initializing DirectX 11");
+
+	hr = pDevice->CreateDeferredContext(0u, &pDeferredContext);
+	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating deferredContext");
 }
 
 DX11::~DX11()
@@ -28,6 +31,7 @@ DX11::~DX11()
 void DX11::shutdown()
 {
 	DX11_RELEASE(pDeviceContext);
+	DX11_RELEASE(pDeferredContext);
 
 #if 0
 	ID3D11Debug* debugger = nullptr;
@@ -37,16 +41,6 @@ void DX11::shutdown()
 #endif
 
 	DX11_RELEASE(pDevice);
-}
-
-ID3D11Device* DX11::getDevice()
-{
-	return pDevice;
-}
-
-ID3D11DeviceContext* DX11::getDeviceContext()
-{
-	return pDeviceContext;
 }
 
 
@@ -136,14 +130,16 @@ HRESULT DX11::createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, U
 	return get().pDevice->CreateBuffer(&desc, pData ? &inData : nullptr, ppBuffer);
 }
 
-void DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize)
+void DX11::updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize, ID3D11DeviceContext* pDefContext)
 {
+	ID3D11DeviceContext* pContext = pDefContext ? pDefContext : get().pDeviceContext;
+
 	D3D11_MAPPED_SUBRESOURCE sub;
-	if (FAILED(get().pDeviceContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
+	if (FAILED(pContext->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub)))
 		return;
 
 	memcpy(sub.pData, pData, byteSize);
-	get().pDeviceContext->Unmap(pBuffer, 0);
+	pContext->Unmap(pBuffer, 0);
 }
 
 void DX11::updateTexture(ID3D11Texture2D* pBuffer, const void* pData, uint32_t elementByteSize, uint32_t width, uint32_t height)

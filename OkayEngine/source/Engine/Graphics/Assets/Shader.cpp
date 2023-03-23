@@ -56,11 +56,10 @@ namespace Okay
 		heightMapIdx = Okay::INVALID_UINT;
 	}
 
-	void Shader::bind() const
+	void Shader::bind(ID3D11DeviceContext* pDefContext) const
 	{
-		ID3D11DeviceContext* pDevCon = DX11::get().getDeviceContext();
-		pDevCon->VSSetShaderResources(2u, 1u, &pHeightMap);
-		pDevCon->PSSetShader(pPS, nullptr, 0);
+		pDefContext->VSSetShaderResources(2u, 1u, &pHeightMap);
+		pDefContext->PSSetShader(pPS, nullptr, 0);
 	}
 
 	void Shader::setHeightMap(uint32_t index)

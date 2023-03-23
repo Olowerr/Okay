@@ -39,7 +39,7 @@ namespace Okay
 		void reloadShader();
 		inline const std::string& getPSName() const;
 		
-		void bind() const;
+		void bind(ID3D11DeviceContext* pDefContext) const;
 		inline const GPUData& getGPUData() const;
 
 	private:

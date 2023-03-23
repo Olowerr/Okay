@@ -21,8 +21,9 @@ public:
 
 	void shutdown();
 
-	ID3D11Device* getDevice();
-	ID3D11DeviceContext* getDeviceContext();
+	inline ID3D11Device* getDevice();
+	inline ID3D11DeviceContext* getDeviceContext();
+	inline ID3D11DeviceContext* getDeferredContext();
 
 	// Helper functions // TODO: Change UINT to uint32_t
 	static bool createSwapChain(IDXGISwapChain** ppSwapChain, HWND hWnd, DXGI_USAGE dx11UsageFlags = DXGI_USAGE_RENDER_TARGET_OUTPUT);
@@ -30,7 +31,8 @@ public:
 	static HRESULT createVertexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static HRESULT createIndexBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
 	static HRESULT createConstantBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT byteSize, bool immutable = true);
-	static void updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize);
+
+	static void updateBuffer(ID3D11Resource* pBuffer, const void* pData, UINT byteSize, ID3D11DeviceContext* pDefContext = nullptr);
 	static void updateTexture(ID3D11Texture2D* pBuffer, const void* pData, uint32_t elementByteSize, uint32_t width = 0u, uint32_t height = 0u);
 
 	static HRESULT createStructuredBuffer(ID3D11Buffer** ppBuffer, const void* pData, UINT eleByteSize, UINT numElements, bool immutable = true);
@@ -42,4 +44,20 @@ public:
 private:
 	ID3D11Device* pDevice;
 	ID3D11DeviceContext* pDeviceContext;
+	ID3D11DeviceContext* pDeferredContext;
 };
+
+inline ID3D11Device* DX11::getDevice()
+{
+	return pDevice;
+}
+
+inline ID3D11DeviceContext* DX11::getDeviceContext()
+{
+	return pDeviceContext;
+}
+
+inline ID3D11DeviceContext* DX11::getDeferredContext()
+{
+	return pDeferredContext;
+}
