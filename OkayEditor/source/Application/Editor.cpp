@@ -97,14 +97,6 @@ void Editor::update()
 	displayContent();
 	displayStyling();
 
-
-	if (ImGui::Begin("Viewport 2"))
-	{
-		ImGui::Image(*ren2Target->getSRV(), ImVec2(1600.f, 900.f));
-	}
-	ImGui::End();
-
-
 	endImGuiFrame();
 }
 
