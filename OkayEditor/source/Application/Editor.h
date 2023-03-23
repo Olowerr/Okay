@@ -11,7 +11,7 @@
 // Editor Entities should not be visable for the user
 using EditorEntity = char;
 
-class Editor : public Okay::Application // TODO: Inheritance isn't neccessary here, restructure?
+class Editor : public Okay::Application
 {
 public:
 	Editor(std::string_view startScene);
