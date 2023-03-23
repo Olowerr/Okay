@@ -198,10 +198,11 @@ namespace Okay
 
 	}
 
-	Renderer::Renderer(RenderTexture* pRenderTarget)
-		:pDevContext(DX11::get().getDeviceContext()), pRenderTarget(pRenderTarget)
+	Renderer::Renderer(RenderTexture* pRenderTarget, Scene* scene)
+		:pDevContext(DX11::get().getDeviceContext()), pRenderTarget(pRenderTarget), pScene(scene)
 	{
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+		OKAY_ASSERT(pScene, "Scene was nullptr");
 
 		meshes.reserve(10);
 		pointLights.reserve(10);

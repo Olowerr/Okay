@@ -73,7 +73,7 @@ namespace Okay
 		
 		static void init();
 
-		Renderer(RenderTexture* target);
+		Renderer(RenderTexture* target, Scene* scene);
 		~Renderer();
 
 		void submit(const MeshComponent& mesh, const Transform& transform);
@@ -175,6 +175,11 @@ namespace Okay
 		static void bindSkeletalPipeline();
 	};
 
-	inline void Renderer::setScene(Scene* pScene)			{ this->pScene = pScene; }
-	inline void Renderer::setCustomCamera(Entity camera)	{ customCamera = camera; }
+	inline void Renderer::setScene(Scene* scene)
+	{ 
+		OKAY_ASSERT(scene, "Scene was nullptr");
+		pScene = scene;
+	}
+
+	inline void Renderer::setCustomCamera(Entity camera) { customCamera = camera; }
 }

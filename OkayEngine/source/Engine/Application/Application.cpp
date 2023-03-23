@@ -9,10 +9,9 @@ namespace Okay
 {
 	Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
 		:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE),
-		renderer(&window.getRenderTexture())
+		renderer(&window.getRenderTexture(), &scene)
 	{
 		Renderer::init();
-		renderer.setScene(&scene);
 	}
 
 	Application::~Application()
