@@ -3,28 +3,30 @@
 #include "../Graphics/Renderer.h"
 #include "../Graphics/ContentBrowser.h"
 
+#include "Scene.h"
+
 #include "Time.h"
 #include "Input/Input.h"
 
-class Application
+namespace Okay
 {
-public:
-	Application(const wchar_t* appName, uint32_t width = 1600u, uint32_t height = 900u);
-	virtual ~Application();
+	class Application
+	{
+	public:
+		Application(const wchar_t* appName, uint32_t width = 1600u, uint32_t height = 900u);
+		virtual ~Application();
 
-	virtual void run() = 0;
+		virtual void start();
+		virtual void update();
+		virtual void end();
 
-	
-	void initImgui();
-	void destroyImgui();
+		virtual void postRender();
+		virtual void run();
 
-	void newFrame();
-	void endFrame();
 
-	void newFrameImGui();
-	void endFrameImGui();
-
-protected:
-	Window window;
-	Okay::Renderer renderer;
-};
+	protected:
+		Window window;
+		Renderer renderer;
+		Scene scene;
+	};
+}

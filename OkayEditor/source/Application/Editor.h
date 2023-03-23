@@ -11,24 +11,20 @@
 // Editor Entities should not be visable for the user
 using EditorEntity = char;
 
-class Editor : public Application // TODO: Inheritance isn't neccessary here, restructure?
+class Editor : public Okay::Application
 {
 public:
 	Editor(std::string_view startScene);
 	~Editor();
 
 	// Inherited via Application
-	virtual void run() override;
+	virtual void update() override;
+	virtual void postRender() override;
 
 private:
 	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;
-	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;
-
-	void newFrame();
-	void update();
-	void endFrame();
 
 	enum struct SelectionType { None, Entity, Mesh, Texture, Material, Shader};
 	SelectionType selectionType;
@@ -37,6 +33,10 @@ private:
 	std::unique_ptr<Window> window2;
 	std::unique_ptr<Okay::Renderer> renderer2;
 	Okay::Entity cam2;
+
+	void newImGuiFrame();
+	void endImGuiFrame();
+
 
 	void displayEntities();
 	inline Okay::Entity getEntity(uint32_t id);
@@ -53,6 +53,7 @@ private:
 	void displayContent();
 	void displayAssetList();
 
+	void setStyle();
 	void displayStyling();
 
 	void displaySceneSettings();
