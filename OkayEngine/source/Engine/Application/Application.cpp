@@ -49,8 +49,8 @@ namespace Okay
 
 			update();
 
-			renderer.newFrame();
 			renderer.render(); 
+			renderer.realRender();
 
 			postRender();
 

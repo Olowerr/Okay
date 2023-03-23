@@ -326,6 +326,7 @@ pPS = pNewPS;\
 		if (bad)
 			pScene->destroyEntity(actualCamera);
 
+		newFrame();
 		pScene->submit(this);
 		render_internal();
 
