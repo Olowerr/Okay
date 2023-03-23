@@ -299,11 +299,11 @@ pPS = pNewPS;\
 		ImGui::End();
 	}
 
-	void Renderer::render(const Entity& camera)
+	void Renderer::render()
 	{
-		Entity actualCamera = camera ? camera : pScene->getMainCamera();
+		Entity actualCamera = customCamera ? customCamera : pScene->getMainCamera();
 
-		// Should only occur if a scene is started without a camera
+		// Should only occur if a there's no customCamera and no mainCamera in the scene
 		// Maybe add a OKAY_DEBUG/OKAY_SAFE define?
 		bool bad = false;
 		if (!actualCamera) 
@@ -418,6 +418,7 @@ pPS = pNewPS;\
 
 	void Renderer::newFrame()
 	{
+		pRenderTarget->clear();
 		lightInfo.numPointLights = 0u;
 		lightInfo.numDirLights = 0u;
 		meshes.clear();

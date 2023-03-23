@@ -18,21 +18,20 @@ public:
 	~Editor();
 
 	// Inherited via Application
-	virtual void run() override;
+	virtual void update() override;
+	virtual void postRender() override;
 
 private:
 	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;
-	Okay::Scene scene;
 	Okay::RenderTexture gameTexture;
-
-	void newFrame();
-	void update();
-	void endFrame();
 
 	enum struct SelectionType { None, Entity, Mesh, Texture, Material, Shader};
 	SelectionType selectionType;
 	uint32_t selectionID;
+
+	void newImGuiFrame();
+	void endImGuiFrame();
 
 	void displayEntities();
 	inline Okay::Entity getEntity(uint32_t id);
@@ -49,6 +48,7 @@ private:
 	void displayContent();
 	void displayAssetList();
 
+	void setStyle();
 	void displayStyling();
 
 	void displaySceneSettings();

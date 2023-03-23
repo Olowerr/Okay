@@ -82,9 +82,10 @@ namespace Okay
 
 		void setRenderTexture(RenderTexture* pRenderTexture);
 		inline void setScene(Scene* pScene);
+		inline void setCustomCamera(Entity camera = Entity());
 
 		void newFrame();
-		void render(const Entity& camera = Entity());
+		void render();
 		void setWireframe(bool wireFrame);
 
 		void imGui();
@@ -92,7 +93,8 @@ namespace Okay
 	private: // Misc
 		Scene* pScene;
 		RenderTexture* pRenderTarget;
-		
+		Entity customCamera;
+
 		void render_internal();
 
 		ID3D11DeviceContext* pDevContext;
@@ -173,5 +175,6 @@ namespace Okay
 		static void bindSkeletalPipeline();
 	};
 
-	inline void Renderer::setScene(Scene* pScene) { this->pScene = pScene; }
+	inline void Renderer::setScene(Scene* pScene)			{ this->pScene = pScene; }
+	inline void Renderer::setCustomCamera(Entity camera)	{ customCamera = camera; }
 }
