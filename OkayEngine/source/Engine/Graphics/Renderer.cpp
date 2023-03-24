@@ -195,9 +195,14 @@ namespace Okay
 	{
 	}
 
-	Renderer::Renderer(RenderTexture* pTarget, Scene* pScene)
+	Renderer::Renderer(Ref<RenderTexture> target, Ref<Scene> scene)
 	{
-		create(pTarget, pScene);
+		create(target, scene);
+	}
+
+	Renderer::Renderer(uint32_t width, uint32_t height, Ref<Scene> scene)
+	{
+		create(width, height, scene);
 	}
 
 	Renderer::~Renderer()
@@ -205,7 +210,7 @@ namespace Okay
 		shutdown();
 	}
 
-	void Renderer::create(RenderTexture* target, Scene* scene)
+	void Renderer::create(Ref<RenderTexture> target, Ref<Scene> scene)
 	{
 		shutdown();
 
@@ -235,6 +240,12 @@ namespace Okay
 		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
 
+	void Renderer::create(uint32_t width, uint32_t height, Ref<Scene> scene)
+	{
+		Ref<RenderTexture> target = createRef<RenderTexture>(width, height, RenderTexture::RENDER | RenderTexture::SHADER_READ | RenderTexture::DEPTH);
+		create(target, scene);
+	}
+
 	void Renderer::shutdown()
 	{
 		DX11_RELEASE(pWireframeRS);
@@ -243,6 +254,9 @@ namespace Okay
 #ifdef MULTI_THREADED
 		DX11_RELEASE(pDefContext);
 #endif
+
+		pScene = nullptr;
+		pRenderTarget = nullptr;
 	}
 
 	void Renderer::submit(const MeshComponent& mesh, const Transform& transform)
@@ -272,7 +286,7 @@ namespace Okay
 		lightInfo.numDirLights++;
 	}
 
-	void Renderer::setRenderTexture(RenderTexture* pRenderTexture)
+	void Renderer::setRenderTexture(Ref<RenderTexture> pRenderTexture)
 	{
 		OKAY_ASSERT(pRenderTexture, "RenderTarget was nullptr");
 

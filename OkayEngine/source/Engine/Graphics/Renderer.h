@@ -75,18 +75,20 @@ namespace Okay
 		static void init();
 
 		Renderer();
-		Renderer(RenderTexture* target, Scene* scene);
+		Renderer(Ref<RenderTexture> target, Ref<Scene> scene);
+		Renderer(uint32_t targetWidth, uint32_t targetHeight, Ref<Scene> scene);
 		~Renderer();
 
-		void create(RenderTexture* target, Scene* scene);
+		void create(Ref<RenderTexture> target, Ref<Scene> scene);
+		void create(uint32_t targetWidth, uint32_t targetHeight, Ref<Scene> scene);
 		void shutdown();
 
 		void submit(const MeshComponent& mesh, const Transform& transform);
 		void submit(const PointLight& light, const Transform& transform);
 		void submit(const DirectionalLight& light, const Transform& transform);
 
-		void setRenderTexture(RenderTexture* pRenderTexture);
-		inline void setScene(Scene* pScene);
+		void setRenderTexture(Ref<RenderTexture> pRenderTexture);
+		inline void setScene(Ref<Scene> pScene);
 		inline void setCustomCamera(Entity camera = Entity());
 
 		void prepareForRecording();
@@ -98,8 +100,8 @@ namespace Okay
 		void executeCommands();
 
 	private: // Misc
-		Scene* pScene;
-		RenderTexture* pRenderTarget;
+		Ref<Scene> pScene;
+		Ref<RenderTexture> pRenderTarget;
 		Entity customCamera;
 
 		void render_internal();
@@ -188,7 +190,7 @@ namespace Okay
 		void bindSkeletalPipeline();
 	};
 
-	inline void Renderer::setScene(Scene* scene)
+	inline void Renderer::setScene(Ref<Scene> scene)
 	{ 
 		OKAY_ASSERT(scene, "Scene was nullptr");
 		pScene = scene;
