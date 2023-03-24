@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <functional>
 
+
 namespace Okay
 {
 	class RenderTexture
@@ -70,11 +71,10 @@ namespace Okay
 	private:
 		std::vector<std::function<void(uint32_t, uint32_t)>> callbacks;
 
-		bool isOwner;
 		uint32_t flags;
 		Format format;
 
-		ID3D11Texture2D* buffer;
+		DX11Ref<ID3D11Texture2D> buffer;
 		ID3D11RenderTargetView* rtv;
 		ID3D11ShaderResourceView* srv;
 		ID3D11UnorderedAccessView* uav;
@@ -107,7 +107,7 @@ namespace Okay
 	inline uint32_t RenderTexture::getFlags() const { return flags; }
 	inline bool RenderTexture::valid() const		{ return buffer; }
 
-	inline ID3D11Texture2D* RenderTexture::getBuffer()						{ return buffer; }
+	inline ID3D11Texture2D* RenderTexture::getBuffer()						{ return buffer.Get(); }
 	inline ID3D11RenderTargetView* const* RenderTexture::getRTV() const		{ return &rtv; }
 	inline ID3D11ShaderResourceView* const* RenderTexture::getSRV() const	{ return &srv; }
 	inline ID3D11UnorderedAccessView* const* RenderTexture::getUAV() const	{ return &uav; }

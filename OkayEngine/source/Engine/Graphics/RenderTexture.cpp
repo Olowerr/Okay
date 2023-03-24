@@ -1,26 +1,25 @@
 #include "RenderTexture.h"
 #include "Engine/DirectX/DX11.h"
 
-
 namespace Okay
 {
 	RenderTexture::RenderTexture()
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr), isOwner(false), flags(0u), format(Format::INVALID)
+		depthBuffer(nullptr), dsv(nullptr), flags(0u), format(Format::INVALID)
 	{
 
 	}
 
 	RenderTexture::RenderTexture(ID3D11Texture2D* texture, uint32_t flags)
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr), isOwner(false)
+		depthBuffer(nullptr), dsv(nullptr)
 	{
 		create(texture, flags);
 	}
 
 	RenderTexture::RenderTexture(uint32_t width, uint32_t height, uint32_t flags, Format format)
 		:buffer(nullptr), rtv(nullptr), srv(nullptr), uav(nullptr),
-		depthBuffer(nullptr), dsv(nullptr), isOwner(true)
+		depthBuffer(nullptr), dsv(nullptr)
 	{
 		create(width, height, flags, format);
 	}
@@ -49,8 +48,7 @@ namespace Okay
 		OKAY_ASSERT(texture, "Texture was nullptr");
 
 		shutdown();
-		texture->AddRef();
-		buffer = texture;
+		buffer = texture; 
 
 		D3D11_TEXTURE2D_DESC desc{};
 		buffer->GetDesc(&desc);
@@ -71,7 +69,6 @@ namespace Okay
 			break;
 		}
 
-		isOwner = false;
 		readFlgs(flags);
 	}
 
@@ -105,7 +102,6 @@ namespace Okay
 		pDevice->CreateTexture2D(&desc, nullptr, &buffer);
 		OKAY_ASSERT(buffer, "Failed creating RenderTexture");
 
-		isOwner = true;
 		readFlgs(flags);
 	}
 
@@ -137,7 +133,9 @@ namespace Okay
 
 	void RenderTexture::resize(uint32_t width, uint32_t height)
 	{
-		if (!isOwner)
+		// The "right way" to get the reference count requires some additionl stuff (seemed annoying)
+		buffer->AddRef();
+		if (buffer->Release() == 1u)
 			return;
 
 		create(width, height, flags, format);
@@ -160,17 +158,17 @@ namespace Okay
 
 		if (CHECK_BIT(flags, BitPos::B_RENDER))
 		{
-			pDevice->CreateRenderTargetView(buffer, nullptr, &rtv);
+			pDevice->CreateRenderTargetView(buffer.Get(), nullptr, &rtv);
 			OKAY_ASSERT(rtv, "Failed creating RTV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_SHADER_READ))
 		{
-			pDevice->CreateShaderResourceView(buffer, nullptr, &srv);
+			pDevice->CreateShaderResourceView(buffer.Get(), nullptr, &srv);
 			OKAY_ASSERT(srv, "Failed creating SRV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_SHADER_WRITE))
 		{
-			pDevice->CreateUnorderedAccessView(buffer, nullptr, &uav);
+			pDevice->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav);
 			OKAY_ASSERT(uav, "Failed creating UAV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_DEPTH))
