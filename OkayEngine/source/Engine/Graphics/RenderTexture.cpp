@@ -129,14 +129,13 @@ namespace Okay
 
 		if (dsv)
 			DX11::get().getDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
-
 	}
 
 	void RenderTexture::resize(uint32_t width, uint32_t height)
 	{
 		// The "right way" to get the reference count requires some additional stuff (seemed annoying)
 		buffer->AddRef();
-		if (buffer->Release() != 1u)
+		if (buffer->Release() != 1u) // Don't resize if not owning (the other references won't update)
 			return;
 
 		create(width, height, flags, format);
