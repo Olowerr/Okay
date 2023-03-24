@@ -88,6 +88,9 @@ namespace Okay
 		void submit(const DirectionalLight& light, const Transform& transform);
 
 		void setRenderTexture(Ref<RenderTexture> pRenderTexture);
+		inline Ref<RenderTexture> getRenderTexture();
+		inline const Ref<RenderTexture> getRenderTexture() const;
+
 		inline void setScene(Ref<Scene> pScene);
 		inline void setCustomCamera(Entity camera = Entity());
 
@@ -189,6 +192,9 @@ namespace Okay
 		void bindMeshPipeline();
 		void bindSkeletalPipeline();
 	};
+
+	inline Ref<RenderTexture> Renderer::getRenderTexture()				{ return pRenderTarget; }
+	inline const Ref<RenderTexture> Renderer::getRenderTexture() const	{ return pRenderTarget; }
 
 	inline void Renderer::setScene(Ref<Scene> scene)
 	{ 
