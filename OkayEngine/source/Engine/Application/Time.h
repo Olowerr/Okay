@@ -33,6 +33,7 @@ namespace Okay
 	inline float Time::getDT() { return Time::dtApp.count() * Time::timeScale; }
 	inline void Time::setTimeScale(float timeScale) { Time::timeScale = timeScale; }
 
+	inline float Time::getApplicationUpTime() { return Time::upTimeApp.count(); }
 	inline float Time::getApplicationDT() { return Time::dtApp.count(); }
 	inline float Time::getUpTime() { return Time::upTime.count(); }
 	
