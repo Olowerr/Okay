@@ -40,7 +40,7 @@ Window::Window(uint32_t width, uint32_t height, const wchar_t* windowName, uint3
 	// Create before show, or onResize is called and swapChain is nullptr
 	createRenderTexture(renderTexFlags == Okay::INVALID_UINT ? Okay::RenderTexture::B_RENDER : renderTexFlags);
 	show();
-	renderTexture.clear(glm::vec4(0.f));
+	renderTexture->clear(glm::vec4(0.f));
 	present();
 }
 
@@ -50,7 +50,6 @@ Window::~Window()
 	UnregisterClass(L"WinClass", GetModuleHandle(NULL));
 	windows.erase(hWnd);
 
-	renderTexture.shutdown();
 	DX11_RELEASE(pSwapChain);
 }
 
@@ -126,6 +125,7 @@ void Window::createRenderTexture(uint32_t flags)
 
 	OKAY_ASSERT(pSwapChain, "Failed creating swapchain");
 
+	renderTexture = Okay::createRef<Okay::RenderTexture>();
 	getAndSetBackBuffer(flags);
 }
 
@@ -135,7 +135,7 @@ void Window::getAndSetBackBuffer(uint32_t flags)
 	pSwapChain->GetBuffer(0u, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 	OKAY_ASSERT(pSwapChain, "Failed getting backBuffer");
 
-	renderTexture.create(backBuffer, flags);
+	renderTexture->create(backBuffer, flags);
 	DX11_RELEASE(backBuffer);
 }
 
@@ -214,8 +214,8 @@ void Window::onResize(HWND hWnd, WPARAM wParam)
 	Window& window = *it->second;
 
 	// Release all external references to the backBuffer before resizing the buffer
-	const uint32_t flags = window.renderTexture.getFlags();
-	window.renderTexture.shutdown();
+	const uint32_t flags = window.renderTexture->getFlags();
+	window.renderTexture->shutdown();
 
 	window.pSwapChain->ResizeBuffers(0u, 0u, 0u, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 	window.getAndSetBackBuffer(flags);

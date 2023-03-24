@@ -19,8 +19,8 @@ public:
 	Window& operator=(const Window&) = delete;
 	
 	void createRenderTexture(uint32_t flags);
-	inline Okay::RenderTexture& getRenderTexture();
-	inline const Okay::RenderTexture& getRenderTexture() const;
+	inline Okay::Ref<Okay::RenderTexture> getRenderTexture();
+	inline const Okay::Ref<Okay::RenderTexture> getRenderTexture() const;
 	inline void clear();
 	inline void clear(float* colour);
 	inline void clear(const glm::vec4& colour);
@@ -46,7 +46,7 @@ private:
 	bool open;
 
 	IDXGISwapChain* pSwapChain;
-	Okay::RenderTexture renderTexture;
+	Okay::Ref<Okay::RenderTexture> renderTexture;
 
 	void getAndSetBackBuffer(uint32_t flags);
 
@@ -57,12 +57,12 @@ private: // Window handling through HWND
 
 inline bool Window::isOpen() const { return open; }
 
-inline Okay::RenderTexture& Window::getRenderTexture() { return renderTexture; }
-inline const Okay::RenderTexture& Window::getRenderTexture() const { return renderTexture; }
+inline Okay::Ref<Okay::RenderTexture> Window::getRenderTexture() { return renderTexture; }
+inline const Okay::Ref<Okay::RenderTexture> Window::getRenderTexture() const { return renderTexture; }
 
-inline void Window::clear() { renderTexture.clear(); }
-inline void Window::clear(float* colours) { renderTexture.clear(colours); }
-inline void Window::clear(const glm::vec4& colour) { renderTexture.clear(colour); }
+inline void Window::clear() { renderTexture->clear(); }
+inline void Window::clear(float* colours) { renderTexture->clear(colours); }
+inline void Window::clear(const glm::vec4& colour) { renderTexture->clear(colour); }
 
 inline void Window::present() { pSwapChain->Present(0u, 0u); }
 
