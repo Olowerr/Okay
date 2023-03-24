@@ -77,6 +77,9 @@ namespace Okay
 		Renderer(RenderTexture* target, Scene* scene);
 		~Renderer();
 
+		void create(RenderTexture* target, Scene* scene);
+		void shutdown();
+
 		void submit(const MeshComponent& mesh, const Transform& transform);
 		void submit(const PointLight& light, const Transform& transform);
 		void submit(const DirectionalLight& light, const Transform& transform);

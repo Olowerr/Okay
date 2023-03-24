@@ -189,10 +189,23 @@ namespace Okay
 #endif
 	}
 
-	Renderer::Renderer(RenderTexture* pRenderTarget, Scene* scene)
-		:pRenderTarget(pRenderTarget), pScene(scene)
+	Renderer::Renderer(RenderTexture* pTarget, Scene* pScene)
 	{
+		create(pTarget, pScene);
+	}
+
+	Renderer::~Renderer()
+	{
+		shutdown();
+	}
+
+	void Renderer::create(RenderTexture* target, Scene* scene)
+	{
+		shutdown();
+
+		pRenderTarget = target;
 		OKAY_ASSERT(pRenderTarget, "RenderTarget was nullptr");
+		pScene = scene;
 		OKAY_ASSERT(pScene, "Scene was nullptr");
 
 #ifdef MULTI_THREADED
@@ -216,7 +229,7 @@ namespace Okay
 		onTargetResize((uint32_t)dims.x, (uint32_t)dims.y);
 	}
 
-	Renderer::~Renderer()
+	void Renderer::shutdown()
 	{
 		DX11_RELEASE(pWireframeRS);
 		DX11_RELEASE(pCommandList);
