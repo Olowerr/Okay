@@ -11,7 +11,7 @@
 #include "Engine/Application/Entity.h"
 
 
-//#define MULTI_THREADED
+#define MULTI_THREADED
 
 namespace Okay
 {

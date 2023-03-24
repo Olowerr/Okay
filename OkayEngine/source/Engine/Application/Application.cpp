@@ -60,7 +60,7 @@ namespace Okay
 				registeredRenderers[i]->prepareForRecording();
 				
 			// Each renderer can record their commands simultaneously on their own context
-			std::for_each(std::execution::par, registeredRenderers.begin(), registeredRenderers.end(), [&](Renderer* pRenderer)
+			std::for_each(std::execution::par, registeredRenderers.begin(), registeredRenderers.end(), [&](Ref<Renderer> pRenderer)
 			{
 				pRenderer->recordCommands();
 			});
