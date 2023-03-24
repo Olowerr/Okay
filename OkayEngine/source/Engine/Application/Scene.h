@@ -25,8 +25,6 @@ namespace Okay
 
 		inline entt::registry& getRegistry();
 
-		void updateCamerasAspectRatio(uint32_t width, uint32_t height);
-
 		void start();
 		void update();
 		void submit(Renderer* pRenderer);

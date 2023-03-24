@@ -22,14 +22,6 @@ namespace Okay
         return entity;
     }
 
-    void Scene::updateCamerasAspectRatio(uint32_t width, uint32_t height)
-    {
-        registry.view<Camera>().each([=](Camera& camera)
-        {
-            camera.onTargetResize((float)width, (float)height);
-        });
-    }
-
     void Scene::start()
     {
         registry.view<ScriptComponent>().each([](ScriptComponent& script)

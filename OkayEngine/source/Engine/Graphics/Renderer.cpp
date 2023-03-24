@@ -585,7 +585,7 @@ pPS = pNewPS;\
 		GPUCamera camData{};
 		camData.direction = camTransform.forward();
 		camData.pos = camTransform.position;
-		camData.viewProjMatrix = glm::transpose(camera.projectionMatrix *
+		camData.viewProjMatrix = glm::transpose(camera.calculateProjMatrix(viewport.Width, viewport.Height) *
 			glm::lookAtLH(camTransform.position, camTransform.position + camData.direction, camTransform.up()));
 
 		DX11::updateBuffer(pipeline.pCameraBuffer, &camData, sizeof(GPUCamera), pDefContext);

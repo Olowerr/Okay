@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace Okay
@@ -10,36 +9,21 @@ namespace Okay
 		// TODO: Add support for target point camera
 		// without forcing the calculation on the user
 
-		glm::mat4 projectionMatrix;
-		float fov;
-		float nearZ;
-		float farZ;
+		float fov = 90.f;
+		float nearZ = 0.1f;
+		float farZ = 1000.f;
 
-		Camera(float fov, float width, float height, float nearZ, float farZ)
+		Camera() = default;
+
+		Camera(float fov, float nearZ, float farZ)
 			:fov(fov), nearZ(nearZ), farZ(farZ)
 		{
-			calculateProjMatrix(fov, width, height, nearZ, farZ);
 		}
 
-		Camera()
-			:fov(90.f), nearZ(0.1f), farZ(1000.f)
+		inline glm::mat4 calculateProjMatrix(float width, float height) const
 		{
-			calculateProjMatrix(fov, 16.f, 9.f, nearZ, farZ);
-		}
-
-		void calculateProjMatrix(float fov, float width, float height, float nearZ, float farZ)
-		{
-			this->fov = fov;
-			this->nearZ = nearZ;
-			this->farZ = farZ;
-
-			projectionMatrix = glm::perspectiveFovLH(fov, width, height, nearZ, farZ);
+			return glm::perspectiveFovLH(fov, width, height, nearZ, farZ);
 			//projectionMatrix = glm::perspectiveFov(fov, width, height, nearZ, farZ);
-		}
-
-		void onTargetResize(float width, float height)
-		{
-			projectionMatrix = glm::perspectiveFovLH(fov, width, height, nearZ, farZ);
 		}
 	};
 }
