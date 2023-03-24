@@ -33,7 +33,6 @@ Editor::Editor(std::string_view startScene)
 
 	gameTexture = createRef<RenderTexture>(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH);
 	renderer->setRenderTexture(gameTexture);
-	gameTexture->addOnResizeCallback(&Scene::updateCamerasAspectRatio, scene.get());
 
 	editorCamera = scene->createEntity();
 	editorCamera.addComponent<EditorEntity>();
