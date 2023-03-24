@@ -12,7 +12,6 @@
 
 Editor::Editor(std::string_view startScene)
 	:Application(L"Okay"), content(Okay::ContentBrowser::get())
-	, gameTexture(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH)
 	, selectionID(Okay::INVALID_UINT), selectionType(SelectionType::None)
 {
 	IMGUI_CHECKVERSION();
@@ -32,28 +31,29 @@ Editor::Editor(std::string_view startScene)
 
 	using namespace Okay;
 
-	renderer.setRenderTexture(&gameTexture);
-	gameTexture.addOnResizeCallback(&Scene::updateCamerasAspectRatio, &scene);
+	gameTexture = createRef<RenderTexture>(16 * 70, 9 * 70, Okay::RenderTexture::RENDER | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::DEPTH);
+	renderer->setRenderTexture(gameTexture);
+	gameTexture->addOnResizeCallback(&Scene::updateCamerasAspectRatio, scene.get());
 
-	editorCamera = scene.createEntity();
+	editorCamera = scene->createEntity();
 	editorCamera.addComponent<EditorEntity>();
 	editorCamera.addScript<EditorCamera>();
 
-	renderer.setCustomCamera(editorCamera);
+	renderer->setCustomCamera(editorCamera);
 
 	content.importFile("resources/highPolyQuad.fbx");
 
-	Entity entity = scene.createEntity();
+	Entity entity = scene->createEntity();
 	entity.addComponent<MeshComponent>(0u, 0u, 0u);
 	entity.getComponent<Transform>().scale *= 2.f;
 
 
-	Entity floor = scene.createEntity();
+	Entity floor = scene->createEntity();
 	floor.addComponent<MeshComponent>(1u);
 	floor.getComponent<Transform>().scale *= 10.f;
 	floor.getComponent<Transform>().position.y = -5.f;
 
-	Entity light = scene.createEntity();
+	Entity light = scene->createEntity();
 	light.addComponent<DirectionalLight>();
 	Transform& lightTra = light.getComponent<Transform>();
 	lightTra.position = glm::vec3(2.f);
@@ -66,7 +66,7 @@ Editor::Editor(std::string_view startScene)
 	skyComp.ambientTint = glm::vec3(0.7f, 0.8f, 0.9);
 	skyComp.ambientIntensity = 0.8f;
 
-	scene.setSkyLight(light);
+	scene->setSkyLight(light);
 }
 
 Editor::~Editor()
@@ -79,7 +79,7 @@ Editor::~Editor()
 void Editor::update()
 {
 	newImGuiFrame();
-	scene.update();
+	scene->update();
 	displaySceneSettings();
 	displayEntities();
 	displayInspector();
@@ -91,7 +91,7 @@ void Editor::update()
 
 void Editor::postRender()
 {
-	DX11::get().getDeviceContext()->OMSetRenderTargets(1u, window.getRenderTexture().getRTV(), nullptr);
+	DX11::get().getDeviceContext()->OMSetRenderTargets(1u, window.getRenderTexture()->getRTV(), nullptr);
 
 	ImGui::PopFont();
 	ImGui::Render();
@@ -113,7 +113,7 @@ void Editor::newImGuiFrame()
 
 void Editor::endImGuiFrame()
 {
-	static ImVec2 texSize = VEC2_GLM_TO_IMGUI(gameTexture.getDimensions());
+	static ImVec2 texSize = VEC2_GLM_TO_IMGUI(gameTexture->getDimensions());
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
 	ImGui::Begin("Viewport", nullptr);
@@ -122,10 +122,10 @@ void Editor::endImGuiFrame()
 	if (winSize.x != texSize.x || winSize.y != texSize.y)
 	{
 		texSize = winSize;
-		gameTexture.resize((uint32_t)winSize.x, (uint32_t)winSize.y);
+		gameTexture->resize((uint32_t)winSize.x, (uint32_t)winSize.y);
 	}
 
-	ImGui::Image(*gameTexture.getSRV(), texSize);
+	ImGui::Image(*gameTexture->getSRV(), texSize);
 
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -138,7 +138,7 @@ void Editor::displayEntities()
 
 	if (ImGui::Button("Create"))
 	{
-		selectionID = (uint32_t)scene.createEntity().getID();
+		selectionID = (uint32_t)scene->createEntity().getID();
 		selectionType = SelectionType::Entity;
 		editorCamera.getScript<EditorCamera>().setSelectedEntity(getEntity(selectionID));
 	}
@@ -147,7 +147,7 @@ void Editor::displayEntities()
 	{
 		if (selectionType == SelectionType::Entity)
 		{
-			scene.destroyEntity(entt::entity(selectionID));
+			scene->destroyEntity(entt::entity(selectionID));
 			selectionType = SelectionType::None;
 			selectionID = Okay::INVALID_UINT;
 		}
@@ -160,7 +160,7 @@ void Editor::displayEntities()
 		return;
 	}
 
-	auto entities = scene.getRegistry().view<Okay::Transform>(entt::exclude<EditorEntity>);
+	auto entities = scene->getRegistry().view<Okay::Transform>(entt::exclude<EditorEntity>);
 
 	for (auto entity : entities)
 	{
@@ -268,11 +268,11 @@ void Editor::displaySceneSettings()
 		return;
 	}
 
-	if (Okay::Entity entity = selectEntity<Okay::Camera>("Main Camera", scene.getMainCamera().getID(), [&]() {scene.setMainCamera(Okay::Entity()); }))
-		scene.setMainCamera(entity);
+	if (Okay::Entity entity = selectEntity<Okay::Camera>("Main Camera", scene->getMainCamera().getID(), [&]() {scene->setMainCamera(Okay::Entity()); }))
+		scene->setMainCamera(entity);
 
-	if (Okay::Entity entity = selectEntity<Okay::SkyLight>("Sky Light", scene.getSkyLight().getID(), [&]() { scene.setSkyLight(Okay::Entity()); }))
-		scene.setSkyLight(entity);
+	if (Okay::Entity entity = selectEntity<Okay::SkyLight>("Sky Light", scene->getSkyLight().getID(), [&]() { scene->setSkyLight(Okay::Entity()); }))
+		scene->setSkyLight(entity);
 	
 
 	ImGui::End();

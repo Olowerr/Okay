@@ -24,7 +24,7 @@ public:
 private:
 	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;
-	Okay::RenderTexture gameTexture;
+	Okay::Ref<Okay::RenderTexture> gameTexture;
 
 	enum struct SelectionType { None, Entity, Mesh, Texture, Material, Shader};
 	SelectionType selectionType;
@@ -68,7 +68,7 @@ private:
 
 inline Okay::Entity Editor::getEntity(uint32_t id)
 {
-	return Okay::Entity((entt::entity)id, &scene.getRegistry());
+	return Okay::Entity((entt::entity)id, &scene->getRegistry());
 }
 
 template<typename T, typename... Args>
@@ -140,7 +140,7 @@ inline Okay::Entity Editor::selectEntity(const char* label, uint32_t currentEnti
 	Okay::Entity selectedEntity;
 	if (ImGui::BeginCombo(label, currentEntity == Okay::INVALID_UINT ? "None" : std::to_string(currentEntity).c_str()))
 	{
-		auto entityView = scene.getRegistry().view<T>(entt::exclude<EditorEntity>);
+		auto entityView = scene->getRegistry().view<T>(entt::exclude<EditorEntity>);
 
 		if (ImGui::Selectable("Reset"))
 			resetFunction();
