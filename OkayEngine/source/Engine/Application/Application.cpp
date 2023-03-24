@@ -13,6 +13,7 @@ namespace Okay
 	{
 		Renderer::init();
 		registerRenderer(&renderer);
+		deregisterRenderer(&renderer);
 	}
 
 	Application::~Application()
@@ -89,11 +90,11 @@ namespace Okay
 
 	void Application::deregisterRenderer(Renderer* pRenderer)
 	{
-		for (size_t i = 0; i < registeredRenderers.size(); i++)
+		for (auto it = registeredRenderers.begin(); it != registeredRenderers.end(); ++it)
 		{
-			if (registeredRenderers[i] == pRenderer)
+			if (*it._Ptr == pRenderer)
 			{
-				registeredRenderers.erase(registeredRenderers.begin() + i);
+				registeredRenderers.erase(it);
 				return;
 			}
 		}
