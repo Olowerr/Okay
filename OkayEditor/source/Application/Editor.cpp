@@ -53,7 +53,6 @@ Editor::Editor(std::string_view startScene)
 	floor.getComponent<Transform>().scale *= 10.f;
 	floor.getComponent<Transform>().position.y = -5.f;
 
-
 	Entity light = scene.createEntity();
 	light.addComponent<DirectionalLight>();
 	Transform& lightTra = light.getComponent<Transform>();

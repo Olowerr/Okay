@@ -71,4 +71,13 @@ namespace Okay
 	{
 		return path.substr(path.find_last_of('.'));
 	}
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+	template<typename T, typename... Args>
+	static inline Ref<T> createRef(Args&&... args)
+	{
+		return std::make_shared<T>(std::forward<Args>(args)...);
+	}
 }
