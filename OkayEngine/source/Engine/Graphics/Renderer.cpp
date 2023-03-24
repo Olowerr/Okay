@@ -189,6 +189,12 @@ namespace Okay
 #endif
 	}
 
+	Renderer::Renderer()
+		:pScene(nullptr), pRenderTarget(nullptr), pDefContext(nullptr), pCommandList(nullptr)
+		, pWireframeRS(nullptr), viewport()
+	{
+	}
+
 	Renderer::Renderer(RenderTexture* pTarget, Scene* pScene)
 	{
 		create(pTarget, pScene);

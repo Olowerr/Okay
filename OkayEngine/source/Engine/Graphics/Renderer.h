@@ -74,6 +74,7 @@ namespace Okay
 		
 		static void init();
 
+		Renderer();
 		Renderer(RenderTexture* target, Scene* scene);
 		~Renderer();
 
