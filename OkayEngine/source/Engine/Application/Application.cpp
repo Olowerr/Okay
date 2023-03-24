@@ -8,12 +8,14 @@
 namespace Okay
 {
 	Application::Application(const wchar_t* appName, uint32_t width, uint32_t height)
-		:window(width, height, appName, Okay::RenderTexture::RENDER | Okay::RenderTexture::DEPTH | Okay::RenderTexture::SHADER_READ | Okay::RenderTexture::SHADER_WRITE),
-		renderer(&window.getRenderTexture(), &scene)
+		:window(width, height, appName, RenderTexture::RENDER | RenderTexture::DEPTH | RenderTexture::SHADER_READ | RenderTexture::SHADER_WRITE)
 	{
 		Renderer::init();
-		registerRenderer(&renderer);
-		deregisterRenderer(&renderer);
+
+		scene = createRef<Scene>();
+		renderer = createRef<Renderer>(window.getRenderTexture(), scene);
+		registerRenderer(renderer);
+
 	}
 
 	Application::~Application()
@@ -22,17 +24,17 @@ namespace Okay
 
 	void Application::start()
 	{
-		scene.start();
+		scene->start();
 	}
 
 	void Application::update()
 	{
-		scene.update();
+		scene->update();
 	}
 
 	void Application::end()
 	{
-		scene.end();
+		scene->end();
 	}
 
 	void Application::postRender()
@@ -83,12 +85,12 @@ namespace Okay
 		end();
 	}
 
-	void Application::registerRenderer(Renderer* pRenderer)
+	void Application::registerRenderer(Ref<Renderer> pRenderer)
 	{
 		registeredRenderers.emplace_back(pRenderer);
 	}
 
-	void Application::deregisterRenderer(Renderer* pRenderer)
+	void Application::deregisterRenderer(Ref<Renderer> pRenderer)
 	{
 		for (auto it = registeredRenderers.begin(); it != registeredRenderers.end(); ++it)
 		{
@@ -101,4 +103,3 @@ namespace Okay
 	}
 
 }
-
