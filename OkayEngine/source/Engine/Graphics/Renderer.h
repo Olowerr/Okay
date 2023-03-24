@@ -1,16 +1,15 @@
 #pragma once
 #include <vector>
 
-#include "Assets/Shader.h" // ?
+#include "Assets/Shader.h" 
 
-#include "Engine/Components/PointLight.h"		// fwd dec?
-#include "Engine/Components/DirectionalLight.h"	// fwd dec?
-#include "Engine/Components/Camera.h"			// fwd dec?
-#include "Engine/Components/SkyLight.h"			// fwd dec?
+#include "Engine/Components/PointLight.h"		
+#include "Engine/Components/DirectionalLight.h"	
+#include "Engine/Components/Camera.h"			
+#include "Engine/Components/SkyLight.h"			
 
 #include "Engine/Application/Entity.h"
 
-#include <memory>
 
 //#define MULTI_THREADED
 
