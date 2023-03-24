@@ -58,7 +58,7 @@ namespace Okay
 		inline bool operator== (const Okay::Entity& other) { return entityId == other.entityId; }
 
 	private:
-		entt::registry* pReg;
+		entt::registry* pReg; // Hmmmmm
 		entt::entity entityId;
 
 		// Due to padding, another 4 bytes can fit here for free

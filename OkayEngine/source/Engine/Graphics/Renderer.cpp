@@ -196,11 +196,15 @@ namespace Okay
 	}
 
 	Renderer::Renderer(Ref<RenderTexture> target, Ref<Scene> scene)
+		:pScene(nullptr), pRenderTarget(nullptr), pDefContext(nullptr), pCommandList(nullptr)
+		, pWireframeRS(nullptr), viewport()
 	{
 		create(target, scene);
 	}
 
 	Renderer::Renderer(uint32_t width, uint32_t height, Ref<Scene> scene)
+		:pScene(nullptr), pRenderTarget(nullptr), pDefContext(nullptr), pCommandList(nullptr)
+		, pWireframeRS(nullptr), viewport()
 	{
 		create(width, height, scene);
 	}

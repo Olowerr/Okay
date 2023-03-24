@@ -49,6 +49,7 @@ namespace Okay
 
 		shutdown();
 		buffer = texture; 
+		buffer->AddRef();
 
 		D3D11_TEXTURE2D_DESC desc{};
 		buffer->GetDesc(&desc);
@@ -133,9 +134,9 @@ namespace Okay
 
 	void RenderTexture::resize(uint32_t width, uint32_t height)
 	{
-		// The "right way" to get the reference count requires some additionl stuff (seemed annoying)
+		// The "right way" to get the reference count requires some additional stuff (seemed annoying)
 		buffer->AddRef();
-		if (buffer->Release() == 1u)
+		if (buffer->Release() != 1u)
 			return;
 
 		create(width, height, flags, format);
@@ -158,17 +159,17 @@ namespace Okay
 
 		if (CHECK_BIT(flags, BitPos::B_RENDER))
 		{
-			pDevice->CreateRenderTargetView(buffer.Get(), nullptr, &rtv);
+			pDevice->CreateRenderTargetView(buffer, nullptr, &rtv);
 			OKAY_ASSERT(rtv, "Failed creating RTV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_SHADER_READ))
 		{
-			pDevice->CreateShaderResourceView(buffer.Get(), nullptr, &srv);
+			pDevice->CreateShaderResourceView(buffer, nullptr, &srv);
 			OKAY_ASSERT(srv, "Failed creating SRV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_SHADER_WRITE))
 		{
-			pDevice->CreateUnorderedAccessView(buffer.Get(), nullptr, &uav);
+			pDevice->CreateUnorderedAccessView(buffer, nullptr, &uav);
 			OKAY_ASSERT(uav, "Failed creating UAV");
 		}
 		if (CHECK_BIT(flags, BitPos::B_DEPTH))

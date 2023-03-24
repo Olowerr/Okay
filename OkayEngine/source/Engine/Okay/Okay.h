@@ -4,7 +4,6 @@
 #include <comdef.h>
 #include <string>
 #include <fstream>
-#include <wrl/client.h>
 
 //#include "glm/glm.hpp"
 
@@ -75,10 +74,6 @@ namespace Okay
 
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
-
-
-	template<typename T>
-	using DX11Ref = Microsoft::WRL::ComPtr<T>;
 
 	template<typename T, typename... Args>
 	static inline Ref<T> createRef(Args&&... args)

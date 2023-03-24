@@ -133,7 +133,7 @@ void Window::getAndSetBackBuffer(uint32_t flags)
 {
 	ID3D11Texture2D* backBuffer = nullptr;
 	pSwapChain->GetBuffer(0u, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-	OKAY_ASSERT(pSwapChain, "Failed getting backBuffer");
+	OKAY_ASSERT(backBuffer, "Failed getting backBuffer");
 
 	renderTexture->create(backBuffer, flags);
 	DX11_RELEASE(backBuffer);
