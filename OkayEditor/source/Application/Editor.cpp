@@ -68,16 +68,6 @@ Editor::Editor(std::string_view startScene)
 	skyComp.ambientIntensity = 0.8f;
 
 	scene.setSkyLight(light);
-
-
-	ren2Target = std::make_unique<RenderTexture>(1600u, 900u, RenderTexture::RENDER | RenderTexture::SHADER_READ | RenderTexture::DEPTH);
-	ren2 = std::make_unique<Renderer>(ren2Target.get(), &scene);
-	registerRenderer(ren2.get());
-	
-	Entity cam2 = scene.createEntity();
-	cam2.addComponent<Camera>();
-
-	ren2->setCustomCamera(cam2);
 }
 
 Editor::~Editor()

@@ -21,8 +21,6 @@ public:
 	virtual void update() override;
 	virtual void postRender() override;
 
-	std::unique_ptr<Okay::Renderer> ren2;
-	std::unique_ptr<Okay::RenderTexture> ren2Target;
 private:
 	Okay::Entity editorCamera;
 	Okay::ContentBrowser& content;
@@ -31,10 +29,6 @@ private:
 	enum struct SelectionType { None, Entity, Mesh, Texture, Material, Shader};
 	SelectionType selectionType;
 	uint32_t selectionID;
-
-	std::unique_ptr<Window> window2;
-	std::unique_ptr<Okay::Renderer> renderer2;
-	Okay::Entity cam2;
 
 	void newImGuiFrame();
 	void endImGuiFrame();
