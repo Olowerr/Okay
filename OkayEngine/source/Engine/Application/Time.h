@@ -18,10 +18,11 @@ namespace Okay
 		static inline void measure();
 		static inline void start();
 
-	private:
 		using Duration = std::chrono::duration<float>;
 		using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+		static inline TimePoint getTimeNow();
 
+	private:
 		static inline TimePoint frameStart;
 		static inline Duration dtApp = Duration(0.f);
 		static inline Duration upTimeApp = Duration(0.f);
@@ -29,6 +30,7 @@ namespace Okay
 		static inline float timeScale = 1.f;
 	};
 
+	inline Time::TimePoint Time::getTimeNow() { return std::chrono::system_clock::now(); }
 	
 	inline float Time::getDT() { return Time::dtApp.count() * Time::timeScale; }
 	inline void Time::setTimeScale(float timeScale) { Time::timeScale = timeScale; }
@@ -39,8 +41,10 @@ namespace Okay
 	
 	inline void Time::measure()
 	{
-		Time::dtApp = std::chrono::system_clock::now() - Time::frameStart;
-		Time::frameStart = std::chrono::system_clock::now();
+		const TimePoint timeNow = getTimeNow();
+
+		Time::dtApp = timeNow - Time::frameStart;
+		Time::frameStart = timeNow;
 
 		Time::upTime += Time::dtApp * Time::timeScale;
 		Time::upTimeApp += Time::dtApp;
@@ -49,6 +53,6 @@ namespace Okay
 	inline void Time::start()
 	{
 		Time::dtApp = Duration(0.f);
-		Time::frameStart = std::chrono::system_clock::now();
+		Time::frameStart = getTimeNow();
 	}
 }

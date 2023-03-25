@@ -3,7 +3,7 @@
 
 namespace Okay
 {
-	static glm::mat4 mat4Translation(const glm::vec3& translation)
+	static inline glm::mat4 mat4Translation(const glm::vec3& translation)
 	{
 		return glm::mat4(
 			1.f, 0.f, 0.f, 0.f,
@@ -12,7 +12,7 @@ namespace Okay
 			translation.x, translation.y, translation.z, 1.f);
 	}
 
-	static glm::mat4 mat4Scale(const glm::vec3& scale)
+	static inline glm::mat4 mat4Scale(const glm::vec3& scale)
 	{
 		return glm::mat4(
 			scale.x, 0.f, 0.f, 0.f,
@@ -21,7 +21,7 @@ namespace Okay
 			0.f, 0.f, 0.f, 1.f);
 	}
 
-	static float smoothStep(float x)
+	static inline float smoothStep(float x)
 	{
 		return x * x * x * (x * (6 * x - 15) + 10);
 	}
