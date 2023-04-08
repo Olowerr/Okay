@@ -1,25 +1,23 @@
 # Okay
-Okay is a mini game engine running on DirectX 11 and the whole project is very subject to change and doesn't have a final goal.
-I mostly use it to test implementations and play around with renderering, architecture and more. 
-OkayEngine is the core which builds to a static lib. OkayEditor and OkayTerrain simply run on it and builds their own featues.
-OkayTerrain was a procedural terrain generation test using Perlin noise and is quite messy. One day it might be cleaned up and moved into OkayEditor 👀
+Okay is a mini game engine running on DirectX 11. The project is WIP and is used a lot to test new techniques, play around with rendering, architecture and more. 
+OkayEngine is the core and build into a static lib. Sub-projects (OkayEditor & OkayTerrain) run using OkayEngine and build their own features.
+OkayTerrain is a procedural terrain generation test using Perlin noise. Since it is a test, it may not always build due to structure changes in OkayEngine.
 
 ![github-small](Pics/Pretty.PNG)
 
 # Details
 * ECS (EnTT)
-* Importing assets in real time (Assimp)
-* SkyBox (The sun comes from the shader)
-* Lights (Point and directional)
+* Importing assets in real time
+* SkyBox, including a sun
+* Lightning
 * Phong shading
 * Real time editable materials and shaders 
   * Editable shaders work but are still WIP
-* Perlin noise (Currently only used in OkayTerrain)
+* Perlin noise
 
 # Planned features
 * Bloom
-* Instancing
+* Instanced Rendering
+* Shadow mapping
+* Scene saving and loading
 * Scripting (C# or LUA)
-
-<br>
-katkittykatkat
