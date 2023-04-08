@@ -21,3 +21,8 @@ OkayTerrain is a procedural terrain generation test using Perlin noise. Since it
 * Shadow mapping
 * Scene saving and loading
 * Scripting (C# or LUA)
+
+# Screenshots
+![github-small](Pics/gob.PNG)
+![github-small](Pics/ShaderEditing.PNG)
+![github-small](Pics/ShaderEditing2.PNG)
