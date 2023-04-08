@@ -9,7 +9,7 @@ namespace Okay
 		// TODO: Add support for target point camera
 		// without forcing the calculation on the user
 
-		float fov = 90.f;
+		float fov = glm::radians(90.f);
 		float nearZ = 0.1f;
 		float farZ = 1000.f;
 

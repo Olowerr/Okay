@@ -95,7 +95,21 @@ void Editor::displayComponents(Okay::Entity entity)
 	IMGUI_DISPLAY_COMP_START(Camera, "Camera", true);
 
 	Camera& camera = entity.getComponent<Camera>();
-	ImGui::Text("Coming soon...");
+	
+	float fovDeg = glm::degrees(camera.fov);
+	ImGui::Text("FOV:");
+	ImGui::SameLine();
+	ImGui::DragFloat("##NLCFOV", &fovDeg, 0.02f, 0.f, 360.f);
+	camera.fov = glm::radians(fovDeg);
+
+	ImGui::Text("Near plane:");
+	ImGui::SameLine();
+	ImGui::DragFloat("##NLCNZ", &camera.nearZ, 0.02f, 0.f, 10.f);
+
+	ImGui::Text("Far plane:");
+	ImGui::SameLine();
+	ImGui::DragFloat("##NLCFZ", &camera.farZ, 0.02f, 0.f, 5000.f);
+
 
 	IMGUI_DISPLAY_COMP_END();
 
