@@ -23,7 +23,6 @@ public:
 
 	inline ID3D11Device* getDevice();
 	inline ID3D11DeviceContext* getDeviceContext();
-	inline ID3D11DeviceContext* getDeferredContext();
 
 	// Helper functions // TODO: Change UINT to uint32_t
 	static bool createSwapChain(IDXGISwapChain** ppSwapChain, HWND hWnd, DXGI_USAGE dx11UsageFlags = DXGI_USAGE_RENDER_TARGET_OUTPUT);
@@ -44,7 +43,6 @@ public:
 private:
 	ID3D11Device* pDevice;
 	ID3D11DeviceContext* pDeviceContext;
-	ID3D11DeviceContext* pDeferredContext;
 };
 
 inline ID3D11Device* DX11::getDevice()
@@ -55,9 +53,4 @@ inline ID3D11Device* DX11::getDevice()
 inline ID3D11DeviceContext* DX11::getDeviceContext()
 {
 	return pDeviceContext;
-}
-
-inline ID3D11DeviceContext* DX11::getDeferredContext()
-{
-	return pDeferredContext;
 }

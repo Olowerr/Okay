@@ -18,9 +18,6 @@ DX11::DX11()
 	hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags,
 		&featureLevel, 1u, D3D11_SDK_VERSION, &pDevice, nullptr, &pDeviceContext);
 	OKAY_ASSERT(SUCCEEDED(hr), "Failed initializing DirectX 11");
-
-	hr = pDevice->CreateDeferredContext(0u, &pDeferredContext);
-	OKAY_ASSERT(SUCCEEDED(hr), "Failed creating deferredContext");
 }
 
 DX11::~DX11()
@@ -31,7 +28,6 @@ DX11::~DX11()
 void DX11::shutdown()
 {
 	DX11_RELEASE(pDeviceContext);
-	DX11_RELEASE(pDeferredContext);
 
 #if 0
 	ID3D11Debug* debugger = nullptr;
