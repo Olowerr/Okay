@@ -23,7 +23,7 @@ private:
 	glm::vec3 lerpStartPos;
 	bool lerpToFocus;
 	float focusLerpT;
-
+	// test 2.1
 	float rotSkipTimer;
 	bool skip = false;
 
