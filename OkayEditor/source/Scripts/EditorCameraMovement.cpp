@@ -20,7 +20,7 @@ EditorCamera::~EditorCamera()
 }
 
 void EditorCamera::start()
-{// 2
+{
 	using namespace Okay;
 
 	Transform& tra = getComponent<Transform>();
