@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 class EditorCamera : public Okay::ScriptBehaviour
-{
+{// 1
 public:
 	EditorCamera(Okay::Entity entity);
 	~EditorCamera();
