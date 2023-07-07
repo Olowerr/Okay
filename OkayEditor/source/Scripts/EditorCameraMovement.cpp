@@ -38,7 +38,7 @@ void EditorCamera::update()
 	targetDist += std::min(Input::getMouseWheelDir() * -1.f * targetDist * 0.06f, 10.f);
 	if (targetDist < 0.1f) 
 		targetDist = 0.1f;
-
+	// test 2.2
 	Transform& tra = getComponent<Transform>();
 	glm::vec3 fwd = tra.forward();
 	tra.position = targetPos - fwd * targetDist;
