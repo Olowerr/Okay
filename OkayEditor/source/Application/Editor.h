@@ -7,7 +7,7 @@
 #include <Engine/Algorithms/Noise/PerlinNoise2D.h>
 
 #include "imgui/imgui.h"
-// 1
+// 1 // 2
 // Editor Entities should not be visable for the user
 using EditorEntity = char;
 
