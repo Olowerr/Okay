@@ -10,6 +10,7 @@ namespace Okay
 
 		static const uint32_t BASECOLOUR_INDEX = 0u;
 		static const uint32_t SPECULAR_INDEX = 1u;
+		static const uint32_t METALLIC_INDEX = 2u;
 
 		struct GPUData
 		{
@@ -24,7 +25,7 @@ namespace Okay
 			Description() = default;
 
 			std::string_view name;
-			uint32_t textureIDs[2]{};
+			uint32_t textureIDs[3]{};
 			GPUData gpuData{};
 			bool twoSided = false;
 		};
@@ -45,13 +46,15 @@ namespace Okay
 
 		inline uint32_t getBaseColour() const;
 		inline uint32_t getSpecular() const;
+		inline uint32_t getMetallic() const;
 
 		inline void setBaseColour(uint32_t textureIdx);
 		inline void setSpecular(uint32_t textureIdx);
+		inline void setMetallic(uint32_t textureIdx);
 
 	private:
 		std::string name;
-		uint32_t textures[2];
+		uint32_t textures[3];
 		GPUData data;
 		bool isTwoSided;
 	};
@@ -66,9 +69,11 @@ namespace Okay
 
 	inline void Material::setBaseColour(uint32_t textureIdx) { textures[0] = textureIdx; }
 	inline void Material::setSpecular(uint32_t textureIdx)	 { textures[1] = textureIdx; }
+	inline void Material::setMetallic(uint32_t textureIdx)	 { textures[2] = textureIdx; }
 
 	inline uint32_t Material::getBaseColour() const { return textures[0]; }
 	inline uint32_t Material::getSpecular() const	{ return textures[1]; }
+	inline uint32_t Material::getMetallic() const	{ return textures[2]; }
 }
 
 

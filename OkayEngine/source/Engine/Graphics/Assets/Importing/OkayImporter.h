@@ -5,7 +5,8 @@ namespace Okay
 {
 	class Importer
 	{
-	private:
+	//private:
+	public:
 		friend class ContentBrowser;
 
 		static bool Load(std::string_view filePath, Okay::Mesh::MeshInfo& outData, std::string* texPath, std::string& matName);

@@ -255,6 +255,7 @@ void Editor::displayMaterial(uint32_t index)
 	Okay::Material& mat = content.getAsset<Okay::Material>(index);
 	const uint32_t base = mat.getBaseColour();
 	const uint32_t spec = mat.getSpecular();
+	const uint32_t metal = mat.getMetallic();
 
 	ImGui::Text("Material - %s", mat.getName().c_str());
 	ImGui::Separator();
@@ -272,6 +273,14 @@ void Editor::displayMaterial(uint32_t index)
 		if (mat.getSpecular() == Okay::INVALID_UINT)
 			mat.setSpecular(0u);
 	}
+
+	ImGui::Text("Metallic:   "); ImGui::SameLine();
+	if (selectTexture(mat, metal, &Okay::Material::setMetallic, "##NLMetal"))
+	{
+		if (mat.getMetallic() == Okay::INVALID_UINT)
+			mat.setMetallic(0u);
+	}
+
 
 	ImGui::Text("");
 

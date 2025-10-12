@@ -40,17 +40,27 @@ Editor::Editor(std::string_view startScene)
 
 	renderer->setCustomCamera(editorCamera);
 
-	content.importFile("resources/highPolyQuad.fbx");
+	content.importFile("resources/meshes/revolver.fbx");
+	content.importFile("resources/Textures/rev/rev_albedo.png");
+	content.importFile("resources/Textures/rev/rev_metallic.png");
+	content.importFile("resources/Textures/rev/rev_roughness.png");
+	content.importFile("resources/Textures/rev/rev_normalMap.png");
+
+	Material::Description matDesc;
+	matDesc.name = "Rev Mat";
+	matDesc.textureIDs[0] = content.getAssetID<Texture>("rev_albedo");
+	matDesc.textureIDs[1] = content.getAssetID<Texture>("rev_roughness");
+	matDesc.textureIDs[2] = content.getAssetID<Texture>("rev_metallic");
+	content.addAsset<Material>(matDesc);
 
 	Entity entity = scene->createEntity();
-	entity.addComponent<MeshComponent>(0u, 0u, 0u);
-	entity.getComponent<Transform>().scale *= 2.f;
-
-
-	Entity floor = scene->createEntity();
-	floor.addComponent<MeshComponent>(1u);
-	floor.getComponent<Transform>().scale *= 10.f;
-	floor.getComponent<Transform>().position.y = -5.f;
+	entity.addComponent<MeshComponent>(1u, content.getAmount<Material>() - 1u, 0u);
+	
+	
+	//Entity floor = scene->createEntity();
+	//floor.addComponent<MeshComponent>(1u);
+	//floor.getComponent<Transform>().scale *= 10.f;
+	//floor.getComponent<Transform>().position.y = -5.f;
 
 	Entity light = scene->createEntity();
 	light.addComponent<DirectionalLight>();

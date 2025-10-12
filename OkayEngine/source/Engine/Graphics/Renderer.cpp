@@ -396,7 +396,7 @@ pPS = pNewPS;\
 	void Renderer::render_internal()
 	{
 		ContentBrowser& content = ContentBrowser::get();
-		ID3D11ShaderResourceView* textures[2] = {};
+		ID3D11ShaderResourceView* textures[3] = {};
 		glm::mat4 worldMatrix{};
 
 		const Entity skyLightEntity = pScene->getSkyLight();
@@ -436,6 +436,7 @@ pPS = pNewPS;\
 
 			textures[Material::BASECOLOUR_INDEX] = content.getAsset<Texture>(material.getBaseColour()).getSRV();
 			textures[Material::SPECULAR_INDEX] = content.getAsset<Texture>(material.getSpecular()).getSRV();
+			textures[Material::METALLIC_INDEX] = content.getAsset<Texture>(material.getMetallic()).getSRV();
 
 			DX11::updateBuffer(pipeline.pWorldBuffer, &worldMatrix, sizeof(glm::mat4), pDefContext);
 			DX11::updateBuffer(pipeline.pMaterialBuffer, &material.getGPUData(), sizeof(Material::GPUData), pDefContext);
@@ -448,6 +449,10 @@ pPS = pNewPS;\
 			// PS
 			shader.bind(pDefContext);
 			pDefContext->PSSetShaderResources(0u, 2u, textures);
+			pDefContext->PSSetShaderResources(6u, 1u, &textures[2]);
+
+			if (pSkyLight)
+				pDefContext->PSSetShaderResources(5u, 1u, pSkyLight->skyBox->getTextureCubeSRV());
 
 			// Draw
 			pDefContext->DrawIndexed(mesh.getNumIndices(), 0u, 0);

@@ -93,6 +93,7 @@ cbuffer lightInfo : register(b5)
 // Resources
 Texture2D diffuseTexture : register(t0);
 Texture2D specularTexture : register(t1);
+Texture2D metallicTexture : register(t6);
 
 Texture2D heightMap : register(t2);
 
